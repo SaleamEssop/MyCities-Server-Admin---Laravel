@@ -1,0 +1,29 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class AccountFixedCost extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'account_id',
+        'fixed_cost_id',
+        'value'
+    ];
+
+
+    public function fixedCost()
+    {
+        return $this->belongsTo(FixedCost::class);
+    }
+
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
+
+}
