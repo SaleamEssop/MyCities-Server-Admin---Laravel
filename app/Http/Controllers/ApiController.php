@@ -147,7 +147,7 @@ class ApiController extends Controller
         // $data = Account::with('site')->where('site_id', $siteID)->get();
         $data = Account::where('id', $accID)->get();
 
-        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Location retrieved successfully!', 'data' => $data]);
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account retrieved successfully!', 'data' => $data]);
     }
 
     public function deleteAccount(Request $request) {
