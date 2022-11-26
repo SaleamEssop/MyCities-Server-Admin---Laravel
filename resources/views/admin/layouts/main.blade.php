@@ -64,6 +64,7 @@
             <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
                     <a class="collapse-item cust-sidebar-sub" href="{{ route('show-users') }}">List</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-user-form') }}">Add</a>
                     {{--<a class="collapse-item" href="cards.html">Cards</a>--}}
                 </div>
             </div>
@@ -361,6 +362,11 @@
 
             </nav>
             <!-- End of Topbar -->
+            <div class="cust-alert-wrapper">
+                @if(\Illuminate\Support\Facades\Session::has('alert-message'))
+                    <p class="alert {{ \Illuminate\Support\Facades\Session::get('alert-class', 'alert-info') }}">{{ \Illuminate\Support\Facades\Session::get('alert-message') }}</p>
+                @endif
+            </div>
             @yield('content')
         </div>
         <!-- End of Main Content -->

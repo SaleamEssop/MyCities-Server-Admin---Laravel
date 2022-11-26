@@ -78,4 +78,87 @@ class AdminController extends Controller
         return view('admin.sites', ['sites' => $sites]);
     }
 
+    public function addUserForm(Request $request)
+    {
+        return view('admin.create_user');
+    }
+
+    public function createUser(Request $request)
+    {
+        $postData = $request->post();
+        $userArr = array(
+            'name' => $postData['name'],
+            'email' => $postData['email'],
+            'contact_number' => $postData['contact_number'],
+            'password' => bcrypt($postData['password'])
+        );
+        $result = User::create($userArr);
+        if($result) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'User added successfully!');
+            return redirect('admin/users');
+        } else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function deleteUser(Request $request, $id)
+    {
+        if(empty($id)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+        // In next phase delete all the related models as well.
+        $deleted = User::where('id', $id)->delete();
+        if($deleted) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! User deleted successfully!');
+            return redirect()->back();
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function editUserForm(Request $request, $id)
+    {
+        $user = User::find($id);
+        return view('admin.edit_user', ['user' => $user]);
+    }
+
+    public function editUser(Request $request)
+    {
+        $postData = $request->post();
+        if(empty($postData['user_id'])) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, user ID is required.');
+            return redirect()->back();
+        }
+
+        $updArr = array(
+            'name' => $postData['name'],
+            'contact_number' => $postData['contact_number'],
+            'email' => $postData['email']
+        );
+        if(!empty($postData['password']))
+            $updArr['password'] = bcrypt($postData['password']);
+
+        $updated = User::where('id', $postData['user_id'])->update($updArr);
+        if($updated) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! User updated successfully!');
+            return redirect('admin/users');
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
 }

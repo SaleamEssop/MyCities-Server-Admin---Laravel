@@ -11287,3 +11287,7 @@ body.sidebar-toggled footer.sticky-footer {
 .cust-sidebar-sub {
     color: rgba(255, 255, 255, 0.5);
 }*/
+.cust-alert-wrapper{
+    width: 96%;
+    margin: 0 auto;
+}

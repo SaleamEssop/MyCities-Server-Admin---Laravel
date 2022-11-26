@@ -24,6 +24,7 @@
                             <th>Contact number</th>
                             <th>Is Admin</th>
                             <th>Created Date</th>
+                            <th>Actions</th>
                         </tr>
                         </thead>
                         <tfoot>
@@ -34,6 +35,7 @@
                             <th>Contact number</th>
                             <th>Is Admin</th>
                             <th>Created Date</th>
+                            <th>Actions</th>
                         </tr>
                         </tfoot>
                         <tbody>
@@ -45,6 +47,14 @@
                                 <td>{{ $user->contact_number }}</td>
                                 <td>{{ $user->is_admin }}</td>
                                 <td>{{ $user->created_at }}</td>
+                                <td>
+                                    <a href="{{ url('admin/user/edit/'.$user->id) }}" class="btn btn-info btn-circle">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{{ url('admin/user/delete/'.$user->id) }}" onclick="return confirm('Are you sure you want to delete this user?')" class="btn btn-danger btn-circle">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>

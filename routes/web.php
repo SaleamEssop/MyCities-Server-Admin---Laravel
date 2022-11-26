@@ -29,6 +29,12 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     });
 
     Route::get('users', [\App\Http\Controllers\AdminController::class, 'showUsers'])->name('show-users');
+    Route::get('users/add', [\App\Http\Controllers\AdminController::class, 'addUserForm'])->name('add-user-form');
+    Route::post('users/add', [\App\Http\Controllers\AdminController::class, 'createUser'])->name('add-user');
+    Route::get('/user/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteUser']);
+    Route::get('/user/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editUserForm']);
+    Route::post('/user/edit', [\App\Http\Controllers\AdminController::class, 'editUser'])->name('edit-user');
+
     Route::get('accounts', [\App\Http\Controllers\AdminController::class, 'showAccounts'])->name('account-list');
     Route::get('sites', [\App\Http\Controllers\AdminController::class, 'showSites'])->name('sites-list');
 });
