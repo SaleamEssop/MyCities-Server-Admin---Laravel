@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\Meter;
+use App\Models\MeterReadings;
 use App\Models\MeterType;
 use App\Models\Site;
 use App\Models\User;
@@ -429,4 +430,91 @@ class AdminController extends Controller
         }
     }
 
+    public function showMeterReadings(Request $request)
+    {
+        $meterReadings = MeterReadings::with('meter')->get();
+        return view('admin.meter_readings', ['meterReadings' => $meterReadings]);
+    }
+
+    public function addMeterReadingForm(Request $request)
+    {
+        $meters = Meter::all();
+        return view('admin.create_meter_reading', ['meters' => $meters]);
+    }
+
+    public function createMeterReading(Request $request)
+    {
+        $postData = $request->post();
+        $meterArr = array(
+            'meter_id' => $postData['meter_id'],
+            'reading_date' => $postData['reading_date'],
+            'reading_value' => $postData['reading_value']
+        );
+        $result = MeterReadings::create($meterArr);
+        if($result) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Meter reading added successfully!');
+            return redirect('/admin/meter-readings');
+        } else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function deleteMeterReading(Request $request, $id)
+    {
+        if(empty($id)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+        // In next phase delete all the related models as well.
+        $deleted = MeterReadings::where('id', $id)->delete();
+        if($deleted) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Meter reading removed successfully!');
+            return redirect()->back();
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function editMeterReadingForm(Request $request, $id)
+    {
+        $meters = Meter::all();
+        $meterReading = MeterReadings::find($id);
+        return view('admin.edit_meter_reading', ['meters' => $meters, 'meterReading' => $meterReading]);
+    }
+
+    public function editMeterReading(Request $request)
+    {
+        $postData = $request->post();
+        if(empty($postData['meter_reading_id'])) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, reading ID is required.');
+            return redirect()->back();
+        }
+
+        $updArr = array(
+            'meter_id' => $postData['meter_id'],
+            'reading_date' => $postData['reading_date'],
+            'reading_value' => $postData['reading_value']
+        );
+
+        $updated = MeterReadings::where('id', $postData['meter_reading_id'])->update($updArr);
+        if($updated) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Meter reading updated successfully!');
+            return redirect('admin/meter-readings');
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
 }

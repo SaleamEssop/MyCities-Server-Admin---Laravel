@@ -117,6 +117,21 @@
             </div>
         </li>
 
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReadings"
+               aria-expanded="true" aria-controls="collapseReadings">
+                <i class="fas fa-fw fa-book-reader"></i>
+                <span>Meter Readings</span>
+            </a>
+            <div id="collapseReadings" class="collapse" aria-labelledby="headingUtilities"
+                 data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <a class="collapse-item" href="{{ route('readings-list') }}">List</a>
+                    <a class="collapse-item" href="{{ route('add-readings-form') }}">Add</a>
+                </div>
+            </div>
+        </li>
+
         <!-- Divider -->
         <hr class="sidebar-divider">
 

@@ -56,5 +56,12 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/meter/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editMeterForm']);
     Route::post('/meter/edit', [\App\Http\Controllers\AdminController::class, 'editMeter'])->name('edit-meter');
 
+    Route::get('meter-readings', [\App\Http\Controllers\AdminController::class, 'showMeterReadings'])->name('readings-list');
+    Route::get('meter-readings/add', [\App\Http\Controllers\AdminController::class, 'addMeterReadingForm'])->name('add-readings-form');
+    Route::post('meters-readings/add', [\App\Http\Controllers\AdminController::class, 'createMeterReading'])->name('add-meter-reading');
+    Route::get('/meter-reading/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteMeterReading']);
+    Route::get('/meter-reading/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editMeterReadingForm']);
+    Route::post('/meter-reading/edit', [\App\Http\Controllers\AdminController::class, 'editMeterReading'])->name('edit-meter-reading');
+
 });
 
