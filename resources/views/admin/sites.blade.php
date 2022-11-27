@@ -26,6 +26,7 @@
                             <th>Address</th>
                             <th>Email</th>
                             <th>Created Date</th>
+                            <th>Actions</th>
                         </tr>
                         </thead>
                         <tfoot>
@@ -38,6 +39,7 @@
                             <th>Address</th>
                             <th>Email</th>
                             <th>Created Date</th>
+                            <th>Actions</th>
                         </tr>
                         </tfoot>
                         <tbody>
@@ -51,6 +53,14 @@
                                 <td>{{ $site->address }}</td>
                                 <td>{{ $site->email }}</td>
                                 <td>{{ $site->created_at }}</td>
+                                <td>
+                                    <a href="{{ url('admin/user/edit/'.$site->id) }}" class="btn btn-info btn-circle">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{{ url('admin/site/delete/'.$site->id) }}" onclick="return confirm('Are you sure you want to delete this site?')" class="btn btn-danger btn-circle">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>

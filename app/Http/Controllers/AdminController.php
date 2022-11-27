@@ -161,4 +161,55 @@ class AdminController extends Controller
         }
     }
 
+    public function addSiteForm(Request $request)
+    {
+        $adminID = Auth::user()->id;
+        $users = User::whereNotIn('id', [$adminID])->get();
+        return view('admin.create_site', ['users' => $users]);
+    }
+
+    public function createSite(Request $request)
+    {
+        $postData = $request->post();
+        echo "<pre>";print_r($postData);die;
+        $siteArr = array(
+            'user_id' => $postData['user_id'],
+            'title' => $postData['title'],
+            'lat' => $postData['lat'],
+            'lng' => $postData['lng'],
+            'email' => $postData['email'],
+            'address' => $postData['address']
+        );
+        $result = Site::create($siteArr);
+        if($result) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Site created successfully!');
+            return redirect('admin/sites');
+        } else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function deleteSite(Request $request, $id)
+    {
+        if(empty($id)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+        // In next phase delete all the related models as well.
+        $deleted = Site::where('id', $id)->delete();
+        if($deleted) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Site deleted successfully!');
+            return redirect()->back();
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
 }
