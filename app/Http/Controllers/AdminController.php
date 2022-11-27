@@ -171,7 +171,6 @@ class AdminController extends Controller
     public function createSite(Request $request)
     {
         $postData = $request->post();
-        echo "<pre>";print_r($postData);die;
         $siteArr = array(
             'user_id' => $postData['user_id'],
             'title' => $postData['title'],
