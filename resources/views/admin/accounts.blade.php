@@ -24,6 +24,7 @@
                             <th>Account Number</th>
                             <th>Optional Information</th>
                             <th>Created Date</th>
+                            <th>Action</th>
                         </tr>
                         </thead>
                         <tfoot>
@@ -34,6 +35,7 @@
                             <th>Account Number</th>
                             <th>Optional Information</th>
                             <th>Created Date</th>
+                            <th>Action</th>
                         </tr>
                         </tfoot>
                         <tbody>
@@ -45,6 +47,14 @@
                                 <td>{{ $account->account_number }}</td>
                                 <td>{{ $account->optional_information }}</td>
                                 <td>{{ $account->created_at }}</td>
+                                <td>
+                                    <a href="{{ url('admin/account/edit/'.$account->id) }}" class="btn btn-info btn-circle">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{{ url('admin/account/delete/'.$account->id) }}" onclick="return confirm('Are you sure you want to delete this account?')" class="btn btn-danger btn-circle">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>

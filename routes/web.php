@@ -36,10 +36,17 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::post('/user/edit', [\App\Http\Controllers\AdminController::class, 'editUser'])->name('edit-user');
 
     Route::get('accounts', [\App\Http\Controllers\AdminController::class, 'showAccounts'])->name('account-list');
+    Route::get('accounts/add', [\App\Http\Controllers\AdminController::class, 'addAccountForm'])->name('add-account-form');
+    Route::post('accounts/add', [\App\Http\Controllers\AdminController::class, 'createAccount'])->name('add-account');
+    Route::get('/account/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteAccount']);
+    Route::get('/account/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editAccountForm']);
+    Route::post('/account/edit', [\App\Http\Controllers\AdminController::class, 'editAccount'])->name('edit-account');
 
     Route::get('sites', [\App\Http\Controllers\AdminController::class, 'showSites'])->name('sites-list');
     Route::get('sites/add', [\App\Http\Controllers\AdminController::class, 'addSiteForm'])->name('add-site-form');
     Route::post('sites/add', [\App\Http\Controllers\AdminController::class, 'createSite'])->name('add-site');
     Route::get('/site/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteSite']);
+    Route::get('/site/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editSiteForm']);
+    Route::post('/site/edit', [\App\Http\Controllers\AdminController::class, 'editSite'])->name('edit-site');
 });
 

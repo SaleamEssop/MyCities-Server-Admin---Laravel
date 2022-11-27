@@ -211,4 +211,127 @@ class AdminController extends Controller
             return redirect()->back();
         }
     }
+
+    public function addAccountForm(Request $request)
+    {
+        $sites = Site::all();
+        return view('admin.create_account', ['sites' => $sites]);
+    }
+
+    public function createAccount(Request $request)
+    {
+        $postData = $request->post();
+        $accArr = array(
+            'site_id' => $postData['site_id'],
+            'account_name' => $postData['title'],
+            'account_number' => $postData['number'],
+            'optional_information' => $postData['optional_info']
+        );
+        $result = Account::create($accArr);
+        if($result) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Account created successfully!');
+            return redirect('admin/accounts');
+        } else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function deleteAccount(Request $request, $id)
+    {
+        if(empty($id)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+        // In next phase delete all the related models as well.
+        $deleted = Account::where('id', $id)->delete();
+        if($deleted) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Account deleted successfully!');
+            return redirect()->back();
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function editSiteForm(Request $request, $id)
+    {
+        $adminID = Auth::user()->id;
+        $users = User::whereNotIn('id', [$adminID])->get();
+        $site = Site::find($id);
+        return view('admin.edit_site', ['site' => $site, 'users' => $users]);
+    }
+
+    public function editSite(Request $request)
+    {
+        $postData = $request->post();
+        if(empty($postData['site_id'])) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, site ID is required.');
+            return redirect()->back();
+        }
+
+        $updArr = array(
+            'user_id' => $postData['user_id'],
+            'title' => $postData['title'],
+            'lat' => $postData['lat'],
+            'lng' => $postData['lng'],
+            'address' => $postData['address'],
+            'email' => $postData['email']
+        );
+
+        $updated = Site::where('id', $postData['site_id'])->update($updArr);
+        if($updated) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Site updated successfully!');
+            return redirect('admin/sites');
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function editAccountForm(Request $request, $id)
+    {
+        $sites = Site::all();
+        $account = Account::find($id);
+        return view('admin.edit_account', ['account' => $account, 'sites' => $sites]);
+    }
+
+    public function editAccount(Request $request)
+    {
+        $postData = $request->post();
+        if(empty($postData['account_id'])) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, account ID is required.');
+            return redirect()->back();
+        }
+
+        $updArr = array(
+            'site_id' => $postData['site_id'],
+            'account_name' => $postData['title'],
+            'account_number' => $postData['number'],
+            'optional_information' => $postData['optional_info']
+        );
+
+        $updated = Account::where('id', $postData['account_id'])->update($updArr);
+        if($updated) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Account    updated successfully!');
+            return redirect('admin/accounts');
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
 }
