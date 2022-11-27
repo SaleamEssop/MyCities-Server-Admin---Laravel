@@ -14,7 +14,7 @@
                     <form method="POST" action="{{ route('edit-meter-reading') }}">
                         <div class="form-group">
                             <select class="form-control" id="exampleFormControlSelect1" name="meter_id" required>
-                                <option disabled selected value="">--Select Meter--</option>
+                                <option disabled value="">--Select Meter--</option>
                                 @foreach($meters as $meter)
                                     <option value="{{ $meter->id }}" {{ ($meter->id == $meterReading->meter_id)?'selected':'' }}>{{ $meter->meter_title }}</option>
                                 @endforeach
