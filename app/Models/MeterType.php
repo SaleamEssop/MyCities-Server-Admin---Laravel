@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class MeterType extends Model
 {
     use HasFactory;
+
+    public function meters()
+    {
+        return $this->hasMany(Meter::class, 'id');
+    }
 }

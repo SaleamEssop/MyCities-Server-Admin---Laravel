@@ -16,7 +16,7 @@ class CreateMeterTypesTable extends Migration
         Schema::create('meter_types', function (Blueprint $table) {
             $table->id();
             $table->string('title', 200);
-            $table->text('thumbnail');
+            $table->text('thumbnail')->nullable();
             $table->softDeletes($column = 'deleted_at');
             $table->timestamps();
         });

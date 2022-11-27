@@ -30,6 +30,12 @@ class Account extends Model
     {
         return $this->hasMany(AccountFixedCost::class);
     }
+
+    public function meters()
+    {
+        return $this->hasMany(Meter::class);
+    }
+
     /*public function defaultFixedCosts()
     {
         return $this->hasManyThrough(AccountFixedCost::class, FixedCost::class, 'account_id', 'fixed_cost_id');

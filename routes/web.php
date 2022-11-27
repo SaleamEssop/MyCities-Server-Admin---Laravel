@@ -48,5 +48,13 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/site/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteSite']);
     Route::get('/site/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editSiteForm']);
     Route::post('/site/edit', [\App\Http\Controllers\AdminController::class, 'editSite'])->name('edit-site');
+
+    Route::get('meters', [\App\Http\Controllers\AdminController::class, 'showMeters'])->name('meters-list');
+    Route::get('meters/add', [\App\Http\Controllers\AdminController::class, 'addMeterForm'])->name('add-meter-form');
+    Route::get('/meter/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteMeter']);
+    Route::post('meters/add', [\App\Http\Controllers\AdminController::class, 'createMeter'])->name('add-meter');
+    Route::get('/meter/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editMeterForm']);
+    Route::post('/meter/edit', [\App\Http\Controllers\AdminController::class, 'editMeter'])->name('edit-meter');
+
 });
 

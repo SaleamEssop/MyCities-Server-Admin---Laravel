@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\Meter;
+use App\Models\MeterType;
 use App\Models\Site;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -334,4 +336,97 @@ class AdminController extends Controller
             return redirect()->back();
         }
     }
+
+    public function showMeters(Request $request)
+    {
+        $meters = Meter::with(['meterTypes', 'account'])->get();
+        return view('admin.meters', ['meters' => $meters]);
+    }
+
+    public function deleteMeter(Request $request, $id)
+    {
+        if(empty($id)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+        // In next phase delete all the related models as well.
+        $deleted = Meter::where('id', $id)->delete();
+        if($deleted) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Meter deleted successfully!');
+            return redirect()->back();
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function addMeterForm(Request $request)
+    {
+        $accounts = Account::all();
+        $meterTypes = MeterType::all();
+        return view('admin.create_meter', ['accounts' => $accounts, 'meterTypes' => $meterTypes]);
+    }
+
+    public function createMeter(Request $request)
+    {
+        $postData = $request->post();
+        $meterArr = array(
+            'account_id' => $postData['account_id'],
+            'meter_type_id' => $postData['meter_type_id'],
+            'meter_title' => $postData['title'],
+            'meter_number' => $postData['number']
+        );
+        $result = Meter::create($meterArr);
+        if($result) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Meter created successfully!');
+            return redirect('admin/meters');
+        } else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function editMeterForm(Request $request, $id)
+    {
+        $accounts = Account::all();
+        $meterTypes = MeterType::all();
+        $meter = Meter::find($id);
+        return view('admin.edit_meter', ['accounts' => $accounts, 'meterTypes' => $meterTypes, 'meter' => $meter]);
+    }
+
+    public function editMeter(Request $request)
+    {
+        $postData = $request->post();
+        if(empty($postData['meter_id'])) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, meter ID is required.');
+            return redirect()->back();
+        }
+
+        $updArr = array(
+            'account_id' => $postData['account_id'],
+            'meter_type_id' => $postData['meter_type_id'],
+            'meter_title' => $postData['title'],
+            'meter_number' => $postData['number']
+        );
+
+        $updated = Meter::where('id', $postData['meter_id'])->update($updArr);
+        if($updated) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Meter updated successfully!');
+            return redirect('admin/meters');
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
 }

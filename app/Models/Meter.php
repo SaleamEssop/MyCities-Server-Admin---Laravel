@@ -20,4 +20,14 @@ class Meter extends Model
     {
         return $this->hasMany(MeterReadings::class);
     }
+
+    public function meterTypes()
+    {
+        return $this->belongsTo(MeterType::class, 'meter_type_id');
+    }
+
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
 }

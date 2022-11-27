@@ -102,6 +102,21 @@
             </div>
         </li>
 
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMeter"
+               aria-expanded="true" aria-controls="collapseMeter">
+                <i class="fas fa-fw fa-meteor"></i>
+                <span>Meters Management</span>
+            </a>
+            <div id="collapseMeter" class="collapse" aria-labelledby="headingUtilities"
+                 data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <a class="collapse-item" href="{{ route('meters-list') }}">List</a>
+                    <a class="collapse-item" href="{{ route('add-meter-form') }}">Add</a>
+                </div>
+            </div>
+        </li>
+
         <!-- Divider -->
         <hr class="sidebar-divider">
 
