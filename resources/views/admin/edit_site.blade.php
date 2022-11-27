@@ -16,7 +16,7 @@
                             <select class="form-control" id="exampleFormControlSelect1" name="user_id" required>
                                 <option disabled value="">--Select User--</option>
                                 @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ ($site->user_id == $user->id) ?? 'selected' }}>{{ $user->name }}</option>
+                                    <option value="{{ $user->id }}" {{ ($site->user_id == $user->id) ? 'selected' : '' }}>{{ $user->name }}</option>
                                 @endforeach
                             </select>
                         </div>

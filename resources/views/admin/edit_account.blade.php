@@ -16,7 +16,7 @@
                             <select class="form-control" id="exampleFormControlSelect1" name="site_id" required>
                                 <option disabled value="">--Select Site--</option>
                                 @foreach($sites as $site)
-                                    <option value="{{ $site->id }}" {{ ($site->id == $account->site_id) ?? 'selected' }}>{{ $site->title }}</option>
+                                    <option value="{{ $site->id }}" {{ ($site->id == $account->site_id) ? 'selected' : '' }}>{{ $site->title }}</option>
                                 @endforeach
                             </select>
                         </div>
