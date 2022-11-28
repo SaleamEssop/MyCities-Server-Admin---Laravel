@@ -63,5 +63,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/meter-reading/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editMeterReadingForm']);
     Route::post('/meter-reading/edit', [\App\Http\Controllers\AdminController::class, 'editMeterReading'])->name('edit-meter-reading');
 
+    Route::get('default-costs', [\App\Http\Controllers\AdminController::class, 'showDefaultCosts'])->name('default-costs');
+    Route::get('/default-costs/{id}', [\App\Http\Controllers\AdminController::class, 'deleteDefaultCost']);
+    Route::post('default-costs/add', [\App\Http\Controllers\AdminController::class, 'createDefaultCost'])->name('add-default-cost');
+
 });
 

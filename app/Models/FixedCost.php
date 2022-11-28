@@ -13,6 +13,7 @@ class FixedCost extends Model
         'account_id',
         'title',
         'value',
+        'is_default',
         'added_by',
         'created_at'
     ];

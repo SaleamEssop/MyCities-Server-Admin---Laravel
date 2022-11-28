@@ -140,6 +140,12 @@
             Addons
         </div>
 
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('default-costs') }}">
+                <i class="fas fa-fw fa-money-check"></i>
+                <span>Default Costs</span></a>
+        </li>
+
         <!-- Nav Item - Pages Collapse Menu -->
         {{--<li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"

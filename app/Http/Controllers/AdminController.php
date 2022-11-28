@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\FixedCost;
 use App\Models\Meter;
 use App\Models\MeterReadings;
 use App\Models\MeterType;
@@ -517,4 +518,52 @@ class AdminController extends Controller
             return redirect()->back();
         }
     }
+
+    public function showDefaultCosts(Request $request)
+    {
+        $defaultCosts = FixedCost::where('is_default', 1)->get();
+        return view('admin.default-costs', ['defaultCosts' => $defaultCosts]);
+    }
+
+    public function deleteDefaultCost(Request $request, $id)
+    {
+        if(empty($id)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+        // In next phase delete all the related models as well.
+        $deleted = FixedCost::where('id', $id)->delete();
+        if($deleted) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Default cost removed successfully!');
+            return redirect()->back();
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function createDefaultCost(Request $request)
+    {
+        $postData = $request->post();
+        $costArr = array(
+            'title' => $postData['cost_name'],
+            'value' => $postData['cost_value'],
+            'is_default' => 1
+        );
+        $result = FixedCost::create($costArr);
+        if($result) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Default cost created successfully!');
+            return redirect('admin/default-costs');
+        } else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
 }

@@ -11291,3 +11291,8 @@ body.sidebar-toggled footer.sticky-footer {
     width: 96%;
     margin: 0 auto;
 }
+.cust-page-head{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
