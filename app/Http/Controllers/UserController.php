@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -11,10 +12,6 @@ class UserController extends Controller
     /*public function __construct() {
 
     }*/
-
-    /* *
-     * * * User signup function
-     * */
 
     public function register(Request $request) {
 
@@ -34,6 +31,15 @@ class UserController extends Controller
         $validated = validateData($requiredFields, $postData);
         if(!$validated['status'])
             return response()->json(['status' => false, 'code' => 400, 'msg' => $validated['error']]);
+
+        // Check if user with this email already exists
+        if($postData['action'] == 'insert')
+            $alreadyExists = User::where('email', $postData['email'])->get();
+        elseif($postData['action'] == 'update')
+            $alreadyExists = User::where('email', $postData['email'])->where('id','<>', $postData['id'])->get();
+
+        if(count($alreadyExists) !== 0)
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, user with this email already exists!']);
 
         $userArr = array(
             'name' => $postData['full_name'],
