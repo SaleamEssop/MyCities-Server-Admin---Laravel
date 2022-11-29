@@ -566,4 +566,31 @@ class AdminController extends Controller
         }
     }
 
+    public function editDefaultCost(Request $request)
+    {
+        $postData = $request->post();
+        if(empty($postData['default_cost_id'])) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+
+        $updArr = array(
+            'title' => $postData['cost_name'],
+            'value' => $postData['cost_value']
+        );
+
+        $updated = FixedCost::where('id', $postData['default_cost_id'])->update($updArr);
+        if($updated) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Cost updated successfully!');
+            return redirect('admin/default-costs');
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
 }

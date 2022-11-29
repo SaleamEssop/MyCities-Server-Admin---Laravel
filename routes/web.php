@@ -66,6 +66,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('default-costs', [\App\Http\Controllers\AdminController::class, 'showDefaultCosts'])->name('default-costs');
     Route::get('/default-costs/{id}', [\App\Http\Controllers\AdminController::class, 'deleteDefaultCost']);
     Route::post('default-costs/add', [\App\Http\Controllers\AdminController::class, 'createDefaultCost'])->name('add-default-cost');
+    Route::post('/default-costs/edit', [\App\Http\Controllers\AdminController::class, 'editDefaultCost'])->name('edit-default-cost');
 
 });
 
