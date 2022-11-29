@@ -18,7 +18,7 @@ class CreateAccountsTable extends Migration
             $table->integer('site_id');
             $table->text('account_name');
             $table->text('account_number');
-            $table->text('optional_information');
+            $table->text('optional_information')->nullable();
             $table->timestamps();
         });
     }

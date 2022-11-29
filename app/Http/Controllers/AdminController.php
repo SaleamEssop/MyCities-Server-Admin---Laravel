@@ -229,10 +229,23 @@ class AdminController extends Controller
             'site_id' => $postData['site_id'],
             'account_name' => $postData['title'],
             'account_number' => $postData['number'],
-            'optional_information' => $postData['optional_info']
+            'optional_information' => $postData['optional_info'] ?? null
         );
         $result = Account::create($accArr);
         if($result) {
+            if(!empty($postData['additional_cost_name'])) {
+                $fixedCostArr = [];
+                for ($i=0; $i< count($postData['additional_cost_name']); $i++) {
+                    $fixedCostArr[$i]['account_id'] = $result->id;
+                    $fixedCostArr[$i]['title'] = $postData['additional_cost_name'][$i];
+                    $fixedCostArr[$i]['value'] = $postData['additional_cost_value'][$i];
+                    $fixedCostArr[$i]['added_by'] = Auth::user()->id;
+                    $fixedCostArr[$i]['created_at'] = date("Y-m-d H:i:s");
+
+                }
+                FixedCost::insert($fixedCostArr);
+            }
+
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Account created successfully!');
             return redirect('admin/accounts');
@@ -306,7 +319,7 @@ class AdminController extends Controller
     public function editAccountForm(Request $request, $id)
     {
         $sites = Site::all();
-        $account = Account::find($id);
+        $account = Account::with('fixedCosts')->find($id);
         return view('admin.edit_account', ['account' => $account, 'sites' => $sites]);
     }
 
@@ -327,6 +340,30 @@ class AdminController extends Controller
         );
 
         $updated = Account::where('id', $postData['account_id'])->update($updArr);
+
+        // Check for fixed costs as well
+        if(!empty($postData['additional_cost_name'])) {
+            for($i = 0; $i < count($postData['additional_cost_name']); $i++) {
+
+                if($postData['fixed_cost_type'][$i] == 'old') { // Update case
+                    $costArr = array(
+                        'title' => $postData['additional_cost_name'][$i],
+                        'value' => $postData['additional_cost_value'][$i]
+                    );
+                    FixedCost::where('id', $postData['fixed_cost_id'][$i])->update($costArr);
+                }
+                elseif($postData['fixed_cost_type'][$i] == 'new') { // Update case
+                    $costArr = array(
+                        'account_id' => $postData['account_id'],
+                        'title' => $postData['additional_cost_name'][$i],
+                        'value' => $postData['additional_cost_value'][$i],
+                        'added_by' => Auth::user()->id,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                    FixedCost::create($costArr);
+                }
+            }
+        }
         if($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Account    updated successfully!');
