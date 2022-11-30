@@ -364,6 +364,18 @@ class AdminController extends Controller
                 }
             }
         }
+
+        // Process the deleted costs
+        If(!empty($postData['deleted'])) {
+            $deletedArr = explode(',', $postData['deleted']);
+            $deletedArr = array_filter($deletedArr);
+            if(!empty($deletedArr)) {
+                foreach ($deletedArr as $deletedID) {
+                    FixedCost::where('id', $deletedID)->delete();
+                }
+            }
+        }
+
         if($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Account    updated successfully!');

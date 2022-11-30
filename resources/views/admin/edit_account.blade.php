@@ -44,15 +44,16 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <a href="#" class="btn btn-sm btn-circle btn-danger">
+                                    <a href="#" data-id="{{ $fixedCost->id }}" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">
                                         <i class="fa fa-trash"></i>
                                     </a>
                                 </div>
+                                <input type="hidden" name="fixed_cost_id[]" value="{{ $fixedCost->id }}" />
+                                <input type="hidden" name="fixed_cost_type[]" value="old" />
                             </div>
-                            <input type="hidden" name="fixed_cost_id[]" value="{{ $fixedCost->id }}" />
-                            <input type="hidden" name="fixed_cost_type[]" value="old" />
 
                         @endforeach
+                        <input type="hidden" name="deleted" id="deletedCosts" value="" />
                         <div class="fixed-cost-container"></div>
 
                         <a href="#" id="add-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
@@ -88,7 +89,7 @@
                     '                                </div>\n' +
                     '                            </div>\n' +
                     '                            <div class="col-md-4">\n' +
-                    '                                <a href="#" style="margin-top: 6px" class="btn btn-sm btn-circle btn-danger">\n' +
+                    '                                <a href="#" data-id="" style="margin-top: 6px" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">\n' +
                     '                                    <i class="fa fa-trash"></i>\n' +
                     '                                </a>\n' +
                     '                            </div>\n' +
@@ -96,6 +97,16 @@
                     '                        </div>'
 
                 $(".fixed-cost-container").append(html);
+            });
+
+            $(document).on("click", '.additional-cost-del-btn', function () {
+                var ID = $(this).data('id');
+                if(ID) {
+                    var oldVal = $("#deletedCosts").val();
+                    var newVal = oldVal + ',' + ID;
+                    $("#deletedCosts").val(newVal);
+                }
+                $(this).parent().parent().remove();
             });
         });
     </script>

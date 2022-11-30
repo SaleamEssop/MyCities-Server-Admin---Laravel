@@ -81,13 +81,17 @@
                     '                                </div>\n' +
                     '                            </div>\n' +
                     '                            <div class="col-md-4">\n' +
-                    '                                <a href="#" style="margin-top: 6px" class="btn btn-sm btn-circle btn-danger">\n' +
+                    '                                <a href="#" style="margin-top: 6px" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">\n' +
                     '                                    <i class="fa fa-trash"></i>\n' +
                     '                                </a>\n' +
                     '                            </div>\n' +
                     '                        </div>'
 
                 $(".fixed-cost-container").append(html);
+            });
+
+            $(document).on("click", '.additional-cost-del-btn', function () {
+                $(this).parent().parent().remove();
             });
         });
     </script>
