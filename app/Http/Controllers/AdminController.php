@@ -90,6 +90,12 @@ class AdminController extends Controller
     public function createUser(Request $request)
     {
         $postData = $request->post();
+        $alreadyExists = User::where('email', $postData['email'])->get();
+        if(count($alreadyExists) > 0) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, user with this email already exists.');
+            return redirect()->back()->withInput();
+        }
         $userArr = array(
             'name' => $postData['name'],
             'email' => $postData['email'],
