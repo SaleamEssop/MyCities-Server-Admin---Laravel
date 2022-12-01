@@ -44,8 +44,11 @@ Route::prefix('v1')->group(function() {
     Route::prefix('meter')->group(function() {
         Route::post('/add', [\App\Http\Controllers\ApiController::class, 'addMeter']);
         Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getMeter']);
+        Route::get('/types', [\App\Http\Controllers\ApiController::class, 'getMeterTypes']);
+        Route::post('/delete', [\App\Http\Controllers\ApiController::class, 'deleteMeter']);
         Route::post('/add-readings', [\App\Http\Controllers\ApiController::class, 'addMeterReadings']);
         Route::get('/get-readings', [\App\Http\Controllers\ApiController::class, 'getMeterReadings']);
+        Route::post('/delete-readings', [\App\Http\Controllers\ApiController::class, 'deleteMeterReading']);
     });
 
     Route::get('/all-data', [\App\Http\Controllers\ApiController::class, 'getAllData']);

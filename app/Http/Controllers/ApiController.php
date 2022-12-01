@@ -7,6 +7,7 @@ use App\Models\AccountFixedCost;
 use App\Models\FixedCost;
 use App\Models\Meter;
 use App\Models\MeterReadings;
+use App\Models\MeterType;
 use App\Models\Site;
 use Illuminate\Http\Request;
 
@@ -252,6 +253,38 @@ class ApiController extends Controller
             return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meter readings added successfully!']);
         else
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
+    }
+
+    public function deleteMeter(Request $request) {
+
+        $postData = $request->post();
+        if(empty($postData['meter_id']))
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, location_id is required!']);
+
+        $result = Meter::where('id', $postData['meter_id'])->delete();
+        if($result)
+            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meter removed successfully!']);
+        else
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
+    }
+
+    public function deleteMeterReading(Request $request) {
+
+        $postData = $request->post();
+        if(empty($postData['reading_id']))
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, location_id is required!']);
+
+        $result = MeterReadings::where('id', $postData['reading_id'])->delete();
+        if($result)
+            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meter reading removed successfully!']);
+        else
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
+    }
+
+    public function getMeterTypes(Request $request) {
+
+        $meters = MeterType::all();
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meters retrieved successfully!', 'data' => $meters]);
     }
 
 }
