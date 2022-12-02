@@ -9,7 +9,9 @@ use App\Models\Meter;
 use App\Models\MeterReadings;
 use App\Models\MeterType;
 use App\Models\Site;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class ApiController extends Controller
 {
@@ -285,6 +287,71 @@ class ApiController extends Controller
 
         $meters = MeterType::all();
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meters retrieved successfully!', 'data' => $meters]);
+    }
+
+    public function verifyEmail(Request $request) {
+
+        $postData = $request->post();
+        if(empty($postData['email']))
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, email field is required!']);
+
+        // Now check if this email exists in our system or not
+        $result = User::where('email', $postData['email'])->get();
+        if(count($result) == 0)
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'No user exists under this email in our system!']);
+
+        // Now that email exists in our system, make a reset code
+        $digits = 5;
+        $code = rand(pow(10, $digits-1), pow(10, $digits)-1);
+
+        // Add this code into the database column
+        $upd = User::where('email', $postData['email'])->update(['password_reset_code' => $code]);
+        if(!$upd)
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
+
+        // Send the code to user email
+        $from = 'lightsandwater01@gmail.com';
+        $fromName = 'LightsAndWater';
+        $to_email = $postData['email'];
+        $to_name = $to_email;
+        $data = ['from_name' => 'Lights And Water','body' => "Hi, we have received you password reset request. Please use the following code: ". $code];
+        Mail::send('forget_password_mail', $data, function($message) use ($to_name, $to_email) {
+        $message->to($to_email, $to_name)
+        ->subject('LightsAndWater - Password reset request');
+        $message->from('lightsandwater01@gmail.com', 'LightsAndWater');
+        });
+
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'A code has been sent to your email.!']);
+    }
+
+    public function verifyCode(Request $request) {
+
+        $postData = $request->post();
+        if(empty($postData['code']) || empty($postData['email']))
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, code and email fields are required!']);
+
+        $user = User::where(['email' => $postData['email'], 'code' => $postData['code']])->get();
+        if(count($user) == 1) {
+            User::where(['email' => $postData['email'], 'code' => $postData['code']])->update(['code' => null]);
+            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Code matched. Please proceed!']);
+        }
+        else
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Code did not matched!']);
+    }
+
+    public function resetPassword(Request $request) {
+
+        $postData = $request->post();
+        if(empty($postData['password']) || empty($postData['email']))
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, password and email fields are required!']);
+
+        $user = User::where(['email' => $postData['email']])->get();
+        if(count($user) == 1) {
+            User::where(['email' => $postData['email']])->update(['password' => bcrypt($postData['password'])]);
+            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Code matched. Please proceed!']);
+        }
+        else
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Wrong email provided!']);
     }
 
 }

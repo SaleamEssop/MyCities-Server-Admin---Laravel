@@ -55,5 +55,11 @@ Route::prefix('v1')->group(function() {
     Route::get('/greetings', function() {
         return "Hello there";
     });
+
+    Route::prefix('forgot-password')->group(function () {
+        Route::post('/email-verification', [\App\Http\Controllers\ApiController::class, 'verifyEmail']);
+        Route::post('/verify-code', [\App\Http\Controllers\ApiController::class, 'verifyCode']);
+        Route::post('/reset-password', [\App\Http\Controllers\ApiController::class, 'resetPassword']);
+    });
 });
 
