@@ -27,21 +27,21 @@ Route::prefix('v1')->group(function() {
     });
 
     // Locations/Sites related routes
-    Route::prefix('sites')->group(function() {
+    Route::group(['middleware' => ['auth:sanctum'],'prefix' => 'sites'],function() {
         Route::post('/add', [\App\Http\Controllers\ApiController::class, 'addSite']);
         Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getSite']);
         Route::post('/delete', [\App\Http\Controllers\ApiController::class, 'deleteSite']);
     });
 
     // Account related routes
-    Route::prefix('account')->group(function() {
+    Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'account'],function() {
         Route::post('/add', [\App\Http\Controllers\ApiController::class, 'addAccount']);
         Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getAccounts']);
         Route::post('/delete', [\App\Http\Controllers\ApiController::class, 'deleteAccount']);
     });
 
     // Locations/Sites related routes
-    Route::prefix('meter')->group(function() {
+    Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'meter'],function() {
         Route::post('/add', [\App\Http\Controllers\ApiController::class, 'addMeter']);
         Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getMeter']);
         Route::get('/types', [\App\Http\Controllers\ApiController::class, 'getMeterTypes']);
@@ -51,7 +51,7 @@ Route::prefix('v1')->group(function() {
         Route::post('/delete-readings', [\App\Http\Controllers\ApiController::class, 'deleteMeterReading']);
     });
 
-    Route::get('/all-data', [\App\Http\Controllers\ApiController::class, 'getAllData']);
+    Route::get('/all-data', [\App\Http\Controllers\ApiController::class, 'getAllData'])->middleware(['auth:sanctum']);
     Route::get('/greetings', function() {
         return "Hello there";
     });

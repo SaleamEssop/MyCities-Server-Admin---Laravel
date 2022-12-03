@@ -82,12 +82,13 @@ class UserController extends Controller
         if(!Hash::check($userPassword, $dbPasswordHash))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, username or password is wrong!']);
 
+        $token = $user[0]->createToken('lightsAndWaterAPP')->plainTextToken;
         $responseData = array(
             'id' => $user[0]->id,
             'name' => $user[0]->name,
             'email' => $user[0]->email,
             'contact_number' => $user[0]->contact_number
         );
-        return response()->json(['status' => true, 'code' => 200, 'msg' => 'User logged in successfully!', 'data' => $responseData]);
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'User logged in successfully!', 'token' => $token, 'data' => $responseData]);
     }
 }
