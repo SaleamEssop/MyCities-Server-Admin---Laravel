@@ -134,7 +134,9 @@ class ApiController extends Controller
                 AccountFixedCost::insert($defaultCostArr);
             }
 
-            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account added successfully!', 'data' => $res]);
+            $data = Account::with(['fixedCosts', 'defaultFixedCosts'])->find($res->id);
+
+            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account added successfully!', 'data' => $data]);
         }
 
         else
