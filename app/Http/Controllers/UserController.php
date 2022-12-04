@@ -57,7 +57,15 @@ class UserController extends Controller
         if(!$response)
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
 
-        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Action successfully!']);
+        $responseArr = array(
+            'status' => true,
+            'code' => 200,
+            'msg' => 'Action successfully!'
+        );
+        if($action == 'update')
+            $responseArr['data'] = User::find($postData['id']);
+
+        return response()->json($responseArr);
     }
 
     /* *

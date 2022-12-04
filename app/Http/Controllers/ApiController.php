@@ -35,7 +35,7 @@ class ApiController extends Controller
 
         $res = Site::create($siteArr);
         if($res)
-            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Location added successfully!']);
+            return response()->json(['status' => true, 'code' => 200, 'data' => $res, 'msg' => 'Location added successfully!']);
         else
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
     }
@@ -208,7 +208,9 @@ class ApiController extends Controller
                 'reading_value' => $postData['meter_reading']
             );
             MeterReadings::create($meterReading);
-            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meter added successfully!']);
+            $data = Meter::with('readings')->find($res->id);
+
+            return response()->json(['status' => true, 'code' => 200, 'data' => $data, 'msg' => 'Meter added successfully!']);
         }
         else
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
@@ -252,7 +254,7 @@ class ApiController extends Controller
 
         $res = MeterReadings::create($siteArr);
         if($res)
-            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meter readings added successfully!']);
+            return response()->json(['status' => true, 'code' => 200, 'data' => $res, 'msg' => 'Meter readings added successfully!']);
         else
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
     }
