@@ -29,6 +29,7 @@ Route::prefix('v1')->group(function() {
     // Locations/Sites related routes
     Route::group(['middleware' => ['auth:sanctum'],'prefix' => 'sites'],function() {
         Route::post('/add', [\App\Http\Controllers\ApiController::class, 'addSite']);
+        Route::post('/update', [\App\Http\Controllers\ApiController::class, 'updateSite']);
         Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getSite']);
         Route::post('/delete', [\App\Http\Controllers\ApiController::class, 'deleteSite']);
     });
@@ -40,9 +41,10 @@ Route::prefix('v1')->group(function() {
         Route::post('/delete', [\App\Http\Controllers\ApiController::class, 'deleteAccount']);
     });
 
-    // Locations/Sites related routes
+    // Meters related routes
     Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'meter'],function() {
         Route::post('/add', [\App\Http\Controllers\ApiController::class, 'addMeter']);
+        Route::post('/update', [\App\Http\Controllers\ApiController::class, 'updateMeter']);
         Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getMeter']);
         Route::get('/types', [\App\Http\Controllers\ApiController::class, 'getMeterTypes']);
         Route::post('/delete', [\App\Http\Controllers\ApiController::class, 'deleteMeter']);

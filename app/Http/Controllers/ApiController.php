@@ -40,6 +40,33 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
     }
 
+    public function updateSite(Request $request) {
+
+        $postData = $request->post();
+        $requiredFields = ['site_id', 'user_id', 'title', 'lat', 'lng', 'address'];
+        $validated = validateData($requiredFields, $postData);
+        if(!$validated['status'])
+            return response()->json(['status' => false, 'code' => 400, 'msg' => $validated['error']]);
+
+        $site = Site::find($postData['site_id']);
+        if(empty($site))
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, wrong site_id provided!']);
+
+        $site->user_id = $postData['user_id'];
+        $site->title = $postData['title'];
+        $site->lat = $postData['lat'];
+        $site->lng = $postData['lng'];
+        $site->address = $postData['address'];
+
+        if(!empty($postData['email']))
+            $site->email = $postData['email'];
+
+        if($site->save())
+            return response()->json(['status' => true, 'code' => 200, 'data' => $site, 'msg' => 'Location updated successfully!']);
+        else
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
+    }
+
     public function getSite(Request $request) {
 
         $postData = $request->post();
@@ -213,6 +240,38 @@ class ApiController extends Controller
             $data = Meter::with('readings')->find($res->id);
 
             return response()->json(['status' => true, 'code' => 200, 'data' => $data, 'msg' => 'Meter added successfully!']);
+        }
+        else
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
+    }
+
+    public function updateMeter(Request $request) {
+
+        $postData = $request->post();
+        $requiredFields = ['meter_id', 'meter_reading_id', 'account_id', 'meter_type_id', 'meter_title', 'meter_number', 'meter_reading_date', 'meter_reading'];
+        $validated = validateData($requiredFields, $postData);
+        if(!$validated['status'])
+            return response()->json(['status' => false, 'code' => 400, 'msg' => $validated['error']]);
+
+        $meter = Meter::find($postData['meter_id']);
+        $meterReading = MeterReadings::find($postData['meter_reading_id']);
+        if(empty($meter) || empty($meterReading))
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, wrong meter_id or meter_reading_id provided!']);
+
+        $meter->account_id = $postData['account_id'];
+        $meter->meter_type_id = $postData['meter_type_id'];
+        $meter->meter_title = $postData['meter_title'];
+        $meter->meter_number = $postData['meter_number'];
+
+        if($meter->save()) {
+
+            $meterReading->reading_date = date('Y-m-d', strtotime($postData['meter_reading_date']));
+            $meterReading->reading_value = $postData['meter_reading'];
+            $meterReading->save();
+
+            $data = Meter::with('readings')->find($meterReading->id);
+
+            return response()->json(['status' => true, 'code' => 200, 'data' => $data, 'msg' => 'Meter updated successfully!']);
         }
         else
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);

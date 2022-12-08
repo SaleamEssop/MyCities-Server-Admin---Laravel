@@ -14,7 +14,7 @@ class PasswordResetCodeToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->integer('password_reset_code')->after('is_super_admin');
+            $table->integer('password_reset_code')->nullable()->after('is_super_admin');
         });
     }
 
