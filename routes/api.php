@@ -37,6 +37,7 @@ Route::prefix('v1')->group(function() {
     // Account related routes
     Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'account'],function() {
         Route::post('/add', [\App\Http\Controllers\ApiController::class, 'addAccount']);
+        Route::post('/update', [\App\Http\Controllers\ApiController::class, 'updateAccount']);
         Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getAccounts']);
         Route::post('/delete', [\App\Http\Controllers\ApiController::class, 'deleteAccount']);
     });
@@ -49,6 +50,7 @@ Route::prefix('v1')->group(function() {
         Route::get('/types', [\App\Http\Controllers\ApiController::class, 'getMeterTypes']);
         Route::post('/delete', [\App\Http\Controllers\ApiController::class, 'deleteMeter']);
         Route::post('/add-readings', [\App\Http\Controllers\ApiController::class, 'addMeterReadings']);
+        Route::post('/update-readings', [\App\Http\Controllers\ApiController::class, 'updateMeterReadings']);
         Route::get('/get-readings', [\App\Http\Controllers\ApiController::class, 'getMeterReadings']);
         Route::post('/delete-readings', [\App\Http\Controllers\ApiController::class, 'deleteMeterReading']);
     });

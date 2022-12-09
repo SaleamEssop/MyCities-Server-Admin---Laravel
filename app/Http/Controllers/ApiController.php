@@ -170,6 +170,90 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
     }
 
+    public function updateAccount(Request $request) {
+
+        $postData = $request->post();
+        if(empty($postData['site_id'])) {
+            // No site_id has passed, so this must be the new site case
+            // Check for required params in case of adding new site
+            $requiredFields = ['user_id', 'title', 'lat', 'lng', 'address'];
+            $validated = validateData($requiredFields, $postData);
+            if(!$validated['status'])
+                return response()->json(['status' => false, 'code' => 400, 'msg' => 'Site creation error: '.$validated['error']]);
+
+            $siteArr = array(
+                'user_id' => $postData['user_id'],
+                'title' => $postData['title'],
+                'lat' => $postData['lat'],
+                'lng' => $postData['lng'],
+                'address' => $postData['address']
+            );
+            if(!empty($postData['email']))
+                $siteArr['email'] = $postData['email'];
+
+            $site = Site::create($siteArr);
+            if($site)
+                $postData['site_id'] = $site->id;
+            else
+                return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong while creating new site!']);
+        }
+
+        $requiredFields = ['account_id', 'user_id', 'site_id', 'account_name', 'account_number', 'optional_information'];
+        $validated = validateData($requiredFields, $postData);
+        if(!$validated['status'])
+            return response()->json(['status' => false, 'code' => 400, 'msg' => $validated['error']]);
+
+        $account = Account::find($postData['account_id']);
+        if(empty($account))
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, wrong account_id is provided!']);
+
+        $account->site_id = $postData['site_id'];
+        $account->account_name = $postData['account_name'];
+        $account->account_number = $postData['account_number'];
+        $account->optional_information = $postData['optional_information'];
+
+        if($account->save()) {
+            // Check if user has provided fixed-costs or not
+            if(!empty($postData['fixed_cost'])) {
+                foreach($postData['fixed_cost'] as $fixedCost) {
+
+                    $fixedCostArr = array(
+                        'account_id' => $account->id,
+                        'title' => $fixedCost['name'],
+                        'value' => $fixedCost['value'],
+                        'added_by' => $fixedCost['user_id'],
+                        'created_at' => date("Y-m-d H:i:s")
+                    );
+                    if(!empty($fixedCost['id']))
+                        FixedCost::where('id', $fixedCost['id'])->update($fixedCostArr);
+                    else
+                        FixedCost::create($fixedCostArr);
+                }
+            }
+            // Check if there are any default fixed costs
+            if(!empty($postData['default_fixed_cost'])) {
+                $d = 0;
+                $defaultCostArr = [];
+                AccountFixedCost::where('account_id', $account->id)->delete();
+                foreach ($postData['default_fixed_cost'] as $defaultCost) {
+                    $defaultCostArr[$d]['account_id'] = $account->id;
+                    $defaultCostArr[$d]['fixed_cost_id'] = $defaultCost['id'];
+                    $defaultCostArr[$d]['value'] = $defaultCost['value'];
+                    $defaultCostArr[$d]['created_at'] = date("Y-m-d H:i:s");
+                    $d++;
+                }
+                AccountFixedCost::insert($defaultCostArr);
+            }
+
+            $data = Account::with(['fixedCosts', 'defaultFixedCosts'])->find($account->id);
+
+            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account updated successfully!', 'data' => $data]);
+        }
+
+        else
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
+    }
+
     public function getAccounts(Request $request) {
 
         $accID = $request->get('account_id');
@@ -415,6 +499,28 @@ class ApiController extends Controller
         }
         else
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Wrong email provided!']);
+    }
+
+    public function updateMeterReadings(Request $request) {
+
+        $postData = $request->post();
+        $requiredFields = ['meter_reading_id', 'meter_id', 'meter_reading_date', 'meter_reading'];
+        $validated = validateData($requiredFields, $postData);
+        if(!$validated['status'])
+            return response()->json(['status' => false, 'code' => 400, 'msg' => $validated['error']]);
+
+        $reading = MeterReadings::find($postData['meter_reading_id']);
+        if(empty($reading))
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, wrong meter_reading_id provided!']);
+
+        $reading->meter_id = $postData['meter_id'];
+        $reading->reading_date = $postData['meter_reading_date'];
+        $reading->reading_value = $postData['meter_reading'];
+
+        if($reading->save())
+            return response()->json(['status' => true, 'code' => 200, 'data' => $reading, 'msg' => 'Meter readings updated successfully!']);
+        else
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
     }
 
 }
