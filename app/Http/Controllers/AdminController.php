@@ -8,6 +8,7 @@ use App\Models\Meter;
 use App\Models\MeterReadings;
 use App\Models\MeterType;
 use App\Models\Regions;
+use App\Models\Settings;
 use App\Models\Site;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -730,4 +731,46 @@ class AdminController extends Controller
         }
     }
 
+    public function showTC()
+    {
+        if(!Auth::user()->is_super_admin) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, you are not authorized to access this page.');
+            return redirect()->back();
+        }
+        $settings = Settings::first();
+        return view('admin.terms-and-conditions', ['settings' => $settings]);
+    }
+
+    public function updateTC(Request $request)
+    {
+        $adminID = Auth::user()->id;
+        if(!Auth::user()->is_super_admin) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, you are not authorized to access this page.');
+            return redirect()->back();
+        }
+
+        $postData = $request->post();
+        if(empty($postData['tc'])) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, invalid request');
+            return redirect()->back();
+        }
+
+        if(empty($postData['setting_id']))
+            $settings = Settings::create(['terms_condition' => $postData['tc']]);
+        else
+            $settings = Settings::where('id', $postData['setting_id'])->update(['terms_condition' => $postData['tc']]);
+
+        if($settings) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Terms and conditions updated successfully!');
+            return redirect()->back();
+        }
+
+        Session::flash('alert-class', 'alert-danger');
+        Session::flash('alert-message', 'Oops, something went wrong!');
+        return redirect()->back();
+    }
 }
