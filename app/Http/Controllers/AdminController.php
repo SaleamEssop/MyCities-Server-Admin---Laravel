@@ -7,6 +7,7 @@ use App\Models\FixedCost;
 use App\Models\Meter;
 use App\Models\MeterReadings;
 use App\Models\MeterType;
+use App\Models\Regions;
 use App\Models\Site;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -75,11 +76,21 @@ class AdminController extends Controller
     public function showSites(Request $request)
     {
         if(Auth::user()->is_super_admin)
-            $sites = Site::with('user')->get();
+            $sites = Site::with(['user', 'region'])->get();
         else
             $sites = []; // Because this admin should not have any users under it; this could be changed in the future
 
         return view('admin.sites', ['sites' => $sites]);
+    }
+
+    public function showRegions(Request $request)
+    {
+        if(Auth::user()->is_super_admin)
+            $regions = Regions::all();
+        else
+            $regions = []; // Because this admin should not have any users under it; this could be changed in the future
+
+        return view('admin.regions', ['regions' => $regions]);
     }
 
     public function addUserForm(Request $request)
@@ -175,13 +186,15 @@ class AdminController extends Controller
     {
         $adminID = Auth::user()->id;
         $users = User::whereNotIn('id', [$adminID])->get();
-        return view('admin.create_site', ['users' => $users]);
+        $regions = Regions::all();
+        return view('admin.create_site', ['users' => $users, 'regions' => $regions]);
     }
 
     public function createSite(Request $request)
     {
         $postData = $request->post();
         $siteArr = array(
+            'region_id' => $postData['region_id'],
             'user_id' => $postData['user_id'],
             'title' => $postData['title'],
             'lat' => $postData['lat'],
@@ -194,6 +207,25 @@ class AdminController extends Controller
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Site created successfully!');
             return redirect('admin/sites');
+        } else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function createRegion(Request $request)
+    {
+        $postData = $request->post();
+        $regArr = array(
+            'name' => $postData['region_name'],
+            'cost' => $postData['region_cost'] ?? null
+        );
+        $result = Regions::create($regArr);
+        if($result) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Region created successfully!');
+            return redirect('admin/regions');
         } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
@@ -288,7 +320,8 @@ class AdminController extends Controller
         $adminID = Auth::user()->id;
         $users = User::whereNotIn('id', [$adminID])->get();
         $site = Site::find($id);
-        return view('admin.edit_site', ['site' => $site, 'users' => $users]);
+        $regions = Regions::all();
+        return view('admin.edit_site', ['site' => $site, 'users' => $users, 'regions' => $regions]);
     }
 
     public function editSite(Request $request)
@@ -301,6 +334,7 @@ class AdminController extends Controller
         }
 
         $updArr = array(
+            'region_id' => $postData['region_id'],
             'user_id' => $postData['user_id'],
             'title' => $postData['title'],
             'lat' => $postData['lat'],
@@ -640,6 +674,54 @@ class AdminController extends Controller
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Cost updated successfully!');
             return redirect('admin/default-costs');
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function editRegion(Request $request)
+    {
+        $postData = $request->post();
+        if(empty($postData['region_id'])) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+
+        $updArr = array(
+            'name' => $postData['region_name'],
+            'cost' => $postData['region_cost']
+        );
+
+        $updated = Regions::where('id', $postData['region_id'])->update($updArr);
+        if($updated) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Region updated successfully!');
+            return redirect('admin/regions');
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function deleteRegion(Request $request, $id)
+    {
+        if(empty($id)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+        // In next phase delete all the related models as well.
+        $deleted = Regions::where('id', $id)->delete();
+        if($deleted) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Region deleted successfully!');
+            return redirect()->back();
         }
         else {
             Session::flash('alert-class', 'alert-danger');

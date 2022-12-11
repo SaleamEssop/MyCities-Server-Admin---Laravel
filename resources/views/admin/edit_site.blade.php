@@ -13,6 +13,14 @@
                 <div class="col-md-6">
                     <form method="POST" action="{{ route('edit-site') }}">
                         <div class="form-group">
+                            <select class="form-control" id="exampleFormControlSelect1" name="region_id" required>
+                                <option disabled selected value="">--Select Region--</option>
+                                @foreach($regions as $region)
+                                    <option value="{{ $region->id }}" {{ ($site->region_id == $region->id) ? 'selected' : '' }}>{{ $region->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <select class="form-control" id="exampleFormControlSelect1" name="user_id" required>
                                 <option disabled value="">--Select User--</option>
                                 @foreach($users as $user)

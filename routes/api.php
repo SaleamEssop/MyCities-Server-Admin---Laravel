@@ -21,6 +21,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // APIs for mobile app
 Route::prefix('v1')->group(function() {
     // User related routes
+    Route::post('/user/logout', [\App\Http\Controllers\UserController::class, 'logout'])->middleware('auth:sanctum');
+
     Route::prefix('user')->group(function() {
         Route::post('/register', [\App\Http\Controllers\UserController::class, 'register']);
         Route::post('/login', [\App\Http\Controllers\UserController::class, 'login']);

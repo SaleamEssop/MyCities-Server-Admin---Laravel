@@ -10,6 +10,7 @@ class Site extends Model
     use HasFactory;
 
     protected $fillable = [
+        'region_id',
         'user_id',
         'title',
         'lat',
@@ -26,5 +27,10 @@ class Site extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function region()
+    {
+        return $this->belongsTo(Regions::class);
     }
 }

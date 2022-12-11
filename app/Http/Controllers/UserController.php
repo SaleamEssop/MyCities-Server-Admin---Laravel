@@ -99,4 +99,14 @@ class UserController extends Controller
         );
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'User logged in successfully!', 'token' => $token, 'data' => $responseData]);
     }
+
+    public function logout(Request $request) {
+
+        $postData = $request->post();
+        if(empty($postData['user_id']))
+            return response()->json(['status' => false, 'code' => 400, 'msg' => "user_id is required!"]);
+
+        $request->user()->currentAccessToken()->delete();
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'User logged out successfully!']);
+    }
 }

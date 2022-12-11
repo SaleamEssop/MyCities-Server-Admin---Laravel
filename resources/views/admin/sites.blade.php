@@ -1,5 +1,5 @@
 @extends('admin.layouts.main')
-@section('title', 'Accounts')
+@section('title', 'Sites')
 
 @section('content')
     <!-- Begin Page Content -->
@@ -19,6 +19,7 @@
                         <thead>
                         <tr>
                             <th>#</th>
+                            <th>Region</th>
                             <th>User</th>
                             <th>Title</th>
                             <th>Lat</th>
@@ -32,6 +33,7 @@
                         <tfoot>
                         <tr>
                             <th>#</th>
+                            <th>Region</th>
                             <th>User</th>
                             <th>Title</th>
                             <th>Lat</th>
@@ -46,6 +48,7 @@
                         @foreach($sites as $site)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
+                                <td>{{ $site->region->name ?? '-' }}</td>
                                 <td>{{ $site->user->name }}</td>
                                 <td>{{ $site->title }}</td>
                                 <td>{{ $site->lat }}</td>
