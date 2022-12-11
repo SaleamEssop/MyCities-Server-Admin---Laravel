@@ -20,6 +20,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // APIs for mobile app
 Route::prefix('v1')->group(function() {
+
+    Route::get('terms-and-conditions', [\App\Http\Controllers\ApiController::class, 'getTC']);
     // User related routes
     Route::post('/user/logout', [\App\Http\Controllers\UserController::class, 'logout'])->middleware('auth:sanctum');
 

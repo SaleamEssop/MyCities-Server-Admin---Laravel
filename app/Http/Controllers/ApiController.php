@@ -8,6 +8,7 @@ use App\Models\FixedCost;
 use App\Models\Meter;
 use App\Models\MeterReadings;
 use App\Models\MeterType;
+use App\Models\Settings;
 use App\Models\Site;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -523,4 +524,9 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
     }
 
+    public function getTC() {
+        $settings = Settings::first();
+        $data = ['id' => $settings->id, 'terms_condition' => $settings->terms_condition];
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Terms and conditions retrieved successfully!', 'data' => $data]);
+    }
 }
