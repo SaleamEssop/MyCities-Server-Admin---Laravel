@@ -318,7 +318,8 @@ class ApiController extends Controller
             // Add meter reading in system
             $meterReading = array(
                 'meter_id' => $res->id,
-                'reading_date' => date('Y-m-d', strtotime($postData['meter_reading_date'])),
+                //'reading_date' => date('Y-m-d', strtotime($postData['meter_reading_date'])),
+                'reading_date' => $postData['meter_reading_date'],
                 'reading_value' => $postData['meter_reading']
             );
             MeterReadings::create($meterReading);
@@ -350,7 +351,8 @@ class ApiController extends Controller
 
         if($meter->save()) {
 
-            $meterReading->reading_date = date('Y-m-d', strtotime($postData['meter_reading_date']));
+            //$meterReading->reading_date = date('Y-m-d', strtotime($postData['meter_reading_date']));
+            $meterReading->reading_date = $postData['meter_reading_date'];
             $meterReading->reading_value = $postData['meter_reading'];
             $meterReading->save();
 
