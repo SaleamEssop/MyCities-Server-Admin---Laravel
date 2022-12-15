@@ -214,6 +214,13 @@ class ApiController extends Controller
         $account->optional_information = $postData['optional_information'];
 
         if($account->save()) {
+            // Check if user has deleted any fixed costs or not
+            if(!empty($postData['removed_fixed_costs_ids'])) {
+                $removedCostIDs = $postData['removed_fixed_costs_ids'];
+                foreach($removedCostIDs as $removedCostID)
+                    FixedCost::where('id', $removedCostID)->delete();
+            }
+
             // Check if user has provided fixed-costs or not
             if(!empty($postData['fixed_cost'])) {
                 foreach($postData['fixed_cost'] as $fixedCost) {
@@ -222,7 +229,7 @@ class ApiController extends Controller
                         'account_id' => $account->id,
                         'title' => $fixedCost['name'],
                         'value' => $fixedCost['value'],
-                        'added_by' => $fixedCost['user_id'],
+                        'added_by' => $postData['user_id'],
                         'created_at' => date("Y-m-d H:i:s")
                     );
                     if(!empty($fixedCost['id']))
@@ -233,17 +240,12 @@ class ApiController extends Controller
             }
             // Check if there are any default fixed costs
             if(!empty($postData['default_fixed_cost'])) {
-                $d = 0;
-                $defaultCostArr = [];
-                AccountFixedCost::where('account_id', $account->id)->delete();
                 foreach ($postData['default_fixed_cost'] as $defaultCost) {
-                    $defaultCostArr[$d]['account_id'] = $account->id;
-                    $defaultCostArr[$d]['fixed_cost_id'] = $defaultCost['id'];
-                    $defaultCostArr[$d]['value'] = $defaultCost['value'];
-                    $defaultCostArr[$d]['created_at'] = date("Y-m-d H:i:s");
-                    $d++;
+                    if(empty($defaultCost['id']))
+                        continue;
+
+                    AccountFixedCost::where('id', $defaultCost['id'])->update(['value' => $defaultCost['value']]);
                 }
-                AccountFixedCost::insert($defaultCostArr);
             }
 
             $data = Account::with(['fixedCosts', 'defaultFixedCosts'])->find($account->id);
