@@ -61,10 +61,10 @@
                                 <td>
                                     {{--<a href="#" id="updateCatBtn" data-id="{{ $ad->id }}" data-title="{{ $ad->name }}" data-toggle="modal" data-target="#updateModal" class="btn btn-info btn-circle">
                                         <i class="fas fa-edit"></i>
-                                    </a>--}}
+                                    </a>
                                     <a href="{{ url('admin/ads-category/delete/'.$ad->id) }}" onclick="return confirm('Are you sure you want to delete this ad?')" class="btn btn-danger btn-circle">
                                         <i class="fas fa-trash"></i>
-                                    </a>
+                                    </a>--}}
                                 </td>
                             </tr>
                         @endforeach
