@@ -74,6 +74,11 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::post('ads/categories/edit', [\App\Http\Controllers\AdminController::class, 'editAdCategory'])->name('edit-ads-category');
     Route::get('/ads-category/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteAdsCategory']);
 
+    Route::get('ads', [\App\Http\Controllers\AdminController::class, 'showAds'])->name('ads-list');
+    Route::post('ads/add', [\App\Http\Controllers\AdminController::class, 'createAd'])->name('add-ads');
+    // Route::post('ads/categories/edit', [\App\Http\Controllers\AdminController::class, 'editAdCategory'])->name('edit-ads-category');
+    // Route::get('/ads-category/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteAdsCategory']);
+
     Route::get('default-costs', [\App\Http\Controllers\AdminController::class, 'showDefaultCosts'])->name('default-costs');
     Route::get('/default-costs/{id}', [\App\Http\Controllers\AdminController::class, 'deleteDefaultCost']);
     Route::post('default-costs/add', [\App\Http\Controllers\AdminController::class, 'createDefaultCost'])->name('add-default-cost');

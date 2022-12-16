@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\Ads;
 use App\Models\AdsCategory;
 use App\Models\FixedCost;
 use App\Models\Meter;
@@ -16,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -534,6 +536,13 @@ class AdminController extends Controller
         return view('admin.ads_categories', ['categories' => $categories]);
     }
 
+    public function showAds(Request $request)
+    {
+        $ads = Ads::with('category')->get();
+        $categories = AdsCategory::all();
+        return view('admin.ads', ['ads' => $ads, 'categories' => $categories]);
+    }
+
     public function addMeterReadingForm(Request $request)
     {
         $meters = Meter::all();
@@ -578,6 +587,34 @@ class AdminController extends Controller
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Category added successfully!');
             return redirect('/admin/ads/categories');
+        } else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function createAd(Request $request)
+    {
+        $postData = $request->post();
+        $path = '';
+        if($request->hasFile('ad_image'))
+            $path = $request->file('ad_image')->store('public/ads');
+
+        $ad = array(
+            'ads_category_id' => $postData['ads_category_id'],
+            'name' => $postData['ad_name'],
+            'image' => $path,
+            'url' => $postData['ad_url'],
+            'price' => $postData['ad_price'],
+            'priority' => $postData['ad_priority']
+        );
+
+        $result = Ads::create($ad);
+        if($result) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Category added successfully!');
+            return redirect('/admin/ads/');
         } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
