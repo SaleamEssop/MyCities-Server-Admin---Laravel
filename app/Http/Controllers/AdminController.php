@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\AdsCategory;
 use App\Models\FixedCost;
 use App\Models\Meter;
 use App\Models\MeterReadings;
@@ -527,6 +528,12 @@ class AdminController extends Controller
         return view('admin.meter_readings', ['meterReadings' => $meterReadings]);
     }
 
+    public function showAdsCategories(Request $request)
+    {
+        $categories = AdsCategory::all();
+        return view('admin.ads_categories', ['categories' => $categories]);
+    }
+
     public function addMeterReadingForm(Request $request)
     {
         $meters = Meter::all();
@@ -546,6 +553,31 @@ class AdminController extends Controller
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Meter reading added successfully!');
             return redirect('/admin/meter-readings');
+        } else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function createAdCategory(Request $request)
+    {
+        $postData = $request->post();
+        $category = array(
+            'name' => $postData['category_name'],
+        );
+        $categoryExists = AdsCategory::where('name', strtolower($postData['category_name']))->first();
+        if(!empty($categoryExists)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, category with same name already exists.');
+            return redirect()->back();
+        }
+
+        $result = AdsCategory::create($category);
+        if($result) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Category added successfully!');
+            return redirect('/admin/ads/categories');
         } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
@@ -683,6 +715,37 @@ class AdminController extends Controller
         }
     }
 
+    public function editAdCategory(Request $request)
+    {
+        $postData = $request->post();
+        if(empty($postData['category_id'])) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+
+        $categoryExists = AdsCategory::where('name', strtolower($postData['category_name']))->first();
+        if(!empty($categoryExists)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, category with same name already exists.');
+            return redirect()->back();
+        }
+
+        $category = array('name' => $postData['category_name']);
+
+        $updated = AdsCategory::where('id', $postData['category_id'])->update($category);
+        if($updated) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Category updated successfully!');
+            return redirect('admin/ads/categories');
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
     public function editRegion(Request $request)
     {
         $postData = $request->post();
@@ -722,6 +785,29 @@ class AdminController extends Controller
         if($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Region deleted successfully!');
+            return redirect()->back();
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function deleteAdsCategory(Request $request, $id)
+    {
+        if(empty($id)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+
+        // In next phase delete all the related models as well.
+
+        $deleted = AdsCategory::where('id', $id)->delete();
+        if($deleted) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Category deleted successfully!');
             return redirect()->back();
         }
         else {

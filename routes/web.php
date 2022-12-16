@@ -69,6 +69,11 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/meter-reading/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editMeterReadingForm']);
     Route::post('/meter-reading/edit', [\App\Http\Controllers\AdminController::class, 'editMeterReading'])->name('edit-meter-reading');
 
+    Route::get('ads/categories', [\App\Http\Controllers\AdminController::class, 'showAdsCategories'])->name('category-list');
+    Route::post('ads/categories/add', [\App\Http\Controllers\AdminController::class, 'createAdCategory'])->name('add-ads-category');
+    Route::post('ads/categories/edit', [\App\Http\Controllers\AdminController::class, 'editAdCategory'])->name('edit-ads-category');
+    Route::get('/ads-category/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteAdsCategory']);
+
     Route::get('default-costs', [\App\Http\Controllers\AdminController::class, 'showDefaultCosts'])->name('default-costs');
     Route::get('/default-costs/{id}', [\App\Http\Controllers\AdminController::class, 'deleteDefaultCost']);
     Route::post('default-costs/add', [\App\Http\Controllers\AdminController::class, 'createDefaultCost'])->name('add-default-cost');
