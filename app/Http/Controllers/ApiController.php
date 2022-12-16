@@ -144,6 +144,8 @@ class ApiController extends Controller
                     $fixedCostArr[$n]['value'] = $fixedCost['value'];
                     $fixedCostArr[$n]['added_by'] = $postData['user_id'];
                     $fixedCostArr[$n]['created_at'] = date("Y-m-d H:i:s");
+                    if(isset($fixedCost['is_active']))
+                        $fixedCostArr[$n]['is_active'] = $postData['is_active'];
                     $n++;
                 }
                 FixedCost::insert($fixedCostArr);
@@ -232,6 +234,9 @@ class ApiController extends Controller
                         'added_by' => $postData['user_id'],
                         'created_at' => date("Y-m-d H:i:s")
                     );
+                    if(isset($fixedCost['is_active']))
+                        $fixedCostArr['is_active'] = $fixedCost['is_active'];
+
                     if(!empty($fixedCost['id']))
                         FixedCost::where('id', $fixedCost['id'])->update($fixedCostArr);
                     else

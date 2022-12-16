@@ -15,6 +15,7 @@ class FixedCost extends Model
         'value',
         'is_default',
         'added_by',
+        'is_active',
         'created_at'
     ];
 
