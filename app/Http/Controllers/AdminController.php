@@ -9,6 +9,7 @@ use App\Models\FixedCost;
 use App\Models\Meter;
 use App\Models\MeterReadings;
 use App\Models\MeterType;
+use App\Models\RegionAlarms;
 use App\Models\Regions;
 use App\Models\Settings;
 use App\Models\Site;
@@ -736,6 +737,35 @@ class AdminController extends Controller
         return view('admin.default-costs', ['defaultCosts' => $defaultCosts]);
     }
 
+    public function showAlarms(Request $request)
+    {
+        $regionAlarms = RegionAlarms::with('region')->get();
+        $regions = Regions::all();
+        return view('admin.alarms', ['regionAlarms' => $regionAlarms, 'regions' => $regions]);
+    }
+
+    public function deleteAlarm(Request $request, $id)
+    {
+        if(empty($id)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+
+        // In next phase delete all the related models as well.
+        $deleted = RegionAlarms::where('id', $id)->delete();
+        if($deleted) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Alarm removed successfully!');
+            return redirect()->back();
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
     public function deleteDefaultCost(Request $request, $id)
     {
         if(empty($id)) {
@@ -777,6 +807,29 @@ class AdminController extends Controller
         }
     }
 
+    public function createAlarm(Request $request)
+    {
+        $postData = $request->post();
+        $alarmArr = array(
+            'region_id' => $postData['region_id'],
+            'date' => $postData['alarm_date'],
+            'time' => $postData['alarm_time'],
+            'message' => $postData['alarm_message'],
+            'added_by' => Auth::user()->id
+        );
+
+        $result = RegionAlarms::create($alarmArr);
+        if($result) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Alarm created successfully!');
+            return redirect('admin/alarms');
+        } else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
     public function editDefaultCost(Request $request)
     {
         $postData = $request->post();
@@ -796,6 +849,35 @@ class AdminController extends Controller
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Cost updated successfully!');
             return redirect('admin/default-costs');
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function editAlarm(Request $request)
+    {
+        $postData = $request->post();
+        if(empty($postData['alarm_id'])) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+
+        $updArr = array(
+            'region_id' => $postData['region_id'],
+            'date' => $postData['alarm_date'],
+            'time' => $postData['alarm_time'],
+            'message' => $postData['alarm_message']
+        );
+
+        $updated = RegionAlarms::where('id', $postData['alarm_id'])->update($updArr);
+        if($updated) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Cost updated successfully!');
+            return redirect('admin/alarms');
         }
         else {
             Session::flash('alert-class', 'alert-danger');

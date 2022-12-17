@@ -10,6 +10,8 @@ use App\Models\FixedCost;
 use App\Models\Meter;
 use App\Models\MeterReadings;
 use App\Models\MeterType;
+use App\Models\RegionAlarms;
+use App\Models\Regions;
 use App\Models\Settings;
 use App\Models\Site;
 use App\Models\User;
@@ -536,12 +538,14 @@ class ApiController extends Controller
     }
 
     public function getTC() {
+
         $settings = Settings::first();
         $data = ['id' => $settings->id, 'terms_condition' => $settings->terms_condition];
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Terms and conditions retrieved successfully!', 'data' => $data]);
     }
 
     public function getAds() {
+
         $ads = Ads::with('category')->get();
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Ads retrieved  successfully!', 'data' => $ads]);
     }
@@ -557,4 +561,27 @@ class ApiController extends Controller
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Ads categories retrieved successfully!', 'data' => $categories]);
     }
 
+    public function getAlarms(Request $request) {
+
+        $postData = $request->post();
+        $whereArr = [];
+        if(!empty($postData['date']))
+            $whereArr['date'] = date("Y-m-d", strtotime($postData['date']));
+
+        if(!empty($postData['region_id']))
+            $whereArr['region_id'] = $postData['region_id'];
+
+        if(!empty($whereArr))
+            $alarms = RegionAlarms::where($whereArr)->get();
+        else
+            $alarms = RegionAlarms::all();
+
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Alarms retrieved successfully!', 'data' => $alarms]);
+    }
+
+    public function getRegions() {
+
+        $regions = Regions::all();
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Regions retrieved  successfully!', 'data' => $regions]);
+    }
 }

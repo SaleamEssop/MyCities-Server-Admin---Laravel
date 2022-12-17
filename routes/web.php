@@ -78,7 +78,12 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::post('ads/add', [\App\Http\Controllers\AdminController::class, 'createAd'])->name('add-ads');
     Route::get('/ads/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteAd']);
     Route::get('/ads/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editAdForm']);
-     Route::post('/ads/edit', [\App\Http\Controllers\AdminController::class, 'editAd'])->name('edit-ad');
+    Route::post('/ads/edit', [\App\Http\Controllers\AdminController::class, 'editAd'])->name('edit-ad');
+
+    Route::get('alarms', [\App\Http\Controllers\AdminController::class, 'showAlarms'])->name('alarms');
+    Route::get('/alarm/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteAlarm']);
+    Route::post('alarm/add', [\App\Http\Controllers\AdminController::class, 'createAlarm'])->name('add-alarm');
+    Route::post('alarm/edit', [\App\Http\Controllers\AdminController::class, 'editAlarm'])->name('edit-alarm');
 
     Route::get('default-costs', [\App\Http\Controllers\AdminController::class, 'showDefaultCosts'])->name('default-costs');
     Route::get('/default-costs/{id}', [\App\Http\Controllers\AdminController::class, 'deleteDefaultCost']);

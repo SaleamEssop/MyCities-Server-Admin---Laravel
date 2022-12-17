@@ -25,7 +25,7 @@
                         <tr>
                             <th>#</th>
                             <th>Ad Image</th>
-                            <th>Category Name</th>
+                            <th>Category</th>
                             <th>Ad Name</th>
                             <th>Url</th>
                             <th>Price</th>
@@ -38,7 +38,7 @@
                         <tr>
                             <th>#</th>
                             <th>Ad Image</th>
-                            <th>Category Name</th>
+                            <th>Category</th>
                             <th>Ad Name</th>
                             <th>Url</th>
                             <th>Price</th>

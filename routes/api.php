@@ -65,6 +65,12 @@ Route::prefix('v1')->group(function() {
         Route::get('/get-categories', [\App\Http\Controllers\ApiController::class, 'getAdsCategories']);
     });
 
+    // Regions related routes
+    Route::group(['prefix' => 'regions'],function() {
+        Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getRegions']);
+    });
+
+    Route::get('/get-alarms', [\App\Http\Controllers\ApiController::class, 'getAlarms'])->middleware(['auth:sanctum']);
     Route::get('/all-data', [\App\Http\Controllers\ApiController::class, 'getAllData'])->middleware(['auth:sanctum']);
     Route::get('/greetings', function() {
         return "Hello there";

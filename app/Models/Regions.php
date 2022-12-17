@@ -16,4 +16,9 @@ class Regions extends Model
         return $this->hasMany(Site::class, 'region_id');
     }
 
+    public function alarms()
+    {
+        return $this->hasMany(RegionAlarms::class, 'region_id');
+    }
+
 }
