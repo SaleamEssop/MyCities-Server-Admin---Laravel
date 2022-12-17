@@ -60,7 +60,7 @@ Route::prefix('v1')->group(function() {
     });
 
     // Ads related routes
-    Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'ads'],function() {
+    Route::group(['prefix' => 'ads'],function() {
         Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getAds']);
         Route::get('/get-categories', [\App\Http\Controllers\ApiController::class, 'getAdsCategories']);
     });
