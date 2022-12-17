@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\AccountFixedCost;
+use App\Models\Ads;
+use App\Models\AdsCategory;
 use App\Models\FixedCost;
 use App\Models\Meter;
 use App\Models\MeterReadings;
@@ -538,4 +540,21 @@ class ApiController extends Controller
         $data = ['id' => $settings->id, 'terms_condition' => $settings->terms_condition];
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Terms and conditions retrieved successfully!', 'data' => $data]);
     }
+
+    public function getAds() {
+        $ads = Ads::with('category')->get();
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Ads retrieved  successfully!', 'data' => $ads]);
+    }
+
+    public function getAdsCategories(Request $request) {
+
+        $postData = $request->post();
+        if(!empty($postData['category_id']))
+            $categories = AdsCategory::with('ads')->where('id', $postData['category_id'])->get();
+        else
+            $categories = AdsCategory::with('ads')->get();
+
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Ads categories retrieved successfully!', 'data' => $categories]);
+    }
+
 }

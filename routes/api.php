@@ -59,6 +59,12 @@ Route::prefix('v1')->group(function() {
         Route::post('/delete-readings', [\App\Http\Controllers\ApiController::class, 'deleteMeterReading']);
     });
 
+    // Ads related routes
+    Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'ads'],function() {
+        Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getAds']);
+        Route::get('/get-categories', [\App\Http\Controllers\ApiController::class, 'getAdsCategories']);
+    });
+
     Route::get('/all-data', [\App\Http\Controllers\ApiController::class, 'getAllData'])->middleware(['auth:sanctum']);
     Route::get('/greetings', function() {
         return "Hello there";

@@ -108,7 +108,7 @@
                             <input placeholder="Enter new ad price" type="number" class="form-control" name="ad_price" required />
                         </div>
                         <div class="form-group">
-                            <input placeholder="Enter new ad priority" type="number" class="form-control" name="ad_priority" value="0" />
+                            <input placeholder="Enter new ad priority" type="number" class="form-control" name="ad_priority" />
                         </div>
                         @csrf
                     </div>

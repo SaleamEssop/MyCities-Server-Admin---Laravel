@@ -20,7 +20,7 @@ class CreateAdsTable extends Migration
             $table->string('image');
             $table->string('url');
             $table->double('price');
-            $table->integer('priority')->default(0);
+            $table->integer('priority')->nullable();
             $table->timestamps();
         });
     }

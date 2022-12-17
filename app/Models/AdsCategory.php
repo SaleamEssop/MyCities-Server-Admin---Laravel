@@ -13,6 +13,6 @@ class AdsCategory extends Model
 
     public function ads()
     {
-        return $this->hasMany(Ads::class);
+        return $this->hasMany(Ads::class)->orderByRaw('ISNULL(priority), priority ASC');
     }
 }

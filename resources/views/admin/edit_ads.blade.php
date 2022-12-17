@@ -44,7 +44,7 @@
                             <input placeholder="Enter new ad price" type="number" value="{{ $ad->price }}" class="form-control" name="ad_price" required />
                         </div>
                         <div class="form-group">
-                            <input placeholder="Enter new ad priority" type="number" value="{{ $ad->priority }}" class="form-control" name="ad_priority" value="0" />
+                            <input placeholder="Enter new ad priority" type="number" value="{{ $ad->priority }}" class="form-control" name="ad_priority" />
                         </div>
                         @csrf
                         <input type="hidden" name="ad_id" value="{{ $ad->id }}" />
