@@ -59,12 +59,12 @@
                                 <td>{{ $ad->priority }}</td>
                                 <td>{{ $ad->created_at }}</td>
                                 <td>
-                                    {{--<a href="#" id="updateCatBtn" data-id="{{ $ad->id }}" data-title="{{ $ad->name }}" data-toggle="modal" data-target="#updateModal" class="btn btn-info btn-circle">
+                                    <a href="{{ url('admin/ads/edit/'.$ad->id) }}" class="btn btn-info btn-circle">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="{{ url('admin/ads-category/delete/'.$ad->id) }}" onclick="return confirm('Are you sure you want to delete this ad?')" class="btn btn-danger btn-circle">
+                                    <a href="{{ url('admin/ads/delete/'.$ad->id) }}" onclick="return confirm('Are you sure you want to delete this ad?')" class="btn btn-danger btn-circle">
                                         <i class="fas fa-trash"></i>
-                                    </a>--}}
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
@@ -120,47 +120,12 @@
             </div>
         </div>
     </div>
-
-    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="costModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="costModalLabel">Update Category</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form method="POST" action="{{ route('edit-ads-category') }}">
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <input id="upd-name" placeholder="Enter category name" type="text" class="form-control" name="category_name" required />
-                        </div>
-                        <input type="hidden" name="category_id" id="upd-id" />
-                        @csrf
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @section('page-level-scripts')
     <script type="text/javascript">
         $(document).ready(function() {
             $('#acc-dataTable').dataTable();
-
-            $(document).on("click", "#updateCatBtn", function() {
-                var ID = $(this).data('id');
-                var title = $(this).data('title');
-
-                // Now add these values to the fields
-                $("#upd-id").val(ID);
-                $("#upd-name").val(title);
-            });
         });
     </script>
 @endsection

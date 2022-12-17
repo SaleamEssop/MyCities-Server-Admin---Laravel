@@ -76,8 +76,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
 
     Route::get('ads', [\App\Http\Controllers\AdminController::class, 'showAds'])->name('ads-list');
     Route::post('ads/add', [\App\Http\Controllers\AdminController::class, 'createAd'])->name('add-ads');
-    // Route::post('ads/categories/edit', [\App\Http\Controllers\AdminController::class, 'editAdCategory'])->name('edit-ads-category');
-    // Route::get('/ads-category/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteAdsCategory']);
+    Route::get('/ads/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteAd']);
+    Route::get('/ads/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editAdForm']);
+     Route::post('/ads/edit', [\App\Http\Controllers\AdminController::class, 'editAd'])->name('edit-ad');
 
     Route::get('default-costs', [\App\Http\Controllers\AdminController::class, 'showDefaultCosts'])->name('default-costs');
     Route::get('/default-costs/{id}', [\App\Http\Controllers\AdminController::class, 'deleteDefaultCost']);

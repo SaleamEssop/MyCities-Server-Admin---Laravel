@@ -328,6 +328,18 @@ class AdminController extends Controller
         return view('admin.edit_site', ['site' => $site, 'users' => $users, 'regions' => $regions]);
     }
 
+    public function editAdForm(Request $request, $id)
+    {
+        if(empty($id)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, ad ID is required.');
+            return redirect()->back();
+        }
+        $ad = Ads::with('category')->find($id);
+        $categories = AdsCategory::all();
+        return view('admin.edit_ads', ['ad' => $ad, 'categories' => $categories]);
+    }
+
     public function editSite(Request $request)
     {
         $postData = $request->post();
@@ -354,6 +366,46 @@ class AdminController extends Controller
             return redirect('admin/sites');
         }
         else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function editAd(Request $request)
+    {
+        $postData = $request->post();
+        if(empty($postData['ad_id'])) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, ad ID is required.');
+            return redirect('/admin/ads')->back();
+        }
+
+        $path = '';
+        if($request->hasFile('ad_image'))
+            $path = $request->file('ad_image')->store('public/ads');
+
+        $ad = Ads::find($postData['ad_id']);
+        if(empty($ad)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect('/admin/ads/');
+        }
+
+        $ad->ads_category_id = $postData['ads_category_id'];
+        $ad->name = $postData['ad_name'];
+        $ad->url = $postData['ad_url'];
+        $ad->price = $postData['ad_price'];
+        $ad->priority = $postData['ad_priority'];
+
+        if(!empty($path))
+            $ad->image = $path;
+
+        if($ad->save()) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Ad updated successfully!');
+            return redirect('/admin/ads/');
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -845,6 +897,28 @@ class AdminController extends Controller
         if($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Category deleted successfully!');
+            return redirect()->back();
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function deleteAd(Request $request, $id)
+    {
+        if(empty($id)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+
+        // In next phase delete all the related models as well.
+        $deleted = Ads::where('id', $id)->delete();
+        if($deleted) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Ad deleted successfully!');
             return redirect()->back();
         }
         else {
