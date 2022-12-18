@@ -9,7 +9,7 @@ class Regions extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'cost'];
+    protected $fillable = ['name', 'electricity_base_unit_cost','electricity_base_unit', 'water_base_unit_cost', 'water_base_unit', 'cost'];
 
     public function sites()
     {

@@ -170,7 +170,7 @@
 
         <li class="nav-item">
             <a class="nav-link" href="{{ route('alarms') }}">
-                <i class="fas fa-fw fa-money-check"></i>
+                <i class="fas fa-fw fa-clock"></i>
                 <span>Alarms</span></a>
         </li>
 

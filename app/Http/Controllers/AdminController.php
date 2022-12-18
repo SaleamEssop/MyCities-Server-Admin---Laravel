@@ -224,6 +224,10 @@ class AdminController extends Controller
         $postData = $request->post();
         $regArr = array(
             'name' => $postData['region_name'],
+            'water_base_unit' => $postData['water_base'] ?? null,
+            'water_base_unit_cost' => $postData['water_unit'] ?? null,
+            'electricity_base_unit' => $postData['elect_base'] ?? null,
+            'electricity_base_unit_cost' => $postData['elect_unit'] ?? null,
             'cost' => $postData['region_cost'] ?? null
         );
         $result = Regions::create($regArr);
@@ -928,7 +932,11 @@ class AdminController extends Controller
 
         $updArr = array(
             'name' => $postData['region_name'],
-            'cost' => $postData['region_cost']
+            'water_base_unit' => $postData['water_base'] ?? null,
+            'water_base_unit_cost' => $postData['water_unit'] ?? null,
+            'electricity_base_unit' => $postData['elect_base'] ?? null,
+            'electricity_base_unit_cost' => $postData['elect_unit'] ?? null,
+            'cost' => $postData['region_cost'] ?? null
         );
 
         $updated = Regions::where('id', $postData['region_id'])->update($updArr);
