@@ -3260,6 +3260,18 @@ input[type="button"].btn-block {
     z-index: 1;
 }
 
+.custom-login-logo {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.cust-login-btn {
+    background-color: #fdd600;
+    color: white;
+}
 .btn-toolbar {
     display: flex;
     flex-wrap: wrap;
@@ -10869,7 +10881,7 @@ a:focus {
 }
 
 .bg-login-image {
-    background: url("https://source.unsplash.com/K4mSJ7kc0As/600x800");
+    background: url("../img/logo.PNG");
     background-position: center;
     background-size: cover;
 }

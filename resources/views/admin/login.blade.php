@@ -35,7 +35,11 @@
                 <div class="card-body p-0">
                     <!-- Nested Row within Card Body -->
                     <div class="row">
-                        <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
+                        <div class="col-lg-6 d-none d-lg-block">
+                            <div class="custom-login-logo">
+                                <img src="{{ url('img/logo.png') }}" alt="logo" width="100%" />
+                            </div>
+                        </div>
                         <div class="col-lg-6">
                             <div class="p-5">
                                 <div class="text-center">
@@ -62,7 +66,7 @@
                                                 Me</label>
                                         </div>
                                     </div>
-                                    <button type="submit" href="index.html" class="btn btn-primary btn-user btn-block">
+                                    <button type="submit" class="btn btn-user btn-block cust-login-btn">
                                         Login
                                     </button>
                                     <hr>
