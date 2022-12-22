@@ -7,7 +7,7 @@
 
         <!-- Page Heading -->
         <div class="cust-page-head">
-            <h1 class="h3 mb-2 text-gray-800">Regions</h1>
+            <h1 class="h3 mb-2 custom-text-heading">Regions</h1>
             <button type="button" class="btn btn-primary btn-circle" data-toggle="modal" data-target="#costModal">
                 <i class="fas fa-plus-square"></i>
             </button>
@@ -16,7 +16,7 @@
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">List of regions added by the admin</h6>
+                <h6 class="m-0 font-weight-bold">List of regions added by the admin</h6>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -59,7 +59,7 @@
                                     <a href="#" id="updateCostBtn" data-id="{{ $region->id }}" data-title="{{ $region->name }}"
                                        data-water-unit="{{ $region->water_base_unit }}" data-water-base="{{ $region->water_base_unit_cost }}"
                                        data-elect-unit="{{ $region->electricity_base_unit }}" data-elect-base="{{ $region->electricity_base_unit_cost }}"
-                                       data-cost="{{ $region->cost }}" data-toggle="modal" data-target="#updateModal" class="btn btn-info btn-circle">
+                                       data-cost="{{ $region->cost }}" data-toggle="modal" data-target="#updateModal" class="btn btn-warning btn-circle">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="{{ url('admin/region/delete/'.$region->id) }}" onclick="return confirm('Are you sure you want to delete this region?')" class="btn btn-danger btn-circle">

@@ -6,12 +6,12 @@
     <div class="container-fluid">
 
         <!-- Page Heading -->
-        <h1 class="h3 mb-2 text-gray-800">Meters</h1>
+        <h1 class="h3 mb-2 custom-text-heading">Meters</h1>
 
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">List of meters under accounts</h6>
+                <h6 class="m-0 font-weight-bold">List of meters under accounts</h6>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -48,7 +48,7 @@
                                 <td>{{ $meter->meter_number }}</td>
                                 <td>{{ $meter->created_at }}</td>
                                 <td>
-                                    <a href="{{ url('admin/meter/edit/'.$meter->id) }}" class="btn btn-info btn-circle">
+                                    <a href="{{ url('admin/meter/edit/'.$meter->id) }}" class="btn btn-warning btn-circle">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="{{ url('admin/meter/delete/'.$meter->id) }}" onclick="return confirm('Are you sure you want to delete this meter?')" class="btn btn-danger btn-circle">

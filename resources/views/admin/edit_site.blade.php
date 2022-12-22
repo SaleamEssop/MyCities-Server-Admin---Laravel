@@ -6,7 +6,7 @@
     <div class="container-fluid">
 
         <!-- Page Heading -->
-        <h1 class="h3 mb-2 text-gray-800">Edit Site</h1>
+        <h1 class="h3 mb-2 custom-text-heading">Edit Site</h1>
 
         <div class="cust-form-wrapper">
             <div class="row">

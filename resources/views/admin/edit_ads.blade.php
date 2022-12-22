@@ -7,7 +7,7 @@
 
         <!-- Page Heading -->
         <div class="cust-page-head">
-            <h1 class="h3 mb-2 text-gray-800">Ads</h1>
+            <h1 class="h3 mb-2 custom-text-heading">Ads</h1>
             <button type="button" class="btn btn-primary btn-circle" data-toggle="modal" data-target="#catModal">
                 <i class="fas fa-plus-square"></i>
             </button>

@@ -7,7 +7,7 @@
 
         <!-- Page Heading -->
         <div class="cust-page-head">
-            <h1 class="h3 mb-2 text-gray-800">Ads Categories</h1>
+            <h1 class="h3 mb-2 custom-text-heading">Ads Categories</h1>
             <button type="button" class="btn btn-primary btn-circle" data-toggle="modal" data-target="#catModal">
                 <i class="fas fa-plus-square"></i>
             </button>
@@ -16,7 +16,7 @@
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">List of categories for Ads</h6>
+                <h6 class="m-0 font-weight-bold">List of categories for Ads</h6>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -44,7 +44,7 @@
                                 <td>{{ $category->name }}</td>
                                 <td>{{ $category->created_at }}</td>
                                 <td>
-                                    <a href="#" id="updateCatBtn" data-id="{{ $category->id }}" data-title="{{ $category->name }}" data-toggle="modal" data-target="#updateModal" class="btn btn-info btn-circle">
+                                    <a href="#" id="updateCatBtn" data-id="{{ $category->id }}" data-title="{{ $category->name }}" data-toggle="modal" data-target="#updateModal" class="btn btn-warning btn-circle">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="{{ url('admin/ads-category/delete/'.$category->id) }}" onclick="return confirm('Are you sure you want to delete this category?')" class="btn btn-danger btn-circle">

@@ -7,7 +7,7 @@
 
         <!-- Page Heading -->
         <div class="cust-page-head">
-            <h1 class="h3 mb-2 text-gray-800">Default Costs</h1>
+            <h1 class="h3 mb-2 custom-text-heading">Default Costs</h1>
             <button type="button" class="btn btn-primary btn-circle" data-toggle="modal" data-target="#costModal">
                 <i class="fas fa-plus-square"></i>
             </button>
@@ -16,7 +16,7 @@
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">List of default costs added by the admin</h6>
+                <h6 class="m-0 font-weight-bold">List of default costs added by the admin</h6>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -47,7 +47,7 @@
                                 <td>{{ $defaultCost->value ?? '-' }}</td>
                                 <td>{{ $defaultCost->created_at }}</td>
                                 <td>
-                                    <a href="#" id="updateCostBtn" data-id="{{ $defaultCost->id }}" data-title="{{ $defaultCost->title }}" data-value="{{ $defaultCost->value }}" data-toggle="modal" data-target="#updateModal" class="btn btn-info btn-circle">
+                                    <a href="#" id="updateCostBtn" data-id="{{ $defaultCost->id }}" data-title="{{ $defaultCost->title }}" data-value="{{ $defaultCost->value }}" data-toggle="modal" data-target="#updateModal" class="btn btn-warning btn-circle">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="{{ url('admin/default-cost/delete/'.$defaultCost->id) }}" onclick="return confirm('Are you sure you want to delete this cost?')" class="btn btn-danger btn-circle">

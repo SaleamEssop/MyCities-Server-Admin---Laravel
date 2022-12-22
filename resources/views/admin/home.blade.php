@@ -13,7 +13,7 @@
         </div>
 
         <!-- Content Row -->
-        <div class="row">
+        {{--<div class="row">
 
             <!-- Earnings (Monthly) Card Example -->
             <div class="col-xl-3 col-md-6 mb-4">
@@ -97,7 +97,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>--}}
 
         <!-- Content Row -->
 

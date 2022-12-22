@@ -6,7 +6,7 @@
     <div class="container-fluid">
 
         <!-- Page Heading -->
-        <h1 class="h3 mb-2 text-gray-800">Terms & Conditions</h1>
+        <h1 class="h3 mb-2 custom-text-heading">Terms & Conditions</h1>
 
         <div class="cust-form-wrapper">
             <div class="row">
@@ -17,7 +17,7 @@
                         </div>
                         <input type="hidden" name="setting_id" value="{{ $settings->id ?? '' }}">
                         @csrf
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="submit" class="btn btn-warning">Submit</button>
                     </form>
                 </div>
             </div>
