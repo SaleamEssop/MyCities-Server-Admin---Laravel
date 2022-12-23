@@ -30,7 +30,7 @@
 
         <!-- Sidebar - Brand -->
         <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url('admin/') }}">
-            <img src="{{ url('img/logo.png') }}" alt="logo-img" width="100%" />
+            <img src="{{ asset('img/logo.png') }}" alt="logo-img" width="100%" />
         </a>
 
         <!-- Divider -->
