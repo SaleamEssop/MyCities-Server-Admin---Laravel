@@ -30,7 +30,7 @@
 
         <!-- Sidebar - Brand -->
         <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ url('admin/') }}">
-            <img src="{{ \Illuminate\Support\Facades\URL::to(\Illuminate\Support\Facades\Storage::url('public/logo.png')) }}" alt="logo-img" width="100%" />
+            <img src="{{ \Illuminate\Support\Facades\URL::to(\Illuminate\Support\Facades\Storage::url('public/images/logo.png')) }}" alt="logo-img" width="100%" />
         </a>
 
         <!-- Divider -->
