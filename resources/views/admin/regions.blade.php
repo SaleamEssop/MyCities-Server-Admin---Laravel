@@ -8,7 +8,7 @@
         <!-- Page Heading -->
         <div class="cust-page-head">
             <h1 class="h3 mb-2 custom-text-heading">Regions</h1>
-            <button type="button" class="btn btn-primary btn-circle" data-toggle="modal" data-target="#costModal">
+            <button type="button" class="btn btn-warning btn-circle" data-toggle="modal" data-target="#costModal">
                 <i class="fas fa-plus-square"></i>
             </button>
         </div>

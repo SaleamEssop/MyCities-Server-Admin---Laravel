@@ -165,6 +165,9 @@ class ApiController extends Controller
                     $defaultCostArr[$d]['fixed_cost_id'] = $defaultCost['id'];
                     $defaultCostArr[$d]['value'] = $defaultCost['value'];
                     $defaultCostArr[$d]['created_at'] = date("Y-m-d H:i:s");
+                    if(isset($defaultCost['is_active']))
+                        $defaultCostArr[$d]['is_active'] = $defaultCost['is_active'];
+
                     $d++;
                 }
                 AccountFixedCost::insert($defaultCostArr);
@@ -255,7 +258,14 @@ class ApiController extends Controller
                     if(empty($defaultCost['id']))
                         continue;
 
-                    AccountFixedCost::where('id', $defaultCost['id'])->update(['value' => $defaultCost['value']]);
+                    $upd = array(
+                        'value' => $defaultCost['value']
+                    );
+
+                    if(isset($defaultCost['is_active']))
+                        $upd['is_active'] = $defaultCost['is_active'];
+
+                    AccountFixedCost::where('id', $defaultCost['id'])->update($upd);
                 }
             }
 
@@ -300,13 +310,26 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, user_id is required!']);
 
         $userID = $request->get('user_id');
-        // Get sites added by the user
-        //$data = Site::with('account.fixedCosts')->where('user_id', $userID)->get();
+        $defaultCosts = FixedCost::where('is_default', 1)->get();
 
-        //$data = Site::with('account.accountFixedCosts.fixedCost')->where('user_id', $userID)->get();
         $data = Site::with(['account.fixedCosts', 'account.defaultFixedCosts.fixedCost'])->where('user_id', $userID)->get();
-
-        // Get default fixed costs
+        foreach ($data as $site) {
+            foreach ($site->account as $account) {
+                if(count($account->defaultFixedCosts) == 0 && count($defaultCosts) > 0) {
+                    // Looks like account default cost relationship has not been set yet
+                    $arr = [];
+                    foreach ($defaultCosts as $defaultCost) {
+                        $arr = array(
+                            'account_id' => $account->id,
+                            'fixed_cost_id' => $defaultCost->id,
+                            'is_active' => 1
+                        );
+                        AccountFixedCost::create($arr);
+                    }
+                }
+                $account->refresh();
+            }
+        }
 
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Data retrieved successfully!', 'data' => $data]);
     }
@@ -383,6 +406,37 @@ class ApiController extends Controller
         $res = Account::with('fixedCosts')->where('id', $postData['account_id'])->get();
         if($res)
             return response()->json(['status' => true, 'code' => 200, 'data' => $res, 'msg' => 'Fixed cost added successfully!']);
+        else
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
+    }
+
+    public function addDefaultCost(Request $request) {
+
+        $postData = $request->post();
+        if(empty($postData['account_id']))
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
+
+        if(!empty($postData['default_fixed_cost'])) {
+            foreach ($postData['default_fixed_cost'] as $defaultCost) {
+                if(empty($defaultCost['id']))
+                    continue;
+
+                $upd = [];
+                if(!empty($defaultCost['value']))
+                    $upd['value'] = $defaultCost['value'];
+
+                if(isset($defaultCost['is_active']))
+                    $upd['is_active'] = $defaultCost['is_active'];
+
+                if(!empty($upd))
+                    AccountFixedCost::where('id', $defaultCost['id'])->update($upd);
+            }
+        }
+
+        // Get all fixed costs for the account
+        $res = AccountFixedCost::where('account_id', $postData['account_id'])->get();
+        if($res)
+            return response()->json(['status' => true, 'code' => 200, 'data' => $res, 'msg' => 'Default cost added successfully!']);
         else
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
     }
@@ -601,8 +655,15 @@ class ApiController extends Controller
         if(empty($postData['account_id']))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
 
-        $fixedCosts = FixedCost::with('account')->where('account_id', $postData['account_id'])->get();
+        $fixedCosts = FixedCost::with('account')->where('account_id', $postData['account_id'])
+            ->where('is_default', 0)->get();
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Fixed costs retrieved  successfully!', 'data' => $fixedCosts]);
+    }
+
+    public function getDefaultCosts() {
+
+        $defaultCosts = FixedCost::select('id','account_id','title','value','is_default','created_at')->where('is_default', 1)->get();
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Default costs retrieved  successfully!', 'data' => $defaultCosts]);
     }
 
     public function getAdsCategories(Request $request) {

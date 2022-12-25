@@ -17,7 +17,7 @@ class CreateAccountFixedCostsTable extends Migration
             $table->id();
             $table->integer('account_id');
             $table->integer('fixed_cost_id');
-            $table->double('value');
+            $table->double('value')->nullable();
             $table->timestamps();
         });
     }

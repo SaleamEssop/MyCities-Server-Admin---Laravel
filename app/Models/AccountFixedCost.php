@@ -12,7 +12,8 @@ class AccountFixedCost extends Model
     protected $fillable = [
         'account_id',
         'fixed_cost_id',
-        'value'
+        'value',
+        'is_active'
     ];
 
 
