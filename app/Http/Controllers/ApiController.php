@@ -344,6 +344,49 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
     }
 
+    public function addFixedCost(Request $request) {
+
+        $postData = $request->post();
+        $requiredFields = ['account_id', 'user_id'];
+        $validated = validateData($requiredFields, $postData);
+        if(!$validated['status'])
+            return response()->json(['status' => false, 'code' => 400, 'msg' => $validated['error']]);
+
+        if(!empty($postData['fixed_cost'])) {
+            foreach ($postData['fixed_cost'] as $fixedCost) {
+
+                if(empty($fixedCost['title']) || empty($fixedCost['value']))
+                    continue;
+
+                $costArr['account_id'] = $postData['account_id'];
+                $costArr['title'] = $fixedCost['title'];
+                $costArr['value'] = $fixedCost['value'];
+                $costArr['added_by'] = $postData['user_id'];
+                if(isset($fixedCost['is_active']))
+                    $costArr['is_active'] = $fixedCost['is_active'];
+
+                if(empty($fixedCost['id']))
+                    FixedCost::create($costArr);
+                else
+                    FixedCost::where('id', $fixedCost['id'])->update($costArr);
+            }
+        }
+
+        // Check if user has deleted any fixed costs or not
+        if(!empty($postData['removed_fixed_costs_ids'])) {
+            $removedCostIDs = $postData['removed_fixed_costs_ids'];
+            foreach($removedCostIDs as $removedCostID)
+                FixedCost::where('id', $removedCostID)->delete();
+        }
+
+        // Get all fixed costs for the account
+        $res = Account::with('fixedCosts')->where('id', $postData['account_id'])->get();
+        if($res)
+            return response()->json(['status' => true, 'code' => 200, 'data' => $res, 'msg' => 'Fixed cost added successfully!']);
+        else
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
+    }
+
     public function updateMeter(Request $request) {
 
         $postData = $request->post();
@@ -550,6 +593,16 @@ class ApiController extends Controller
 
         $ads = Ads::with('category')->get();
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Ads retrieved  successfully!', 'data' => $ads]);
+    }
+
+    public function getFixedCosts(Request $request) {
+
+        $postData = $request->post();
+        if(empty($postData['account_id']))
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
+
+        $fixedCosts = FixedCost::with('account')->where('account_id', $postData['account_id'])->get();
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Fixed costs retrieved  successfully!', 'data' => $fixedCosts]);
     }
 
     public function getAdsCategories(Request $request) {
