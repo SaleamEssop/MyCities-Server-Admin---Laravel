@@ -10,6 +10,7 @@ use App\Models\Meter;
 use App\Models\MeterReadings;
 use App\Models\MeterType;
 use App\Models\RegionAlarms;
+use App\Models\RegionCosts;
 use App\Models\Regions;
 use App\Models\Settings;
 use App\Models\Site;
@@ -222,16 +223,22 @@ class AdminController extends Controller
     public function createRegion(Request $request)
     {
         $postData = $request->post();
-        $regArr = array(
-            'name' => $postData['region_name'],
-            'water_base_unit' => $postData['water_base'] ?? null,
-            'water_base_unit_cost' => $postData['water_unit'] ?? null,
-            'electricity_base_unit' => $postData['elect_base'] ?? null,
-            'electricity_base_unit_cost' => $postData['elect_unit'] ?? null,
-            'cost' => $postData['region_cost'] ?? null
-        );
-        $result = Regions::create($regArr);
-        if($result) {
+        $region = Regions::create(['name' => $postData['region_name']]);
+        if($region) {
+            // Check for cost builders
+            if(!empty($postData['water_cost_min']) && count($postData['water_cost_min']) > 0) {
+                $costArr = [];
+                for($i = 0; $i < count($postData['water_cost_min']); $i++) {
+                    $costArr[$i]['meter_type_id'] = $postData['water_type_id'];
+                    $costArr[$i]['region_id'] = $region->id;
+                    $costArr[$i]['min'] = $postData['water_cost_min'][$i];
+                    $costArr[$i]['max'] = $postData['water_cost_max'][$i];
+                    $costArr[$i]['amount'] = $postData['water_cost_amount'][$i];
+                    $costArr[$i]['created_at'] = date('Y-m-d H:i:s');
+                }
+                RegionCosts::insert($costArr);
+            }
+
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Region created successfully!');
             return redirect('admin/regions');
@@ -1059,5 +1066,23 @@ class AdminController extends Controller
         Session::flash('alert-class', 'alert-danger');
         Session::flash('alert-message', 'Oops, something went wrong!');
         return redirect()->back();
+    }
+
+    public function addRegionForm(Request $request)
+    {
+        $waterType = MeterType::where('title', 'Water')->first();
+        $electType = MeterType::where('title', 'Electricity')->first();
+        $data = array(
+            'water_id' => $waterType->id ?? 0,
+            'elect_id' => $electType->id ?? 0
+        );
+
+        return view('admin.create_region', ['data' => $data]);
+    }
+
+    public function editRegionForm(Request $request, $id)
+    {
+        $region = Regions::find($id);
+        return view('admin.edit_region', ['region' => $region]);
     }
 }

@@ -69,9 +69,17 @@
 
         <!-- Nav Item - Utilities Collapse Menu -->
         <li class="nav-item">
-            <a class="nav-link" href="{{ route('regions-list') }}">
-                <i class="fas fa-fw fa-money-check"></i>
-                <span>Regions Management</span></a>
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRegions"
+               aria-expanded="true" aria-controls="collapseRegions">
+                <i class="fas fa-fw fa-location-arrow"></i>
+                <span>Regions Management</span>
+            </a>
+            <div id="collapseRegions" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('regions-list') }}">List</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-region-form') }}">Add</a>
+                </div>
+            </div>
         </li>
 
         <!-- Nav Item - Utilities Collapse Menu -->

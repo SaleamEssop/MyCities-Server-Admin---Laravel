@@ -55,11 +55,8 @@
                                 <td>{{ $region->electricity_base_unit ?? 'N/A' }}</td>
                                 <td>{{ $region->electricity_base_unit_cost ?? 'N/A' }}</td>
                                 <td>{{ $region->created_at }}</td>
-                                <td>
-                                    <a href="#" id="updateCostBtn" data-id="{{ $region->id }}" data-title="{{ $region->name }}"
-                                       data-water-unit="{{ $region->water_base_unit }}" data-water-base="{{ $region->water_base_unit_cost }}"
-                                       data-elect-unit="{{ $region->electricity_base_unit }}" data-elect-base="{{ $region->electricity_base_unit_cost }}"
-                                       data-cost="{{ $region->cost }}" data-toggle="modal" data-target="#updateModal" class="btn btn-warning btn-circle">
+                                <td>m
+                                    <a href="{{ url('admin/region/edit/'.$region->id) }}" class="btn btn-warning btn-circle">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="{{ url('admin/region/delete/'.$region->id) }}" onclick="return confirm('Are you sure you want to delete this region?')" class="btn btn-danger btn-circle">
@@ -85,75 +82,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form method="POST" action="{{ route('add-region') }}">
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <input placeholder="Enter region name" type="text" class="form-control" name="region_name" required />
-                        </div>
-                        <div class="form-group">
-                            <input placeholder="Enter water base unit" type="text" class="form-control" name="water_base" />
-                        </div>
-                        <div class="form-group">
-                            <input placeholder="Enter water base unit value" type="text" class="form-control" name="water_unit" />
-                        </div>
-                        <div class="form-group">
-                            <input placeholder="Enter electricity base unit" type="text" class="form-control" name="elect_base" />
-                        </div>
-                        <div class="form-group">
-                            <input placeholder="Enter electricity base unit value" type="text" class="form-control" name="elect_unit" />
-                        </div>
-                        <div class="form-group">
-                            <input placeholder="Enter region cost" type="text" class="form-control" name="region_cost" />
-                        </div>
-                        @csrf
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <!-- /.container-fluid -->
 
-    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="costModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="costModalLabel">Update Region</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form method="POST" action="{{ route('edit-region') }}">
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <input id="upd-name" placeholder="Enter region title" type="text" class="form-control" name="region_name" required />
-                        </div>
-                        <div class="form-group">
-                            <input id="upd-water-unit" placeholder="Enter water base unit" type="text" class="form-control" name="water_base" />
-                        </div>
-                        <div class="form-group">
-                            <input id="upd-water-base" placeholder="Enter water base unit value" type="text" class="form-control" name="water_unit" />
-                        </div>
-                        <div class="form-group">
-                            <input id="upd-elect-unit" placeholder="Enter electricity base unit" type="text" class="form-control" name="elect_base" />
-                        </div>
-                        <div class="form-group">
-                            <input id="upd-elect-base" placeholder="Enter electricity base unit value" type="text" class="form-control" name="elect_unit" />
-                        </div>
-                        <div class="form-group">
-                            <input id="upd-cost" placeholder="Enter cost(optional)" type="text" class="form-control" name="region_cost" />
-                        </div>
-                        <input type="hidden" name="region_id" id="upd-id" />
-                        @csrf
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
@@ -163,24 +92,6 @@
     <script type="text/javascript">
         $(document).ready(function() {
             $('#sites-dataTable').dataTable();
-
-            $(document).on("click", "#updateCostBtn", function() {
-                var ID = $(this).data('id');
-                var title = $(this).data('title');
-                var defaultValue = $(this).data('cost');
-                var waterUnit = $(this).data('water-unit');
-                var waterBase = $(this).data('water-base');
-                var electUnit = $(this).data('elect-unit');
-                var electBase = $(this).data('elect-base');
-
-                // Now add these values to the fields
-                $("#upd-id").val(ID);
-                $("#upd-name").val(title);
-                $("#upd-water-unit").val(waterUnit);
-                $("#upd-water-base").val(waterBase);
-                $("#upd-elect-unit").val(electUnit);
-                $("#upd-elect-base").val(electBase);
-            });
         });
     </script>
 @endsection
