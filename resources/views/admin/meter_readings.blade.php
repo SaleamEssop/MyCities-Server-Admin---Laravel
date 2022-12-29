@@ -40,7 +40,7 @@
                         @foreach($meterReadings as $meterReading)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $meterReading->meter->meter_title }}</td>
+                                <td>{{ $meterReading->meter->meter_title ?? '-' }}</td>
                                 <td>{{ $meterReading->reading_value }}</td>
                                 <td>{{ $meterReading->reading_date }}</td>
                                 <td>{{ $meterReading->created_at }}</td>
