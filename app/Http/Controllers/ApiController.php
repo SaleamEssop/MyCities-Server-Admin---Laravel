@@ -173,7 +173,12 @@ class ApiController extends Controller
                 AccountFixedCost::insert($defaultCostArr);
             }
 
-            $data = Account::with(['fixedCosts', 'defaultFixedCosts'])->find($res->id);
+            $defaultFixedCosts = Account::
+            join('account_fixed_costs as afc','afc.account_id','accounts.id')
+            ->join('fixed_costs as fc','fc.id','afc.fixed_cost_id')
+            ->where('accounts.id',$res->id)->get();
+            $data = Account::with(['fixedCosts'])->find($res->id);
+            $data->defaultFixedCosts = $defaultFixedCosts;
 
             return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account added successfully!', 'data' => $data]);
         }

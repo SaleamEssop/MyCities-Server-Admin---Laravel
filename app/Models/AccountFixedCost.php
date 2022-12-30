@@ -26,5 +26,7 @@ class AccountFixedCost extends Model
     {
         return $this->belongsTo(Account::class);
     }
-
+    public function getFixedCosts() {
+        return $this->hasOne(FixedCost::class, 'id', 'fixed_cost_id');
+    }
 }
