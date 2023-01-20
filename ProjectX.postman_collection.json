@@ -1,0 +1,1881 @@
+{
+	"info": {
+		"_postman_id": "4f743df4-c5e0-4a62-9966-e5a4e47df344",
+		"name": "ProjectX",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Update User",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "3|i4I2iCvwP9Xg01l3YOG2r4RJr7lJGCfRcnCAeJ5W",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "full_name",
+							"value": "GrumpUp",
+							"type": "default"
+						},
+						{
+							"key": "email",
+							"value": "jenny@gump.com",
+							"type": "default"
+						},
+						{
+							"key": "phone_number",
+							"value": "762341000",
+							"type": "default"
+						},
+						{
+							"key": "password",
+							"value": "qwe",
+							"type": "default"
+						},
+						{
+							"key": "action",
+							"value": "update",
+							"type": "default"
+						},
+						{
+							"key": "id",
+							"value": "2",
+							"type": "default"
+						}
+					],
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Server}}/api/v1/user/register",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "full_name",
+							"value": "Mov",
+							"type": "default"
+						},
+						{
+							"key": "email",
+							"value": "mo@v.com",
+							"type": "default"
+						},
+						{
+							"key": "phone_number",
+							"value": "8967786",
+							"type": "default"
+						},
+						{
+							"key": "password",
+							"value": "asd",
+							"type": "default"
+						},
+						{
+							"key": "action",
+							"value": "insert",
+							"type": "default"
+						}
+					],
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Server}}/api/v1/user/register",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "mo@v.com",
+							"type": "default"
+						},
+						{
+							"key": "password",
+							"value": "asd",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Server}}/api/v1/user/login",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 1|vfqSwwN03MrZgq7S0d5S0xnmu0bRgsZYXwBInOpR",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "6",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Server}}/api/v1/user/logout",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Sites",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 31|sxYBwaq04fFAcmf7AYwfDUy5nOxzZ8mKkhlEyfQl",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{Server}}/api/v1/sites/get?user_id=2",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"sites",
+						"get"
+					],
+					"query": [
+						{
+							"key": "user_id",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get terms and conditions",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 1|vfqSwwN03MrZgq7S0d5S0xnmu0bRgsZYXwBInOpR",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{Server}}/api/v1/terms-and-conditions",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"terms-and-conditions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Account",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 11|KtJCtO9Lqp7uLUvRpciChmI5OQN22y3YYf5dSwaZ",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "account_id",
+							"value": "2",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/account/delete",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"account",
+						"delete"
+					],
+					"query": [
+						{
+							"key": "location_id",
+							"value": "2",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Site",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "location_id",
+							"value": "2",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Server}}/api/v1/site/delete",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"site",
+						"delete"
+					],
+					"query": [
+						{
+							"key": "location_id",
+							"value": "2",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Site",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 32|Rtv7eHhwMPlJfkX2j6ANG6NsHh2yLs9minXmasUz",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "25",
+							"type": "default"
+						},
+						{
+							"key": "title",
+							"value": "Personal Storage",
+							"type": "default"
+						},
+						{
+							"key": "lat",
+							"value": "90988943234",
+							"type": "default"
+						},
+						{
+							"key": "lng",
+							"value": "897324754",
+							"type": "default"
+						},
+						{
+							"key": "address",
+							"value": "Streat 101",
+							"type": "default"
+						},
+						{
+							"key": "email",
+							"value": "sto@re.com",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Server}}/api/v1/sites/add",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"sites",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Site",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 3|i4I2iCvwP9Xg01l3YOG2r4RJr7lJGCfRcnCAeJ5W",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "default"
+						},
+						{
+							"key": "title",
+							"value": "Home",
+							"type": "default"
+						},
+						{
+							"key": "lat",
+							"value": "76676776",
+							"type": "default"
+						},
+						{
+							"key": "lng",
+							"value": "12325r60009",
+							"type": "default"
+						},
+						{
+							"key": "address",
+							"value": "22 Scratch Col",
+							"type": "default"
+						},
+						{
+							"key": "email",
+							"value": "sa@ve.com",
+							"type": "default"
+						},
+						{
+							"key": "site_id",
+							"value": "60",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/sites/update",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"sites",
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Account",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 32|Rtv7eHhwMPlJfkX2j6ANG6NsHh2yLs9minXmasUz",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "account_name",
+							"value": "PS Account 1",
+							"type": "default"
+						},
+						{
+							"key": "account_number",
+							"value": "021432117",
+							"type": "default"
+						},
+						{
+							"key": "optional_information",
+							"value": "this is personal storage facility",
+							"type": "default"
+						},
+						{
+							"key": "site_id",
+							"value": "12",
+							"type": "default"
+						},
+						{
+							"key": "user_id",
+							"value": "25",
+							"type": "default"
+						},
+						{
+							"key": "title",
+							"value": "Second home",
+							"type": "default",
+							"disabled": true
+						},
+						{
+							"key": "lat",
+							"value": "987875",
+							"type": "default",
+							"disabled": true
+						},
+						{
+							"key": "lng",
+							"value": "123516",
+							"type": "default",
+							"disabled": true
+						},
+						{
+							"key": "address",
+							"value": "MT road 123",
+							"type": "default",
+							"disabled": true
+						},
+						{
+							"key": "fixed_cost[0][name]",
+							"value": "Levy",
+							"type": "default"
+						},
+						{
+							"key": "fixed_cost[0][value]",
+							"value": "10",
+							"type": "default"
+						},
+						{
+							"key": "fixed_cost[1][name]",
+							"value": "Source charges",
+							"type": "default"
+						},
+						{
+							"key": "fixed_cost[1][value]",
+							"value": "320",
+							"type": "default"
+						},
+						{
+							"key": "default_fixed_cost[0][id]",
+							"value": "7",
+							"type": "default",
+							"disabled": true
+						},
+						{
+							"key": "default_fixed_cost[0][value]",
+							"value": "22",
+							"type": "default",
+							"disabled": true
+						},
+						{
+							"key": "default_fixed_cost[1][id]",
+							"value": "8",
+							"type": "default",
+							"disabled": true
+						},
+						{
+							"key": "default_fixed_cost[1][value]",
+							"value": "90",
+							"type": "default",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Server}}/api/v1/account/add",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"account",
+						"add"
+					],
+					"query": [
+						{
+							"key": "location_id",
+							"value": "2",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Account",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 3|i4I2iCvwP9Xg01l3YOG2r4RJr7lJGCfRcnCAeJ5W",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "account_name",
+							"value": "Keith Upd",
+							"type": "text"
+						},
+						{
+							"key": "account_number",
+							"value": "00000888",
+							"type": "text"
+						},
+						{
+							"key": "optional_information",
+							"value": "this is updated",
+							"type": "text"
+						},
+						{
+							"key": "site_id",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "fixed_cost[0][id]",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "fixed_cost[0][name]",
+							"value": "Meter Tax",
+							"type": "text"
+						},
+						{
+							"key": "fixed_cost[0][value]",
+							"value": "150",
+							"type": "text"
+						},
+						{
+							"key": "fixed_cost[0][is_active]",
+							"value": "0",
+							"type": "text"
+						},
+						{
+							"key": "fixed_cost[1][id]",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "fixed_cost[1][name]",
+							"value": "New charge",
+							"type": "text"
+						},
+						{
+							"key": "fixed_cost[1][value]",
+							"value": "230",
+							"type": "text"
+						},
+						{
+							"key": "fixed_cost[1][is_active]",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "default_fixed_cost[0][id]",
+							"value": "1",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "default_fixed_cost[0][value]",
+							"value": "22",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "default_fixed_cost[1][id]",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "default_fixed_cost[1][value]",
+							"value": "90",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "account_id",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "removed_fixed_costs_ids[0]",
+							"value": "6",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "removed_fixed_costs_ids[1]",
+							"value": "5",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/account/update",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"account",
+						"update"
+					],
+					"query": [
+						{
+							"key": "location_id",
+							"value": "2",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Account Copy",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 3|i4I2iCvwP9Xg01l3YOG2r4RJr7lJGCfRcnCAeJ5W",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "account_name",
+							"value": "Keith Upd",
+							"type": "text"
+						},
+						{
+							"key": "account_number",
+							"value": "00000888",
+							"type": "text"
+						},
+						{
+							"key": "optional_information",
+							"value": "this is updated",
+							"type": "text"
+						},
+						{
+							"key": "site_id",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "user_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "fixed_cost[0][id]",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "fixed_cost[0][name]",
+							"value": "Meter Tax",
+							"type": "text"
+						},
+						{
+							"key": "fixed_cost[0][value]",
+							"value": "150",
+							"type": "text"
+						},
+						{
+							"key": "fixed_cost[1][id]",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "fixed_cost[1][name]",
+							"value": "New charge",
+							"type": "text"
+						},
+						{
+							"key": "fixed_cost[1][value]",
+							"value": "230",
+							"type": "text"
+						},
+						{
+							"key": "default_fixed_cost[0][id]",
+							"value": "1",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "default_fixed_cost[0][value]",
+							"value": "22",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "default_fixed_cost[1][id]",
+							"value": "2",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "default_fixed_cost[1][value]",
+							"value": "90",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "account_id",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "removed_fixed_costs_ids[0]",
+							"value": "6",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "removed_fixed_costs_ids[1]",
+							"value": "5",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/account/update",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"account",
+						"update"
+					],
+					"query": [
+						{
+							"key": "location_id",
+							"value": "2",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Account",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 9|wUEaTVrEz6Y9rAnHoyj4LWJHhM8veRokGTWehd6B",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{Server}}/api/v1/account/get?account_id=20",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"account",
+						"get"
+					],
+					"query": [
+						{
+							"key": "account_id",
+							"value": "20"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Fixed Costs",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 10|WDGzCVMFRWlLw0nmcM2D4TrnZnr7N1fVyn2FLy79",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{Server}}/api/v1/fixed-cost/get?account_id=20",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"fixed-cost",
+						"get"
+					],
+					"query": [
+						{
+							"key": "account_id",
+							"value": "20"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Default Cost",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 10|WDGzCVMFRWlLw0nmcM2D4TrnZnr7N1fVyn2FLy79",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{Server}}/api/v1/default-cost/get",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"default-cost",
+						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Data",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 10|WDGzCVMFRWlLw0nmcM2D4TrnZnr7N1fVyn2FLy79",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{Server}}/api/v1/all-data?user_id=20",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"all-data"
+					],
+					"query": [
+						{
+							"key": "user_id",
+							"value": "20"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Meter",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 3|i4I2iCvwP9Xg01l3YOG2r4RJr7lJGCfRcnCAeJ5W",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "meter_type_id",
+							"value": "2",
+							"type": "default"
+						},
+						{
+							"key": "meter_title",
+							"value": "Third Electric Meter",
+							"type": "default"
+						},
+						{
+							"key": "meter_number",
+							"value": "6666865",
+							"type": "default"
+						},
+						{
+							"key": "meter_reading_date",
+							"value": "2022-12-30T12:06:12.968Z",
+							"type": "default"
+						},
+						{
+							"key": "meter_reading",
+							"value": "2300",
+							"type": "default"
+						},
+						{
+							"key": "account_id",
+							"value": "2",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/meter/add",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"meter",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Fixed Costs",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 10|WDGzCVMFRWlLw0nmcM2D4TrnZnr7N1fVyn2FLy79",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "6",
+							"type": "text"
+						},
+						{
+							"key": "account_id",
+							"value": "20",
+							"type": "text"
+						},
+						{
+							"key": "fixed_cost[0][id]",
+							"value": "14",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "fixed_cost[0][title]",
+							"value": "Levy You",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "fixed_cost[0][value]",
+							"value": "25",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "fixed_cost[0][is_active]",
+							"value": "1",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "fixed_cost[1][title]",
+							"value": "New Charge",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "fixed_cost[1][value]",
+							"value": "40",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "fixed_cost[1][is_active]",
+							"value": "0",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "removed_fixed_costs_ids[0]",
+							"value": "15",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "removed_fixed_costs_ids[1]",
+							"value": "31",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Server}}/api/v1/fixed-cost/add",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"fixed-cost",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Default Cost",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 10|WDGzCVMFRWlLw0nmcM2D4TrnZnr7N1fVyn2FLy79",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "user_id",
+							"value": "6",
+							"type": "text"
+						},
+						{
+							"key": "account_id",
+							"value": "20",
+							"type": "text"
+						},
+						{
+							"key": "default_fixed_cost[0][id]",
+							"value": "37",
+							"type": "text"
+						},
+						{
+							"key": "default_fixed_cost[0][value]",
+							"value": "300",
+							"type": "text"
+						},
+						{
+							"key": "default_fixed_cost[0][is_active]",
+							"value": "1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Server}}/api/v1/default-cost/add",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"default-cost",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Meter",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 3|i4I2iCvwP9Xg01l3YOG2r4RJr7lJGCfRcnCAeJ5W",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "meter_type_id",
+							"value": "2",
+							"type": "default"
+						},
+						{
+							"key": "meter_title",
+							"value": "Elec Meter",
+							"type": "default"
+						},
+						{
+							"key": "meter_number",
+							"value": "09563",
+							"type": "default"
+						},
+						{
+							"key": "meter_reading_date",
+							"value": "2022-11-22",
+							"type": "default"
+						},
+						{
+							"key": "meter_reading",
+							"value": "400",
+							"type": "default"
+						},
+						{
+							"key": "account_id",
+							"value": "2",
+							"type": "default"
+						},
+						{
+							"key": "meter_id",
+							"value": "1",
+							"type": "default"
+						},
+						{
+							"key": "meter_reading_id",
+							"value": "1",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/meter/update",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"meter",
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Meter",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/meter/get?account_id=1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"meter",
+						"get"
+					],
+					"query": [
+						{
+							"key": "account_id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Ads",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 5|mnOxhQZzuqrfS060JCGlkS68g4COfJ44PT1ct2Md",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/ads/get",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"ads",
+						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Ads Categories",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 5|mnOxhQZzuqrfS060JCGlkS68g4COfJ44PT1ct2Md",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/ads/get-categories",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"ads",
+						"get-categories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Alarms",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 22|gj8n9zj3IgTqznfVEEpFTWNmfMqy36nsZvZBbBrG",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{Server}}/api/v1/get-alarms",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"get-alarms"
+					],
+					"query": [
+						{
+							"key": "region_id",
+							"value": "3",
+							"disabled": true
+						},
+						{
+							"key": "date",
+							"value": "2023-03-04",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Regions",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 6|ux03kGSsV7F6iWB0Us1UY8oxENJGRUN2Rdit45rw",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{Server}}/api/v1/regions/get",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"regions",
+						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Alarms by Region",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 22|gj8n9zj3IgTqznfVEEpFTWNmfMqy36nsZvZBbBrG",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{Server}}/api/v1/get-alarms?region_id=1",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"get-alarms"
+					],
+					"query": [
+						{
+							"key": "region_id",
+							"value": "1"
+						},
+						{
+							"key": "date",
+							"value": "2023-03-04",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Alarms by Date",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 22|gj8n9zj3IgTqznfVEEpFTWNmfMqy36nsZvZBbBrG",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{Server}}/api/v1/get-alarms?date=2023-01-01",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"get-alarms"
+					],
+					"query": [
+						{
+							"key": "region_id",
+							"value": "3",
+							"disabled": true
+						},
+						{
+							"key": "date",
+							"value": "2023-01-01"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Specific Ads Categories",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 5|mnOxhQZzuqrfS060JCGlkS68g4COfJ44PT1ct2Md",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/ads/get-categories?category_id=2",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"ads",
+						"get-categories"
+					],
+					"query": [
+						{
+							"key": "category_id",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Meter Types",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Server}}/api/v1/meter/types",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"meter",
+						"types"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Meter",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "meter_id",
+							"value": "2",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Server}}/api/v1/meter/delete",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"meter",
+						"delete"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Forgot Password Verification",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "ray@upd.com",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Server}}/api/v1/forgot-password/email-verification",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"forgot-password",
+						"email-verification"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Forgot Password Verification Code",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "code",
+							"value": "13232",
+							"type": "default"
+						},
+						{
+							"key": "email",
+							"value": "ray@upd.com",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Server}}/api/v1/forgot-password/verify-code",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"forgot-password",
+						"verify-code"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Password Reset",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "ray@upd.com",
+							"type": "default"
+						},
+						{
+							"key": "password",
+							"value": "asd",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Server}}/api/v1/forgot-password/reset-password",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"forgot-password",
+						"reset-password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Meter Reading",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "reading_id",
+							"value": "1",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Server}}/api/v1/meter/delete-readings",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"meter",
+						"delete-readings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Meter Readings",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 3|i4I2iCvwP9Xg01l3YOG2r4RJr7lJGCfRcnCAeJ5W",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "meter_id",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "meter_reading_date",
+							"value": "2022-12-01",
+							"type": "text"
+						},
+						{
+							"key": "meter_reading",
+							"value": "560",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/meter/add-readings",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"meter",
+						"add-readings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Meter Readings",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer 3|i4I2iCvwP9Xg01l3YOG2r4RJr7lJGCfRcnCAeJ5W",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "meter_id",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "meter_reading_date",
+							"value": "2022-12-01",
+							"type": "text"
+						},
+						{
+							"key": "meter_reading",
+							"value": "560",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Server}}/api/v1/meter/update-readings",
+					"host": [
+						"{{Server}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"meter",
+						"update-readings"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Meter Readings",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/meter/get-readings?meter_id=1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"meter",
+						"get-readings"
+					],
+					"query": [
+						{
+							"key": "meter_id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
