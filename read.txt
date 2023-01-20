@@ -1,0 +1,26 @@
+Setup
+
+step 1. Composer installation of dependencies
+        => composer install
+
+step 2. set .env file with db configuration
+
+step 3. Run Laravel
+        => php artisan serve
+
+Database Command
+
+
+Run all Seed
+=> php artisan migrate:fresh (fresh is all run from start)
+Status of seed
+=> php artisan migrate:status
+
+
+Create Fake Data using Tinker
+=> php artisan ti
+    ==> App\Models\User::factory(10)->create(); 
+
+
+=> php artisan serve --host 192.168.29.88 --port 8000
+http://192.168.29.88:8000
