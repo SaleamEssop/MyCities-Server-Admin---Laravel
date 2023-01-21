@@ -19,6 +19,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPUnit\Exception;
 
 class ApiController extends Controller
 {
@@ -276,7 +278,7 @@ class ApiController extends Controller
                     AccountFixedCost::where('id', $defaultCost['id'])->update($upd);
                 }
             }
-            
+
             $data = Account::with(['fixedCosts', 'defaultFixedCosts.fixedCost'])->find($account->id);
 
             return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account updated successfully!', 'data' => $data]);
@@ -589,16 +591,43 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
 
         // Send the code to user email
-        $from = 'lightsandwater01@gmail.com';
-        $fromName = 'LightsAndWater';
-        $to_email = $postData['email'];
-        $to_name = $to_email;
-        $data = ['from_name' => 'Lights And Water', 'body' => "Hi, we have received you password reset request. Please use the following code: " . $code];
-        Mail::send('forget_password_mail', $data, function ($message) use ($to_name, $to_email) {
-            $message->to($to_email, $to_name)
-                ->subject('LightsAndWater - Password reset request');
-            $message->from('lightsandwater01@gmail.com', 'LightsAndWater');
-        });
+        require base_path("vendor/autoload.php");
+
+        $mail = new PHPMailer(env('MAILER_DEBUG', false));     // Passing `true` enables exceptions
+
+        $mailerHost = env('MAIL_HOST');
+        $mailerUsername = env('MAIL_USERNAME');
+        $mailerPassword = env('MAIL_PASSWORD');
+        $mailerFrom = env('MAIL_FROM_ADDRESS');
+        if(empty($mailerHost) || empty($mailerUsername) || empty($mailerPassword) || empty($mailerFrom))
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, mailer setting is missing.']);
+
+        try {
+            // Email server settings
+            $mail->SMTPDebug = 0;
+            $mail->isSMTP();
+            $mail->Host = $mailerHost;
+            $mail->SMTPAuth = true;
+            $mail->Username = $mailerUsername;
+            $mail->Password = $mailerPassword;
+            $mail->SMTPSecure = env('MAIL_ENCRYPTION', 'tls');
+            $mail->Port = 587;
+
+            $mail->setFrom($mailerFrom, env('MAIL_FROM_NAME', 'LightsAndWaterApp'));
+            $mail->addAddress($postData['email']);
+
+            $mail->addReplyTo('no-reply@outlook.com', 'No Reply');
+
+            $mail->isHTML(true);
+
+            $mail->Subject = "Password Reset Code";
+            $mail->Body    = "Hi, we have received you password reset request. Please use the following code: " . $code;
+
+            if(!$mail->send())
+                return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong while sending code via email.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, an exception occurred!']);
+        }
 
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'A code has been sent to your email.!']);
     }
