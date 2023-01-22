@@ -48,6 +48,9 @@
                                 <td>{{ $user->is_admin }}</td>
                                 <td>{{ $user->created_at }}</td>
                                 <td>
+                                    <a href="{{ url('admin/user/details-v2/'.$user->id) }}" class="btn btn-success btn-circle">
+                                        <i class="fas fa-book"></i>
+                                    </a>
                                     <a href="{{ url('admin/user/details/'.$user->id) }}" class="btn btn-primary btn-circle">
                                         <i class="fas fa-book"></i>
                                     </a>

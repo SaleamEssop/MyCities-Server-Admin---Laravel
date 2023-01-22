@@ -1098,4 +1098,17 @@ class AdminController extends Controller
         $userDetails = User::with(['sites', 'sites.account', 'sites.account.meters', 'sites.account.meters.readings'])->find($id);
         return view('admin.user_details', ['userDetails' => $userDetails]);
     }
+
+    public function showUserDetailsV2(Request $request, $id)
+    {
+        if(empty($id)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, invalid request.');
+            return redirect()->back();
+        }
+
+        // $userDetails = User::with(['sites', 'sites.account', 'sites.account.meters', 'sites.account.meters.readings'])->where('id', $id)->get();
+        $userDetails = User::with(['sites', 'sites.account', 'sites.account.meters', 'sites.account.meters.readings'])->find($id);
+        return view('admin.user_details_v2', ['userDetails' => $userDetails]);
+    }
 }
