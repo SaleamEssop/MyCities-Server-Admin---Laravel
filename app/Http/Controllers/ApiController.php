@@ -613,10 +613,10 @@ class ApiController extends Controller
             $mail->SMTPSecure = env('MAIL_ENCRYPTION', 'tls');
             $mail->Port = 587;
 
-            $mail->setFrom($mailerFrom, env('MAIL_FROM_NAME', 'LightsAndWaterApp'));
+            $mail->setFrom($mailerUsername, 'LightsAndWater');
             $mail->addAddress($postData['email']);
 
-            $mail->addReplyTo('no-reply@outlook.com', 'No Reply');
+            $mail->addReplyTo($mailerUsername, 'LightsAndWater');
 
             $mail->isHTML(true);
 
@@ -639,9 +639,9 @@ class ApiController extends Controller
         if (empty($postData['code']) || empty($postData['email']))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, code and email fields are required!']);
 
-        $user = User::where(['email' => $postData['email'], 'code' => $postData['code']])->get();
+        $user = User::where(['email' => $postData['email'], 'password_reset_code' => $postData['code']])->get();
         if (count($user) == 1) {
-            User::where(['email' => $postData['email'], 'code' => $postData['code']])->update(['code' => null]);
+            User::where(['email' => $postData['email'], 'password_reset_code' => $postData['code']])->update(['password_reset_code' => null]);
             return response()->json(['status' => true, 'code' => 200, 'msg' => 'Code matched. Please proceed!']);
         } else
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Code did not matched!']);
