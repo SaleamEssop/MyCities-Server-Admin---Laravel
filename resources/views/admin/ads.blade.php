@@ -52,7 +52,7 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td><img src="{{ $ad->image }}" width="100" height="100"></td>
-                                <td>{{ $ad->category->name }}</td>
+                                <td>{{ $ad->category->name ?? ' - ' }}</td>
                                 <td>{{ $ad->name }}</td>
                                 <td>{{ $ad->url }}</td>
                                 <td>{{ $ad->price }}</td>
