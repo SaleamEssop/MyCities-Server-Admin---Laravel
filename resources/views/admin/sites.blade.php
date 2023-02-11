@@ -49,7 +49,7 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $site->region->name ?? '-' }}</td>
-                                <td>{{ $site->user->name }}</td>
+                                <td>{{ $site->user->name ?? '-' }}</td>
                                 <td>{{ $site->title }}</td>
                                 <td>{{ $site->lat }}</td>
                                 <td>{{ $site->lng }}</td>

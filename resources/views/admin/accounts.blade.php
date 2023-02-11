@@ -42,7 +42,7 @@
                         @foreach($accounts as $account)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $account->site->title }}</td>
+                                <td>{{ $account->site->title ?? '-' }}</td>
                                 <td>{{ $account->account_name }}</td>
                                 <td>{{ $account->account_number }}</td>
                                 <td>{{ $account->optional_information }}</td>
