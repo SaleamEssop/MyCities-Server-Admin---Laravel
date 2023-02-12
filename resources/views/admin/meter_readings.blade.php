@@ -19,6 +19,7 @@
                         <thead>
                         <tr>
                             <th>#</th>
+                            <th>Reading Image</th>
                             <th>Meter Title</th>
                             <th>Meter Reading</th>
                             <th>Meter Reading Date</th>
@@ -29,6 +30,7 @@
                         <tfoot>
                         <tr>
                             <th>#</th>
+                            <th>Reading Image</th>
                             <th>Meter Title</th>
                             <th>Meter Reading</th>
                             <th>Meter Reading Date</th>
@@ -40,6 +42,13 @@
                         @foreach($meterReadings as $meterReading)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
+                                <td>
+                                    @if(!empty($meterReading->reading_image))
+                                        <img src="{{ $meterReading->reading_image }}" width="100" height="100">
+                                    @else
+                                        -
+                                    @endif
+                                </td>
                                 <td>{{ $meterReading->meter->meter_title ?? '-' }}</td>
                                 <td>{{ $meterReading->reading_value }}</td>
                                 <td>{{ $meterReading->reading_date }}</td>

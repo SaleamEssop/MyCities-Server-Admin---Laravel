@@ -514,17 +514,22 @@ class ApiController extends Controller
 
     public function addMeterReadings(Request $request)
     {
-
         $postData = $request->post();
         $requiredFields = ['meter_id', 'meter_reading_date', 'meter_reading'];
         $validated = validateData($requiredFields, $postData);
         if (!$validated['status'])
             return response()->json(['status' => false, 'code' => 400, 'msg' => $validated['error']]);
 
+        $readingImg = null;
+        // Check if meter reading image is provided
+        if($request->hasFile('reading_image'))
+            $readingImg = $request->file('reading_image')->store('public/readings');
+
         $siteArr = array(
             'meter_id' => $postData['meter_id'],
             'reading_date' => $postData['meter_reading_date'],
-            'reading_value' => $postData['meter_reading']
+            'reading_value' => $postData['meter_reading'],
+            'reading_image' => $readingImg
         );
 
         $res = MeterReadings::create($siteArr);
