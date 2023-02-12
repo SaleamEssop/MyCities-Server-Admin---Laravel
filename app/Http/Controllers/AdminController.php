@@ -616,10 +616,15 @@ class AdminController extends Controller
     public function createMeterReading(Request $request)
     {
         $postData = $request->post();
+        $readingImg = null;
+        // Check if meter reading image is provided
+        if($request->hasFile('reading_image'))
+            $readingImg = $request->file('reading_image')->store('public/readings');
         $meterArr = array(
             'meter_id' => $postData['meter_id'],
             'reading_date' => $postData['reading_date'],
-            'reading_value' => $postData['reading_value']
+            'reading_value' => $postData['reading_value'],
+            'reading_image' => $readingImg
         );
         $result = MeterReadings::create($meterArr);
         if($result) {

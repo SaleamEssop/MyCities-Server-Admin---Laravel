@@ -11,7 +11,7 @@
         <div class="cust-form-wrapper">
             <div class="row">
                 <div class="col-md-6">
-                    <form method="POST" action="{{ route('add-meter-reading') }}">
+                    <form method="POST" action="{{ route('add-meter-reading') }}" enctype="multipart/form-data">
                         <div class="form-group">
                             <select class="form-control" id="exampleFormControlSelect1" name="meter_id" required>
                                 <option disabled selected value="">--Select Meter--</option>
@@ -19,6 +19,9 @@
                                     <option value="{{ $meter->id }}">{{ $meter->meter_title }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="file" name="reading_image" />
                         </div>
                         <div class="form-group">
                             <input type="date" class="form-control" placeholder="Enter meter reading date" name="reading_date" required>
