@@ -1756,7 +1756,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer 3|i4I2iCvwP9Xg01l3YOG2r4RJr7lJGCfRcnCAeJ5W",
+						"value": "Bearer 357|JNCu5nysQ8FC7rMkOcMX7fCMZS19c2e2sM08p53L",
 						"type": "default"
 					}
 				],
@@ -1765,31 +1765,31 @@
 					"formdata": [
 						{
 							"key": "meter_id",
-							"value": "1",
+							"value": "160",
 							"type": "text"
 						},
 						{
 							"key": "meter_reading_date",
-							"value": "2022-12-01",
+							"value": "2023-01-02",
 							"type": "text"
 						},
 						{
 							"key": "meter_reading",
-							"value": "560",
+							"value": "9000",
 							"type": "text"
+						},
+						{
+							"key": "reading_image",
+							"type": "file",
+							"src": "/C:/Users/sheik/Downloads/logo.png"
 						}
 					]
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/v1/meter/add-readings",
-					"protocol": "http",
+					"raw": "{{Server}}/api/v1/meter/add-readings",
 					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
+						"{{Server}}"
 					],
-					"port": "8000",
 					"path": [
 						"api",
 						"v1",
