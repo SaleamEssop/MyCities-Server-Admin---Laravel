@@ -326,7 +326,27 @@ class ApiController extends Controller
         $data = Site::with(['account.fixedCosts', 'account.defaultFixedCosts.fixedCost'])->where('user_id', $userID)->get();
         foreach ($data as $site) {
             foreach ($site->account as $account) {
-                if (count($account->defaultFixedCosts) == 0 && count($defaultCosts) > 0) {
+                $accountDefaultAndOtherCosts = [];
+                foreach ($account->defaultFixedCosts as $accountCosts) {
+                    $accountDefaultAndOtherCosts[] = $accountCosts->fixed_cost_id;
+                }
+
+                foreach ($defaultCosts as $defaultCost) {
+                    // Check if this default cost is assigned to this account or not
+                    if(in_array($defaultCost->id, $accountDefaultAndOtherCosts)) // Continue as it exists already
+                        continue;
+
+                    // Now add this default cost in this account as well.
+                    $arr = array(
+                        'account_id' => $account->id,
+                        'fixed_cost_id' => $defaultCost->id,
+                        'is_active' => 1,
+                    );
+                    AccountFixedCost::create($arr);
+                    $account->refresh();
+                }
+
+                /*if (count($account->defaultFixedCosts) == 0 && count($defaultCosts) > 0) {
                     // Looks like account default cost relationship has not been set yet
                     $arr = [];
                     foreach ($defaultCosts as $defaultCost) {
@@ -339,7 +359,7 @@ class ApiController extends Controller
                         AccountFixedCost::create($arr);
                     }
                     $account->refresh();
-                }
+                }*/
             }
         }
 
