@@ -83,6 +83,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/ads/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteAd']);
     Route::get('/ads/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editAdForm']);
     Route::post('/ads/edit', [\App\Http\Controllers\AdminController::class, 'editAd'])->name('edit-ad');
+    Route::post('ads/upload', [\App\Http\Controllers\AdminController::class, 'uploadAdsDescPics'])->name('ckeditor.image-upload');
 
     Route::get('alarms', [\App\Http\Controllers\AdminController::class, 'showAlarms'])->name('alarms');
     Route::get('/alarm/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteAlarm']);

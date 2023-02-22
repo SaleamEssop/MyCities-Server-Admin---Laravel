@@ -409,6 +409,7 @@ class AdminController extends Controller
         $ad->url = $postData['ad_url'];
         $ad->price = $postData['ad_price'];
         $ad->priority = $postData['ad_priority'];
+        $ad->description = $postData['description-editor'];
 
         if(!empty($path))
             $ad->image = $path;
@@ -676,7 +677,8 @@ class AdminController extends Controller
             'image' => $path,
             'url' => $postData['ad_url'],
             'price' => $postData['ad_price'],
-            'priority' => $postData['ad_priority']
+            'priority' => $postData['ad_priority'],
+            'description' => $postData['description-editor']
         );
 
         $result = Ads::create($ad);
@@ -1115,5 +1117,19 @@ class AdminController extends Controller
         // $userDetails = User::with(['sites', 'sites.account', 'sites.account.meters', 'sites.account.meters.readings'])->where('id', $id)->get();
         $userDetails = User::with(['sites', 'sites.account', 'sites.account.meters', 'sites.account.meters.readings'])->find($id);
         return view('admin.user_details_v2', ['userDetails' => $userDetails]);
+    }
+
+    public function uploadAdsDescPics(Request $request)
+    {
+        if($request->hasFile('upload')) {
+            $path = $request->file('upload')->store('public/ads');
+            $CKEditorFuncNum = $request->input('CKEditorFuncNum');
+            $url = Storage::url($path);
+            $msg = 'Image successfully uploaded';
+            $response = "<script>window.parent.CKEDITOR.tools.callFunction($CKEditorFuncNum, '$url', '$msg')</script>";
+
+            @header('Content-type: text/html; charset=utf-8');
+            echo $response;
+        }
     }
 }

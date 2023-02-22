@@ -11,7 +11,7 @@ class Ads extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['ads_category_id', 'name', 'image', 'url', 'price', 'priority'];
+    protected $fillable = ['ads_category_id', 'name', 'image', 'url', 'price', 'priority', 'description'];
 
     public function category()
     {

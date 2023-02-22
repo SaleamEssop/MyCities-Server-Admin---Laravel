@@ -55,7 +55,7 @@
                                 <td>{{ $region->electricity_base_unit ?? 'N/A' }}</td>
                                 <td>{{ $region->electricity_base_unit_cost ?? 'N/A' }}</td>
                                 <td>{{ $region->created_at }}</td>
-                                <td>m
+                                <td>
                                     <a href="{{ url('admin/region/edit/'.$region->id) }}" class="btn btn-warning btn-circle">
                                         <i class="fas fa-edit"></i>
                                     </a>

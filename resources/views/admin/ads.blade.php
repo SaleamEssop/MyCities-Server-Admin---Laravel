@@ -8,7 +8,7 @@
         <!-- Page Heading -->
         <div class="cust-page-head">
             <h1 class="h3 mb-2 custom-text-heading">Ads</h1>
-            <button type="button" class="btn btn-primary btn-circle" data-toggle="modal" data-target="#catModal">
+            <button type="button" class="btn btn-warning btn-circle" data-toggle="modal" data-target="#catModal">
                 <i class="fas fa-plus-square"></i>
             </button>
         </div>
@@ -91,6 +91,7 @@
                             <input type="file" name="ad_image" />
                         </div>
                         <div class="form-group">
+                            <label><strong>Category :</strong></label>
                             <select class="form-control" name="ads_category_id">
                                 <option selected disabled>--Select Category--</option>
                                 @foreach($categories as $category)
@@ -99,16 +100,24 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label><strong>Name :</strong></label>
                             <input placeholder="Enter new ad name" type="text" class="form-control" name="ad_name" required />
                         </div>
                         <div class="form-group">
+                            <label><strong>Url :</strong></label>
                             <input placeholder="Enter new ad url" type="text" class="form-control" name="ad_url" required />
                         </div>
                         <div class="form-group">
+                            <label><strong>Price :</strong></label>
                             <input placeholder="Enter new ad price" type="number" class="form-control" name="ad_price" required />
                         </div>
                         <div class="form-group">
+                            <label><strong>Priority :</strong></label>
                             <input placeholder="Enter new ad priority" type="number" class="form-control" name="ad_priority" />
+                        </div>
+                        <div class="form-group">
+                            <label><strong>Description :</strong></label>
+                            <textarea class="form-control" name="description-editor"></textarea>
                         </div>
                         @csrf
                     </div>
@@ -123,9 +132,17 @@
 @endsection
 
 @section('page-level-scripts')
+    <script src="//cdn.ckeditor.com/4.14.1/standard/ckeditor.js"></script>
+    <script src="//cdn.ckeditor.com/4.14.1/standard/adapters/jquery.js"></script>
+
     <script type="text/javascript">
         $(document).ready(function() {
             $('#acc-dataTable').dataTable();
+
+            CKEDITOR.replace('description-editor', {
+                filebrowserUploadUrl: "{{route('ckeditor.image-upload', ['_token' => csrf_token() ])}}",
+                filebrowserUploadMethod: 'form'
+            });
         });
     </script>
 @endsection
