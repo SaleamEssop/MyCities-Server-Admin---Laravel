@@ -13,6 +13,7 @@ class Account extends Model
         'site_id',
         'account_name',
         'account_number',
+        'billing_date',
         'optional_information'
     ];
 
@@ -40,6 +41,6 @@ class Account extends Model
     // {
     //     return $this->hasManyThrough(AccountFixedCost::class, FixedCost::class, 'account_id', 'fixed_cost_id');
     // }
-   
-    
+
+
 }

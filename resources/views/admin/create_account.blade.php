@@ -27,6 +27,9 @@
                             <input type="text" class="form-control" placeholder="Enter account number" name="number" required>
                         </div>
                         <div class="form-group">
+                            <input type="number" min="1" max="31" class="form-control" placeholder="Enter billing date" name="billing_date" required>
+                        </div>
+                        <div class="form-group">
                             <input type="text" name="optional_info" class="form-control" placeholder="Enter optional information">
                         </div>
                         <hr>

@@ -22,6 +22,7 @@
                             <th>Site</th>
                             <th>Account Name</th>
                             <th>Account Number</th>
+                            <th>Billing Date</th>
                             <th>Optional Information</th>
                             <th>Created Date</th>
                             <th>Action</th>
@@ -33,6 +34,7 @@
                             <th>Site</th>
                             <th>Account Name</th>
                             <th>Account Number</th>
+                            <th>Billing Date</th>
                             <th>Optional Information</th>
                             <th>Created Date</th>
                             <th>Action</th>
@@ -45,6 +47,7 @@
                                 <td>{{ $account->site->title ?? '-' }}</td>
                                 <td>{{ $account->account_name }}</td>
                                 <td>{{ $account->account_number }}</td>
+                                <td>{{ $account->billing_date }}</td>
                                 <td>{{ $account->optional_information }}</td>
                                 <td>{{ $account->created_at }}</td>
                                 <td>

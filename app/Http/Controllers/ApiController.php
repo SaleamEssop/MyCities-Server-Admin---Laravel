@@ -142,6 +142,7 @@ class ApiController extends Controller
             'site_id' => $postData['site_id'],
             'account_name' => $postData['account_name'],
             'account_number' => $postData['account_number'],
+            'billing_date' => $postData['billing_date'] ?? null,
             'optional_information' => $postData['optional_information']
         );
 
@@ -233,6 +234,8 @@ class ApiController extends Controller
         $account->account_name = $postData['account_name'];
         $account->account_number = $postData['account_number'];
         $account->optional_information = $postData['optional_information'];
+        if(!empty($postData['billing_date']))
+            $account->billing_date = $postData['billing_date'];
 
         if ($account->save()) {
             // Check if user has deleted any fixed costs or not

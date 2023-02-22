@@ -13,6 +13,7 @@
                 <div class="col-md-6">
                     <form method="POST" action="{{ route('edit-account') }}">
                         <div class="form-group">
+                            <label><strong>Site :</strong></label>
                             <select class="form-control" id="exampleFormControlSelect1" name="site_id" required>
                                 <option disabled value="">--Select Site--</option>
                                 @foreach($sites as $site)
@@ -21,12 +22,19 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label><strong>Account Name :</strong></label>
                             <input type="text" value="{{ $account->account_name }}" class="form-control" placeholder="Enter account title" name="title" required>
                         </div>
                         <div class="form-group">
+                            <label><strong>Account Number :</strong></label>
                             <input type="text" value="{{ $account->account_number }}" class="form-control" placeholder="Enter account number" name="number" required>
                         </div>
                         <div class="form-group">
+                            <label><strong>Billing Date :</strong></label>
+                            <input type="number" min="1" max="31" value="{{ $account->billing_date }}" class="form-control" placeholder="Enter billing date" name="billing_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label><strong>Optional Information :</strong></label>
                             <input type="text" value="{{ $account->optional_information }}" name="optional_info" class="form-control" required placeholder="Enter optional information">
                         </div>
                         <hr>

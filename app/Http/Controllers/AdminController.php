@@ -283,6 +283,7 @@ class AdminController extends Controller
             'site_id' => $postData['site_id'],
             'account_name' => $postData['title'],
             'account_number' => $postData['number'],
+            'billing_date' => $postData['billing_date'] ?? null,
             'optional_information' => $postData['optional_info'] ?? null
         );
         $result = Account::create($accArr);
@@ -445,6 +446,7 @@ class AdminController extends Controller
             'site_id' => $postData['site_id'],
             'account_name' => $postData['title'],
             'account_number' => $postData['number'],
+            'billing_date' => $postData['billing_date'] ?? null,
             'optional_information' => $postData['optional_info']
         );
 
