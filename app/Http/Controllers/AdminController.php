@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class AdminController extends Controller
 {
@@ -1126,7 +1127,8 @@ class AdminController extends Controller
         if($request->hasFile('upload')) {
             $path = $request->file('upload')->store('public/ads');
             $CKEditorFuncNum = $request->input('CKEditorFuncNum');
-            $url = Storage::url($path);
+            //$url = Storage::url($path);
+            $url = URL::to(Storage::url($path));
             $msg = 'Image successfully uploaded';
             $response = "<script>window.parent.CKEDITOR.tools.callFunction($CKEditorFuncNum, '$url', '$msg')</script>";
 
