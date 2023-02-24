@@ -1128,7 +1128,8 @@ class AdminController extends Controller
             $path = $request->file('upload')->store('public/ads');
             $CKEditorFuncNum = $request->input('CKEditorFuncNum');
             $url = Storage::url($path);
-            $url = $_SERVER['REQUEST_SCHEME'] ?? 'http'.'://'.$_SERVER['HTTP_HOST'].$url;
+            $requestScheme = $_SERVER['REQUEST_SCHEME'] ?? 'http';
+            $url = $requestScheme . '://'.$_SERVER['HTTP_HOST'].$url;
             //$url = URL::to(Storage::url($path));
             $msg = 'Image successfully uploaded';
             $response = "<script>window.parent.CKEDITOR.tools.callFunction($CKEditorFuncNum, '$url', '$msg')</script>";
