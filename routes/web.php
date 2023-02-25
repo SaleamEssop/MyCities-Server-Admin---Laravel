@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-	 View::addExtension('html', 'php');
-	 return View::make(public_path().'/web-app/index.html');
-//    return view('landing_page');
+//	 View::addExtension('html', 'php');
+//	 return View::make(public_path().'/web-app/index.html');
+    return view('landing_page');
 });
 
 Route::get('/admin/login', function() {
