@@ -7,6 +7,7 @@ use App\Models\Ads;
 use App\Models\AdsCategory;
 use App\Models\FixedCost;
 use App\Models\Meter;
+use App\Models\MeterCategory;
 use App\Models\MeterReadings;
 use App\Models\MeterType;
 use App\Models\RegionAlarms;
@@ -502,7 +503,7 @@ class AdminController extends Controller
 
     public function showMeters(Request $request)
     {
-        $meters = Meter::with(['meterTypes', 'account'])->get();
+        $meters = Meter::with(['meterTypes', 'account', 'meterCategory'])->get();
         return view('admin.meters', ['meters' => $meters]);
     }
 
@@ -531,7 +532,8 @@ class AdminController extends Controller
     {
         $accounts = Account::all();
         $meterTypes = MeterType::all();
-        return view('admin.create_meter', ['accounts' => $accounts, 'meterTypes' => $meterTypes]);
+        $meterCats = MeterCategory::all();
+        return view('admin.create_meter', ['accounts' => $accounts, 'meterTypes' => $meterTypes, 'meterCats' => $meterCats]);
     }
 
     public function createMeter(Request $request)
@@ -539,6 +541,7 @@ class AdminController extends Controller
         $postData = $request->post();
         $meterArr = array(
             'account_id' => $postData['account_id'],
+            'meter_category_id' => $postData['meter_cat_id'],
             'meter_type_id' => $postData['meter_type_id'],
             'meter_title' => $postData['title'],
             'meter_number' => $postData['number']
@@ -558,9 +561,10 @@ class AdminController extends Controller
     public function editMeterForm(Request $request, $id)
     {
         $accounts = Account::all();
+        $meterCats = MeterCategory::all();
         $meterTypes = MeterType::all();
         $meter = Meter::find($id);
-        return view('admin.edit_meter', ['accounts' => $accounts, 'meterTypes' => $meterTypes, 'meter' => $meter]);
+        return view('admin.edit_meter', ['accounts' => $accounts, 'meterTypes' => $meterTypes, 'meter' => $meter, 'meterCats' => $meterCats]);
     }
 
     public function editMeter(Request $request)

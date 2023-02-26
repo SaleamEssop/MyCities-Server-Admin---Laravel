@@ -13,6 +13,7 @@
                 <div class="col-md-6">
                     <form method="POST" action="{{ route('add-meter') }}">
                         <div class="form-group">
+                            <label><strong>Account :</strong></label>
                             <select class="form-control" id="exampleFormControlSelect1" name="account_id" required>
                                 <option disabled selected value="">--Select Account--</option>
                                 @foreach($accounts as $account)
@@ -21,6 +22,16 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label><strong>Meter Category :</strong></label>
+                            <select class="form-control" id="exampleFormControlSelect1" name="meter_cat_id" required>
+                                <option disabled selected value="">--Select Meter Category--</option>
+                                @foreach($meterCats as $meterCat)
+                                    <option value="{{ $meterCat->id }}">{{ $meterCat->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><strong>Meter Type :</strong></label>
                             <select class="form-control" id="exampleFormControlSelect1" name="meter_type_id" required>
                                 <option disabled selected value="">--Select Meter Type--</option>
                                 @foreach($meterTypes as $meterType)
@@ -29,9 +40,11 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label><strong>Meter Title :</strong></label>
                             <input type="text" class="form-control" placeholder="Enter meter title" name="title" required>
                         </div>
                         <div class="form-group">
+                            <label><strong>Meter Number :</strong></label>
                             <input type="text" class="form-control" placeholder="Enter meter number" name="number" required>
                         </div>
                         @csrf

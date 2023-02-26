@@ -9,8 +9,11 @@ class Meter extends Model
 {
     use HasFactory;
 
+    protected $table = 'meters';
+
     protected $fillable = [
         'account_id',
+        'meter_category_id',
         'meter_type_id',
         'meter_title',
         'meter_number'
@@ -24,6 +27,11 @@ class Meter extends Model
     public function meterTypes()
     {
         return $this->belongsTo(MeterType::class, 'meter_type_id');
+    }
+
+    public function meterCategory()
+    {
+        return $this->belongsTo(MeterCategory::class);
     }
 
     public function account()
