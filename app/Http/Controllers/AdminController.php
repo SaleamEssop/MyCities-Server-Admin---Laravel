@@ -274,7 +274,7 @@ class AdminController extends Controller
 
     public function addAccountForm(Request $request)
     {
-        $users = User::all();
+        $users = User::where(['is_admin' => 0, 'is_super_admin' => 0])->get();
         return view('admin.create_account', ['users' => $users]);
     }
 
@@ -442,7 +442,7 @@ class AdminController extends Controller
 
     public function editAccountForm(Request $request, $id)
     {
-        $users = User::all();
+        $users = User::where(['is_admin' => 0, 'is_super_admin' => 0])->get();
         $account = Account::with(['fixedCosts', 'site.user'])->find($id);
         $sites = Site::where('user_id', $account->site->user->id)->get();
         return view('admin.edit_account', ['account' => $account, 'sites' => $sites, 'users' => $users]);
