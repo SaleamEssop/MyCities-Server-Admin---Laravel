@@ -385,6 +385,10 @@ class ApiController extends Controller
             'meter_number' => $postData['meter_number']
         );
 
+        $exists = Meter::where($meterArr)->first();
+        if(!empty($exists))
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, meter with same information already exists.']);
+
         $res = Meter::create($meterArr);
         if ($res) {
             // Add meter reading in system

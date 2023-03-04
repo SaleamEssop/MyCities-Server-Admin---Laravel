@@ -546,6 +546,14 @@ class AdminController extends Controller
             'meter_title' => $postData['title'],
             'meter_number' => $postData['number']
         );
+
+        $exists = Meter::where($meterArr)->first();
+        if(!empty($exists)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, meter with same information already exists.');
+            return redirect()->back();
+        }
+
         $result = Meter::create($meterArr);
         if($result) {
             Session::flash('alert-class', 'alert-success');
@@ -578,10 +586,18 @@ class AdminController extends Controller
 
         $updArr = array(
             'account_id' => $postData['account_id'],
+            'meter_category_id' => $postData['meter_cat_id'],
             'meter_type_id' => $postData['meter_type_id'],
             'meter_title' => $postData['title'],
             'meter_number' => $postData['number']
         );
+
+        $exists = Meter::where($updArr)->where('id', '<>', $postData['meter_id'])->first();
+        if(!empty($exists)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, meter with same information already exists.');
+            return redirect()->back();
+        }
 
         $updated = Meter::where('id', $postData['meter_id'])->update($updArr);
         if($updated) {
