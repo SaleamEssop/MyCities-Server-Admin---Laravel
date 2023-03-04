@@ -13,8 +13,17 @@
                 <div class="col-md-6">
                     <form method="POST" action="{{ route('edit-account') }}">
                         <div class="form-group">
+                            <div class="form-group">
+                                <label>User: </label>
+                                <select class="form-control" id="user-select" name="user_id" required>
+                                    <option disabled selected value="">--Select User--</option>
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->id }}" {{ ($user->id == $account->site->user->id) ? 'selected' : '' }}>{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <label><strong>Site :</strong></label>
-                            <select class="form-control" id="exampleFormControlSelect1" name="site_id" required>
+                            <select class="form-control" id="site-select" name="site_id" required>
                                 <option disabled value="">--Select Site--</option>
                                 @foreach($sites as $site)
                                     <option value="{{ $site->id }}" {{ ($site->id == $account->site_id) ? 'selected' : '' }}>{{ $site->title }}</option>
@@ -35,7 +44,7 @@
                         </div>
                         <div class="form-group">
                             <label><strong>Optional Information :</strong></label>
-                            <input type="text" value="{{ $account->optional_information }}" name="optional_info" class="form-control" required placeholder="Enter optional information">
+                            <input type="text" value="{{ $account->optional_information }}" name="optional_info" class="form-control" placeholder="Enter optional information">
                         </div>
                         <hr>
                         <p>Fixed Costs</p>
@@ -115,6 +124,29 @@
                     $("#deletedCosts").val(newVal);
                 }
                 $(this).parent().parent().remove();
+            });
+
+            $(document).on("change", '#user-select', function () {
+                let user_id = $(this).val();
+                let token = $("[name='_token']").val();
+                // Get list of accounts added under this user
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'JSON',
+                    headers: { 'X-CSRF-TOKEN': token },
+                    url: '/admin/accounts/get-user-sites',
+                    data: {user: user_id},
+                    success: function (result) {
+                        $('#site-select').empty();
+                        $.each(result.details, function(key, value) {
+                            $('#site-select').append($('<option>', {
+                                value: value.id,
+                                text: value.title
+                            }));
+                        });
+                        $('#site-select').prop('disabled', false);
+                    }
+                });
             });
         });
     </script>

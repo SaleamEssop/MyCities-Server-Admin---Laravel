@@ -55,6 +55,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/account/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteAccount']);
     Route::get('/account/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editAccountForm']);
     Route::post('/account/edit', [\App\Http\Controllers\AdminController::class, 'editAccount'])->name('edit-account');
+    Route::post('accounts/get-user-sites', [\App\Http\Controllers\AdminController::class, 'getUserSites']);
 
     Route::get('sites', [\App\Http\Controllers\AdminController::class, 'showSites'])->name('sites-list');
     Route::get('sites/add', [\App\Http\Controllers\AdminController::class, 'addSiteForm'])->name('add-site-form');

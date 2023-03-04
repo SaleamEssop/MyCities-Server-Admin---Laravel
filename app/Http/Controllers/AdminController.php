@@ -274,8 +274,20 @@ class AdminController extends Controller
 
     public function addAccountForm(Request $request)
     {
-        $sites = Site::all();
-        return view('admin.create_account', ['sites' => $sites]);
+        $users = User::all();
+        return view('admin.create_account', ['users' => $users]);
+    }
+
+    public function getUserSites(Request $request)
+    {
+        $postData = $request->post();
+        if(empty($postData['user'])) {
+            echo json_encode(['status' => 400, 'msg' => 'User_id is required!']);
+            return;
+        }
+
+        $sites = Site::where('user_id', $postData['user'])->get(['id', 'title']);
+        return json_encode(['status' => 200, 'details' => $sites, 'msg' => 'Sites retrieved successfully!']);
     }
 
     public function createAccount(Request $request)
@@ -430,9 +442,10 @@ class AdminController extends Controller
 
     public function editAccountForm(Request $request, $id)
     {
-        $sites = Site::all();
-        $account = Account::with('fixedCosts')->find($id);
-        return view('admin.edit_account', ['account' => $account, 'sites' => $sites]);
+        $users = User::all();
+        $account = Account::with(['fixedCosts', 'site.user'])->find($id);
+        $sites = Site::where('user_id', $account->site->user->id)->get();
+        return view('admin.edit_account', ['account' => $account, 'sites' => $sites, 'users' => $users]);
     }
 
     public function editAccount(Request $request)

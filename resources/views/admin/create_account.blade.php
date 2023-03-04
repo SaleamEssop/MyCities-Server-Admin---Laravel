@@ -13,23 +13,34 @@
                 <div class="col-md-6">
                     <form method="POST" action="{{ route('add-account') }}">
                         <div class="form-group">
-                            <select class="form-control" id="exampleFormControlSelect1" name="site_id" required>
-                                <option disabled selected value="">--Select Site--</option>
-                                @foreach($sites as $site)
-                                    <option value="{{ $site->id }}">{{ $site->title }}</option>
+                            <label>User: </label>
+                            <select class="form-control" id="user-select" name="user_id" required>
+                                <option disabled selected value="">--Select User--</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="form-group">
+                            <label>Site: </label>
+                            <select class="form-control" id="site-select" name="site_id" required disabled>
+
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Account Title: </label>
                             <input type="text" class="form-control" placeholder="Enter account title" name="title" required>
                         </div>
                         <div class="form-group">
+                            <label>Account Number: </label>
                             <input type="text" class="form-control" placeholder="Enter account number" name="number" required>
                         </div>
                         <div class="form-group">
+                            <label>Billing Date: </label>
                             <input type="number" min="1" max="31" class="form-control" placeholder="Enter billing date" name="billing_date" required>
                         </div>
                         <div class="form-group">
+                            <label>Optional Information: </label>
                             <input type="text" name="optional_info" class="form-control" placeholder="Enter optional information">
                         </div>
                         <hr>
@@ -95,6 +106,29 @@
 
             $(document).on("click", '.additional-cost-del-btn', function () {
                 $(this).parent().parent().remove();
+            });
+
+            $(document).on("change", '#user-select', function () {
+                let user_id = $(this).val();
+                let token = $("[name='_token']").val();
+                // Get list of accounts added under this user
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'JSON',
+                    headers: { 'X-CSRF-TOKEN': token },
+                    url: '/admin/accounts/get-user-sites',
+                    data: {user: user_id},
+                    success: function (result) {
+                        $('#site-select').empty();
+                        $.each(result.details, function(key, value) {
+                            $('#site-select').append($('<option>', {
+                                value: value.id,
+                                text: value.title
+                            }));
+                        });
+                        $('#site-select').prop('disabled', false);
+                    }
+                });
             });
         });
     </script>
