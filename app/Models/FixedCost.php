@@ -29,4 +29,12 @@ class FixedCost extends Model
         return $this->hasMany(AccountFixedCost::class);
     }
 
+    protected static function booted()
+    {
+        static::deleted(function ($fixedCost) {
+            foreach($fixedCost->defaultCosts as $accFixedCost) {
+                AccountFixedCost::where('id', $accFixedCost->id)->first()->delete();
+            }
+        });
+    }
 }

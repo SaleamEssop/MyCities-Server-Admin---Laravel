@@ -47,4 +47,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(Site::class);
     }
+
+    protected static function booted()
+    {
+        static::deleted(function ($user) {
+            foreach($user->sites as $site) {
+                Site::where('id', $site->id)->first()->delete();
+            }
+        });
+    }
 }

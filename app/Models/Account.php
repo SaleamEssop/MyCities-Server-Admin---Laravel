@@ -27,7 +27,7 @@ class Account extends Model
         return $this->hasMany(FixedCost::class);
     }
 
-  public function defaultFixedCosts()
+    public function defaultFixedCosts()
     {
         return $this->hasMany(AccountFixedCost::class);
     }
@@ -37,10 +37,20 @@ class Account extends Model
         return $this->hasMany(Meter::class);
     }
 
-    // public function defaultFixedCosts()
-    // {
-    //     return $this->hasManyThrough(AccountFixedCost::class, FixedCost::class, 'account_id', 'fixed_cost_id');
-    // }
+    protected static function booted()
+    {
+        static::deleted(function ($account) {
+            /*foreach($account->fixedCosts as $fixedCost) {
+                FixedCost::where('id', $fixedCost->id)->first()->delete();
+            }*/
 
+            FixedCost::where('account_id', $account->id)->delete();
+            AccountFixedCost::where('account_id', $account->id)->delete();
+
+            foreach($account->meters as $meter) {
+                Meter::where('id', $meter->id)->first()->delete();
+            }
+        });
+    }
 
 }

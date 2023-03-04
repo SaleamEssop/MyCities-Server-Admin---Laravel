@@ -16,6 +16,7 @@ use App\Models\Settings;
 use App\Models\Site;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
@@ -97,7 +98,15 @@ class ApiController extends Controller
         if (empty($postData['location_id']))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, location_id is required!']);
 
-        $result = Site::where('id', $postData['location_id'])->delete();
+        DB::beginTransaction();
+        try{
+            $result = Site::where('id', $postData['location_id'])->first()->delete();
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
+        }
+
         if ($result)
             return response()->json(['status' => true, 'code' => 200, 'msg' => 'Location removed successfully!']);
         else
@@ -309,7 +318,15 @@ class ApiController extends Controller
         if (empty($postData['account_id']))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
 
-        $result = Account::where('id', $postData['account_id'])->delete();
+        DB::beginTransaction();
+        try{
+            $result = Account::where('id', $postData['account_id'])->first()->delete();
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back();
+        }
+
         if ($result)
             return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account removed successfully!']);
         else
@@ -573,7 +590,15 @@ class ApiController extends Controller
         if (empty($postData['meter_id']))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, location_id is required!']);
 
-        $result = Meter::where('id', $postData['meter_id'])->delete();
+        DB::beginTransaction();
+        try{
+            $result = Meter::where('id', $postData['meter_id'])->first()->delete();
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
+        }
+
         if ($result)
             return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meter removed successfully!']);
         else

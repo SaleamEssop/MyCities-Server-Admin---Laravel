@@ -38,4 +38,11 @@ class Meter extends Model
     {
         return $this->belongsTo(Account::class);
     }
+
+    protected static function booted()
+    {
+        static::deleted(function ($meter) {
+            MeterReadings::where('meter_id', $meter->id)->delete();
+        });
+    }
 }

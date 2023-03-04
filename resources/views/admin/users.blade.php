@@ -57,7 +57,7 @@
                                     <a href="{{ url('admin/user/edit/'.$user->id) }}" class="btn btn-warning btn-circle">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="{{ url('admin/user/delete/'.$user->id) }}" onclick="return confirm('Are you sure you want to delete this user?')" class="btn btn-danger btn-circle">
+                                    <a href="{{ url('admin/user/delete/'.$user->id) }}" onclick="return confirm('Are you sure you want to delete this user? Please note that all data under this user will also get deleted.')" class="btn btn-danger btn-circle">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>

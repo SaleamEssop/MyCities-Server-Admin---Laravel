@@ -33,4 +33,13 @@ class Site extends Model
     {
         return $this->belongsTo(Regions::class);
     }
+
+    protected static function booted()
+    {
+        static::deleted(function ($site) {
+            foreach($site->account as $account) {
+                Account::where('id', $account->id)->first()->delete();
+            }
+        });
+    }
 }

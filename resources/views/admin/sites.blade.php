@@ -60,7 +60,7 @@
                                     <a href="{{ url('admin/site/edit/'.$site->id) }}" class="btn btn-warning btn-circle">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="{{ url('admin/site/delete/'.$site->id) }}" onclick="return confirm('Are you sure you want to delete this site?')" class="btn btn-danger btn-circle">
+                                    <a href="{{ url('admin/site/delete/'.$site->id) }}" onclick="return confirm('Are you sure you want to delete this site? Please note all of the data under this site will also be deleted.')" class="btn btn-danger btn-circle">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>

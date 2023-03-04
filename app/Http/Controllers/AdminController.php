@@ -18,6 +18,7 @@ use App\Models\Site;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
@@ -141,7 +142,21 @@ class AdminController extends Controller
             return redirect()->back();
         }
         // In next phase delete all the related models as well.
-        $deleted = User::where('id', $id)->delete();
+        DB::beginTransaction();
+        try{
+            $deleted = User::where('id', $id)->first()->delete();
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            /*print_r($e->getMessage());
+            print_r($e->getFile());
+            print_r($e->getLine());
+            print_r($e->getTraceAsString());*/
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+
         if($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! User deleted successfully!');
@@ -259,7 +274,17 @@ class AdminController extends Controller
             return redirect()->back();
         }
         // In next phase delete all the related models as well.
-        $deleted = Site::where('id', $id)->delete();
+        DB::beginTransaction();
+        try{
+            $deleted = Site::where('id', $id)->first()->delete();
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+
         if($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Site deleted successfully!');
@@ -332,8 +357,19 @@ class AdminController extends Controller
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
         }
+
         // In next phase delete all the related models as well.
-        $deleted = Account::where('id', $id)->delete();
+        DB::beginTransaction();
+        try{
+            $deleted = Account::where('id', $id)->first()->delete();
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+
         if($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Account deleted successfully!');
@@ -527,8 +563,19 @@ class AdminController extends Controller
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
         }
+
         // In next phase delete all the related models as well.
-        $deleted = Meter::where('id', $id)->delete();
+        DB::beginTransaction();
+        try{
+            $deleted = Meter::where('id', $id)->first()->delete();
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+
         if($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Meter deleted successfully!');
