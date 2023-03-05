@@ -323,10 +323,19 @@ class AdminController extends Controller
         $accArr = array(
             'site_id' => $postData['site_id'],
             'account_name' => $postData['title'],
-            'account_number' => $postData['number'],
-            'billing_date' => $postData['billing_date'] ?? null,
-            'optional_information' => $postData['optional_info'] ?? null
+            'account_number' => $postData['number']
         );
+
+        $exists = Account::where($accArr)->first();
+        if(!empty($exists)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, account with same information already exists.');
+            return redirect()->back();
+        }
+
+        $accArr['billing_date'] = $postData['billing_date'] ?? null;
+        $accArr['optional_information'] = $postData['optional_info'] ?? null;
+
         $result = Account::create($accArr);
         if($result) {
 
@@ -537,10 +546,18 @@ class AdminController extends Controller
         $updArr = array(
             'site_id' => $postData['site_id'],
             'account_name' => $postData['title'],
-            'account_number' => $postData['number'],
-            'billing_date' => $postData['billing_date'] ?? null,
-            'optional_information' => $postData['optional_info']
+            'account_number' => $postData['number']
         );
+
+        $exists = Account::where($updArr)->first();
+        if(!empty($exists)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, account with same information already exists.');
+            return redirect()->back();
+        }
+
+        $updArr['billing_date'] = $postData['billing_date'] ?? null;
+        $updArr['optional_information'] = $postData['optional_info'] ?? null;
 
         $updated = Account::where('id', $postData['account_id'])->update($updArr);
 
