@@ -117,6 +117,7 @@ class ApiController extends Controller
     {
 
         $postData = $request->post();
+        DB::beginTransaction();
         if (empty($postData['site_id'])) {
             // No site_id has passed, so this must be the new site case
             // Check for required params in case of adding new site
@@ -132,6 +133,13 @@ class ApiController extends Controller
                 'lng' => $postData['lng'],
                 'address' => $postData['address']
             );
+
+            $exists = Site::where($siteArr)->first();
+            if(!empty($exists)) {
+                DB::rollBack();
+                return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, site with same information already exists!']);
+            }
+
             if (!empty($postData['email']))
                 $siteArr['email'] = $postData['email'];
 
@@ -150,10 +158,17 @@ class ApiController extends Controller
         $accArr = array(
             'site_id' => $postData['site_id'],
             'account_name' => $postData['account_name'],
-            'account_number' => $postData['account_number'],
-            'billing_date' => $postData['billing_date'] ?? null,
-            'optional_information' => $postData['optional_information']
+            'account_number' => $postData['account_number']
         );
+
+        $exists = Account::where($accArr)->first();
+        if(!empty($exists)) {
+            DB::rollBack();
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account with same information already exists!']);
+        }
+
+        $accArr['billing_date'] = $postData['billing_date'] ?? null;
+        $accArr['optional_information'] = $postData['optional_information'] ?? null;
 
         $res = Account::create($accArr);
         if ($res) {
@@ -196,6 +211,7 @@ class ApiController extends Controller
             $data = Account::with(['fixedCosts', 'defaultFixedCosts.fixedCost'])->find($res->id);
             // $data->defaultFixedCosts = $defaultFixedCosts;
 
+            DB::commit();
             return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account added successfully!', 'data' => $data]);
         } else
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
