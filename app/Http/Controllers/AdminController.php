@@ -549,7 +549,7 @@ class AdminController extends Controller
             'account_number' => $postData['number']
         );
 
-        $exists = Account::where($updArr)->first();
+        $exists = Account::where($updArr)->where('id', '<>', $postData['account_id'])->first();
         if(!empty($exists)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, account with same information already exists.');
