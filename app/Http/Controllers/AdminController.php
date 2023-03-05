@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\AccountFixedCost;
 use App\Models\Ads;
 use App\Models\AdsCategory;
 use App\Models\FixedCost;
@@ -300,7 +301,8 @@ class AdminController extends Controller
     public function addAccountForm(Request $request)
     {
         $users = User::where(['is_admin' => 0, 'is_super_admin' => 0])->get();
-        return view('admin.create_account', ['users' => $users]);
+        $defaultCosts = FixedCost::where('is_default', 1)->get();
+        return view('admin.create_account', ['users' => $users, 'defaultCosts' => $defaultCosts]);
     }
 
     public function getUserSites(Request $request)
@@ -327,6 +329,20 @@ class AdminController extends Controller
         );
         $result = Account::create($accArr);
         if($result) {
+
+            // Add default cost
+            if(!empty($postData['default_cost_value']) && $postData['default_ids']) {
+                $accountDefaultCosts = [];
+                for ($i=0; $i< count($postData['default_ids']); $i++) {
+                    $accountDefaultCosts[$i]['account_id'] = $result->id;
+                    $accountDefaultCosts[$i]['fixed_cost_id'] = $postData['default_ids'][$i];
+                    $accountDefaultCosts[$i]['value'] = $postData['default_cost_value'][$i];
+                    $accountDefaultCosts[$i]['created_at'] = date('Y-m-d H:i:s');
+                }
+                if(!empty($accountDefaultCosts))
+                    AccountFixedCost::insert($accountDefaultCosts);
+            }
+
             if(!empty($postData['additional_cost_name'])) {
                 $fixedCostArr = [];
                 for ($i=0; $i< count($postData['additional_cost_name']); $i++) {
@@ -479,8 +495,33 @@ class AdminController extends Controller
     public function editAccountForm(Request $request, $id)
     {
         $users = User::where(['is_admin' => 0, 'is_super_admin' => 0])->get();
-        $account = Account::with(['fixedCosts', 'site.user'])->find($id);
+        $account = Account::with(['fixedCosts', 'site.user', 'defaultFixedCosts.fixedCost'])->find($id);
         $sites = Site::where('user_id', $account->site->user->id)->get();
+        $defaultCosts = FixedCost::where('is_default', 1)->get();
+
+        // Manage default costs
+        // Assign any default cost if not assigned to this account already
+
+        $accountDefaultCosts = [];
+        foreach ($account->defaultFixedCosts as $accountCosts) {
+            $accountDefaultCosts[] = $accountCosts->fixed_cost_id;
+        }
+
+        foreach ($defaultCosts as $defaultCost) {
+            // Check if this default cost is assigned to this account or not
+            if(in_array($defaultCost->id, $accountDefaultCosts)) // Continue as it exists already
+                continue;
+
+            // Now add this default cost in this account as well.
+            $arr = array(
+                'account_id' => $id,
+                'fixed_cost_id' => $defaultCost->id,
+                'is_active' => 1,
+            );
+            AccountFixedCost::create($arr);
+            $account->refresh();
+        }
+
         return view('admin.edit_account', ['account' => $account, 'sites' => $sites, 'users' => $users]);
     }
 
@@ -502,6 +543,13 @@ class AdminController extends Controller
         );
 
         $updated = Account::where('id', $postData['account_id'])->update($updArr);
+
+        // Check for account default costs here
+        if(!empty($postData['default_ids']) && !empty($postData['default_cost_value'])) {
+            for ($i=0; $i< count($postData['default_ids']); $i++) {
+                AccountFixedCost::where('id', $postData['default_ids'][$i])->update(['value' => $postData['default_cost_value'][$i]]);
+            }
+        }
 
         // Check for fixed costs as well
         if(!empty($postData['additional_cost_name'])) {

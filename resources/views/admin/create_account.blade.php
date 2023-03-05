@@ -44,6 +44,34 @@
                             <input type="text" name="optional_info" class="form-control" placeholder="Enter optional information">
                         </div>
                         <hr>
+                        <p><u>Default Costs</u></p>
+                        <div class="row">
+                            <div class="col-md-4"><b>Title</b></div>
+                            <div class="col-md-4"><b>Default Value</b></div>
+                            <div class="col-md-4"><b>Your Value</b></div>
+                        </div>
+                        <br>
+                        @foreach($defaultCosts as $defaultCost)
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{ $defaultCost->title }}</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <input class="form-control" type="text" value="{{ $defaultCost->value }}" readonly/>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <input class="form-control" type="number" name="default_cost_value[]" />
+                                    </div>
+                                </div>
+                                <input type="hidden" name="default_ids[]" value="{{$defaultCost->id}}" />
+                            </div>
+                        @endforeach
+                        <hr>
                         <p>Fixed Costs</p>
                         <div class="fixed-cost-container"></div>
                         {{--<div class="row">
