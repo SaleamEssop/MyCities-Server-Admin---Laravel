@@ -221,6 +221,7 @@ class ApiController extends Controller
     {
 
         $postData = $request->post();
+        DB::beginTransaction();
         if (empty($postData['site_id'])) {
             // No site_id has passed, so this must be the new site case
             // Check for required params in case of adding new site
@@ -239,6 +240,12 @@ class ApiController extends Controller
             if (!empty($postData['email']))
                 $siteArr['email'] = $postData['email'];
 
+            $exists = Site::where($siteArr)->first();
+            if(!empty($exists)) {
+                DB::rollBack();
+                return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, site with same information already exists!']);
+            }
+
             $site = Site::create($siteArr);
             if ($site)
                 $postData['site_id'] = $site->id;
@@ -254,6 +261,18 @@ class ApiController extends Controller
         $account = Account::find($postData['account_id']);
         if (empty($account))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, wrong account_id is provided!']);
+
+        $where = [
+            'site_id' => $postData['site_id'],
+            'account_name' => $postData['account_name'],
+            'account_number' => $postData['account_number']
+        ];
+
+        $exists = Account::where($where)->where('id', '<>', $postData['account_id'])->first();
+        if($exists) {
+            DB::rollBack();
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account with this information already exists!']);
+        }
 
         $account->site_id = $postData['site_id'];
         $account->account_name = $postData['account_name'];
@@ -309,6 +328,7 @@ class ApiController extends Controller
 
             $data = Account::with(['fixedCosts', 'defaultFixedCosts.fixedCost'])->find($account->id);
 
+            DB::commit();
             return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account updated successfully!', 'data' => $data]);
         } else
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
