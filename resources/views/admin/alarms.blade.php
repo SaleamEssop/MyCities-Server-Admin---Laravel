@@ -84,6 +84,7 @@
                 <form method="POST" action="{{ route('add-alarm') }}">
                     <div class="modal-body">
                         <div class="form-group">
+                            <label><strong>Region:</strong></label>
                             <select class="form-control" name="region_id" required>
                                 <option disabled>--Select Region--</option>
                                 @foreach($regions as $region)
@@ -92,12 +93,15 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label><strong>Date:</strong></label>
                             <input placeholder="Enter alarm date" type="date" class="form-control" name="alarm_date" required />
                         </div>
                         <div class="form-group">
+                            <label><strong>Time:</strong></label>
                             <input placeholder="Enter alarm time" type="time" class="form-control" name="alarm_time" required />
                         </div>
                         <div class="form-group">
+                            <label><strong>Message:</strong></label>
                             <textarea class="form-control" name="alarm_message" placeholder="Enter alarm message" rows="10" required></textarea>
                         </div>
                         @csrf
@@ -123,6 +127,7 @@
                 <form method="POST" action="{{ route('edit-alarm') }}">
                     <div class="modal-body">
                         <div class="form-group">
+                            <label><strong>Region:</strong></label>
                             <select class="form-control" name="region_id" id="upd-region" required>
                                 <option selected disabled>--Select Region--</option>
                                 @foreach($regions as $region)
@@ -131,12 +136,15 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label><strong>Date:</strong></label>
                             <input placeholder="Enter alarm date" id="upd-date" type="date" class="form-control" name="alarm_date" required />
                         </div>
                         <div class="form-group">
+                            <label><strong>Time:</strong></label>
                             <input placeholder="Enter alarm time" id="upd-time" type="time" class="form-control" name="alarm_time" required />
                         </div>
                         <div class="form-group">
+                            <label><strong>Message:</strong></label>
                             <textarea class="form-control" id="upd-msg" name="alarm_message" placeholder="Enter alarm message" rows="10" required></textarea>
                         </div>
                         @csrf

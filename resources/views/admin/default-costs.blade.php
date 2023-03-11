@@ -77,9 +77,11 @@
                 <form method="POST" action="{{ route('add-default-cost') }}">
                     <div class="modal-body">
                         <div class="form-group">
+                            <label><strong>Title:</strong></label>
                             <input placeholder="Enter default cost title" type="text" class="form-control" name="cost_name" required />
                         </div>
                         <div class="form-group">
+                            <label><strong>Value:</strong></label>
                             <input placeholder="Enter default cost value(optional)" type="text" class="form-control" name="cost_value" />
                         </div>
                         @csrf
@@ -105,9 +107,11 @@
                 <form method="POST" action="{{ route('edit-default-cost') }}">
                     <div class="modal-body">
                         <div class="form-group">
+                            <label><strong>Title:</strong></label>
                             <input id="upd-name" placeholder="Enter default cost title" type="text" class="form-control" name="cost_name" required />
                         </div>
                         <div class="form-group">
+                            <label><strong>Value:</strong></label>
                             <input id="upd-value" placeholder="Enter default cost value(optional)" type="text" class="form-control" name="cost_value" />
                         </div>
                         <input type="hidden" name="default_cost_id" id="upd-id" />

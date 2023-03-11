@@ -73,6 +73,7 @@
                 <form method="POST" action="{{ route('add-ads-category') }}">
                     <div class="modal-body">
                         <div class="form-group">
+                            <label><strong>Category Name:</strong></label>
                             <input placeholder="Enter new category name" type="text" class="form-control" name="category_name" required />
                         </div>
                         @csrf
@@ -98,6 +99,7 @@
                 <form method="POST" action="{{ route('edit-ads-category') }}">
                     <div class="modal-body">
                         <div class="form-group">
+                            <label><strong>Category Name:</strong></label>
                             <input id="upd-name" placeholder="Enter category name" type="text" class="form-control" name="category_name" required />
                         </div>
                         <input type="hidden" name="category_id" id="upd-id" />

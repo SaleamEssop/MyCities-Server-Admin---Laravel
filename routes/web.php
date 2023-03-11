@@ -102,6 +102,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
 
     Route::get('terms-and-conditions', [\App\Http\Controllers\AdminController::class, 'showTC'])->name('tc');
     Route::post('terms-and-conditions', [\App\Http\Controllers\AdminController::class, 'updateTC'])->name('updateTC');
+    Route::post('terms-and-conditions/upload', [\App\Http\Controllers\AdminController::class, 'uploadTCPics'])->name('ckeditor.tc-image-upload');
 
 });
 

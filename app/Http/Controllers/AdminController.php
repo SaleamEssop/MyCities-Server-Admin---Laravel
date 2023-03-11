@@ -1283,4 +1283,20 @@ class AdminController extends Controller
             echo $response;
         }
     }
+
+    public function uploadTCPics(Request $request)
+    {
+        if($request->hasFile('upload')) {
+            $path = $request->file('upload')->store('public/tc');
+            $CKEditorFuncNum = $request->input('CKEditorFuncNum');
+            $url = Storage::url($path);
+            $requestScheme = $_SERVER['REQUEST_SCHEME'] ?? 'http';
+            $url = $requestScheme . '://'.$_SERVER['HTTP_HOST'].$url;
+            $msg = 'Image successfully uploaded';
+            $response = "<script>window.parent.CKEDITOR.tools.callFunction($CKEditorFuncNum, '$url', '$msg')</script>";
+
+            @header('Content-type: text/html; charset=utf-8');
+            echo $response;
+        }
+    }
 }

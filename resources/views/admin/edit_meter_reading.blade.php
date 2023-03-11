@@ -13,6 +13,7 @@
                 <div class="col-md-6">
                     <form method="POST" action="{{ route('edit-meter-reading') }}">
                         <div class="form-group">
+                            <label><strong>Meter:</strong></label>
                             <select class="form-control" id="exampleFormControlSelect1" name="meter_id" required>
                                 <option disabled value="">--Select Meter--</option>
                                 @foreach($meters as $meter)
@@ -21,9 +22,11 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label><strong>Meter Reading Date:</strong></label>
                             <input type="date" class="form-control" value="{{ $meterReading->reading_date }}" placeholder="Enter meter reading date" name="reading_date" required>
                         </div>
                         <div class="form-group">
+                            <label><strong>Reading Value:</strong></label>
                             <input type="text" class="form-control" value="{{ $meterReading->reading_value }}" placeholder="Enter meter reading value" name="reading_value" required>
                         </div>
                         <input type="hidden" name="meter_reading_id" value="{{ $meterReading->id }}" />

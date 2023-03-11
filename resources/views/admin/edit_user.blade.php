@@ -13,15 +13,19 @@
                 <div class="col-md-6">
                     <form method="POST" action="{{ route('edit-user') }}">
                         <div class="form-group">
+                            <label><strong>Name :</strong></label>
                             <input type="text" class="form-control" placeholder="Enter name" name="name" value="{{$user->name}}" required>
                         </div>
                         <div class="form-group">
+                            <label><strong>Contact Number :</strong></label>
                             <input type="text" class="form-control" placeholder="Enter contact number" value="{{$user->contact_number}}" name="contact_number" required>
                         </div>
                         <div class="form-group">
+                            <label><strong>Email :</strong></label>
                             <input type="email" name="email" value="{{$user->email}}" class="form-control" id="exampleInputEmail1" required aria-describedby="emailHelp" placeholder="Enter email">
                         </div>
                         <div class="form-group">
+                            <label><strong>Password :</strong></label>
                             <input type="password" name="password" class="form-control" id="exampleInputPassword1" placeholder="Enter new Password">
                         </div>
                         @csrf

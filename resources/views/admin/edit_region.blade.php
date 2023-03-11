@@ -15,21 +15,27 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label><strong>Region Title :</strong></label>
                                     <input placeholder="Enter region title" value="{{ $region->name }}" type="text" class="form-control" name="region_name" required />
                                 </div>
                                 <div class="form-group">
+                                    <label><strong>Water Base Unit :</strong></label>
                                     <input placeholder="Enter water base unit" value="{{ $region->water_base_unit_cost }}" type="text" class="form-control" name="water_base" />
                                 </div>
                                 <div class="form-group">
+                                    <label><strong>Water Base Unit Value :</strong></label>
                                     <input placeholder="Enter water base unit value" value="{{ $region->water_base_unit }}" type="text" class="form-control" name="water_unit" />
                                 </div>
                                 <div class="form-group">
+                                    <label><strong>Electricity Base Unit :</strong></label>
                                     <input placeholder="Enter electricity base unit" value="{{ $region->electricity_base_unit }}" type="text" class="form-control" name="elect_base" />
                                 </div>
                                 <div class="form-group">
+                                    <label><strong>Electricity Base Unit Value :</strong></label>
                                     <input placeholder="Enter electricity base unit value" value="{{ $region->electricity_base_unit_cost }}" type="text" class="form-control" name="elect_unit" />
                                 </div>
                                 <div class="form-group">
+                                    <label><strong>Cost :</strong></label>
                                     <input placeholder="Enter cost(optional)" value="{{ $region->cost }}" type="text" class="form-control" name="region_cost" />
                                 </div>
                                 <input type="hidden" name="region_id" value="{{ $region->id }}" />

@@ -58,20 +58,20 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label>{{ $accDefaultCost->fixedCost->title }}</label>
+                                        <label>{{ $accDefaultCost->fixedCost->title ?? null }}</label>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <input class="form-control" type="text" value="{{ $accDefaultCost->fixedCost->value }}" readonly/>
+                                        <input class="form-control" type="text" value="{{ $accDefaultCost->fixedCost->value ?? null }}" readonly/>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <input class="form-control" type="number" name="default_cost_value[]" value="{{ $accDefaultCost->value }}" />
+                                        <input class="form-control" type="number" name="default_cost_value[]" value="{{ $accDefaultCost->value ?? null }}" />
                                     </div>
                                 </div>
-                                <input type="hidden" name="default_ids[]" value="{{$accDefaultCost->id}}" />
+                                <input type="hidden" name="default_ids[]" value="{{$accDefaultCost->id ?? null }}" />
                             </div>
                         @endforeach
                         <hr>

@@ -13,11 +13,12 @@
                 <div class="col-md-6">
                     <form method="POST" action="{{ route('add-region') }}">
                         <div class="form-group">
+                            <label><strong>Region Name :</strong></label>
                             <input placeholder="Enter region name" type="text" class="form-control" name="region_name" required />
                         </div>
                         <hr>
                         <h5>Cost Builder</h5>
-                        <div class="cust-tabs">
+                        <div class="cust-tabs">ed
                             <nav>
                                 <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
                                     <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Water</a>
