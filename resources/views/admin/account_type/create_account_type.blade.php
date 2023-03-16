@@ -1,20 +1,20 @@
 @extends('admin.layouts.main')
-@section('title', 'Regions')
+@section('title', 'Account Type')
 
 @section('content')
     <!-- Begin Page Content -->
     <div class="container-fluid">
 
         <!-- Page Heading -->
-        <h1 class="h3 mb-2 custom-text-heading">Add Region</h1>
+        <h1 class="h3 mb-2 custom-text-heading">Add Account Type</h1>
 
         <div class="cust-form-wrapper">
             <div class="row">
                 <div class="col-md-6">
-                    <form method="POST" action="{{ route('add-region') }}">
+                    <form method="POST" action="{{ route('add-account-type') }}">
                         <div class="form-group">
-                            <label><strong>Region Name :</strong></label>
-                            <input placeholder="Enter region name" type="text" class="form-control" name="region_name" required />
+                            <label><strong>Account Type Name :</strong></label>
+                            <input placeholder="Enter account type name" type="text" class="form-control" name="name" required />
                         </div>
                         <hr>
                         <!-- <h5>Cost Builder</h5>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\AccountFixedCost;
+use App\Models\AccountType;
 use App\Models\Ads;
 use App\Models\AdsCategory;
 use App\Models\FixedCost;
@@ -1299,4 +1300,92 @@ class AdminController extends Controller
             echo $response;
         }
     }
+    // Start Account Type Code
+    public function showAccountType(Request $request)
+    {
+        if(Auth::user()->is_super_admin)
+            $account_type = AccountType::all();
+        else
+            $account_type = []; // Because this admin should not have any users under it; this could be changed in the future
+
+        return view('admin.account_type.account_type', ['account_type' => $account_type]);
+    }
+    public function editAccountType(Request $request)
+    {
+        $postData = $request->post();
+        if(empty($postData['id'])) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+
+        $updArr = array(
+            'type' => $postData['name'],
+        );
+
+        $updated = AccountType::where('id', $postData['id'])->update($updArr);
+        if($updated) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Account Type updated successfully!');
+            return redirect()->route('account-type-list');
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+
+    public function deleteAccountType(Request $request, $id)
+    {
+        if(empty($id)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+        // In next phase delete all the related models as well.
+        $deleted = AccountType::where('id', $id)->delete();
+        if($deleted) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Account Type deleted successfully!');
+            return redirect()->back();
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+    public function addAccountTypeForm(Request $request)
+    {
+        $waterType = MeterType::where('title', 'Water')->first();
+        $electType = MeterType::where('title', 'Electricity')->first();
+        $data = array(
+            'water_id' => $waterType->id ?? 0,
+            'elect_id' => $electType->id ?? 0
+        );
+
+        return view('admin.account_type.create_account_type', ['data' => $data]);
+    }
+    public function editAccountTypeForm(Request $request, $id)
+    {
+        $account_type = AccountType::find($id);
+        return view('admin.account_type.edit_account_type', ['account_type' => $account_type]);
+    }
+    public function createAccountType(Request $request)
+    {
+        $postData = $request->post();
+        
+        $account_type = AccountType::create(['type' => $postData['name']]);
+        if($account_type) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Account Type created successfully!');
+           return redirect()->route('account-type-list');
+        } else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+    }
+    //End Account Type Code
 }
