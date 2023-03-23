@@ -10,9 +10,14 @@
 
     <div class="cust-form-wrapper">
         <div class="row">
+
             <div class="col-md-12">
                 <form method="POST" action="{{ route('update-region-cost') }}">
                     @csrf
+                    <div class="form-group">
+                        <label><strong>Template Name :</strong></label>
+                        <input class="form-control" type="text" placeholder="Template name" name="template_name" value="{{$region_cost->template_name}}" required />
+                    </div>
                     <div class="form-group">
                         <label><strong>Select Region :</strong></label>
                         <select class="form-control" name="region_id">
@@ -32,125 +37,234 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label><strong>Applicable Start Date :</strong></label>
+                        <input class="form-control" type="date" placeholder="Start Date" name="start_date" value="{{$region_cost->start_date}}" required />
+                    </div>
+                    <div class="form-group">
+                        <label><strong>Applicable End Date :</strong></label>
+                        <input class="form-control" type="date" placeholder="End Date" name="end_date" value="{{$region_cost->end_date}}" required />
+                    </div>
+                    <div class="form-group">
                         <label><strong>Select Meter Type :</strong></label>
-                        <select class="form-control" name="meter_type_id">
-                            <option value="">Please select Meter Type</option>
-                            @foreach($meterType as $meter)
-                            <option value="{{$meter->id}}" {{ $region_cost->meter_type_id == $meter->id ? 'selected' : '' }}>{{$meter->title}}</option>
-                            @endforeach
-                        </select>
+                        <input type="checkbox" name="is_water" id="waterchk" {{ $region_cost->is_water == 1 ? 'checked' : '' }} /> Water
+                        <input type="checkbox" name="is_electricity" id="electricitychk" {{ $region_cost->is_electricity == 1 ? 'checked' : '' }} /> Electricity
                     </div>
+                    <div class="form-group water_used">
+                        <label><strong>Water Usages :</strong></label>
+                        <input class="form-control" type="text" placeholder="Water Usage" name="water_used" value="{{$region_cost->water_used ?? 0}}" required />
+                    </div>
+                    <div class="form-group ele_used">
+                        <label><strong>Electricity Usages :</strong></label>
+                        <input class="form-control" type="text" placeholder="Electricity Usage" name="electricity_used" value="{{$region_cost->electricity_used ?? 0}}" required />
+                    </div>
+                    <div class="water_in_section">
+                        <hr>
+                        <label><strong>Add Water In Cost : </strong> <a href="#" id="add-waterin-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
+                        @if($region_cost->water_in && $region_cost->water_used > 0)
+                        @foreach(json_decode($region_cost->water_in) as $key => $value)
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label><strong>Min :</strong></label>
+                                <div class="form-group">
+                                    <input class="form-control" type="number" placeholder="Min litres" name="waterin[{{$key}}][min]" value="{{$value->min}}" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label><strong>Max :</strong></label>
+                                <div class="form-group">
+                                    <input class="form-control" type="number" placeholder="Max litres" name="waterin[{{$key}}][max]" value="{{$value->max}}" required />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label><strong>Cost :</strong></label>
+                                <div class="form-group">
+                                    <input class="form-control" type="number" placeholder="Cost" step=any name="waterin[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label><strong>Total :</strong></label>
+                                <div class="form-group">
+                                    <input class="form-control" type="text" placeholder="Total" name="waterin[{{$key}}][total]" value="{{$value->total}}" required disabled />
+                                </div>
+                            </div>
+
+                            <div class="col-md-1">
+                                <a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                        @endforeach
+                        @endif
+                        <div class="waterin-cost-container"></div>
+                        <div class="col-md-2">
+                            <label><strong>Water In Total :</strong></label>
+                            <div class="form-group">
+                                <input class="form-control" type="text" placeholder="Total" name="waterin_total" value="{{$region_cost->water_in_total ?? 0}}" required disabled />
+                            </div>
+                        </div>
+                        <!-- start water out form -->
+                    </div>
+                    <div class="water_out_section">
+                        <hr>
+
+                        <label><strong>Add Water Out Cost : </strong> <a href="#" id="add-waterout-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
+                        @if($region_cost->water_out && $region_cost->water_used > 0)
+                        @foreach(json_decode($region_cost->water_out) as $key => $value)
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label><strong>Min :</strong></label>
+                                <div class="form-group">
+                                    <input class="form-control" type="number" placeholder="Min litres" name="waterout[{{$key}}][min]" value="{{$value->min}}" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label><strong>Max :</strong></label>
+                                <div class="form-group">
+                                    <input class="form-control" type="number" placeholder="Max litres" name="waterout[{{$key}}][max]" value="{{$value->max}}" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label><strong>Percentage :</strong></label>
+                                <div class="form-group">
+                                    <input class="form-control" type="number" placeholder="Percentage" name="waterout[{{$key}}][percentage]" value="{{$value->percentage}}" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label><strong>Cost :</strong></label>
+                                <div class="form-group">
+                                    <input class="form-control" type="number" placeholder="Cost" step=any name="waterout[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label><strong>Total :</strong></label>
+                                <div class="form-group">
+                                    <input class="form-control" type="text" placeholder="Total" name="waterout[{{$key}}][total]" value="{{$value->total}}" required disabled />
+                                </div>
+                            </div>
+
+                            <div class="col-md-1">
+                                <a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-out-btn">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                        @endforeach
+                        @endif
+                        <div class="waterout-cost-container"></div>
+                        <div class="col-md-2">
+                            <label><strong>Water Out Total :</strong></label>
+                            <div class="form-group">
+                                <input class="form-control" type="text" placeholder="Total" name="waterout_total" value="{{$region_cost->water_out_total ?? 0}}" required disabled />
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end water out form -->
+                    <!-- start Additional cost form -->
+
+                    <div class="ele_section">
+                        <hr>
+                        <label><strong>Electricity : </strong> <a href="#" id="add-electricity-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
+                        @if($region_cost->electricity)
+                        @foreach(json_decode($region_cost->electricity) as $key => $value)
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label><strong>Min :</strong></label>
+                                <div class="form-group">
+                                    <input class="form-control" type="number" placeholder="Min" name="electricity[{{$key}}][min]" value="{{$value->min}}" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label><strong>Max :</strong></label>
+                                <div class="form-group">
+                                    <input class="form-control" type="number" placeholder="Max" name="electricity[{{$key}}][max]" value="{{$value->max}}" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label><strong>Cost :</strong></label>
+                                <div class="form-group">
+                                    <input class="form-control" type="number" placeholder="Cost" step=any name="electricity[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label><strong>Total :</strong></label>
+                                <div class="form-group">
+                                    <input class="form-control" type="text" placeholder="Total" name="electricity[{{$key}}][total]" value="{{$value->total ?? 0}}" required disabled />
+                                </div>
+                            </div>
+
+                            <div class="col-md-1">
+                                <a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-ele-btn">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                        @endforeach
+                        @endif
+                        <div class="electricity-cost-container"></div>
+                        <div class="col-md-2">
+                            <label><strong>Electricity Total :</strong></label>
+                            <div class="form-group">
+                                <input class="form-control" type="text" placeholder="Total" name="electricity_total" value="{{$region_cost->electricity_total ?? 0}}" required disabled />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- end water out form -->
+                    <!-- start Additional cost form -->
                     <hr>
-                    @if($region_cost->water_in)
-                    <label><strong>Add Water In Cost : </strong> <a href="#" id="add-waterin-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
-                    @foreach(json_decode($region_cost->water_in) as $key => $value)
+                    @if($region_cost->additional)
+                    <label><strong>Additional Cost : </strong> <a href="#" id="add-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
+                    @foreach(json_decode($region_cost->additional) as $key => $value)
                     <div class="row">
                         <div class="col-md-2">
-                            <label><strong>Min :</strong></label>
+                            <label><strong>Name Of Cost :</strong></label>
                             <div class="form-group">
-                                <input class="form-control" type="number" placeholder="Min litres" name="waterin[{{$key}}][min]" value="{{$value->min}}" required />
+                                <input class="form-control" type="text" placeholder="Name" name="additional[{{$key}}][name]" value="{{$value->name}}" required />
                             </div>
                         </div>
                         <div class="col-md-2">
-                            <label><strong>Max :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="number" placeholder="Max litres" name="waterin[{{$key}}][max]" value="{{$value->max}}" required />
-                            </div>
-                        </div>
-                        <div class="col-md-3">
                             <label><strong>Cost :</strong></label>
                             <div class="form-group">
-                                <input class="form-control" type="number" placeholder="Cost" step=any name="waterin[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                <input class="form-control" type="number" placeholder="Cost" name="additional[{{$key}}][cost]" value="{{$value->cost}}" required />
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <label><strong>Applicable Date :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="date" placeholder="Applicable Date" name="waterin[{{$key}}][date]" value="{{$value->date}}" required />
-                            </div>
-                        </div>
-
                         <div class="col-md-1">
-                            <a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">
+                            <a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger addi-cost-del-btn">
                                 <i class="fa fa-trash"></i>
                             </a>
                         </div>
                     </div>
                     @endforeach
-                    <div class="waterin-cost-container"></div>
                     @endif
+                    <div class="additional-cost-container"></div>
+                    <div class="col-md-4" style="float:right;">
+                        <label><strong>Sub Total :</strong></label>
+                        <div class="form-group">
+                            <input class="form-control" type="text" placeholder="Sub Total" name="sub_total" value="{{$region_cost->sub_total ?? 0}}" required disabled />
+                        </div>
+                        <label><strong>Vat In Percentage :</strong></label>
+                        <div class="form-group">
+                            <input class="form-control" type="number" placeholder="VAT Percentage" name="vat_percentage" value="{{$region_cost->vat_percentage ?? 0}}" required />
+                        </div>
+                        <label><strong>Subtotal of VAT Percentage</strong></label>
+                        <div class="form-group">
+                            <input class="form-control" type="number" placeholder="VAT Rate" name="vat_rate" value="{{$region_cost->sub_total_vat ?? 0}}" required />
+                        </div>
+                        <label><strong>Vat Rates :</strong></label>
+                        <div class="form-group">
+                            <input class="form-control" type="number" placeholder="VAT Rate" name="vat_rate" value="{{$region_cost->vat_rate ?? 0}}" required />
+                        </div>
+                        <label><strong>Final Total :</strong></label>
+                        <div class="form-group">
+                            <input class="form-control" type="number" placeholder="Final Total" name="final_total" value="{{$region_cost->final_total ?? 0}}" required disabled />
+                        </div>
+                        <input type="hidden" name="id" value="{{ $region_cost->id }}" />
+                        <button type="submit" class="btn btn-warning">Update</button>
 
-                    <hr>
-                    @if($region_cost->water_out)
-                    <label><strong>Add Water Out Cost : </strong> <a href="#" id="add-waterout-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
-                    @foreach(json_decode($region_cost->water_out) as $key => $value)
-                    <div class="row">
-                        <div class="col-md-2">
-                            <label><strong>Min :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="number" placeholder="Min litres" name="waterout[{{$key}}][min]" value="{{$value->min}}" required />
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <label><strong>Max :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="number" placeholder="Max litres" name="waterout[{{$key}}][max]" value="{{$value->max}}" required />
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label><strong>Cost :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="number" placeholder="Cost" step=any name="waterout[{{$key}}][cost]" value="{{$value->cost}}" required />
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label><strong>Percentage :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="number" placeholder="Percentage" name="waterout[{{$key}}][percentage]" value="{{$value->percentage}}" required />
-                            </div>
-                        </div>
-
-                        <div class="col-md-1">
-                            <a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-out-btn">
-                                <i class="fa fa-trash"></i>
-                            </a>
-                        </div>
                     </div>
-                    
-                    @endforeach
-                    <div class="waterout-cost-container"></div>
-                    @endif
-                    <hr>
 
-                    <label><strong>Additional Cost & VAT : </strong></label>
-                    <div class="row">
-                        <div class="col-md-2">
-                            <label><strong>Garbage Collection :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="number" step=any placeholder="Garbage Collection" name="garbase_collection_cost" value="{{$region_cost->garbase_collection_cost}}" />
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <label><strong>Infrastructure Levy :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="number" step=any placeholder="Infrastructure Levy" name="infrastructure_levy_cost" value="{{$region_cost->infrastructure_levy_cost}}" />
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label><strong>VAT Percentage :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="number" step=any placeholder="VAT Percentage" name="vat_percentage" value="{{$region_cost->vat_percentage}}" />
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label><strong>VAT Rate :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="number" step=any placeholder="VAT Rate" name="vat_rate" value="{{$region_cost->vat_rate}}" />
-                            </div>
-                        </div>
-                    </div>
-                    <input type="hidden" name="id" value="{{ $region_cost->id }}" />
-                    <button type="submit" class="btn btn-warning">Update</button>
+
                 </form>
             </div>
         </div>
@@ -164,10 +278,80 @@
     $(document).ready(function() {
         $('#user-dataTable').dataTable();
 
-        var i = <?php echo count(json_decode($region_cost->water_in)) ?>;
-        console.log(i);    
-        var o =<?php echo count(json_decode($region_cost->water_out)) ?>;
-        console.log(o); 
+        $('.ele_used').css('display', 'none');
+        $('.water_used').css('display', 'none');
+        $('.ele_section').css('display', 'none');
+        $('.water_in_section').css('display', 'none');
+        $('.water_out_section').css('display', 'none');
+
+
+        // checkbox chk
+        if ($('#waterchk').is(':checked')) {
+            $('.water_used').css('display', 'block');
+            $('.water_in_section').css('display', 'block');
+            $('.water_out_section').css('display', 'block');
+        } else {
+            $('.water_used').css('display', 'none');
+            $('.water_in_section').css('display', 'none');
+            $('.water_out_section').css('display', 'none');
+        }
+        if ($('#electricitychk').is(':checked')) {
+            $('.ele_used').css('display', 'block');
+            $('.ele_section').css('display', 'block');
+        } else {
+            $('.ele_used').css('display', 'none');
+            $('.ele_section').css('display', 'none');
+        }
+        $('#waterchk').change(function() {
+            if (this.checked) {
+                $('.water_used').css('display', 'block');
+                $('.water_in_section').css('display', 'block');
+                $('.water_out_section').css('display', 'block');
+            } else {
+                $('.water_used').css('display', 'none');
+                $('.water_in_section').css('display', 'none');
+                $('.water_out_section').css('display', 'none');
+            }
+        });
+        $('#electricitychk').change(function() {
+            if (this.checked) {
+                $('.ele_used').css('display', 'block');
+                $('.ele_section').css('display', 'block');
+            } else {
+                $('.ele_used').css('display', 'none');
+                $('.ele_section').css('display', 'none');
+            }
+        });
+
+        var i = <?php
+                if ($region_cost->water_in && $region_cost->water_used > 0) {
+                    echo count(json_decode($region_cost->water_in));
+                } else {
+                    echo 0;
+                }
+                ?>;
+        var o = <?php
+                if ($region_cost->water_out && $region_cost->water_used > 0) {
+                    echo count(json_decode($region_cost->water_out));
+                } else {
+                    echo 0;
+                }
+                ?>;
+        var e = <?php
+                if ($region_cost->electricity) {
+                    echo count(json_decode($region_cost->electricity));
+                } else {
+                    echo 0;
+                }
+                ?>;
+        var a = <?php
+                if ($region_cost->additional) {
+                    echo count(json_decode($region_cost->additional));
+                } else {
+                    echo 0;
+                }
+                ?>;
+
         $("#add-waterin-cost").on("click", function() {
 
             var html = '<div class="row">' +
@@ -190,9 +374,9 @@
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-3">' +
-                '<label><strong>Applicable Date :</strong></label>' +
+                '<label><strong>Total :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="date" placeholder="Applicable Date" name="waterin[' + i + '][date]" required />' +
+                '<input class="form-control" type="text" placeholder="Total" name="waterin[' + i + '][total]" required disabled/>' +
                 '</div>' +
                 '</div>' +
 
@@ -222,19 +406,24 @@
                 '<input class="form-control" type="number" placeholder="Max litres" name="waterout[' + o + '][max]" required />' +
                 '</div>' +
                 '</div>' +
-                '<div class="col-md-3">' +
-                '<label><strong>Cost :</strong></label>' +
-                '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Cost" step=any name="waterout[' + o + '][cost]" required />' +
-                '</div>' +
-                '</div>' +
-                '<div class="col-md-3">' +
+                '<div class="col-md-2">' +
                 '<label><strong>Percentage :</strong></label>' +
                 '<div class="form-group">' +
                 '<input class="form-control" type="number" placeholder="Percentage" name="waterout[' + o + '][percentage]" required />' +
                 '</div>' +
                 '</div>' +
-
+                '<div class="col-md-2">' +
+                '<label><strong>Cost :</strong></label>' +
+                '<div class="form-group">' +
+                '<input class="form-control" type="number" placeholder="Cost" step=any name="waterout[' + o + '][cost]" required />' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-2">' +
+                '<label><strong>Total :</strong></label>' +
+                '<div class="form-group">' +
+                '<input class="form-control" type="text" placeholder="Total" name="waterout[' + o + '][total]" required disabled/>' +
+                '</div>' +
+                '</div>' +
                 '<div class="col-md-1">' +
                 '<a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">' +
                 '<i class="fa fa-trash"></i>' +
@@ -246,24 +435,91 @@
             o++
         });
 
+        // Electricity
+        $("#add-electricity-cost").on("click", function() {
+
+            var html = '<div class="row">' +
+                '<div class="col-md-2">' +
+                '<label><strong>Min :</strong></label>' +
+                '<div class="form-group">' +
+                '<input class="form-control" type="number" placeholder="Min" name="electricity[' + e + '][min]" required />' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-2">' +
+                '<label><strong>Max :</strong></label>' +
+                '<div class="form-group">' +
+                '<input class="form-control" type="number" placeholder="Max" name="electricity[' + e + '][max]" required />' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-2">' +
+                '<label><strong>Cost :</strong></label>' +
+                '<div class="form-group">' +
+                '<input class="form-control" type="number" placeholder="Cost" step=any name="electricity[' + e + '][cost]" required />' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-2">' +
+                '<label><strong>Total :</strong></label>' +
+                '<div class="form-group">' +
+                '<input class="form-control" type="text" placeholder="Total" name="electricity[' + e + '][total]" required disabled/>' +
+                '</div>' +
+                '</div>' +
+
+                '<div class="col-md-1">' +
+                '<a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">' +
+                '<i class="fa fa-trash"></i>' +
+                '</a>' +
+                '</div>' +
+                '</div>';
+
+            $(".electricity-cost-container").append(html);
+            e++;
+        });
+
+        // Additional cost
+        $("#add-additional-cost").on("click", function() {
+
+            var html = '<div class="row">' +
+                '<div class="col-md-2">' +
+                '<label><strong>Name Of Cost :</strong></label>' +
+                '<div class="form-group">' +
+                '<input class="form-control" type="text" placeholder="Name" name="additional[' + a + '][name]" required />' +
+                '</div>' +
+                '</div>' +
+                '<div class="col-md-2">' +
+                '<label><strong>Cost :</strong></label>' +
+                '<div class="form-group">' +
+                '<input class="form-control" type="number" placeholder="Cost" name="additional[' + a + '][cost]" required />' +
+                '</div>' +
+                '</div>' +
+
+                '<div class="col-md-1">' +
+                '<a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger addi-cost-del-btn">' +
+                '<i class="fa fa-trash"></i>' +
+                '</a>' +
+                '</div>' +
+                '</div>';
+
+            $(".additional-cost-container").append(html);
+            a++;
+        });
+
         $(document).on("click", '.additional-cost-del-btn', function() {
             $(this).parent().parent().remove();
             i--;
         });
+        $(document).on("click", '.addi-cost-del-btn', function() {
+            $(this).parent().parent().remove();
+            a--;
+        });
+
         $(document).on("click", '.additional-cost-del-out-btn', function() {
             $(this).parent().parent().remove();
             o--;
         });
-
-        // $(document).on("click", '.additional-cost-del-btn', function() {
-        //     var ID = $(this).data('id');
-        //     if (ID) {
-        //         var oldVal = $("#deletedCosts").val();
-        //         var newVal = oldVal + ',' + ID;
-        //         $("#deletedCosts").val(newVal);
-        //     }
-        //     $(this).parent().parent().remove();
-        // });
+        $(document).on("click", '.additional-cost-del-ele-btn', function() {
+            $(this).parent().parent().remove();
+            e--;
+        });
     });
 </script>
 @endsection

@@ -12,13 +12,19 @@ class RegionsAccountTypeCost extends Model
     protected $table  = 'regions_account_type_cost';
 
     protected $fillable = [
+        'template_name',
         'region_id',
         'account_type_id',
-        'meter_type_id',
+        'start_date',
+        'end_date',
+        'is_water',
+        'is_electricity',
+        'water_used',
+        'electricity_used',
         'water_in',
         'water_out',
-        'garbase_collection_cost',
-        'infrastructure_levy_cost',
+        'electricity',
+        'additional',
         'vat_rate',
         'vat_percentage',
         'is_active',

@@ -24,9 +24,9 @@
                         <thead>
                         <tr>
                             <th>#</th>
+                            <th>Template Name</th>
                             <th>Region</th>
                             <th>AccountType</th>
-                            <th>MeterType</th>
                             <th>Created Date</th>
                             <th>Actions</th>
                         </tr>
@@ -34,9 +34,10 @@
                         <tfoot>
                         <tr>
                             <th>#</th>
+                            <th>Template Name</th>
                             <th>Region</th>
                             <th>AccountType</th>
-                            <th>MeterType</th>
+                            
                             <th>Created Date</th>
                             <th>Actions</th>
                         </tr>
@@ -45,9 +46,9 @@
                         @foreach($regionsAccountTypeCost as $cost)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
+                                <td>{{ $cost->template_name }}</td>
                                 <td>{{ $cost->region->name }}</td>
                                 <td>{{ $cost->accountType->type }}</td>
-                                <td>{{ $cost->meterType->title }}</td>
                                 <td>{{ $cost->created_at }}</td>
                                 <td>
                                     <a href="{{ url('admin/region_cost/edit/'.$cost->id) }}" class="btn btn-warning btn-circle">
