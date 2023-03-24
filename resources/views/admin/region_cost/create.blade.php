@@ -59,7 +59,7 @@
                     <div class="water_in_section">
                         <hr>
 
-                        <label><strong>Add Water In Cost : </strong> <a href="#" id="add-waterin-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
+                        <label><strong>Add Water In Cost : </strong> <a href="javascript:void(0)" id="add-waterin-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
                         <div class="row">
                             <div class="col-md-2">
                                 <label><strong>Min :</strong></label>
@@ -87,7 +87,7 @@
                             </div>
 
                             <div class="col-md-1">
-                                <a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">
+                                <a href="javascript:void(0)" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">
                                     <i class="fa fa-trash"></i>
                                 </a>
                             </div>
@@ -103,7 +103,7 @@
                         <hr>
                     </div>
                     <div class="water_out_section">
-                        <label><strong>Add Water Out Cost : </strong> <a href="#" id="add-waterout-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
+                        <label><strong>Add Water Out Cost : </strong> <a href="javascript:void(0)" id="add-waterout-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
                         <div class="row">
                             <div class="col-md-2">
                                 <label><strong>Min :</strong></label>
@@ -137,7 +137,7 @@
                             </div>
 
                             <div class="col-md-1">
-                                <a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-out-btn">
+                                <a href="javascript:void(0)" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-out-btn">
                                     <i class="fa fa-trash"></i>
                                 </a>
                             </div>
@@ -155,7 +155,7 @@
 
                     <div class="ele_section">
                         <hr>
-                        <label><strong>Electricity : </strong> <a href="#" id="add-electricity-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
+                        <label><strong>Electricity : </strong> <a href="javascript:void(0)" id="add-electricity-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
                         <div class="row">
                             <div class="col-md-2">
                                 <label><strong>Min :</strong></label>
@@ -183,7 +183,7 @@
                             </div>
 
                             <div class="col-md-1">
-                                <a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-ele-btn">
+                                <a href="javascript:void(0)" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-ele-btn">
                                     <i class="fa fa-trash"></i>
                                 </a>
                             </div>
@@ -200,7 +200,7 @@
                     <!-- start Additional cost form -->
                     <hr>
 
-                    <label><strong>Additional Cost : </strong> <a href="#" id="add-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
+                    <label><strong>Additional Cost : </strong> <a href="javascript:void(0)" id="add-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
                     <div class="row">
                         <div class="col-md-2">
                             <label><strong>Name Of Cost :</strong></label>
@@ -215,7 +215,7 @@
                             </div>
                         </div>
                         <div class="col-md-1">
-                            <a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger addi-cost-del-btn">
+                            <a href="javascript:void(0)" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger addi-cost-del-btn">
                                 <i class="fa fa-trash"></i>
                             </a>
                         </div>
@@ -334,7 +334,7 @@
                 '</div>' +
 
                 '<div class="col-md-1">' +
-                '<a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">' +
+                '<a href="javascript:void(0)" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">' +
                 '<i class="fa fa-trash"></i>' +
                 '</a>' +
                 '</div>' +
@@ -378,7 +378,7 @@
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-1">' +
-                '<a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">' +
+                '<a href="javascript:void(0)" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">' +
                 '<i class="fa fa-trash"></i>' +
                 '</a>' +
                 '</div>' +
@@ -418,7 +418,7 @@
                 '</div>' +
 
                 '<div class="col-md-1">' +
-                '<a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">' +
+                '<a href="javascript:void(0)" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">' +
                 '<i class="fa fa-trash"></i>' +
                 '</a>' +
                 '</div>' +
@@ -446,7 +446,7 @@
                 '</div>' +
 
                 '<div class="col-md-1">' +
-                '<a href="#" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger addi-cost-del-btn">' +
+                '<a href="javascript:void(0)" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger addi-cost-del-btn">' +
                 '<i class="fa fa-trash"></i>' +
                 '</a>' +
                 '</div>' +
