@@ -113,7 +113,7 @@ class RegionsCostController extends Controller
             $water_out = json_encode($request->waterout);
         }
         $is_electricity = 0;
-        $electricity = '';
+        $electricity = NULL;
         $electricity_used = 0;
         if ($request['is_electricity'] == 'on') {
             $is_electricity = 1;
