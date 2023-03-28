@@ -31,6 +31,20 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/', function () {
         return view('admin.home');
     });
+    // Account Type routes
+    Route::get('region_cost', [\App\Http\Controllers\RegionsCostController::class, 'index'])->name('region-cost');
+    Route::get('region_cost/create', [\App\Http\Controllers\RegionsCostController::class, 'create'])->name('region-cost-create');
+    Route::post('region_cost', [\App\Http\Controllers\RegionsCostController::class, 'store'])->name('region-cost-store');
+    Route::get('/region_cost/edit/{id}', [\App\Http\Controllers\RegionsCostController::class, 'edit'])->name('region-cost-edit');
+    Route::post('region_cost/update', [\App\Http\Controllers\RegionsCostController::class, 'update'])->name('update-region-cost');
+    Route::get('/region_cost/delete/{id}', [\App\Http\Controllers\RegionsCostController::class, 'delete']);
+    // Account Type routes
+    Route::get('account_type', [\App\Http\Controllers\AdminController::class, 'showAccountType'])->name('account-type-list');
+    Route::post('/account_type/edit', [\App\Http\Controllers\AdminController::class, 'editAccountType'])->name('edit-account-type');
+    Route::get('account_type/add', [\App\Http\Controllers\AdminController::class, 'addAccountTypeForm'])->name('add-account-type-form');
+    Route::get('/account_type/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editAccountTypeForm']);
+    Route::post('account_type/add', [\App\Http\Controllers\AdminController::class, 'createAccountType'])->name('add-account-type');
+    Route::get('/account_type/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteAccountType']);
 
     // Regions related routes
     Route::get('regions', [\App\Http\Controllers\AdminController::class, 'showRegions'])->name('regions-list');

@@ -68,19 +68,7 @@
         </li>
 
         <!-- Nav Item - Utilities Collapse Menu -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRegions"
-               aria-expanded="true" aria-controls="collapseRegions">
-                <i class="fas fa-fw fa-location-arrow"></i>
-                <span>Regions Management</span>
-            </a>
-            <div id="collapseRegions" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('regions-list') }}">List</a>
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-region-form') }}">Add</a>
-                </div>
-            </div>
-        </li>
+        
 
         <!-- Nav Item - Utilities Collapse Menu -->
         <li class="nav-item">
@@ -155,6 +143,52 @@
                 <div class="bg-white py-2 collapse-inner rounded">
                     <a class="collapse-item" href="{{ route('category-list') }}">Categories</a>
                     <a class="collapse-item" href="{{ route('ads-list') }}">Ads</a>
+                </div>
+            </div>
+        </li>
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Heading -->
+        <div class="sidebar-heading">
+            formula Cost
+        </div>
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRegions"
+               aria-expanded="true" aria-controls="collapseRegions">
+                <i class="fas fa-fw fa-location-arrow"></i>
+                <span>Regions Management</span>
+            </a>
+            <div id="collapseRegions" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('regions-list') }}">List</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-region-form') }}">Add</a>
+                </div>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAccountType"
+               aria-expanded="true" aria-controls="collapseAccountType">
+                <i class="fas fa-fw fa-location-arrow"></i>
+                <span>AccountType</span>
+            </a>
+            <div id="collapseAccountType" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('account-type-list') }}">List</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-account-type-form') }}">Add</a>
+                </div>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRegionsCost"
+               aria-expanded="true" aria-controls="collapseRegionsCost">
+                <i class="fas fa-fw fa-location-arrow"></i>
+                <span>Regions Cost</span>
+            </a>
+            <div id="collapseRegionsCost" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('region-cost') }}">List</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('region-cost-create') }}">Add</a>
                 </div>
             </div>
         </li>

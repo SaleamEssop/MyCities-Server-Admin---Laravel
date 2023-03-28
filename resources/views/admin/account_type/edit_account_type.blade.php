@@ -6,39 +6,19 @@
     <div class="container-fluid">
 
         <!-- Page Heading -->
-        <h1 class="h3 mb-2 custom-text-heading">Edit Region</h1>
+        <h1 class="h3 mb-2 custom-text-heading">Edit Account Type</h1>
 
         <div class="cust-form-wrapper">
             <div class="row">
                 <div class="col-md-6">
-                    <form method="POST" action="{{ route('edit-region') }}">
+                    <form method="POST" action="{{ route('edit-account-type') }}">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label><strong>Region Title :</strong></label>
-                                    <input placeholder="Enter region title" value="{{ $region->name }}" type="text" class="form-control" name="region_name" required />
+                                    <label><strong>Account Type Title :</strong></label>
+                                    <input placeholder="Enter account type title" value="{{ $account_type->type }}" type="text" class="form-control" name="name" required />
                                 </div>
-                                <!-- <div class="form-group">
-                                    <label><strong>Water Base Unit :</strong></label>
-                                    <input placeholder="Enter water base unit" value="{{ $region->water_base_unit_cost }}" type="text" class="form-control" name="water_base" />
-                                </div>
-                                <div class="form-group">
-                                    <label><strong>Water Base Unit Value :</strong></label>
-                                    <input placeholder="Enter water base unit value" value="{{ $region->water_base_unit }}" type="text" class="form-control" name="water_unit" />
-                                </div>
-                                <div class="form-group">
-                                    <label><strong>Electricity Base Unit :</strong></label>
-                                    <input placeholder="Enter electricity base unit" value="{{ $region->electricity_base_unit }}" type="text" class="form-control" name="elect_base" />
-                                </div>
-                                <div class="form-group">
-                                    <label><strong>Electricity Base Unit Value :</strong></label>
-                                    <input placeholder="Enter electricity base unit value" value="{{ $region->electricity_base_unit_cost }}" type="text" class="form-control" name="elect_unit" />
-                                </div>
-                                <div class="form-group">
-                                    <label><strong>Cost :</strong></label>
-                                    <input placeholder="Enter cost(optional)" value="{{ $region->cost }}" type="text" class="form-control" name="region_cost" />
-                                </div> -->
-                                <input type="hidden" name="region_id" value="{{ $region->id }}" />
+                                <input type="hidden" name="id" value="{{ $account_type->id }}" />
                                 @csrf
                                 <button type="submit" class="btn btn-warning">Submit</button>
                             </div>
