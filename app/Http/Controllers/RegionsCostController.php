@@ -85,6 +85,8 @@ class RegionsCostController extends Controller
         );
        
         $save = RegionsAccountTypeCost::create($costs);
+        Session::flash('alert-class', 'alert-success');
+        Session::flash('alert-message', 'Success! Region Cost Created successfully!');
         return redirect()->route('region-cost-edit', $save->id);
     }
     public function edit(Request $request, $id)
@@ -135,10 +137,39 @@ class RegionsCostController extends Controller
             'vat_percentage' => isset($request['vat_percentage']) ? $request['vat_percentage'] : 0,
             'vat_rate' => isset($request['vat_rate']) ? $request['vat_rate'] : 0,
         ]);
+        Session::flash('alert-class', 'alert-success');
+        Session::flash('alert-message', 'Success! Region Cost Update successfully!');
         return redirect()->route('region-cost-edit', $request->id);
     }
-    public function delete(Request $request)
+    public function delete(Request $request,$id)
     {
+        if(empty($id)) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+        // In next phase delete all the related models as well.
+        DB::beginTransaction();
+        try{
+            $deleted = RegionsAccountTypeCost::where('id', $id)->first()->delete();
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
+
+        if($deleted) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Region Cost deleted successfully!');
+            return redirect()->back();
+        }
+        else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
     }
     public function calculateWaterBilling($region_cost)
     {
