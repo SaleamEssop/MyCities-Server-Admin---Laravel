@@ -43,6 +43,10 @@
                         <label><strong>Applicable End Date :</strong></label>
                         <input class="form-control" type="date" placeholder="End Date" name="end_date" required />
                     </div>
+                    <div class="form-group ele_used">
+                        <label><strong>Ratable Value :</strong></label>
+                        <input class="form-control" type="text" placeholder="Ratable Value" name="ratable_value" value="{{$region_cost->ratable_value ?? 0}}" required />
+                    </div>
                     <div class="form-group">
                         <label><strong>Select Meter Type :</strong></label>
                         <input type="checkbox" name="is_water" id="waterchk" /> Water

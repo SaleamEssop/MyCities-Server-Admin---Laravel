@@ -27,6 +27,7 @@ class RegionsAccountTypeCost extends Model
         'additional',
         'vat_rate',
         'vat_percentage',
+        'ratable_value',
         'is_active',
     ];
 

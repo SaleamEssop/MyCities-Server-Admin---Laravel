@@ -49,6 +49,10 @@
                         <input type="checkbox" name="is_water" id="waterchk" {{ $region_cost->is_water == 1 ? 'checked' : '' }} /> Water
                         <input type="checkbox" name="is_electricity" id="electricitychk" {{ $region_cost->is_electricity == 1 ? 'checked' : '' }} /> Electricity
                     </div>
+                    <div class="form-group ele_used">
+                        <label><strong>Ratable Value :</strong></label>
+                        <input class="form-control" type="text" placeholder="Ratable Value" name="ratable_value" value="{{$region_cost->ratable_value ?? 0}}" required />
+                    </div>
                     <div class="form-group water_used">
                         <label><strong>Water Usages :</strong></label>
                         <input class="form-control" type="text" placeholder="Water Usage" name="water_used" value="{{$region_cost->water_used ?? 0}}" required />
@@ -97,10 +101,20 @@
                         @endforeach
                         @endif
                         <div class="waterin-cost-container"></div>
-                        <div class="col-md-2">
-                            <label><strong>Water In Total :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="text" placeholder="Total" name="waterin_total" value="{{$region_cost->water_in_total ?? 0}}" required disabled />
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <label><strong>Water In Total :</strong></label>
+                                    <div class="form-group">
+                                        <input class="form-control" type="text" placeholder="Total" name="waterin_total" value="{{$region_cost->water_in_total ?? 0}}" required disabled />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label><strong>Infrastructure Surcharge :</strong></label>
+                                    <div class="form-group">
+                                        <input class="form-control" type="text" placeholder="Infrastructure Surcharge" name="infrastructure_surcharge" value="{{$region_cost->infrastructure_surcharge ?? 0}}" disabled />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <!-- start water out form -->
@@ -152,10 +166,20 @@
                         @endforeach
                         @endif
                         <div class="waterout-cost-container"></div>
-                        <div class="col-md-2">
-                            <label><strong>Water Out Total :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="text" placeholder="Total" name="waterout_total" value="{{$region_cost->water_out_total ?? 0}}" required disabled />
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <label><strong>Water Out Total :</strong></label>
+                                    <div class="form-group">
+                                        <input class="form-control" type="text" placeholder="Total" name="waterout_total" value="{{$region_cost->water_out_total ?? 0}}" required disabled />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label><strong>Sewage charge :</strong></label>
+                                    <div class="form-group">
+                                        <input class="form-control" type="text" placeholder="Sewage charge" name="sewage_charge" value="{{$region_cost->sewage_charge ?? 0}}" disabled />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -345,7 +369,8 @@
                 }
                 ?>;
         var a = <?php
-                if ($region_cost->additional) {
+        
+                if (isset($region_cost->additional)) {
                     echo count(json_decode($region_cost->additional));
                 } else {
                     echo 0;
