@@ -488,7 +488,7 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Cost" name="additional[' + a + '][cost]" required />' +
+                '<input class="form-control" type="number" placeholder="Cost" step=any name="additional[' + a + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
 
