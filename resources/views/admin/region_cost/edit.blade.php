@@ -60,7 +60,7 @@
                     <div class="water_in_section">
                         <hr>
                         <label><strong>Add Water In Cost : </strong> <a href="javascript:void(0)" id="add-waterin-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
-                        @if($region_cost->water_in && $region_cost->water_used > 0)
+                        @if($region_cost->water_in != 'null' && $region_cost->water_used > 0)
                         @foreach(json_decode($region_cost->water_in) as $key => $value)
                         <div class="row">
                             <div class="col-md-2">
@@ -109,7 +109,7 @@
                         <hr>
 
                         <label><strong>Add Water Out Cost : </strong> <a href="javascript:void(0)" id="add-waterout-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
-                        @if($region_cost->water_out && $region_cost->water_used > 0)
+                        @if($region_cost->water_out != 'null' && $region_cost->water_used > 0)
                         @foreach(json_decode($region_cost->water_out) as $key => $value)
                         <div class="row">
                             <div class="col-md-2">
@@ -165,7 +165,7 @@
                     <div class="ele_section">
                         <hr>
                         <label><strong>Electricity : </strong> <a href="javascript:void(0)" id="add-electricity-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
-                        @if($region_cost->electricity)
+                        @if($region_cost->electricity != 'null')
                         @foreach(json_decode($region_cost->electricity) as $key => $value)
                         <div class="row">
                             <div class="col-md-2">
@@ -324,21 +324,21 @@
         });
 
         var i = <?php
-                if ($region_cost->water_in && $region_cost->water_used > 0) {
+                if ($region_cost->water_in != 'null' && $region_cost->water_used > 0) {
                     echo count(json_decode($region_cost->water_in));
                 } else {
                     echo 0;
                 }
                 ?>;
         var o = <?php
-                if ($region_cost->water_out && $region_cost->water_used > 0) {
+                if ($region_cost->water_out != 'null' && $region_cost->water_used > 0) {
                     echo count(json_decode($region_cost->water_out));
                 } else {
                     echo 0;
                 }
                 ?>;
         var e = <?php
-                if ($region_cost->electricity) {
+                if ($region_cost->electricity != 'null') {
                     echo count(json_decode($region_cost->electricity));
                 } else {
                     echo 0;
