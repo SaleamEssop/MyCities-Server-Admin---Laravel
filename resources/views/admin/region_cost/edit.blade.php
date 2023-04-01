@@ -213,8 +213,8 @@
                     <!-- end water out form -->
                     <!-- start Additional cost form -->
                     <hr>
-                    @if($region_cost->additional)
                     <label><strong>Additional Cost : </strong> <a href="javascript:void(0)" id="add-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
+                    @if($region_cost->additional)
                     @foreach(json_decode($region_cost->additional) as $key => $value)
                     <div class="row">
                         <div class="col-md-2">
