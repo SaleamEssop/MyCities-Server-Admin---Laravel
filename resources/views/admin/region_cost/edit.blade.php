@@ -257,7 +257,7 @@
                         </div>
                         <label><strong>Final Total :</strong></label>
                         <div class="form-group">
-                            <input class="form-control" type="number" placeholder="Final Total" name="final_total" value="{{$region_cost->final_total ?? 0}}" required disabled />
+                            <input class="form-control" type="text" placeholder="Final Total" name="final_total" value="{{$region_cost->final_total ?? 0}}" required disabled />
                         </div>
                         <input type="hidden" name="id" value="{{ $region_cost->id }}" />
                         <button type="submit" class="btn btn-warning">Update</button>
