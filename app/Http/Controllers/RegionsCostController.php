@@ -55,8 +55,8 @@ class RegionsCostController extends Controller
         if ($request['is_water'] == 'on') {
             $is_water = 1;
             $water_used = $request['water_used'];
-            $water_in = json_encode($request->waterin);
-            $water_out = json_encode($request->waterout);
+            $water_in = isset($request->waterin) ? json_encode($request->waterin) : NULL;
+            $water_out = isset($request->waterout) ? json_encode($request->waterout) : NULL;
         }
         $is_electricity = 0;
         $electricity = NULL;
@@ -64,7 +64,7 @@ class RegionsCostController extends Controller
         if ($request['is_electricity'] == 'on') {
             $is_electricity = 1;
             $electricity_used = $request['electricity_used'];
-            $electricity = json_encode($request->electricity);
+            $electricity = isset($request->electricity) ? json_encode($request->electricity) : NULL;
         }
         $costs = array(
             'template_name' => $request['template_name'],
@@ -102,7 +102,7 @@ class RegionsCostController extends Controller
     }
     public function update(Request $request)
     {
-
+       
         $is_water = 0;
         $water_used = 0;
         $water_in = NULL;
@@ -110,16 +110,17 @@ class RegionsCostController extends Controller
         if ($request['is_water'] == 'on') {
             $is_water = 1;
             $water_used = $request['water_used'];
-            $water_in = json_encode($request->waterin);
-            $water_out = json_encode($request->waterout);
+            $water_in = isset($request->waterin) ? json_encode($request->waterin) : NULL;
+            $water_out = isset($request->waterout) ? json_encode($request->waterout) : NULL;
         }
+        
         $is_electricity = 0;
         $electricity = NULL;
         $electricity_used = 0;
         if ($request['is_electricity'] == 'on') {
             $is_electricity = 1;
             $electricity_used = $request['electricity_used'];
-            $electricity = json_encode($request->electricity);
+            $electricity = isset($request->electricity) ? json_encode($request->electricity) : NULL;
         }
         RegionsAccountTypeCost::where('id', $request->id)->update([
             'template_name' => $request['template_name'],
