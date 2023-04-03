@@ -49,6 +49,10 @@
                         <input type="checkbox" name="is_water" id="waterchk" {{ $region_cost->is_water == 1 ? 'checked' : '' }} /> Water
                         <input type="checkbox" name="is_electricity" id="electricitychk" {{ $region_cost->is_electricity == 1 ? 'checked' : '' }} /> Electricity
                     </div>
+                    <div class="form-group ele_used">
+                        <label><strong>Ratable Value :</strong></label>
+                        <input class="form-control" type="text" placeholder="Ratable Value" name="ratable_value" value="{{$region_cost->ratable_value ?? 0}}" required />
+                    </div>
                     <div class="form-group water_used">
                         <label><strong>Water Usages :</strong></label>
                         <input class="form-control" type="text" placeholder="Water Usage" name="water_used" value="{{$region_cost->water_used ?? 0}}" required />
@@ -60,7 +64,7 @@
                     <div class="water_in_section">
                         <hr>
                         <label><strong>Add Water In Cost : </strong> <a href="javascript:void(0)" id="add-waterin-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
-                        @if($region_cost->water_in && $region_cost->water_used > 0)
+                        @if(isset($region_cost->water_in) && $region_cost->water_used > 0)
                         @foreach(json_decode($region_cost->water_in) as $key => $value)
                         <div class="row">
                             <div class="col-md-2">
@@ -97,10 +101,20 @@
                         @endforeach
                         @endif
                         <div class="waterin-cost-container"></div>
-                        <div class="col-md-2">
-                            <label><strong>Water In Total :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="text" placeholder="Total" name="waterin_total" value="{{$region_cost->water_in_total ?? 0}}" required disabled />
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <label><strong>Water In Total :</strong></label>
+                                    <div class="form-group">
+                                        <input class="form-control" type="text" placeholder="Total" name="waterin_total" value="{{$region_cost->water_in_total ?? 0}}" required disabled />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label><strong>Infrastructure Surcharge :</strong></label>
+                                    <div class="form-group">
+                                        <input class="form-control" type="text" placeholder="Infrastructure Surcharge" name="infrastructure_surcharge" value="{{$region_cost->infrastructure_surcharge ?? 0}}" disabled />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <!-- start water out form -->
@@ -109,7 +123,7 @@
                         <hr>
 
                         <label><strong>Add Water Out Cost : </strong> <a href="javascript:void(0)" id="add-waterout-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
-                        @if($region_cost->water_out && $region_cost->water_used > 0)
+                        @if(isset($region_cost->water_out)  && $region_cost->water_used > 0)
                         @foreach(json_decode($region_cost->water_out) as $key => $value)
                         <div class="row">
                             <div class="col-md-2">
@@ -152,10 +166,20 @@
                         @endforeach
                         @endif
                         <div class="waterout-cost-container"></div>
-                        <div class="col-md-2">
-                            <label><strong>Water Out Total :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="text" placeholder="Total" name="waterout_total" value="{{$region_cost->water_out_total ?? 0}}" required disabled />
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <label><strong>Water Out Total :</strong></label>
+                                    <div class="form-group">
+                                        <input class="form-control" type="text" placeholder="Total" name="waterout_total" value="{{$region_cost->water_out_total ?? 0}}" required disabled />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label><strong>Sewage charge :</strong></label>
+                                    <div class="form-group">
+                                        <input class="form-control" type="text" placeholder="Sewage charge" name="sewage_charge" value="{{$region_cost->sewage_charge ?? 0}}" disabled />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -165,7 +189,7 @@
                     <div class="ele_section">
                         <hr>
                         <label><strong>Electricity : </strong> <a href="javascript:void(0)" id="add-electricity-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
-                        @if($region_cost->electricity)
+                        @if(isset($region_cost->electricity) && !empty($region_cost->electricity))
                         @foreach(json_decode($region_cost->electricity) as $key => $value)
                         <div class="row">
                             <div class="col-md-2">
@@ -213,8 +237,8 @@
                     <!-- end water out form -->
                     <!-- start Additional cost form -->
                     <hr>
-                    @if($region_cost->additional)
                     <label><strong>Additional Cost : </strong> <a href="javascript:void(0)" id="add-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
+                    @if($region_cost->additional)
                     @foreach(json_decode($region_cost->additional) as $key => $value)
                     <div class="row">
                         <div class="col-md-2">
@@ -257,7 +281,7 @@
                         </div>
                         <label><strong>Final Total :</strong></label>
                         <div class="form-group">
-                            <input class="form-control" type="number" placeholder="Final Total" name="final_total" value="{{$region_cost->final_total ?? 0}}" required disabled />
+                            <input class="form-control" type="text" placeholder="Final Total" name="final_total" value="{{$region_cost->final_total ?? 0}}" required disabled />
                         </div>
                         <input type="hidden" name="id" value="{{ $region_cost->id }}" />
                         <button type="submit" class="btn btn-warning">Update</button>
@@ -324,28 +348,29 @@
         });
 
         var i = <?php
-                if ($region_cost->water_in && $region_cost->water_used > 0) {
+                if (isset($region_cost->water_in) && $region_cost->water_used > 0) {
                     echo count(json_decode($region_cost->water_in));
                 } else {
                     echo 0;
                 }
                 ?>;
         var o = <?php
-                if ($region_cost->water_out && $region_cost->water_used > 0) {
+                if (isset($region_cost->water_out) && $region_cost->water_used > 0) {
                     echo count(json_decode($region_cost->water_out));
                 } else {
                     echo 0;
                 }
                 ?>;
         var e = <?php
-                if ($region_cost->electricity) {
+                if (isset($region_cost->electricity)) {
                     echo count(json_decode($region_cost->electricity));
                 } else {
                     echo 0;
                 }
                 ?>;
         var a = <?php
-                if ($region_cost->additional) {
+        
+                if (isset($region_cost->additional)) {
                     echo count(json_decode($region_cost->additional));
                 } else {
                     echo 0;
@@ -488,7 +513,7 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Cost" name="additional[' + a + '][cost]" required />' +
+                '<input class="form-control" type="number" placeholder="Cost" step=any name="additional[' + a + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
 
