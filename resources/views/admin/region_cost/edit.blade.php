@@ -49,7 +49,7 @@
                         <input type="checkbox" name="is_water" id="waterchk" {{ $region_cost->is_water == 1 ? 'checked' : '' }} /> Water
                         <input type="checkbox" name="is_electricity" id="electricitychk" {{ $region_cost->is_electricity == 1 ? 'checked' : '' }} /> Electricity
                     </div>
-                    <div class="form-group ele_used">
+                    <div class="form-group">
                         <label><strong>Ratable Value :</strong></label>
                         <input class="form-control" type="text" placeholder="Ratable Value" name="ratable_value" value="{{$region_cost->ratable_value ?? 0}}" required />
                     </div>
