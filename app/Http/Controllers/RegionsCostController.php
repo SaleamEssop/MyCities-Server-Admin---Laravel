@@ -249,15 +249,17 @@ class RegionsCostController extends Controller
                         } else {
                             // if water_out 0 then consider 0 total
                             $water_out[$key]->total = 0;
+                            $water_out[$key]->sewage_charge = 0;
+                            $water_out[$key]->water_remeaning = 0;
                         }
                         if ($ratable_value <= 250000 && ($value->max <= 6)) {
                             $water_out[$key]->total = 0;
                         }
                         $water_out_total += $water_out[$key]->total;
-                       // $sewage_charge += $water_out[$key]->sewage_charge;
+                        $sewage_charge += $water_out[$key]->sewage_charge;
                     }
                     $region_cost->water_out_total = number_format($water_out_total, 2, '.', ',');
-                    //$region_cost->sewage_charge = number_format($sewage_charge, 2, '.', ',');
+                    $region_cost->sewage_charge = number_format($sewage_charge, 2, '.', ',');
                     $region_cost->water_out = json_encode($water_out);
                 }
             }
