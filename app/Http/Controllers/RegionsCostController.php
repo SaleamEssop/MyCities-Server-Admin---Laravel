@@ -95,14 +95,14 @@ class RegionsCostController extends Controller
         $region_cost = RegionsAccountTypeCost::find($id);
         // get calculation
         $region_cost =  $this->calculateWaterBilling($region_cost);
-        
+
         $regions = Regions::all();
         $account_type = AccountType::all();
         return view('admin.region_cost.edit', compact('region_cost', 'regions', 'account_type'));
     }
     public function update(Request $request)
     {
-       
+
         $is_water = 0;
         $water_used = 0;
         $water_in = NULL;
@@ -113,7 +113,7 @@ class RegionsCostController extends Controller
             $water_in = isset($request->waterin) ? json_encode($request->waterin) : NULL;
             $water_out = isset($request->waterout) ? json_encode($request->waterout) : NULL;
         }
-        
+
         $is_electricity = 0;
         $electricity = NULL;
         $electricity_used = 0;
@@ -194,24 +194,26 @@ class RegionsCostController extends Controller
         if ($region_cost->water_used > 0) {
             // water in logic
             $infrastructure_surcharge = $region_cost->water_used * 1.48;
-            $region_cost->infrastructure_surcharge = number_format($infrastructure_surcharge, 2, '.', ',');
+            $region_cost->infrastructure_surcharge = number_format($infrastructure_surcharge, 2, '.', '');
             if ($region_cost->water_in) {
                 $water_in = json_decode($region_cost->water_in);
                 if (isset($water_in) && !empty($water_in)) {
                     foreach ($water_in as $key => $value) {
-
+                        $minmax = $value->max - $value->min;
                         if ($water_remaning > 0) {
-                            if ($water_remaning > $value->max) {
-                                $water_in[$key]->total = number_format($value->max * $value->cost, 2, '.', ',');
-                                $water_in[$key]->water_remeaning = $water_remaning - $value->max;
+                            if (($water_remaning - $minmax) <= 0) {
+                                
+                                $water_in[$key]->total = number_format($water_remaning * $value->cost, 2, '.', '');
+                                $water_in[$key]->water_remeaning = 0;
                                 $water_remaning = $water_in[$key]->water_remeaning;
                             } else {
-                                $water_in[$key]->total = number_format($water_remaning * $value->cost, 2, '.', ',');
-                                $water_in[$key]->water_remeaning = $water_remaning - $value->max >= 0 ? $water_remaning - $value->max : 0;
+
+                                $water_in[$key]->total = number_format($minmax * $value->cost, 2, '.', '');
+                                $water_in[$key]->water_remeaning = $water_remaning - $minmax;
                                 $water_remaning = $water_in[$key]->water_remeaning;
                             }
                         } else {
-                            // if water_remaning 0 then consider 0 total
+                            $water_in[$key]->water_remeaning = 0;
                             $water_in[$key]->total = 0;
                         }
                         if ($ratable_value <= 250000 && ($value->max <= 6)) {
@@ -219,8 +221,7 @@ class RegionsCostController extends Controller
                         }
                         $water_in_total += $water_in[$key]->total;
                     }
-                    $region_cost->water_in_total = number_format($water_in_total, 2, '.', ',');
-                    //echo "<pre>";print_r($water_in);exit();
+                    $region_cost->water_in_total = number_format($water_in_total, 2, '.', '');
                     $region_cost->water_in = json_encode($water_in);
                 }
             }
@@ -231,23 +232,22 @@ class RegionsCostController extends Controller
                 $water_out_remaning = $region_cost->water_used;
                 if (isset($water_out) && !empty($water_out)) {
                     foreach ($water_out as $key => $value) {
+                        $minmax = $value->max - $value->min;
                         if ($water_out_remaning > 0) {
-                            if ($water_out_remaning > $value->max) {
-                                $t = ($value->max / 100 * $value->percentage) * $value->cost;
-
-                                $water_out[$key]->total = number_format($t, 2, '.', ',');
-                                $water_out[$key]->water_remeaning = $water_out_remaning - $value->max;
-                                $water_out_remaning = $water_out[$key]->water_remeaning;
-                                $water_out[$key]->sewage_charge = ($value->max / 100 * $value->percentage) * 1.48;
-                            } else {
-                                $ti = ($water_out_remaning / 100 * $value->percentage) * $value->cost;
-                                $water_out[$key]->total = number_format($ti, 2, '.', ',');
-                                $water_out[$key]->water_remeaning = $water_out_remaning - $value->max >= 0 ? $water_out_remaning - $value->max : 0;
+                            if (($water_out_remaning - $minmax) <= 0) {
+                                $t = ($water_out_remaning / 100 * $value->percentage) * $value->cost;
+                                $water_out[$key]->total = number_format($t, 2, '.', '');
+                                $water_out[$key]->water_remeaning = 0;
                                 $water_out_remaning = $water_out[$key]->water_remeaning;
                                 $water_out[$key]->sewage_charge = ($water_out_remaning / 100 * $value->percentage) * 1.48;
+                            } else {
+                                $t = ($minmax / 100 * $value->percentage) * $value->cost;
+                                $water_out[$key]->total = number_format($t, 2, '.', '');
+                                $water_out[$key]->water_remeaning = $water_out_remaning - $minmax;
+                                $water_out_remaning = $water_out[$key]->water_remeaning;
+                                $water_out[$key]->sewage_charge = ($minmax / 100 * $value->percentage) * 1.48;
                             }
                         } else {
-                            // if water_out 0 then consider 0 total
                             $water_out[$key]->total = 0;
                             $water_out[$key]->sewage_charge = 0;
                             $water_out[$key]->water_remeaning = 0;
@@ -258,8 +258,8 @@ class RegionsCostController extends Controller
                         $water_out_total += $water_out[$key]->total;
                         $sewage_charge += $water_out[$key]->sewage_charge;
                     }
-                    $region_cost->water_out_total = number_format($water_out_total, 2, '.', ',');
-                    $region_cost->sewage_charge = number_format($sewage_charge, 2, '.', ',');
+                    $region_cost->water_out_total = number_format($water_out_total, 2, '.', '');
+                    $region_cost->sewage_charge = number_format($sewage_charge, 2, '.', '');
                     $region_cost->water_out = json_encode($water_out);
                 }
             }
@@ -272,24 +272,29 @@ class RegionsCostController extends Controller
 
             if (isset($electricity) && !empty($electricity)) {
                 foreach ($electricity as $key => $value) {
+                    $minmax = $value->max - $value->min;
                     if ($electricity_remaning > 0) {
-                        if ($electricity_remaning > $value->max) {
-                            $electricity[$key]->total = number_format($value->max * $value->cost, 2, '.', ',');
-                            $electricity[$key]->water_remeaning = $electricity_remaning - $value->max;
-                            $electricity_remaning = $electricity[$key]->water_remeaning;
+                        if (($electricity_remaning - $minmax) <= 0) {
+                            //   echo $electricity_remaning;
+                            $electricity[$key]->total = number_format($electricity_remaning * $value->cost, 2, '.', '');
+                            $electricity[$key]->electricity_remeaning = 0;
+                            $electricity_remaning = $electricity[$key]->electricity_remeaning;
                         } else {
-                            $electricity[$key]->total = number_format($electricity_remaning * $value->cost, 2, '.', ',');
-                            $electricity[$key]->water_remeaning = $electricity_remaning - $value->max >= 0 ? $electricity_remaning - $value->max : 0;
-                            $electricity_remaning = $electricity[$key]->water_remeaning;
+
+                            $electricity[$key]->total = number_format($minmax * $value->cost, 2, '.', '');
+                            $electricity[$key]->electricity_remeaning = $electricity_remaning - $minmax;
+                            $electricity_remaning = $electricity[$key]->electricity_remeaning;
                         }
                     } else {
-                        // if electricity 0 then consider 0 total
+                        $electricity[$key]->electricity_remeaning = 0;
                         $electricity[$key]->total = 0;
                     }
+                    
                     $electricity_total += $electricity[$key]->total;
+
                 }
 
-                $region_cost->electricity_total = number_format($electricity_total, 2, '.', ',');
+                $region_cost->electricity_total = number_format($electricity_total, 2, '.', '');
                 $region_cost->electricity = json_encode($electricity);
             }
         }
@@ -306,18 +311,18 @@ class RegionsCostController extends Controller
                 }
             }
         }
-        
-        
+
+
         $subtotal_final = $sub_total - abs($rebate);
-       
-        $region_cost->sub_total = number_format($subtotal_final, 2, '.', ',');
+
+        $region_cost->sub_total = number_format($subtotal_final, 2, '.', '');
 
         $sub_total_vat = $subtotal_final * $region_cost->vat_percentage / 100;
-        $region_cost->sub_total_vat = number_format($sub_total_vat, 2, '.', ',');
+        $region_cost->sub_total_vat = number_format($sub_total_vat, 2, '.', '');
 
         $final_total  = $subtotal_final + $sub_total_vat + $region_cost->vat_rate;
-        $region_cost->final_total = number_format($final_total, 2, '.', ',');
-        
+        $region_cost->final_total = number_format($final_total, 2, '.', '');
+
         return $region_cost;
     }
 }
