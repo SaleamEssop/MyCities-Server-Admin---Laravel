@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
@@ -31,12 +32,12 @@ class AdminController extends Controller
     public function login(Request $request)
     {
         $postData = $request->post();
-        if(empty($postData['email']) || empty($postData['password']))
+        if (empty($postData['email']) || empty($postData['password']))
             return redirect()->back();
 
         // Verify credentials
         $user = User::where('email', $postData['email'])->first();
-        if(empty($user)) {
+        if (empty($user)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, wrong email provided!');
             return redirect()->back();
@@ -45,14 +46,14 @@ class AdminController extends Controller
         // Now check the password hash
         $dbPasswordHash = $user->password;
         $userPassword = $postData['password'];
-        if(!Hash::check($userPassword, $dbPasswordHash)) {
+        if (!Hash::check($userPassword, $dbPasswordHash)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, wrong credentials provided!');
             return redirect()->back();
         }
 
         // Now check if incoming user is admin or not
-        if(!$user->is_admin) {
+        if (!$user->is_admin) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, you are not authorized to access admin panel!');
             return redirect()->back();
@@ -66,7 +67,7 @@ class AdminController extends Controller
     public function showUsers(Request $request)
     {
         $adminID = Auth::user()->id;
-        if(Auth::user()->is_super_admin)
+        if (Auth::user()->is_super_admin)
             $users = User::whereNotIn('id', [$adminID])->get();
         else
             $users = []; // Because this admin should not have any users under it; this could be changed in the future
@@ -76,7 +77,7 @@ class AdminController extends Controller
 
     public function showAccounts(Request $request)
     {
-        if(Auth::user()->is_super_admin)
+        if (Auth::user()->is_super_admin)
             $accounts = Account::with('site')->get();
         else
             $accounts = []; // Because this admin should not have any users under it; this could be changed in the future
@@ -86,7 +87,7 @@ class AdminController extends Controller
 
     public function showSites(Request $request)
     {
-        if(Auth::user()->is_super_admin)
+        if (Auth::user()->is_super_admin)
             $sites = Site::with(['user', 'region'])->get();
         else
             $sites = []; // Because this admin should not have any users under it; this could be changed in the future
@@ -96,7 +97,7 @@ class AdminController extends Controller
 
     public function showRegions(Request $request)
     {
-        if(Auth::user()->is_super_admin)
+        if (Auth::user()->is_super_admin)
             $regions = Regions::all();
         else
             $regions = []; // Because this admin should not have any users under it; this could be changed in the future
@@ -113,7 +114,7 @@ class AdminController extends Controller
     {
         $postData = $request->post();
         $alreadyExists = User::where('email', $postData['email'])->get();
-        if(count($alreadyExists) > 0) {
+        if (count($alreadyExists) > 0) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, user with this email already exists.');
             return redirect()->back()->withInput();
@@ -125,7 +126,7 @@ class AdminController extends Controller
             'password' => bcrypt($postData['password'])
         );
         $result = User::create($userArr);
-        if($result) {
+        if ($result) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'User added successfully!');
             return redirect('admin/users');
@@ -138,14 +139,14 @@ class AdminController extends Controller
 
     public function deleteUser(Request $request, $id)
     {
-        if(empty($id)) {
+        if (empty($id)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
         }
         // In next phase delete all the related models as well.
         DB::beginTransaction();
-        try{
+        try {
             $deleted = User::where('id', $id)->first()->delete();
             DB::commit();
         } catch (\Exception $e) {
@@ -159,12 +160,11 @@ class AdminController extends Controller
             return redirect()->back();
         }
 
-        if($deleted) {
+        if ($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! User deleted successfully!');
             return redirect()->back();
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -180,7 +180,7 @@ class AdminController extends Controller
     public function editUser(Request $request)
     {
         $postData = $request->post();
-        if(empty($postData['user_id'])) {
+        if (empty($postData['user_id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, user ID is required.');
             return redirect()->back();
@@ -191,16 +191,15 @@ class AdminController extends Controller
             'contact_number' => $postData['contact_number'],
             'email' => $postData['email']
         );
-        if(!empty($postData['password']))
+        if (!empty($postData['password']))
             $updArr['password'] = bcrypt($postData['password']);
 
         $updated = User::where('id', $postData['user_id'])->update($updArr);
-        if($updated) {
+        if ($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! User updated successfully!');
             return redirect('admin/users');
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -228,7 +227,7 @@ class AdminController extends Controller
             'address' => $postData['address']
         );
         $result = Site::create($siteArr);
-        if($result) {
+        if ($result) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Site created successfully!');
             return redirect('admin/sites');
@@ -242,12 +241,16 @@ class AdminController extends Controller
     public function createRegion(Request $request)
     {
         $postData = $request->post();
-        $region = Regions::create(['name' => $postData['region_name']]);
-        if($region) {
+        $region = Regions::create([
+            'name' => $postData['region_name'],
+            'water_email' => $postData['water_email'],
+            'electricity_email' => $postData['electricity_email'],
+        ]);
+        if ($region) {
             // Check for cost builders
-            if(!empty($postData['water_cost_min']) && count($postData['water_cost_min']) > 0) {
+            if (!empty($postData['water_cost_min']) && count($postData['water_cost_min']) > 0) {
                 $costArr = [];
-                for($i = 0; $i < count($postData['water_cost_min']); $i++) {
+                for ($i = 0; $i < count($postData['water_cost_min']); $i++) {
                     $costArr[$i]['meter_type_id'] = $postData['water_type_id'];
                     $costArr[$i]['region_id'] = $region->id;
                     $costArr[$i]['min'] = $postData['water_cost_min'][$i];
@@ -270,14 +273,14 @@ class AdminController extends Controller
 
     public function deleteSite(Request $request, $id)
     {
-        if(empty($id)) {
+        if (empty($id)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
         }
         // In next phase delete all the related models as well.
         DB::beginTransaction();
-        try{
+        try {
             $deleted = Site::where('id', $id)->first()->delete();
             DB::commit();
         } catch (\Exception $e) {
@@ -287,12 +290,11 @@ class AdminController extends Controller
             return redirect()->back();
         }
 
-        if($deleted) {
+        if ($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Site deleted successfully!');
             return redirect()->back();
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -309,7 +311,7 @@ class AdminController extends Controller
     public function getUserSites(Request $request)
     {
         $postData = $request->post();
-        if(empty($postData['user'])) {
+        if (empty($postData['user'])) {
             echo json_encode(['status' => 400, 'msg' => 'User_id is required!']);
             return;
         }
@@ -328,7 +330,7 @@ class AdminController extends Controller
         );
 
         $exists = Account::where($accArr)->first();
-        if(!empty($exists)) {
+        if (!empty($exists)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, account with same information already exists.');
             return redirect()->back();
@@ -338,30 +340,29 @@ class AdminController extends Controller
         $accArr['optional_information'] = $postData['optional_info'] ?? null;
 
         $result = Account::create($accArr);
-        if($result) {
+        if ($result) {
 
             // Add default cost
-            if(!empty($postData['default_cost_value']) && $postData['default_ids']) {
+            if (!empty($postData['default_cost_value']) && $postData['default_ids']) {
                 $accountDefaultCosts = [];
-                for ($i=0; $i< count($postData['default_ids']); $i++) {
+                for ($i = 0; $i < count($postData['default_ids']); $i++) {
                     $accountDefaultCosts[$i]['account_id'] = $result->id;
                     $accountDefaultCosts[$i]['fixed_cost_id'] = $postData['default_ids'][$i];
                     $accountDefaultCosts[$i]['value'] = $postData['default_cost_value'][$i];
                     $accountDefaultCosts[$i]['created_at'] = date('Y-m-d H:i:s');
                 }
-                if(!empty($accountDefaultCosts))
+                if (!empty($accountDefaultCosts))
                     AccountFixedCost::insert($accountDefaultCosts);
             }
 
-            if(!empty($postData['additional_cost_name'])) {
+            if (!empty($postData['additional_cost_name'])) {
                 $fixedCostArr = [];
-                for ($i=0; $i< count($postData['additional_cost_name']); $i++) {
+                for ($i = 0; $i < count($postData['additional_cost_name']); $i++) {
                     $fixedCostArr[$i]['account_id'] = $result->id;
                     $fixedCostArr[$i]['title'] = $postData['additional_cost_name'][$i];
                     $fixedCostArr[$i]['value'] = $postData['additional_cost_value'][$i];
                     $fixedCostArr[$i]['added_by'] = Auth::user()->id;
                     $fixedCostArr[$i]['created_at'] = date("Y-m-d H:i:s");
-
                 }
                 FixedCost::insert($fixedCostArr);
             }
@@ -378,7 +379,7 @@ class AdminController extends Controller
 
     public function deleteAccount(Request $request, $id)
     {
-        if(empty($id)) {
+        if (empty($id)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -386,7 +387,7 @@ class AdminController extends Controller
 
         // In next phase delete all the related models as well.
         DB::beginTransaction();
-        try{
+        try {
             $deleted = Account::where('id', $id)->first()->delete();
             DB::commit();
         } catch (\Exception $e) {
@@ -396,12 +397,11 @@ class AdminController extends Controller
             return redirect()->back();
         }
 
-        if($deleted) {
+        if ($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Account deleted successfully!');
             return redirect()->back();
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -419,7 +419,7 @@ class AdminController extends Controller
 
     public function editAdForm(Request $request, $id)
     {
-        if(empty($id)) {
+        if (empty($id)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, ad ID is required.');
             return redirect()->back();
@@ -432,7 +432,7 @@ class AdminController extends Controller
     public function editSite(Request $request)
     {
         $postData = $request->post();
-        if(empty($postData['site_id'])) {
+        if (empty($postData['site_id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, site ID is required.');
             return redirect()->back();
@@ -449,12 +449,11 @@ class AdminController extends Controller
         );
 
         $updated = Site::where('id', $postData['site_id'])->update($updArr);
-        if($updated) {
+        if ($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Site updated successfully!');
             return redirect('admin/sites');
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -464,18 +463,18 @@ class AdminController extends Controller
     public function editAd(Request $request)
     {
         $postData = $request->post();
-        if(empty($postData['ad_id'])) {
+        if (empty($postData['ad_id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, ad ID is required.');
             return redirect('/admin/ads')->back();
         }
 
         $path = '';
-        if($request->hasFile('ad_image'))
+        if ($request->hasFile('ad_image'))
             $path = $request->file('ad_image')->store('public/ads');
 
         $ad = Ads::find($postData['ad_id']);
-        if(empty($ad)) {
+        if (empty($ad)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect('/admin/ads/');
@@ -488,10 +487,10 @@ class AdminController extends Controller
         $ad->priority = $postData['ad_priority'];
         $ad->description = $postData['description-editor'];
 
-        if(!empty($path))
+        if (!empty($path))
             $ad->image = $path;
 
-        if($ad->save()) {
+        if ($ad->save()) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Ad updated successfully!');
             return redirect('/admin/ads/');
@@ -519,7 +518,7 @@ class AdminController extends Controller
 
         foreach ($defaultCosts as $defaultCost) {
             // Check if this default cost is assigned to this account or not
-            if(in_array($defaultCost->id, $accountDefaultCosts)) // Continue as it exists already
+            if (in_array($defaultCost->id, $accountDefaultCosts)) // Continue as it exists already
                 continue;
 
             // Now add this default cost in this account as well.
@@ -538,7 +537,7 @@ class AdminController extends Controller
     public function editAccount(Request $request)
     {
         $postData = $request->post();
-        if(empty($postData['account_id'])) {
+        if (empty($postData['account_id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, account ID is required.');
             return redirect()->back();
@@ -551,7 +550,7 @@ class AdminController extends Controller
         );
 
         $exists = Account::where($updArr)->where('id', '<>', $postData['account_id'])->first();
-        if(!empty($exists)) {
+        if (!empty($exists)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, account with same information already exists.');
             return redirect()->back();
@@ -563,24 +562,23 @@ class AdminController extends Controller
         $updated = Account::where('id', $postData['account_id'])->update($updArr);
 
         // Check for account default costs here
-        if(!empty($postData['default_ids']) && !empty($postData['default_cost_value'])) {
-            for ($i=0; $i< count($postData['default_ids']); $i++) {
+        if (!empty($postData['default_ids']) && !empty($postData['default_cost_value'])) {
+            for ($i = 0; $i < count($postData['default_ids']); $i++) {
                 AccountFixedCost::where('id', $postData['default_ids'][$i])->update(['value' => $postData['default_cost_value'][$i]]);
             }
         }
 
         // Check for fixed costs as well
-        if(!empty($postData['additional_cost_name'])) {
-            for($i = 0; $i < count($postData['additional_cost_name']); $i++) {
+        if (!empty($postData['additional_cost_name'])) {
+            for ($i = 0; $i < count($postData['additional_cost_name']); $i++) {
 
-                if($postData['fixed_cost_type'][$i] == 'old') { // Update case
+                if ($postData['fixed_cost_type'][$i] == 'old') { // Update case
                     $costArr = array(
                         'title' => $postData['additional_cost_name'][$i],
                         'value' => $postData['additional_cost_value'][$i]
                     );
                     FixedCost::where('id', $postData['fixed_cost_id'][$i])->update($costArr);
-                }
-                elseif($postData['fixed_cost_type'][$i] == 'new') { // Update case
+                } elseif ($postData['fixed_cost_type'][$i] == 'new') { // Update case
                     $costArr = array(
                         'account_id' => $postData['account_id'],
                         'title' => $postData['additional_cost_name'][$i],
@@ -594,22 +592,21 @@ class AdminController extends Controller
         }
 
         // Process the deleted costs
-        If(!empty($postData['deleted'])) {
+        if (!empty($postData['deleted'])) {
             $deletedArr = explode(',', $postData['deleted']);
             $deletedArr = array_filter($deletedArr);
-            if(!empty($deletedArr)) {
+            if (!empty($deletedArr)) {
                 foreach ($deletedArr as $deletedID) {
                     FixedCost::where('id', $deletedID)->delete();
                 }
             }
         }
 
-        if($updated) {
+        if ($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Account    updated successfully!');
             return redirect('admin/accounts');
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -624,7 +621,7 @@ class AdminController extends Controller
 
     public function deleteMeter(Request $request, $id)
     {
-        if(empty($id)) {
+        if (empty($id)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -632,7 +629,7 @@ class AdminController extends Controller
 
         // In next phase delete all the related models as well.
         DB::beginTransaction();
-        try{
+        try {
             $deleted = Meter::where('id', $id)->first()->delete();
             DB::commit();
         } catch (\Exception $e) {
@@ -642,12 +639,11 @@ class AdminController extends Controller
             return redirect()->back();
         }
 
-        if($deleted) {
+        if ($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Meter deleted successfully!');
             return redirect()->back();
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -674,14 +670,14 @@ class AdminController extends Controller
         );
 
         $exists = Meter::where($meterArr)->first();
-        if(!empty($exists)) {
+        if (!empty($exists)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, meter with same information already exists.');
             return redirect()->back();
         }
 
         $result = Meter::create($meterArr);
-        if($result) {
+        if ($result) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Meter created successfully!');
             return redirect('admin/meters');
@@ -704,7 +700,7 @@ class AdminController extends Controller
     public function editMeter(Request $request)
     {
         $postData = $request->post();
-        if(empty($postData['meter_id'])) {
+        if (empty($postData['meter_id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, meter ID is required.');
             return redirect()->back();
@@ -719,19 +715,18 @@ class AdminController extends Controller
         );
 
         $exists = Meter::where($updArr)->where('id', '<>', $postData['meter_id'])->first();
-        if(!empty($exists)) {
+        if (!empty($exists)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, meter with same information already exists.');
             return redirect()->back();
         }
 
         $updated = Meter::where('id', $postData['meter_id'])->update($updArr);
-        if($updated) {
+        if ($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Meter updated successfully!');
             return redirect('admin/meters');
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -768,7 +763,7 @@ class AdminController extends Controller
         $postData = $request->post();
         $readingImg = null;
         // Check if meter reading image is provided
-        if($request->hasFile('reading_image'))
+        if ($request->hasFile('reading_image'))
             $readingImg = $request->file('reading_image')->store('public/readings');
         $meterArr = array(
             'meter_id' => $postData['meter_id'],
@@ -777,7 +772,7 @@ class AdminController extends Controller
             'reading_image' => $readingImg
         );
         $result = MeterReadings::create($meterArr);
-        if($result) {
+        if ($result) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Meter reading added successfully!');
             return redirect('/admin/meter-readings');
@@ -795,14 +790,14 @@ class AdminController extends Controller
             'name' => $postData['category_name'],
         );
         $categoryExists = AdsCategory::where('name', strtolower($postData['category_name']))->first();
-        if(!empty($categoryExists)) {
+        if (!empty($categoryExists)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, category with same name already exists.');
             return redirect()->back();
         }
 
         $result = AdsCategory::create($category);
-        if($result) {
+        if ($result) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Category added successfully!');
             return redirect('/admin/ads/categories');
@@ -817,7 +812,7 @@ class AdminController extends Controller
     {
         $postData = $request->post();
         $path = '';
-        if($request->hasFile('ad_image'))
+        if ($request->hasFile('ad_image'))
             $path = $request->file('ad_image')->store('public/ads');
 
         $ad = array(
@@ -831,7 +826,7 @@ class AdminController extends Controller
         );
 
         $result = Ads::create($ad);
-        if($result) {
+        if ($result) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Category added successfully!');
             return redirect('/admin/ads/');
@@ -844,19 +839,18 @@ class AdminController extends Controller
 
     public function deleteMeterReading(Request $request, $id)
     {
-        if(empty($id)) {
+        if (empty($id)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
         }
         // In next phase delete all the related models as well.
         $deleted = MeterReadings::where('id', $id)->delete();
-        if($deleted) {
+        if ($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Meter reading removed successfully!');
             return redirect()->back();
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -873,7 +867,7 @@ class AdminController extends Controller
     public function editMeterReading(Request $request)
     {
         $postData = $request->post();
-        if(empty($postData['meter_reading_id'])) {
+        if (empty($postData['meter_reading_id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, reading ID is required.');
             return redirect()->back();
@@ -886,12 +880,11 @@ class AdminController extends Controller
         );
 
         $updated = MeterReadings::where('id', $postData['meter_reading_id'])->update($updArr);
-        if($updated) {
+        if ($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Meter reading updated successfully!');
             return redirect('admin/meter-readings');
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -913,7 +906,7 @@ class AdminController extends Controller
 
     public function deleteAlarm(Request $request, $id)
     {
-        if(empty($id)) {
+        if (empty($id)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -921,12 +914,11 @@ class AdminController extends Controller
 
         // In next phase delete all the related models as well.
         $deleted = RegionAlarms::where('id', $id)->delete();
-        if($deleted) {
+        if ($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Alarm removed successfully!');
             return redirect()->back();
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -935,19 +927,18 @@ class AdminController extends Controller
 
     public function deleteDefaultCost(Request $request, $id)
     {
-        if(empty($id)) {
+        if (empty($id)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
         }
         // In next phase delete all the related models as well.
         $deleted = FixedCost::where('id', $id)->delete();
-        if($deleted) {
+        if ($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Default cost removed successfully!');
             return redirect()->back();
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -963,7 +954,7 @@ class AdminController extends Controller
             'is_default' => 1
         );
         $result = FixedCost::create($costArr);
-        if($result) {
+        if ($result) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Default cost created successfully!');
             return redirect('admin/default-costs');
@@ -986,7 +977,7 @@ class AdminController extends Controller
         );
 
         $result = RegionAlarms::create($alarmArr);
-        if($result) {
+        if ($result) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Alarm created successfully!');
             return redirect('admin/alarms');
@@ -1000,7 +991,7 @@ class AdminController extends Controller
     public function editDefaultCost(Request $request)
     {
         $postData = $request->post();
-        if(empty($postData['default_cost_id'])) {
+        if (empty($postData['default_cost_id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -1012,12 +1003,11 @@ class AdminController extends Controller
         );
 
         $updated = FixedCost::where('id', $postData['default_cost_id'])->update($updArr);
-        if($updated) {
+        if ($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Cost updated successfully!');
             return redirect('admin/default-costs');
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -1027,7 +1017,7 @@ class AdminController extends Controller
     public function editAlarm(Request $request)
     {
         $postData = $request->post();
-        if(empty($postData['alarm_id'])) {
+        if (empty($postData['alarm_id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -1041,12 +1031,11 @@ class AdminController extends Controller
         );
 
         $updated = RegionAlarms::where('id', $postData['alarm_id'])->update($updArr);
-        if($updated) {
+        if ($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Cost updated successfully!');
             return redirect('admin/alarms');
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -1056,14 +1045,14 @@ class AdminController extends Controller
     public function editAdCategory(Request $request)
     {
         $postData = $request->post();
-        if(empty($postData['category_id'])) {
+        if (empty($postData['category_id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
         }
 
         $categoryExists = AdsCategory::where('name', strtolower($postData['category_name']))->first();
-        if(!empty($categoryExists)) {
+        if (!empty($categoryExists)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, category with same name already exists.');
             return redirect()->back();
@@ -1072,12 +1061,11 @@ class AdminController extends Controller
         $category = array('name' => $postData['category_name']);
 
         $updated = AdsCategory::where('id', $postData['category_id'])->update($category);
-        if($updated) {
+        if ($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Category updated successfully!');
             return redirect('admin/ads/categories');
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -1087,7 +1075,7 @@ class AdminController extends Controller
     public function editRegion(Request $request)
     {
         $postData = $request->post();
-        if(empty($postData['region_id'])) {
+        if (empty($postData['region_id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -1095,6 +1083,8 @@ class AdminController extends Controller
 
         $updArr = array(
             'name' => $postData['region_name'],
+            'electricity_email' => $postData['electricity_email'] ?? null,
+            'water_email' => $postData['water_email'] ?? null,
             'water_base_unit' => $postData['water_base'] ?? null,
             'water_base_unit_cost' => $postData['water_unit'] ?? null,
             'electricity_base_unit' => $postData['elect_base'] ?? null,
@@ -1103,12 +1093,11 @@ class AdminController extends Controller
         );
 
         $updated = Regions::where('id', $postData['region_id'])->update($updArr);
-        if($updated) {
+        if ($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Region updated successfully!');
             return redirect('admin/regions');
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -1117,19 +1106,18 @@ class AdminController extends Controller
 
     public function deleteRegion(Request $request, $id)
     {
-        if(empty($id)) {
+        if (empty($id)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
         }
         // In next phase delete all the related models as well.
         $deleted = Regions::where('id', $id)->delete();
-        if($deleted) {
+        if ($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Region deleted successfully!');
             return redirect()->back();
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -1138,7 +1126,7 @@ class AdminController extends Controller
 
     public function deleteAdsCategory(Request $request, $id)
     {
-        if(empty($id)) {
+        if (empty($id)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -1147,12 +1135,11 @@ class AdminController extends Controller
         // In next phase delete all the related models as well.
 
         $deleted = AdsCategory::where('id', $id)->delete();
-        if($deleted) {
+        if ($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Category deleted successfully!');
             return redirect()->back();
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -1161,7 +1148,7 @@ class AdminController extends Controller
 
     public function deleteAd(Request $request, $id)
     {
-        if(empty($id)) {
+        if (empty($id)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -1169,12 +1156,11 @@ class AdminController extends Controller
 
         // In next phase delete all the related models as well.
         $deleted = Ads::where('id', $id)->delete();
-        if($deleted) {
+        if ($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Ad deleted successfully!');
             return redirect()->back();
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -1183,7 +1169,7 @@ class AdminController extends Controller
 
     public function showTC()
     {
-        if(!Auth::user()->is_super_admin) {
+        if (!Auth::user()->is_super_admin) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, you are not authorized to access this page.');
             return redirect()->back();
@@ -1195,25 +1181,25 @@ class AdminController extends Controller
     public function updateTC(Request $request)
     {
         $adminID = Auth::user()->id;
-        if(!Auth::user()->is_super_admin) {
+        if (!Auth::user()->is_super_admin) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, you are not authorized to access this page.');
             return redirect()->back();
         }
 
         $postData = $request->post();
-        if(empty($postData['tc'])) {
+        if (empty($postData['tc'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, invalid request');
             return redirect()->back();
         }
 
-        if(empty($postData['setting_id']))
+        if (empty($postData['setting_id']))
             $settings = Settings::create(['terms_condition' => $postData['tc']]);
         else
             $settings = Settings::where('id', $postData['setting_id'])->update(['terms_condition' => $postData['tc']]);
 
-        if($settings) {
+        if ($settings) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Terms and conditions updated successfully!');
             return redirect()->back();
@@ -1244,7 +1230,7 @@ class AdminController extends Controller
 
     public function showUserDetails(Request $request, $id)
     {
-        if(empty($id)) {
+        if (empty($id)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, invalid request.');
             return redirect()->back();
@@ -1257,7 +1243,7 @@ class AdminController extends Controller
 
     public function showUserDetailsV2(Request $request, $id)
     {
-        if(empty($id)) {
+        if (empty($id)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, invalid request.');
             return redirect()->back();
@@ -1270,12 +1256,12 @@ class AdminController extends Controller
 
     public function uploadAdsDescPics(Request $request)
     {
-        if($request->hasFile('upload')) {
+        if ($request->hasFile('upload')) {
             $path = $request->file('upload')->store('public/ads');
             $CKEditorFuncNum = $request->input('CKEditorFuncNum');
             $url = Storage::url($path);
             $requestScheme = $_SERVER['REQUEST_SCHEME'] ?? 'http';
-            $url = $requestScheme . '://'.$_SERVER['HTTP_HOST'].$url;
+            $url = $requestScheme . '://' . $_SERVER['HTTP_HOST'] . $url;
             //$url = URL::to(Storage::url($path));
             $msg = 'Image successfully uploaded';
             $response = "<script>window.parent.CKEDITOR.tools.callFunction($CKEditorFuncNum, '$url', '$msg')</script>";
@@ -1287,12 +1273,12 @@ class AdminController extends Controller
 
     public function uploadTCPics(Request $request)
     {
-        if($request->hasFile('upload')) {
+        if ($request->hasFile('upload')) {
             $path = $request->file('upload')->store('public/tc');
             $CKEditorFuncNum = $request->input('CKEditorFuncNum');
             $url = Storage::url($path);
             $requestScheme = $_SERVER['REQUEST_SCHEME'] ?? 'http';
-            $url = $requestScheme . '://'.$_SERVER['HTTP_HOST'].$url;
+            $url = $requestScheme . '://' . $_SERVER['HTTP_HOST'] . $url;
             $msg = 'Image successfully uploaded';
             $response = "<script>window.parent.CKEDITOR.tools.callFunction($CKEditorFuncNum, '$url', '$msg')</script>";
 
@@ -1303,7 +1289,7 @@ class AdminController extends Controller
     // Start Account Type Code
     public function showAccountType(Request $request)
     {
-        if(Auth::user()->is_super_admin)
+        if (Auth::user()->is_super_admin)
             $account_type = AccountType::all();
         else
             $account_type = []; // Because this admin should not have any users under it; this could be changed in the future
@@ -1313,7 +1299,7 @@ class AdminController extends Controller
     public function editAccountType(Request $request)
     {
         $postData = $request->post();
-        if(empty($postData['id'])) {
+        if (empty($postData['id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -1324,12 +1310,11 @@ class AdminController extends Controller
         );
 
         $updated = AccountType::where('id', $postData['id'])->update($updArr);
-        if($updated) {
+        if ($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Account Type updated successfully!');
             return redirect()->route('account-type-list');
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -1338,19 +1323,18 @@ class AdminController extends Controller
 
     public function deleteAccountType(Request $request, $id)
     {
-        if(empty($id)) {
+        if (empty($id)) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
         }
         // In next phase delete all the related models as well.
         $deleted = AccountType::where('id', $id)->delete();
-        if($deleted) {
+        if ($deleted) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Account Type deleted successfully!');
             return redirect()->back();
-        }
-        else {
+        } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
@@ -1375,12 +1359,12 @@ class AdminController extends Controller
     public function createAccountType(Request $request)
     {
         $postData = $request->post();
-        
+
         $account_type = AccountType::create(['type' => $postData['name']]);
-        if($account_type) {
+        if ($account_type) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Account Type created successfully!');
-           return redirect()->route('account-type-list');
+            return redirect()->route('account-type-list');
         } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
@@ -1388,4 +1372,13 @@ class AdminController extends Controller
         }
     }
     //End Account Type Code
+    public function getEmailBasedRegion(Request $request, $id)
+    {
+        if (!empty($id)) {
+            $regions = Regions::select('water_email','electricity_email')->where('id', $id)->first();
+            //echo "<pre>";print_r($regions);exit();
+            return $regions;
+        }
+        return false;
+    }
 }

@@ -55,6 +55,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/region/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editRegionForm']);
     Route::post('regions/add', [\App\Http\Controllers\AdminController::class, 'createRegion'])->name('add-region');
     Route::get('/region/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteRegion']);
+    Route::get('/region/email/{id}', [\App\Http\Controllers\AdminController::class, 'getEmailBasedRegion'])->name('get-email-region');
 
     Route::get('users', [\App\Http\Controllers\AdminController::class, 'showUsers'])->name('show-users');
     Route::get('users/add', [\App\Http\Controllers\AdminController::class, 'addUserForm'])->name('add-user-form');

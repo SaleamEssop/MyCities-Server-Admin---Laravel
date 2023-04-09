@@ -33,7 +33,7 @@ class RegionsCostController extends Controller
     {
         $regionsAccountTypeCost  = [];
         if (Auth::user()->is_super_admin) {
-            $regionsAccountTypeCost = RegionsAccountTypeCost::with('region', 'meterType', 'accountType')->get();
+            $regionsAccountTypeCost = RegionsAccountTypeCost::with('region', 'meterType', 'accountType')->orderBy('id', 'desc')->get();
             //echo "<pre>";print_r($regionsAccountTypeCost);exit();
         }
         return view('admin.region_cost.index', ['regionsAccountTypeCost' => $regionsAccountTypeCost]);
@@ -88,6 +88,8 @@ class RegionsCostController extends Controller
             'waterin_additional' => isset($request->waterin_additional) ? json_encode($request->waterin_additional) : NULL,
             'waterout_additional' => isset($request->waterout_additional) ? json_encode($request->waterout_additional) : NULL,
             'electricity_additional' => isset($request->electricity_additional) ? json_encode($request->electricity_additional) : NULL,
+            'water_email' => isset($request['water_email']) ? $request['water_email'] : NULL,
+            'electricity_email' => isset($request['electricity_email']) ? $request['electricity_email'] : NULL
         );
 
         $save = RegionsAccountTypeCost::create($costs);
@@ -149,6 +151,8 @@ class RegionsCostController extends Controller
             'waterin_additional' => isset($request->waterin_additional) ? json_encode($request->waterin_additional) : NULL,
             'waterout_additional' => isset($request->waterout_additional) ? json_encode($request->waterout_additional) : NULL,
             'electricity_additional' => isset($request->electricity_additional) ? json_encode($request->electricity_additional) : NULL,
+            'water_email' => isset($request['water_email']) ? $request['water_email'] : NULL,
+            'electricity_email' => isset($request['electricity_email']) ? $request['electricity_email'] : NULL
         ]);
         Session::flash('alert-class', 'alert-success');
         Session::flash('alert-message', 'Success! Region Cost Update successfully!');

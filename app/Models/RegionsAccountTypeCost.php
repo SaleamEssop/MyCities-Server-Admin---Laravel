@@ -33,7 +33,9 @@ class RegionsAccountTypeCost extends Model
         'reading_date',
         'waterin_additional',
         'waterout_additional',
-        'electricity_additional'
+        'electricity_additional',
+        'water_email',
+        'electricity_email'
     ];
 
     public function region()

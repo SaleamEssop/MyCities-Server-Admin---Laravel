@@ -18,6 +18,14 @@
                                     <label><strong>Region Title :</strong></label>
                                     <input placeholder="Enter region title" value="{{ $region->name }}" type="text" class="form-control" name="region_name" required />
                                 </div>
+                                <div class="form-group">
+                                    <label><strong>Water Email :</strong></label>
+                                    <input placeholder="Enter Water Email" value="{{ $region->water_email }}" type="text" class="form-control" name="water_email" required />
+                                </div>
+                                <div class="form-group">
+                                    <label><strong>Electricity Email :</strong></label>
+                                    <input placeholder="Enter Electricity Email" value="{{ $region->electricity_email }}" type="text" class="form-control" name="electricity_email" required />
+                                </div>
                                 <!-- <div class="form-group">
                                     <label><strong>Water Base Unit :</strong></label>
                                     <input placeholder="Enter water base unit" value="{{ $region->water_base_unit_cost }}" type="text" class="form-control" name="water_base" />

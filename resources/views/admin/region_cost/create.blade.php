@@ -11,7 +11,7 @@
     <div class="cust-form-wrapper">
         <div class="row">
             <div class="col-md-12">
-                <form method="POST" action="{{ route('region-cost-store') }}" novalidate>
+                <form method="POST" action="{{ route('region-cost-store') }}">
                     @csrf
                     <div class="form-group">
                         <label><strong>Template Name :</strong></label>
@@ -19,7 +19,7 @@
                     </div>
                     <div class="form-group">
                         <label><strong>Select Region :</strong></label>
-                        <select class="form-control" name="region_id">
+                        <select class="form-control" name="region_id" id="select_regions" required>
                             <option value="">Please select Region</option>
                             @foreach($regions as $region)
                             <option value="{{$region->id}}">{{$region->name}}</option>
@@ -28,7 +28,7 @@
                     </div>
                     <div class="form-group">
                         <label><strong>Select Account Type :</strong></label>
-                        <select class="form-control" name="account_type_id">
+                        <select class="form-control" name="account_type_id" required>
                             <option value="">Please select Account Type</option>
                             @foreach($account_type as $type)
                             <option value="{{$type->id}}">{{$type->type}}</option>
@@ -42,6 +42,14 @@
                     <div class="form-group">
                         <label><strong>Applicable End Date :</strong></label>
                         <input class="form-control" type="date" placeholder="End Date" name="end_date" required />
+                    </div>
+                    <div class="form-group">
+                        <label><strong>Water Email :</strong></label>
+                        <input class="form-control water_email" type="email" placeholder="Water Email" name="water_email" required />
+                    </div>
+                    <div class="form-group">
+                        <label><strong>Electricity Email :</strong></label>
+                        <input class="form-control electricity_email" type="email" placeholder="Electricity Email" name="electricity_email" required />
                     </div>
                     <div class="form-group">
                         <label><strong>Vat In Percentage :</strong></label>
@@ -751,6 +759,25 @@
             eo--;
         });
 
+        $('#select_regions').change(function() {
+            var id = $(this).val();
+            var url = '{{ route("get-email-region", ":id") }}';
+            url = url.replace(':id', id);
+            $.ajax({
+                url: url,
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                    console.log(response);
+                    if (response != null) {
+                        $('.water_email').val(response.water_email);
+                        $('.electricity_email').val(response.electricity_email);
+                    }
+
+                }
+
+            });
+        });
 
     });
 </script>

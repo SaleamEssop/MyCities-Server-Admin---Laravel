@@ -31,7 +31,7 @@
                     </div>
                     <div class="form-group">
                         <label><strong>Select Region :</strong></label>
-                        <select class="form-control" name="region_id">
+                        <select class="form-control" name="region_id" id="select_regions" required>
                             <option value="">Please select Region</option>
                             @foreach($regions as $region)
                             <option value="{{$region->id}}" {{ $region_cost->region_id == $region->id ? 'selected' : '' }}>{{$region->name}}</option>
@@ -40,7 +40,7 @@
                     </div>
                     <div class="form-group">
                         <label><strong>Select Account Type :</strong></label>
-                        <select class="form-control" name="account_type_id">
+                        <select class="form-control" name="account_type_id" required>
                             <option value="">Please select Account Type</option>
                             @foreach($account_type as $type)
                             <option value="{{$type->id}}" {{ $region_cost->account_type_id == $type->id ? 'selected' : '' }}>{{$type->type}}</option>
@@ -54,6 +54,14 @@
                     <div class="form-group">
                         <label><strong>Applicable End Date :</strong></label>
                         <input class="form-control" type="date" placeholder="End Date" name="end_date" value="{{$region_cost->end_date}}" required />
+                    </div>
+                    <div class="form-group">
+                        <label><strong>Water Email :</strong></label>
+                        <input class="form-control water_email" type="email" placeholder="Water Email" name="water_email" value="{{$region_cost->water_email}}" required />
+                    </div>
+                    <div class="form-group">
+                        <label><strong>Electricity Email :</strong></label>
+                        <input class="form-control electricity_email" type="email" placeholder="Electricity Email" name="electricity_email" value="{{$region_cost->electricity_email}}" required />
                     </div>
                     <div class="form-group">
                         <label><strong>Vat In Percentage :</strong></label>
@@ -114,7 +122,7 @@
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control" type="text" placeholder="Total" name="waterin[{{$key}}][total]" value="{{$value->total}}" required disabled />
+                                    <input class="form-control" type="text" placeholder="Total" name="waterin[{{$key}}][total]" value="{{$value->total ?? 0}}" required disabled />
                                 </div>
                             </div>
 
@@ -158,7 +166,7 @@
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control" type="text" placeholder="Total" name="waterin_additional[0][total]" value="{{$value->total}}" required disabled />
+                                    <input class="form-control" type="text" placeholder="Total" name="waterin_additional[0][total]" value="{{$value->total ?? 0}}" required disabled />
                                 </div>
                             </div>
 
@@ -214,7 +222,7 @@
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control" type="text" placeholder="Total" name="waterout[{{$key}}][total]" value="{{$value->total}}" required disabled />
+                                    <input class="form-control" type="text" placeholder="Total" name="waterout[{{$key}}][total]" value="{{$value->total ?? 0}}" required disabled />
                                 </div>
                             </div>
 
@@ -258,7 +266,7 @@
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control" type="text" placeholder="Total" name="waterout_additional[0][total]" value="{{$value->total}}" required disabled />
+                                    <input class="form-control" type="text" placeholder="Total" name="waterout_additional[0][total]" value="{{$value->total ?? 0}}" required disabled />
                                 </div>
                             </div>
 
@@ -352,7 +360,7 @@
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control" type="text" placeholder="Total" name="electricity_additional[0][total]" value="{{$value->total}}" required disabled />
+                                    <input class="form-control" type="text" placeholder="Total" name="electricity_additional[0][total]" value="{{$value->total ?? 0}}" required disabled />
                                 </div>
                             </div>
 
@@ -843,6 +851,25 @@
         $(document).on("click", '.waterout-additional-cost-del-btn', function() {
             $(this).parent().parent().remove();
             wo--;
+        });
+        $('#select_regions').change(function() {
+            var id = $(this).val();
+            var url = '{{ route("get-email-region", ":id") }}';
+            url = url.replace(':id', id);
+            $.ajax({
+                url: url,
+                type: 'get',
+                dataType: 'json',
+                success: function(response) {
+                    console.log(response);
+                    if (response != null) {
+                        $('.water_email').val(response.water_email);
+                        $('.electricity_email').val(response.electricity_email);
+                    }
+
+                }
+
+            });
         });
 
     });
