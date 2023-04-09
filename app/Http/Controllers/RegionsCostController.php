@@ -83,6 +83,11 @@ class RegionsCostController extends Controller
             'vat_percentage' => isset($request['vat_percentage']) ? $request['vat_percentage'] : 0,
             'vat_rate' => isset($request['vat_rate']) ? $request['vat_rate'] : 0,
             'ratable_value' => isset($request['ratable_value']) ? $request['ratable_value'] : 0,
+            'billing_date' => $request['billing_date'],
+            'reading_date' => $request['reading_date'],
+            'waterin_additional' => isset($request->waterin_additional) ? json_encode($request->waterin_additional) : NULL,
+            'waterout_additional' => isset($request->waterout_additional) ? json_encode($request->waterout_additional) : NULL,
+            'electricity_additional' => isset($request->electricity_additional) ? json_encode($request->electricity_additional) : NULL,
         );
 
         $save = RegionsAccountTypeCost::create($costs);
@@ -95,7 +100,7 @@ class RegionsCostController extends Controller
         $region_cost = RegionsAccountTypeCost::find($id);
         // get calculation
         $region_cost =  $this->calculateWaterBilling($region_cost);
-
+        //  echo "<pre>";print_r($region_cost);exit();
         $regions = Regions::all();
         $account_type = AccountType::all();
         return view('admin.region_cost.edit', compact('region_cost', 'regions', 'account_type'));
@@ -139,6 +144,11 @@ class RegionsCostController extends Controller
             'vat_percentage' => isset($request['vat_percentage']) ? $request['vat_percentage'] : 0,
             'vat_rate' => isset($request['vat_rate']) ? $request['vat_rate'] : 0,
             'ratable_value' => isset($request['ratable_value']) ? $request['ratable_value'] : 0,
+            'billing_date' => $request['billing_date'],
+            'reading_date' => $request['reading_date'],
+            'waterin_additional' => isset($request->waterin_additional) ? json_encode($request->waterin_additional) : NULL,
+            'waterout_additional' => isset($request->waterout_additional) ? json_encode($request->waterout_additional) : NULL,
+            'electricity_additional' => isset($request->electricity_additional) ? json_encode($request->electricity_additional) : NULL,
         ]);
         Session::flash('alert-class', 'alert-success');
         Session::flash('alert-message', 'Success! Region Cost Update successfully!');
@@ -181,9 +191,13 @@ class RegionsCostController extends Controller
         $electricity_total  = 0;
         $sewage_charge = 0;
         $infrastructure_surcharge = 0;
+        $water_out_related_total = 0;
         $ratable_value = 0;
         $water_remaning = $region_cost->water_used;
         $rebate = 0;
+        $waterin_additional_total = 0;
+        $waterout_additional_total = 0;
+        $electricity_additional_total = 0;
         if ($region_cost->ratable_value == 0) {
             $ratable_value = 250000;
         } else {
@@ -193,8 +207,8 @@ class RegionsCostController extends Controller
 
         if ($region_cost->water_used > 0) {
             // water in logic
-            $infrastructure_surcharge = $region_cost->water_used * 1.48;
-            $region_cost->infrastructure_surcharge = number_format($infrastructure_surcharge, 2, '.', '');
+            // $infrastructure_surcharge = $region_cost->water_used * 1.48;
+            //$region_cost->infrastructure_surcharge = number_format($infrastructure_surcharge, 2, '.', '');
             if ($region_cost->water_in) {
                 $water_in = json_decode($region_cost->water_in);
                 if (isset($water_in) && !empty($water_in)) {
@@ -202,7 +216,7 @@ class RegionsCostController extends Controller
                         $minmax = $value->max - $value->min;
                         if ($water_remaning > 0) {
                             if (($water_remaning - $minmax) <= 0) {
-                                
+
                                 $water_in[$key]->total = number_format($water_remaning * $value->cost, 2, '.', '');
                                 $water_in[$key]->water_remeaning = 0;
                                 $water_remaning = $water_in[$key]->water_remeaning;
@@ -225,6 +239,20 @@ class RegionsCostController extends Controller
                     $region_cost->water_in = json_encode($water_in);
                 }
             }
+            // addtional water in logic
+            if ($region_cost->waterin_additional) {
+                $waterin_additional = json_decode($region_cost->waterin_additional);
+                if (isset($waterin_additional) && !empty($waterin_additional)) {
+                    foreach ($waterin_additional as $key => $value) {
+                        $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                        $waterin_additional[$key]->total =  $cal_total;
+                        $waterin_additional_total += $cal_total;
+                    }
+                    $region_cost->water_in_related_total = number_format($waterin_additional_total, 2, '.', '');
+                    $region_cost->waterin_additional = json_encode($waterin_additional);
+                }
+            }
+            // echo "<pre>";print_r($waterin_additional_total);exit();
 
             //water out logic
             if (!empty($region_cost->water_out)) {
@@ -239,28 +267,42 @@ class RegionsCostController extends Controller
                                 $water_out[$key]->total = number_format($t, 2, '.', '');
                                 $water_out[$key]->water_remeaning = 0;
                                 $water_out_remaning = $water_out[$key]->water_remeaning;
-                                $water_out[$key]->sewage_charge = ($water_out_remaning / 100 * $value->percentage) * 1.48;
+                                // $water_out[$key]->sewage_charge = ($water_out_remaning / 100 * $value->percentage) * 1.48;
                             } else {
                                 $t = ($minmax / 100 * $value->percentage) * $value->cost;
                                 $water_out[$key]->total = number_format($t, 2, '.', '');
                                 $water_out[$key]->water_remeaning = $water_out_remaning - $minmax;
                                 $water_out_remaning = $water_out[$key]->water_remeaning;
-                                $water_out[$key]->sewage_charge = ($minmax / 100 * $value->percentage) * 1.48;
+                                //  $water_out[$key]->sewage_charge = ($minmax / 100 * $value->percentage) * 1.48;
                             }
                         } else {
                             $water_out[$key]->total = 0;
-                            $water_out[$key]->sewage_charge = 0;
+                            // $water_out[$key]->sewage_charge = 0;
                             $water_out[$key]->water_remeaning = 0;
                         }
                         if ($ratable_value <= 250000 && ($value->max <= 6)) {
                             $water_out[$key]->total = 0;
                         }
                         $water_out_total += $water_out[$key]->total;
-                        $sewage_charge += $water_out[$key]->sewage_charge;
+                        //$sewage_charge += $water_out[$key]->sewage_charge;
                     }
                     $region_cost->water_out_total = number_format($water_out_total, 2, '.', '');
-                    $region_cost->sewage_charge = number_format($sewage_charge, 2, '.', '');
+                    // $region_cost->sewage_charge = number_format($sewage_charge, 2, '.', '');
                     $region_cost->water_out = json_encode($water_out);
+                }
+            }
+
+            // addtional water out logic
+            if ($region_cost->waterout_additional) {
+                $waterout_additional = json_decode($region_cost->waterout_additional);
+                if (isset($waterout_additional) && !empty($waterout_additional)) {
+                    foreach ($waterout_additional as $key => $value) {
+                        $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                        $waterout_additional[$key]->total =  $cal_total;
+                        $waterout_additional_total += $cal_total;
+                    }
+                    $region_cost->water_out_related_total = number_format($waterout_additional_total, 2, '.', '');
+                    $region_cost->waterout_additional = json_encode($waterout_additional);
                 }
             }
         }
@@ -289,19 +331,31 @@ class RegionsCostController extends Controller
                         $electricity[$key]->electricity_remeaning = 0;
                         $electricity[$key]->total = 0;
                     }
-                    
-                    $electricity_total += $electricity[$key]->total;
 
+                    $electricity_total += $electricity[$key]->total;
                 }
 
                 $region_cost->electricity_total = number_format($electricity_total, 2, '.', '');
                 $region_cost->electricity = json_encode($electricity);
             }
+            // additional cost for electricity
+            if ($region_cost->electricity_additional) {
+                $electricity_additional = json_decode($region_cost->electricity_additional);
+                if (isset($electricity_additional) && !empty($electricity_additional)) {
+                    foreach ($electricity_additional as $key => $value) {
+                        $cal_total = $region_cost->electricity_used * $value->percentage / 100 * $value->cost;
+                        $electricity_additional[$key]->total =  $cal_total;
+                        $electricity_additional_total += $cal_total;
+                    }
+                    $region_cost->electricity_related_total = number_format($electricity_additional_total, 2, '.', '');
+                    $region_cost->electricity_additional = json_encode($electricity_additional);
+                }
+            }
         }
         // additional cost
         $additional = json_decode($region_cost->additional);
 
-        $sub_total = $water_in_total + $water_out_total + $electricity_total + $infrastructure_surcharge + $sewage_charge;
+        $sub_total = $water_in_total + $water_out_total + $electricity_total + $waterin_additional_total + $waterout_additional_total + $electricity_additional_total;
         if (isset($additional) && !empty($additional)) {
             foreach ($additional as $key => $value) {
                 if ($value->cost >= 0) {
@@ -324,5 +378,14 @@ class RegionsCostController extends Controller
         $region_cost->final_total = number_format($final_total, 2, '.', '');
 
         return $region_cost;
+    }
+    public function copyRecord(Request $request)
+    {
+        $region_cost = RegionsAccountTypeCost::find($request->id);
+        $newPost = $region_cost->replicate();
+        $newPost->save();
+        Session::flash('alert-class', 'alert-success');
+        Session::flash('alert-message', 'Success! Copy Record Created successfully!');
+        return redirect()->route('region-cost-edit', $newPost->id);
     }
 }
