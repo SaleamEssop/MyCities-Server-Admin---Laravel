@@ -29,6 +29,13 @@ class RegionsAccountTypeCost extends Model
         'vat_percentage',
         'ratable_value',
         'is_active',
+        'billing_date',
+        'reading_date',
+        'waterin_additional',
+        'waterout_additional',
+        'electricity_additional',
+        'water_email',
+        'electricity_email'
     ];
 
     public function region()

@@ -2,22 +2,30 @@
 @section('title', 'Regions')
 
 @section('content')
-    <!-- Begin Page Content -->
-    <div class="container-fluid">
+<!-- Begin Page Content -->
+<div class="container-fluid">
 
-        <!-- Page Heading -->
-        <h1 class="h3 mb-2 custom-text-heading">Add Region</h1>
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 custom-text-heading">Add Region</h1>
 
-        <div class="cust-form-wrapper">
-            <div class="row">
-                <div class="col-md-6">
-                    <form method="POST" action="{{ route('add-region') }}">
-                        <div class="form-group">
-                            <label><strong>Region Name :</strong></label>
-                            <input placeholder="Enter region name" type="text" class="form-control" name="region_name" required />
-                        </div>
-                        <hr>
-                        <!-- <h5>Cost Builder</h5>
+    <div class="cust-form-wrapper">
+        <div class="row">
+            <div class="col-md-6">
+                <form method="POST" action="{{ route('add-region') }}">
+                    <div class="form-group">
+                        <label><strong>Region Name :</strong></label>
+                        <input placeholder="Enter region name" type="text" class="form-control" name="region_name" required />
+                    </div>
+                    <div class="form-group">
+                        <label><strong>Water Email :</strong></label>
+                        <input placeholder="Enter Water Email" type="text" class="form-control" name="water_email" required />
+                    </div>
+                    <div class="form-group">
+                        <label><strong>Electricity Email :</strong></label>
+                        <input placeholder="Enter Electricity Email" type="text" class="form-control" name="electricity_email" required />
+                    </div>
+                    <hr>
+                    <!-- <h5>Cost Builder</h5>
                         <div class="cust-tabs">ed
                             <nav>
                                 <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
@@ -39,52 +47,52 @@
                                 </div>
                             </div>
                         </div> -->
-                        @csrf
-                        <button type="submit" class="btn btn-warning">Create</button>
-                    </form>
-                </div>
+                    @csrf
+                    <button type="submit" class="btn btn-warning">Create</button>
+                </form>
             </div>
         </div>
     </div>
-    <!-- /.container-fluid -->
+</div>
+<!-- /.container-fluid -->
 @endsection
 
 @section('page-level-scripts')
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('#user-dataTable').dataTable();
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#user-dataTable').dataTable();
 
-            // $("#add-cost").on("click", function () {
+        // $("#add-cost").on("click", function () {
 
-            //     var html = '<div class="row">\n' +
-            //         '                            <div class="col-md-3">\n' +
-            //         '                                <div class="form-group">\n' +
-            //         '                                    <input class="form-control" type="number" placeholder="Min litres" name="water_cost_min[]" required/>\n' +
-            //         '                                </div>\n' +
-            //         '                            </div> <span> - </span>\n' +
-            //         '                            <div class="col-md-3">\n' +
-            //         '                                <div class="form-group">\n' +
-            //         '                                    <input class="form-control" type="number" placeholder="Max litres" name="water_cost_max[]" required/>\n' +
-            //         '                                </div>\n' +
-            //         '                            </div> <span> = </span>\n' +
-            //         '                            <div class="col-md-4">\n' +
-            //         '                                <div class="form-group">\n' +
-            //         '                                    <input class="form-control" type="number" placeholder="Charges" name="water_cost_amount[]" required/>\n' +
-            //         '                                </div>\n' +
-            //         '                            </div>\n' +
-            //         '                            <div class="col-md-1">\n' +
-            //         '                                <a href="#" data-id="" style="margin-top: 6px" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">\n' +
-            //         '                                    <i class="fa fa-trash"></i>\n' +
-            //         '                                </a>\n' +
-            //         '                            </div>\n' +
-            //         '                        </div>'
+        //     var html = '<div class="row">\n' +
+        //         '                            <div class="col-md-3">\n' +
+        //         '                                <div class="form-group">\n' +
+        //         '                                    <input class="form-control" type="number" placeholder="Min litres" name="water_cost_min[]" required/>\n' +
+        //         '                                </div>\n' +
+        //         '                            </div> <span> - </span>\n' +
+        //         '                            <div class="col-md-3">\n' +
+        //         '                                <div class="form-group">\n' +
+        //         '                                    <input class="form-control" type="number" placeholder="Max litres" name="water_cost_max[]" required/>\n' +
+        //         '                                </div>\n' +
+        //         '                            </div> <span> = </span>\n' +
+        //         '                            <div class="col-md-4">\n' +
+        //         '                                <div class="form-group">\n' +
+        //         '                                    <input class="form-control" type="number" placeholder="Charges" name="water_cost_amount[]" required/>\n' +
+        //         '                                </div>\n' +
+        //         '                            </div>\n' +
+        //         '                            <div class="col-md-1">\n' +
+        //         '                                <a href="#" data-id="" style="margin-top: 6px" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">\n' +
+        //         '                                    <i class="fa fa-trash"></i>\n' +
+        //         '                                </a>\n' +
+        //         '                            </div>\n' +
+        //         '                        </div>'
 
-            //     $(".water-cost-container").append(html);
-            // });
+        //     $(".water-cost-container").append(html);
+        // });
 
-            $(document).on("click", '.additional-cost-del-btn', function () {
-                $(this).parent().parent().remove();
-            });
+        $(document).on("click", '.additional-cost-del-btn', function() {
+            $(this).parent().parent().remove();
         });
-    </script>
+    });
+</script>
 @endsection

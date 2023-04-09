@@ -38,6 +38,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/region_cost/edit/{id}', [\App\Http\Controllers\RegionsCostController::class, 'edit'])->name('region-cost-edit');
     Route::post('region_cost/update', [\App\Http\Controllers\RegionsCostController::class, 'update'])->name('update-region-cost');
     Route::get('/region_cost/delete/{id}', [\App\Http\Controllers\RegionsCostController::class, 'delete']);
+    Route::post('region_cost/copy_record', [\App\Http\Controllers\RegionsCostController::class, 'copyRecord'])->name('copy-region-cost');
+    
     // Account Type routes
     Route::get('account_type', [\App\Http\Controllers\AdminController::class, 'showAccountType'])->name('account-type-list');
     Route::post('/account_type/edit', [\App\Http\Controllers\AdminController::class, 'editAccountType'])->name('edit-account-type');
@@ -53,6 +55,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/region/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editRegionForm']);
     Route::post('regions/add', [\App\Http\Controllers\AdminController::class, 'createRegion'])->name('add-region');
     Route::get('/region/delete/{id}', [\App\Http\Controllers\AdminController::class, 'deleteRegion']);
+    Route::get('/region/email/{id}', [\App\Http\Controllers\AdminController::class, 'getEmailBasedRegion'])->name('get-email-region');
 
     Route::get('users', [\App\Http\Controllers\AdminController::class, 'showUsers'])->name('show-users');
     Route::get('users/add', [\App\Http\Controllers\AdminController::class, 'addUserForm'])->name('add-user-form');
