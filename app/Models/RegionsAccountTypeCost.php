@@ -30,7 +30,7 @@ class RegionsAccountTypeCost extends Model
         'ratable_value',
         'is_active',
         'billing_date',
-        'reading_date',
+        'read_day',
         'waterin_additional',
         'waterout_additional',
         'electricity_additional',

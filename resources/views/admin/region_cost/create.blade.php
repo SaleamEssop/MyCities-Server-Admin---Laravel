@@ -62,8 +62,8 @@
                         <input class="form-control" type="date" placeholder="Billing Date" name="billing_date" required />
                     </div>
                     <div class="form-group">
-                        <label><strong>Reading Date :</strong></label>
-                        <input class="form-control" type="date" placeholder="Reading Date" name="reading_date" required />
+                        <label><strong>Read Day :</strong></label>
+                        <input class="form-control" type="text" placeholder="Read Day" name="read_day" required />
                     </div>
                     <div class="form-group">
                         <label><strong>Ratable Value :</strong></label>
