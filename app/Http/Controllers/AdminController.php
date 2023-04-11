@@ -1376,7 +1376,6 @@ class AdminController extends Controller
     {
         if (!empty($id)) {
             $regions = Regions::select('water_email','electricity_email')->where('id', $id)->first();
-            //echo "<pre>";print_r($regions);exit();
             return $regions;
         }
         return false;

@@ -82,6 +82,10 @@ Route::prefix('v1')->group(function() {
         Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getRegions']);
     });
 
+    Route::group(['prefix' => 'accountType'],function() {
+        Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getAccountTypes']);
+    });
+
     Route::get('/get-alarms', [\App\Http\Controllers\ApiController::class, 'getAlarms'])->middleware(['auth:sanctum']);
     Route::get('/all-data', [\App\Http\Controllers\ApiController::class, 'getAllData'])->middleware(['auth:sanctum']);
     Route::get('/greetings', function() {

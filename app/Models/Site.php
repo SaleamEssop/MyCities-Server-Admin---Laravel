@@ -17,6 +17,7 @@ class Site extends Model
         'lng',
         'address',
         'email',
+        'account_type_id'
     ];
 
     public function account()

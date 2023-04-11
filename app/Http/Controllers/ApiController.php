@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\AccountFixedCost;
+use App\Models\AccountType;
 use App\Models\Ads;
 use App\Models\AdsCategory;
 use App\Models\FixedCost;
@@ -99,7 +100,7 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, location_id is required!']);
 
         DB::beginTransaction();
-        try{
+        try {
             $result = Site::where('id', $postData['location_id'])->first()->delete();
             DB::commit();
         } catch (\Exception $e) {
@@ -131,11 +132,13 @@ class ApiController extends Controller
                 'title' => $postData['title'],
                 'lat' => $postData['lat'],
                 'lng' => $postData['lng'],
-                'address' => $postData['address']
+                'address' => $postData['address'],
+                'region_id' => $postData['region_id'],
+                'account_type_id' => $postData['account_type_id']
             );
 
             $exists = Site::where($siteArr)->first();
-            if(!empty($exists)) {
+            if (!empty($exists)) {
                 DB::rollBack();
                 return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, site with same information already exists!']);
             }
@@ -162,7 +165,7 @@ class ApiController extends Controller
         );
 
         $exists = Account::where($accArr)->first();
-        if(!empty($exists)) {
+        if (!empty($exists)) {
             DB::rollBack();
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account with same information already exists!']);
         }
@@ -235,13 +238,15 @@ class ApiController extends Controller
                 'title' => $postData['title'],
                 'lat' => $postData['lat'],
                 'lng' => $postData['lng'],
-                'address' => $postData['address']
+                'address' => $postData['address'],
+                'region_id' => $postData['region_id'],
+                'account_type_id' => $postData['account_type_id']
             );
             if (!empty($postData['email']))
                 $siteArr['email'] = $postData['email'];
 
             $exists = Site::where($siteArr)->first();
-            if(!empty($exists)) {
+            if (!empty($exists)) {
                 DB::rollBack();
                 return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, site with same information already exists!']);
             }
@@ -269,7 +274,7 @@ class ApiController extends Controller
         ];
 
         $exists = Account::where($where)->where('id', '<>', $postData['account_id'])->first();
-        if($exists) {
+        if ($exists) {
             DB::rollBack();
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account with this information already exists!']);
         }
@@ -278,7 +283,7 @@ class ApiController extends Controller
         $account->account_name = $postData['account_name'];
         $account->account_number = $postData['account_number'];
         $account->optional_information = $postData['optional_information'];
-        if(!empty($postData['billing_date']))
+        if (!empty($postData['billing_date']))
             $account->billing_date = $postData['billing_date'];
 
         if ($account->save()) {
@@ -355,7 +360,7 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
 
         DB::beginTransaction();
-        try{
+        try {
             $result = Account::where('id', $postData['account_id'])->first()->delete();
             DB::commit();
         } catch (\Exception $e) {
@@ -389,7 +394,7 @@ class ApiController extends Controller
 
                 foreach ($defaultCosts as $defaultCost) {
                     // Check if this default cost is assigned to this account or not
-                    if(in_array($defaultCost->id, $accountDefaultAndOtherCosts)) // Continue as it exists already
+                    if (in_array($defaultCost->id, $accountDefaultAndOtherCosts)) // Continue as it exists already
                         continue;
 
                     // Now add this default cost in this account as well.
@@ -439,7 +444,7 @@ class ApiController extends Controller
         );
 
         $exists = Meter::where($meterArr)->first();
-        if(!empty($exists))
+        if (!empty($exists))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, meter with same information already exists.']);
 
         $res = Meter::create($meterArr);
@@ -602,7 +607,7 @@ class ApiController extends Controller
 
         $readingImg = null;
         // Check if meter reading image is provided
-        if($request->hasFile('reading_image'))
+        if ($request->hasFile('reading_image'))
             $readingImg = $request->file('reading_image')->store('public/readings');
 
         $siteArr = array(
@@ -627,7 +632,7 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, location_id is required!']);
 
         DB::beginTransaction();
-        try{
+        try {
             $result = Meter::where('id', $postData['meter_id'])->first()->delete();
             DB::commit();
         } catch (\Exception $e) {
@@ -692,7 +697,7 @@ class ApiController extends Controller
         $mailerUsername = env('MAIL_USERNAME');
         $mailerPassword = env('MAIL_PASSWORD');
         $mailerFrom = env('MAIL_FROM_ADDRESS');
-        if(empty($mailerHost) || empty($mailerUsername) || empty($mailerPassword) || empty($mailerFrom))
+        if (empty($mailerHost) || empty($mailerUsername) || empty($mailerPassword) || empty($mailerFrom))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, mailer setting is missing.']);
 
         try {
@@ -716,7 +721,7 @@ class ApiController extends Controller
             $mail->Subject = "Password Reset Code";
             $mail->Body    = "Hi, we have received you password reset request. Please use the following code: " . $code;
 
-            if(!$mail->send())
+            if (!$mail->send())
                 return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong while sending code via email.']);
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, an exception occurred!']);
@@ -848,5 +853,10 @@ class ApiController extends Controller
 
         $regions = Regions::all();
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Regions retrieved  successfully!', 'data' => $regions]);
+    }
+    public function getAccountTypes()
+    {
+        $accountType = AccountType::all();
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account Type retrieved  successfully!', 'data' => $accountType]);
     }
 }
