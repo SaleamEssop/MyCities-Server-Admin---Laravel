@@ -851,12 +851,12 @@ class ApiController extends Controller
     public function getRegions()
     {
 
-        $regions = Regions::all();
+        $regions = Regions::select('id','name')->get();
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Regions retrieved  successfully!', 'data' => $regions]);
     }
     public function getAccountTypes()
     {
-        $accountType = AccountType::all();
+        $accountType = AccountType::select('id','type')->get();
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account Type retrieved  successfully!', 'data' => $accountType]);
     }
     public function getRegionEmails($id)
