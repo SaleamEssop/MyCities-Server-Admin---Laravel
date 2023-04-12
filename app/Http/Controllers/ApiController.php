@@ -859,4 +859,12 @@ class ApiController extends Controller
         $accountType = AccountType::all();
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account Type retrieved  successfully!', 'data' => $accountType]);
     }
+    public function getRegionEmails($id)
+    {
+        if (!empty($id)) {
+            $regions = Regions::select('water_email','electricity_email')->where('id', $id)->first();
+            return $regions;
+        }
+        return false;
+    }
 }
