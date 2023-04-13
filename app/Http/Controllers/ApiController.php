@@ -116,8 +116,8 @@ class ApiController extends Controller
 
     public function addAccount(Request $request)
     {
-
-        $postData = $request->post();
+        
+        $postData = $request->post();       
         DB::beginTransaction();
         if (empty($postData['site_id'])) {
             // No site_id has passed, so this must be the new site case
@@ -134,9 +134,11 @@ class ApiController extends Controller
                 'lng' => $postData['lng'],
                 'address' => $postData['address'],
                 'region_id' => $postData['region_id'],
-                'account_type_id' => $postData['account_type_id']
+                'account_type_id' => $postData['account_type_id'],
+                'water_email' => $postData['water_email'],
+                'electricity_email' => $postData['electricity_email']
             );
-
+            
             $exists = Site::where($siteArr)->first();
             if (!empty($exists)) {
                 DB::rollBack();
@@ -152,7 +154,7 @@ class ApiController extends Controller
             else
                 return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong while creating new site!']);
         }
-
+        
         $requiredFields = ['user_id', 'site_id', 'account_name', 'account_number', 'optional_information'];
         $validated = validateData($requiredFields, $postData);
         if (!$validated['status'])
@@ -163,7 +165,7 @@ class ApiController extends Controller
             'account_name' => $postData['account_name'],
             'account_number' => $postData['account_number']
         );
-
+        
         $exists = Account::where($accArr)->first();
         if (!empty($exists)) {
             DB::rollBack();
@@ -240,7 +242,9 @@ class ApiController extends Controller
                 'lng' => $postData['lng'],
                 'address' => $postData['address'],
                 'region_id' => $postData['region_id'],
-                'account_type_id' => $postData['account_type_id']
+                'account_type_id' => $postData['account_type_id'],
+                'water_email' => $postData['water_email'],
+                'electricity_email' => $postData['electricity_email']
             );
             if (!empty($postData['email']))
                 $siteArr['email'] = $postData['email'];

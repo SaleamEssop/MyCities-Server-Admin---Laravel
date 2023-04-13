@@ -17,7 +17,9 @@ class Site extends Model
         'lng',
         'address',
         'email',
-        'account_type_id'
+        'account_type_id',
+        'water_email',
+        'electricity_email'
     ];
 
     public function account()
