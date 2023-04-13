@@ -116,8 +116,8 @@ class ApiController extends Controller
 
     public function addAccount(Request $request)
     {
-        
-        $postData = $request->post();       
+
+        $postData = $request->post();
         DB::beginTransaction();
         if (empty($postData['site_id'])) {
             // No site_id has passed, so this must be the new site case
@@ -133,12 +133,8 @@ class ApiController extends Controller
                 'lat' => $postData['lat'],
                 'lng' => $postData['lng'],
                 'address' => $postData['address'],
-                'region_id' => $postData['region_id'],
-                'account_type_id' => $postData['account_type_id'],
-                'water_email' => $postData['water_email'],
-                'electricity_email' => $postData['electricity_email']
             );
-            
+
             $exists = Site::where($siteArr)->first();
             if (!empty($exists)) {
                 DB::rollBack();
@@ -154,7 +150,7 @@ class ApiController extends Controller
             else
                 return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong while creating new site!']);
         }
-        
+
         $requiredFields = ['user_id', 'site_id', 'account_name', 'account_number', 'optional_information'];
         $validated = validateData($requiredFields, $postData);
         if (!$validated['status'])
@@ -163,15 +159,19 @@ class ApiController extends Controller
         $accArr = array(
             'site_id' => $postData['site_id'],
             'account_name' => $postData['account_name'],
-            'account_number' => $postData['account_number']
+            'account_number' => $postData['account_number'],
         );
-        
+
         $exists = Account::where($accArr)->first();
         if (!empty($exists)) {
             DB::rollBack();
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account with same information already exists!']);
         }
 
+        $accArr['region_id'] = $postData['region_id'] ?? null;
+        $accArr['account_type_id'] = $postData['account_type_id'] ?? null;
+        $accArr['water_email'] = $postData['water_email'] ?? null;
+        $accArr['electricity_email'] = $postData['electricity_email'] ?? null;
         $accArr['billing_date'] = $postData['billing_date'] ?? null;
         $accArr['optional_information'] = $postData['optional_information'] ?? null;
 
@@ -287,6 +287,10 @@ class ApiController extends Controller
         $account->account_name = $postData['account_name'];
         $account->account_number = $postData['account_number'];
         $account->optional_information = $postData['optional_information'];
+        $account->region_id = $postData['region_id'] ?? null;
+        $account->account_type_id = $postData['account_type_id'] ?? null;
+        $account->water_email = $postData['water_email'] ?? null;
+        $account->electricity_email = $postData['electricity_email'] ?? null;
         if (!empty($postData['billing_date']))
             $account->billing_date = $postData['billing_date'];
 
@@ -855,18 +859,18 @@ class ApiController extends Controller
     public function getRegions()
     {
 
-        $regions = Regions::select('id','name')->get();
+        $regions = Regions::select('id', 'name')->get();
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Regions retrieved  successfully!', 'data' => $regions]);
     }
     public function getAccountTypes()
     {
-        $accountType = AccountType::select('id','type')->get();
+        $accountType = AccountType::select('id', 'type')->get();
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account Type retrieved  successfully!', 'data' => $accountType]);
     }
     public function getRegionEmails($id)
     {
         if (!empty($id)) {
-            $regions = Regions::select('water_email','electricity_email')->where('id', $id)->first();
+            $regions = Regions::select('water_email', 'electricity_email')->where('id', $id)->first();
             return $regions;
         }
         return false;
