@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPUnit\Exception;
+use App\Models\RegionsAccountTypeCost;
 
 class ApiController extends Controller
 {
@@ -874,5 +875,238 @@ class ApiController extends Controller
             return $regions;
         }
         return false;
+    }
+    public function getEastimateCost(Request $request)
+    {
+
+        $postData = $request->post();
+        //echo "<pre>";print_r($postData);exit();
+        //$accountID = $request->get('account_id');
+        //$meterID = $request->get('meter_id');
+        if (!isset($postData['account_id']) && empty($postData['account_id'])) {
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
+        }
+
+        $meters = Meter::with('readings')->where('id', $postData['meter_id'])->first();
+
+        $water_bill = $this->getWaterBill($postData['account_id'], $postData['reading'], $meters);
+
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meters retrieved successfully!', 'data' => $water_bill]);
+    }
+    public function getWaterBill($accountID, $reading, $meters)
+    {
+        $type_id = $meters->meter_type_id;
+        $account = Account::where('id', $accountID)->first();
+        $region_cost = RegionsAccountTypeCost::where('region_id', $account->region_id)->where('account_type_id', $account->account_type_id)->first();
+
+
+        // actual calculation
+        if ($type_id == 1) {
+            // water
+            $water_remaning = $reading;
+            $electricity_remaning = 0;
+        } elseif ($type_id == 2) {
+            $electricity_remaning = $reading;
+            $water_remaning = 0;
+        }
+        $water_in_total  = 0;
+        $sub_total  = 0;
+        $water_out_total = 0;
+        $electricity_total  = 0;
+        $sewage_charge = 0;
+        $infrastructure_surcharge = 0;
+        $water_out_related_total = 0;
+        $ratable_value = 0;
+
+        $rebate = 0;
+        $waterin_additional_total = 0;
+        $waterout_additional_total = 0;
+        $electricity_additional_total = 0;
+        if ($region_cost->ratable_value == 0) {
+            $ratable_value = 250000;
+        } else {
+            $ratable_value = $region_cost->ratable_value;
+        }
+
+
+        if ($region_cost->water_used > 0) {
+            // water in logic
+            // $infrastructure_surcharge = $region_cost->water_used * 1.48;
+            //$region_cost->infrastructure_surcharge = number_format($infrastructure_surcharge, 2, '.', '');
+            if ($region_cost->water_in) {
+                $water_in = json_decode($region_cost->water_in);
+                if (isset($water_in) && !empty($water_in)) {
+                    foreach ($water_in as $key => $value) {
+                        $minmax = $value->max - $value->min;
+                        if ($water_remaning > 0) {
+                            if (($water_remaning - $minmax) <= 0) {
+
+                                $water_in[$key]->total = number_format($water_remaning * $value->cost, 2, '.', '');
+                                $water_in[$key]->water_remeaning = 0;
+                                $water_remaning = $water_in[$key]->water_remeaning;
+                            } else {
+
+                                $water_in[$key]->total = number_format($minmax * $value->cost, 2, '.', '');
+                                $water_in[$key]->water_remeaning = $water_remaning - $minmax;
+                                $water_remaning = $water_in[$key]->water_remeaning;
+                            }
+                        } else {
+                            $water_in[$key]->water_remeaning = 0;
+                            $water_in[$key]->total = 0;
+                        }
+                        if ($ratable_value <= 250000 && ($value->max <= 6)) {
+                            $water_in[$key]->total = 0;
+                        }
+                        $water_in_total += $water_in[$key]->total;
+                    }
+                    $region_cost->water_in_total = number_format($water_in_total, 2, '.', '');
+                    $region_cost->water_in = json_encode($water_in);
+                }
+            }
+            // addtional water in logic
+            if ($region_cost->waterin_additional) {
+                $waterin_additional = json_decode($region_cost->waterin_additional);
+                if (isset($waterin_additional) && !empty($waterin_additional)) {
+                    foreach ($waterin_additional as $key => $value) {
+                        $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                        $waterin_additional[$key]->total =  $cal_total;
+                        $waterin_additional_total += $cal_total;
+                    }
+                    $region_cost->water_in_related_total = number_format($waterin_additional_total, 2, '.', '');
+                    $region_cost->waterin_additional = json_encode($waterin_additional);
+                }
+            }
+            // echo "<pre>";print_r($waterin_additional_total);exit();
+
+            //water out logic
+            if (!empty($region_cost->water_out)) {
+                $water_out = json_decode($region_cost->water_out);
+                $water_out_remaning = $region_cost->water_used;
+                if (isset($water_out) && !empty($water_out)) {
+                    foreach ($water_out as $key => $value) {
+                        $minmax = $value->max - $value->min;
+                        if ($water_out_remaning > 0) {
+                            if (($water_out_remaning - $minmax) <= 0) {
+                                $t = ($water_out_remaning / 100 * $value->percentage) * $value->cost;
+                                $water_out[$key]->total = number_format($t, 2, '.', '');
+                                $water_out[$key]->water_remeaning = 0;
+                                $water_out_remaning = $water_out[$key]->water_remeaning;
+                                // $water_out[$key]->sewage_charge = ($water_out_remaning / 100 * $value->percentage) * 1.48;
+                            } else {
+                                $t = ($minmax / 100 * $value->percentage) * $value->cost;
+                                $water_out[$key]->total = number_format($t, 2, '.', '');
+                                $water_out[$key]->water_remeaning = $water_out_remaning - $minmax;
+                                $water_out_remaning = $water_out[$key]->water_remeaning;
+                                //  $water_out[$key]->sewage_charge = ($minmax / 100 * $value->percentage) * 1.48;
+                            }
+                        } else {
+                            $water_out[$key]->total = 0;
+                            // $water_out[$key]->sewage_charge = 0;
+                            $water_out[$key]->water_remeaning = 0;
+                        }
+                        if ($ratable_value <= 250000 && ($value->max <= 6)) {
+                            $water_out[$key]->total = 0;
+                        }
+                        $water_out_total += $water_out[$key]->total;
+                        //$sewage_charge += $water_out[$key]->sewage_charge;
+                    }
+                    $region_cost->water_out_total = number_format($water_out_total, 2, '.', '');
+                    // $region_cost->sewage_charge = number_format($sewage_charge, 2, '.', '');
+                    $region_cost->water_out = json_encode($water_out);
+                }
+            }
+
+            // addtional water out logic
+            if ($region_cost->waterout_additional) {
+                $waterout_additional = json_decode($region_cost->waterout_additional);
+                if (isset($waterout_additional) && !empty($waterout_additional)) {
+                    foreach ($waterout_additional as $key => $value) {
+                        $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                        $waterout_additional[$key]->total =  $cal_total;
+                        $waterout_additional_total += $cal_total;
+                    }
+                    $region_cost->water_out_related_total = number_format($waterout_additional_total, 2, '.', '');
+                    $region_cost->waterout_additional = json_encode($waterout_additional);
+                }
+            }
+        }
+
+        // electricity
+
+        if ($region_cost->electricity_used > 0) {
+            $electricity = json_decode($region_cost->electricity);
+
+            if (isset($electricity) && !empty($electricity)) {
+                foreach ($electricity as $key => $value) {
+                    $minmax = $value->max - $value->min;
+                    if ($electricity_remaning > 0) {
+                        if (($electricity_remaning - $minmax) <= 0) {
+                            //   echo $electricity_remaning;
+                            $electricity[$key]->total = number_format($electricity_remaning * $value->cost, 2, '.', '');
+                            $electricity[$key]->electricity_remeaning = 0;
+                            $electricity_remaning = $electricity[$key]->electricity_remeaning;
+                        } else {
+
+                            $electricity[$key]->total = number_format($minmax * $value->cost, 2, '.', '');
+                            $electricity[$key]->electricity_remeaning = $electricity_remaning - $minmax;
+                            $electricity_remaning = $electricity[$key]->electricity_remeaning;
+                        }
+                    } else {
+                        $electricity[$key]->electricity_remeaning = 0;
+                        $electricity[$key]->total = 0;
+                    }
+
+                    $electricity_total += $electricity[$key]->total;
+                }
+
+                $region_cost->electricity_total = number_format($electricity_total, 2, '.', '');
+                $region_cost->electricity = json_encode($electricity);
+            }
+            // additional cost for electricity
+            if ($region_cost->electricity_additional) {
+                $electricity_additional = json_decode($region_cost->electricity_additional);
+                if (isset($electricity_additional) && !empty($electricity_additional)) {
+                    foreach ($electricity_additional as $key => $value) {
+                        $cal_total = $region_cost->electricity_used * $value->percentage / 100 * $value->cost;
+                        $electricity_additional[$key]->total =  $cal_total;
+                        $electricity_additional_total += $cal_total;
+                    }
+                    $region_cost->electricity_related_total = number_format($electricity_additional_total, 2, '.', '');
+                    $region_cost->electricity_additional = json_encode($electricity_additional);
+                }
+            }
+        }
+        // additional cost
+        $additional = json_decode($region_cost->additional);
+
+        $sub_total = $water_in_total + $water_out_total + $electricity_total + $waterin_additional_total + $waterout_additional_total + $electricity_additional_total;
+        if (isset($additional) && !empty($additional)) {
+            foreach ($additional as $key => $value) {
+                if ($value->cost >= 0) {
+                    $sub_total += $value->cost;
+                } else {
+                    $rebate += $value->cost;
+                }
+            }
+        }
+
+
+        $subtotal_final = $sub_total - abs($rebate);
+
+        $region_cost->sub_total = number_format($subtotal_final, 2, '.', '');
+
+        $sub_total_vat = $subtotal_final * $region_cost->vat_percentage / 100;
+        $region_cost->sub_total_vat = number_format($sub_total_vat, 2, '.', '');
+
+        $final_total  = $subtotal_final + $sub_total_vat + $region_cost->vat_rate;
+        $region_cost->final_total = number_format($final_total, 2, '.', '');
+
+        return $region_cost;
+    }
+    public function calculateWaterBilling($region_cost, $reading, $type_id)
+    {
+    }
+    public function getElectricityBill()
+    {
     }
 }

@@ -29,7 +29,7 @@ class RegionsAccountTypeCost extends Model
         'vat_percentage',
         'ratable_value',
         'is_active',
-        'billing_date',
+        'billing_day',
         'read_day',
         'waterin_additional',
         'waterout_additional',

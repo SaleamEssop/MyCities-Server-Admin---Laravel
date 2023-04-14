@@ -83,7 +83,7 @@ class RegionsCostController extends Controller
             'vat_percentage' => isset($request['vat_percentage']) ? $request['vat_percentage'] : 0,
             'vat_rate' => isset($request['vat_rate']) ? $request['vat_rate'] : 0,
             'ratable_value' => isset($request['ratable_value']) ? $request['ratable_value'] : 0,
-            'billing_date' => $request['billing_date'],
+            'billing_day' => $request['billing_day'],
             'read_day' => $request['read_day'],
             'waterin_additional' => isset($request->waterin_additional) ? json_encode($request->waterin_additional) : NULL,
             'waterout_additional' => isset($request->waterout_additional) ? json_encode($request->waterout_additional) : NULL,
@@ -146,7 +146,7 @@ class RegionsCostController extends Controller
             'vat_percentage' => isset($request['vat_percentage']) ? $request['vat_percentage'] : 0,
             'vat_rate' => isset($request['vat_rate']) ? $request['vat_rate'] : 0,
             'ratable_value' => isset($request['ratable_value']) ? $request['ratable_value'] : 0,
-            'billing_date' => $request['billing_date'],
+            'billing_day' => $request['billing_day'],
             'read_day' => $request['read_day'],
             'waterin_additional' => isset($request->waterin_additional) ? json_encode($request->waterin_additional) : NULL,
             'waterout_additional' => isset($request->waterout_additional) ? json_encode($request->waterout_additional) : NULL,
@@ -248,7 +248,11 @@ class RegionsCostController extends Controller
                 $waterin_additional = json_decode($region_cost->waterin_additional);
                 if (isset($waterin_additional) && !empty($waterin_additional)) {
                     foreach ($waterin_additional as $key => $value) {
-                        $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                        if($value->percentage == null){
+                            $cal_total = $value->cost;    
+                        }else{
+                            $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                        } 
                         $waterin_additional[$key]->total =  $cal_total;
                         $waterin_additional_total += $cal_total;
                     }
@@ -301,7 +305,11 @@ class RegionsCostController extends Controller
                 $waterout_additional = json_decode($region_cost->waterout_additional);
                 if (isset($waterout_additional) && !empty($waterout_additional)) {
                     foreach ($waterout_additional as $key => $value) {
-                        $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                        if($value->percentage == null){
+                            $cal_total = $value->cost;
+                        }else{
+                            $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                        }
                         $waterout_additional[$key]->total =  $cal_total;
                         $waterout_additional_total += $cal_total;
                     }
@@ -347,7 +355,11 @@ class RegionsCostController extends Controller
                 $electricity_additional = json_decode($region_cost->electricity_additional);
                 if (isset($electricity_additional) && !empty($electricity_additional)) {
                     foreach ($electricity_additional as $key => $value) {
-                        $cal_total = $region_cost->electricity_used * $value->percentage / 100 * $value->cost;
+                        if($value->percentage == null){
+                            $cal_total = $value->cost;    
+                        }else{
+                            $cal_total = $region_cost->electricity_used * $value->percentage / 100 * $value->cost;
+                        }
                         $electricity_additional[$key]->total =  $cal_total;
                         $electricity_additional_total += $cal_total;
                     }

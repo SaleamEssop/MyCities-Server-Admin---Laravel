@@ -53,17 +53,17 @@
                     </div>
                     <div class="form-group">
                         <label><strong>Vat In Percentage :</strong></label>
-                        <input class="form-control allow_decimal" type="number" placeholder="VAT Percentage" name="vat_percentage" value="15" required />
+                        <input class="form-control allow_decimal" type="text" placeholder="VAT Percentage" name="vat_percentage" value="15" required />
                     </div>
                     <hr>
                     <label style="font-size: 24px;font-weight: 800;"><strong>User Input : </strong></label>
                     <div class="form-group">
-                        <label><strong>Billing Date :</strong></label>
-                        <input class="form-control" type="date" placeholder="Billing Date" name="billing_date" required />
+                        <label><strong>Billing Day :</strong></label>
+                        <input class="form-control allow_decimal" type="text" placeholder="Billing Day" name="billing_day" required />
                     </div>
                     <div class="form-group">
                         <label><strong>Read Day :</strong></label>
-                        <input class="form-control" type="text" placeholder="Read Day" name="read_day" required />
+                        <input class="form-control allow_decimal" type="text" placeholder="Read Day" name="read_day" required />
                     </div>
                     <div class="form-group">
                         <label><strong>Ratable Value :</strong></label>
@@ -78,11 +78,11 @@
                     </div>
                     <div class="form-group water_used">
                         <label><strong>Water Used in KL :</strong></label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Water Usage" name="water_used" required />
+                        <input class="form-control allow_decimal" type="text" placeholder="Water Usage" name="water_used" value="0"  />
                     </div>
                     <div class="form-group ele_used">
                         <label><strong>Electricity Used in KWH :</strong></label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Electricity Usage" name="electricity_used" required />
+                        <input class="form-control allow_decimal" type="text" placeholder="Electricity Usage" name="electricity_used" value="0" />
                     </div>
                     <div class="water_in_section">
                         <hr>
@@ -91,19 +91,19 @@
                             <div class="col-md-2">
                                 <label><strong>Min :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Min litres" name="waterin[0][min]" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterin[0][min]" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Max :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Max litres" name="waterin[0][max]" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterin[0][max]" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Cost :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="waterin[0][cost]" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin[0][cost]" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -138,13 +138,13 @@
                             <div class="col-md-2">
                                 <label><strong>Percentage :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Percentage" name="waterin_additional[0][percentage]" />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterin_additional[0][percentage]" />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Cost :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="waterin_additional[0][cost]" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin_additional[0][cost]" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -177,25 +177,25 @@
                             <div class="col-md-2">
                                 <label><strong>Min :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Min litres" name="waterout[0][min]" />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterout[0][min]" />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Max :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Max litres" name="waterout[0][max]" />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterout[0][max]" />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Percentage :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Percentage" name="waterout[0][percentage]" />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterout[0][percentage]" />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Cost :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="waterout[0][cost]" />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout[0][cost]" />
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -230,13 +230,13 @@
                             <div class="col-md-2">
                                 <label><strong>Percentage :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Percentage" name="waterout_additional[0][percentage]" />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterout_additional[0][percentage]" />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Cost :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="waterout_additional[0][cost]" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout_additional[0][cost]" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -271,19 +271,19 @@
                             <div class="col-md-2">
                                 <label><strong>Min :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Min" name="electricity[0][min]" />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Min" name="electricity[0][min]" />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Max :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Max" name="electricity[0][max]" />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Max" name="electricity[0][max]" />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Cost :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="electricity[0][cost]" />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity[0][cost]" />
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -317,13 +317,13 @@
                             <div class="col-md-2">
                                 <label><strong>Percentage :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Percentage" name="electricity_additional[0][percentage]" />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="electricity_additional[0][percentage]" />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Cost :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="electricity_additional[0][cost]" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity_additional[0][cost]" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -362,7 +362,7 @@
                         <div class="col-md-2">
                             <label><strong>Cost :</strong></label>
                             <div class="form-group">
-                                <input class="form-control allow_decimal" type="number" placeholder="Cost" name="additional[0][cost]" />
+                                <input class="form-control allow_decimal" type="text" placeholder="Cost" name="additional[0][cost]" />
                             </div>
                         </div>
                         <div class="col-md-1">
@@ -380,11 +380,11 @@
 
                         <label><strong>Vat Rates :</strong></label>
                         <div class="form-group">
-                            <input class="form-control allow_decimal" type="number" placeholder="VAT Rate" name="vat_rate" value="0" required />
+                            <input class="form-control allow_decimal" type="text" placeholder="VAT Rate" name="vat_rate" value="0" required />
                         </div>
                         <label><strong>Final Total :</strong></label>
                         <div class="form-group">
-                            <input class="form-control" type="number" placeholder="Final Total" name="final_total" value="0" required disabled />
+                            <input class="form-control" type="text" placeholder="Final Total" name="final_total" value="0" required disabled />
                         </div>
 
                         <button type="submit" class="btn btn-warning">Save</button>
@@ -469,19 +469,19 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Min :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Min litres" name="waterin[' + i + '][min]" required />' +
+                '<input class="form-control" type="text" placeholder="Min litres" name="waterin[' + i + '][min]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Max :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Max litres" name="waterin[' + i + '][max]" required />' +
+                '<input class="form-control" type="text" placeholder="Max litres" name="waterin[' + i + '][max]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Cost" step=any name="waterin[' + i + '][cost]" required />' +
+                '<input class="form-control" type="text" placeholder="Cost" step=any name="waterin[' + i + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
@@ -513,13 +513,13 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Percentage :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Percentage" name="waterin_additional[' + wa + '][percentage]" required />' +
+                '<input class="form-control" type="text" placeholder="Percentage" name="waterin_additional[' + wa + '][percentage]" />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Cost" step=any name="waterin_additional[' + wa + '][cost]" required />' +
+                '<input class="form-control" type="text" placeholder="Cost" step=any name="waterin_additional[' + wa + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
@@ -547,25 +547,25 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Min :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Min litres" name="waterout[' + o + '][min]" required />' +
+                '<input class="form-control" type="text" placeholder="Min litres" name="waterout[' + o + '][min]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Max :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Max litres" name="waterout[' + o + '][max]" required />' +
+                '<input class="form-control" type="text" placeholder="Max litres" name="waterout[' + o + '][max]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Percentage :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Percentage" name="waterout[' + o + '][percentage]" required />' +
+                '<input class="form-control" type="text" placeholder="Percentage" name="waterout[' + o + '][percentage]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Cost" step=any name="waterout[' + o + '][cost]" required />' +
+                '<input class="form-control" type="text" placeholder="Cost" step=any name="waterout[' + o + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
@@ -585,7 +585,7 @@
             o++
         });
         $("#add-waterout-additional-cost").on("click", function() {
-            console.log('water-out-addtional');
+            
             var html1 = '<div class="row">' +
                 '<div class="col-md-2">' +
                 '<label><strong>Title :</strong></label>' +
@@ -596,13 +596,13 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Percentage :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Percentage" name="waterout_additional[' + wo + '][percentage]" required />' +
+                '<input class="form-control" type="text" placeholder="Percentage" name="waterout_additional[' + wo + '][percentage]" />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Cost" step=any name="waterout_additional[' + wo + '][cost]" required />' +
+                '<input class="form-control" type="text" placeholder="Cost" step=any name="waterout_additional[' + wo + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
@@ -618,7 +618,7 @@
                 '</a>' +
                 '</div>' +
                 '</div>';
-            console.log(html1);
+            
             $(".waterout-additional-cost-container").append(html1);
             wo++;
         });
@@ -630,19 +630,19 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Min :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Min" name="electricity[' + e + '][min]" required />' +
+                '<input class="form-control" type="text" placeholder="Min" name="electricity[' + e + '][min]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Max :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Max" name="electricity[' + e + '][max]" required />' +
+                '<input class="form-control" type="text" placeholder="Max" name="electricity[' + e + '][max]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Cost" step=any name="electricity[' + e + '][cost]" required />' +
+                '<input class="form-control" type="text" placeholder="Cost" step=any name="electricity[' + e + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
@@ -673,13 +673,13 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Percentage :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Percentage" name="electricity_additional[' + eo + '][percentage]" required />' +
+                '<input class="form-control" type="text" placeholder="Percentage" name="electricity_additional[' + eo + '][percentage]" />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Cost" step=any name="electricity_additional[' + eo + '][cost]" required />' +
+                '<input class="form-control" type="text" placeholder="Cost" step=any name="electricity_additional[' + eo + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
@@ -714,7 +714,7 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control" type="number" placeholder="Cost" name="additional[' + a + '][cost]" required />' +
+                '<input class="form-control" type="text" placeholder="Cost" name="additional[' + a + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
 
