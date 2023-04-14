@@ -16,10 +16,7 @@ class Site extends Model
         'lat',
         'lng',
         'address',
-        'email',
-        'account_type_id',
-        'water_email',
-        'electricity_email'
+        'email'
     ];
 
     public function account()
