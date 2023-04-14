@@ -80,6 +80,12 @@ Route::prefix('v1')->group(function() {
     // Regions related routes
     Route::group(['prefix' => 'regions'],function() {
         Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getRegions']);
+        Route::get('/getEmails/{id}', [\App\Http\Controllers\ApiController::class, 'getRegionEmails']);
+        Route::get('/getEastimateCost', [\App\Http\Controllers\ApiController::class, 'getEastimateCost']);
+    });
+
+    Route::group(['prefix' => 'accountType'],function() {
+        Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getAccountTypes']);
     });
 
     Route::get('/get-alarms', [\App\Http\Controllers\ApiController::class, 'getAlarms'])->middleware(['auth:sanctum']);

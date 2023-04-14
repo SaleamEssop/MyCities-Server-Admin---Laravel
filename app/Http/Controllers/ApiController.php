@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\AccountFixedCost;
+use App\Models\AccountType;
 use App\Models\Ads;
 use App\Models\AdsCategory;
 use App\Models\FixedCost;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPUnit\Exception;
+use App\Models\RegionsAccountTypeCost;
 
 class ApiController extends Controller
 {
@@ -99,7 +101,7 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, location_id is required!']);
 
         DB::beginTransaction();
-        try{
+        try {
             $result = Site::where('id', $postData['location_id'])->first()->delete();
             DB::commit();
         } catch (\Exception $e) {
@@ -131,11 +133,11 @@ class ApiController extends Controller
                 'title' => $postData['title'],
                 'lat' => $postData['lat'],
                 'lng' => $postData['lng'],
-                'address' => $postData['address']
+                'address' => $postData['address'],
             );
 
             $exists = Site::where($siteArr)->first();
-            if(!empty($exists)) {
+            if (!empty($exists)) {
                 DB::rollBack();
                 return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, site with same information already exists!']);
             }
@@ -158,15 +160,19 @@ class ApiController extends Controller
         $accArr = array(
             'site_id' => $postData['site_id'],
             'account_name' => $postData['account_name'],
-            'account_number' => $postData['account_number']
+            'account_number' => $postData['account_number'],
         );
 
         $exists = Account::where($accArr)->first();
-        if(!empty($exists)) {
+        if (!empty($exists)) {
             DB::rollBack();
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account with same information already exists!']);
         }
 
+        $accArr['region_id'] = $postData['region_id'] ?? null;
+        $accArr['account_type_id'] = $postData['account_type_id'] ?? null;
+        $accArr['water_email'] = $postData['water_email'] ?? null;
+        $accArr['electricity_email'] = $postData['electricity_email'] ?? null;
         $accArr['billing_date'] = $postData['billing_date'] ?? null;
         $accArr['optional_information'] = $postData['optional_information'] ?? null;
 
@@ -241,7 +247,7 @@ class ApiController extends Controller
                 $siteArr['email'] = $postData['email'];
 
             $exists = Site::where($siteArr)->first();
-            if(!empty($exists)) {
+            if (!empty($exists)) {
                 DB::rollBack();
                 return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, site with same information already exists!']);
             }
@@ -269,7 +275,7 @@ class ApiController extends Controller
         ];
 
         $exists = Account::where($where)->where('id', '<>', $postData['account_id'])->first();
-        if($exists) {
+        if ($exists) {
             DB::rollBack();
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account with this information already exists!']);
         }
@@ -278,7 +284,11 @@ class ApiController extends Controller
         $account->account_name = $postData['account_name'];
         $account->account_number = $postData['account_number'];
         $account->optional_information = $postData['optional_information'];
-        if(!empty($postData['billing_date']))
+        $account->region_id = $postData['region_id'] ?? null;
+        $account->account_type_id = $postData['account_type_id'] ?? null;
+        $account->water_email = $postData['water_email'] ?? null;
+        $account->electricity_email = $postData['electricity_email'] ?? null;
+        if (!empty($postData['billing_date']))
             $account->billing_date = $postData['billing_date'];
 
         if ($account->save()) {
@@ -355,7 +365,7 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
 
         DB::beginTransaction();
-        try{
+        try {
             $result = Account::where('id', $postData['account_id'])->first()->delete();
             DB::commit();
         } catch (\Exception $e) {
@@ -389,7 +399,7 @@ class ApiController extends Controller
 
                 foreach ($defaultCosts as $defaultCost) {
                     // Check if this default cost is assigned to this account or not
-                    if(in_array($defaultCost->id, $accountDefaultAndOtherCosts)) // Continue as it exists already
+                    if (in_array($defaultCost->id, $accountDefaultAndOtherCosts)) // Continue as it exists already
                         continue;
 
                     // Now add this default cost in this account as well.
@@ -439,7 +449,7 @@ class ApiController extends Controller
         );
 
         $exists = Meter::where($meterArr)->first();
-        if(!empty($exists))
+        if (!empty($exists))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, meter with same information already exists.']);
 
         $res = Meter::create($meterArr);
@@ -602,7 +612,7 @@ class ApiController extends Controller
 
         $readingImg = null;
         // Check if meter reading image is provided
-        if($request->hasFile('reading_image'))
+        if ($request->hasFile('reading_image'))
             $readingImg = $request->file('reading_image')->store('public/readings');
 
         $siteArr = array(
@@ -627,7 +637,7 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, location_id is required!']);
 
         DB::beginTransaction();
-        try{
+        try {
             $result = Meter::where('id', $postData['meter_id'])->first()->delete();
             DB::commit();
         } catch (\Exception $e) {
@@ -692,7 +702,7 @@ class ApiController extends Controller
         $mailerUsername = env('MAIL_USERNAME');
         $mailerPassword = env('MAIL_PASSWORD');
         $mailerFrom = env('MAIL_FROM_ADDRESS');
-        if(empty($mailerHost) || empty($mailerUsername) || empty($mailerPassword) || empty($mailerFrom))
+        if (empty($mailerHost) || empty($mailerUsername) || empty($mailerPassword) || empty($mailerFrom))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, mailer setting is missing.']);
 
         try {
@@ -716,7 +726,7 @@ class ApiController extends Controller
             $mail->Subject = "Password Reset Code";
             $mail->Body    = "Hi, we have received you password reset request. Please use the following code: " . $code;
 
-            if(!$mail->send())
+            if (!$mail->send())
                 return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong while sending code via email.']);
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, an exception occurred!']);
@@ -846,7 +856,253 @@ class ApiController extends Controller
     public function getRegions()
     {
 
-        $regions = Regions::all();
+        $regions = Regions::select('id', 'name')->get();
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Regions retrieved  successfully!', 'data' => $regions]);
+    }
+    public function getAccountTypes()
+    {
+        $accountType = AccountType::select('id', 'type')->get();
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account Type retrieved  successfully!', 'data' => $accountType]);
+    }
+    public function getRegionEmails($id)
+    {
+        if (!empty($id)) {
+            $regions = Regions::select('water_email', 'electricity_email')->where('id', $id)->first();
+            return $regions;
+        }
+        return false;
+    }
+    public function getEastimateCost(Request $request)
+    {
+
+        $postData = $request->post();
+        //echo "<pre>";print_r($postData);exit();
+        //$accountID = $request->get('account_id');
+        //$meterID = $request->get('meter_id');
+        if (!isset($postData['account_id']) && empty($postData['account_id'])) {
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
+        }
+
+        $meters = Meter::with('readings')->where('id', $postData['meter_id'])->first();
+
+        $water_bill = $this->getWaterBill($postData['account_id'], $postData['reading'], $meters);
+
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meters retrieved successfully!', 'data' => $water_bill]);
+    }
+    public function getWaterBill($accountID, $reading, $meters)
+    {
+        $type_id = $meters->meter_type_id;
+        $account = Account::where('id', $accountID)->first();
+        $region_cost = RegionsAccountTypeCost::where('region_id', $account->region_id)->where('account_type_id', $account->account_type_id)->first();
+
+
+        // actual calculation
+        if ($type_id == 1) {
+            // water
+            $water_remaning = $reading;
+            $electricity_remaning = 0;
+        } elseif ($type_id == 2) {
+            $electricity_remaning = $reading;
+            $water_remaning = 0;
+        }
+        $water_in_total  = 0;
+        $sub_total  = 0;
+        $water_out_total = 0;
+        $electricity_total  = 0;
+        $sewage_charge = 0;
+        $infrastructure_surcharge = 0;
+        $water_out_related_total = 0;
+        $ratable_value = 0;
+
+        $rebate = 0;
+        $waterin_additional_total = 0;
+        $waterout_additional_total = 0;
+        $electricity_additional_total = 0;
+        if ($region_cost->ratable_value == 0) {
+            $ratable_value = 250000;
+        } else {
+            $ratable_value = $region_cost->ratable_value;
+        }
+
+
+        if ($region_cost->water_used > 0) {
+            // water in logic
+            // $infrastructure_surcharge = $region_cost->water_used * 1.48;
+            //$region_cost->infrastructure_surcharge = number_format($infrastructure_surcharge, 2, '.', '');
+            if ($region_cost->water_in) {
+                $water_in = json_decode($region_cost->water_in);
+                if (isset($water_in) && !empty($water_in)) {
+                    foreach ($water_in as $key => $value) {
+                        $minmax = $value->max - $value->min;
+                        if ($water_remaning > 0) {
+                            if (($water_remaning - $minmax) <= 0) {
+
+                                $water_in[$key]->total = number_format($water_remaning * $value->cost, 2, '.', '');
+                                $water_in[$key]->water_remeaning = 0;
+                                $water_remaning = $water_in[$key]->water_remeaning;
+                            } else {
+
+                                $water_in[$key]->total = number_format($minmax * $value->cost, 2, '.', '');
+                                $water_in[$key]->water_remeaning = $water_remaning - $minmax;
+                                $water_remaning = $water_in[$key]->water_remeaning;
+                            }
+                        } else {
+                            $water_in[$key]->water_remeaning = 0;
+                            $water_in[$key]->total = 0;
+                        }
+                        if ($ratable_value <= 250000 && ($value->max <= 6)) {
+                            $water_in[$key]->total = 0;
+                        }
+                        $water_in_total += $water_in[$key]->total;
+                    }
+                    $region_cost->water_in_total = number_format($water_in_total, 2, '.', '');
+                    $region_cost->water_in = json_encode($water_in);
+                }
+            }
+            // addtional water in logic
+            if ($region_cost->waterin_additional) {
+                $waterin_additional = json_decode($region_cost->waterin_additional);
+                if (isset($waterin_additional) && !empty($waterin_additional)) {
+                    foreach ($waterin_additional as $key => $value) {
+                        $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                        $waterin_additional[$key]->total =  $cal_total;
+                        $waterin_additional_total += $cal_total;
+                    }
+                    $region_cost->water_in_related_total = number_format($waterin_additional_total, 2, '.', '');
+                    $region_cost->waterin_additional = json_encode($waterin_additional);
+                }
+            }
+            // echo "<pre>";print_r($waterin_additional_total);exit();
+
+            //water out logic
+            if (!empty($region_cost->water_out)) {
+                $water_out = json_decode($region_cost->water_out);
+                $water_out_remaning = $region_cost->water_used;
+                if (isset($water_out) && !empty($water_out)) {
+                    foreach ($water_out as $key => $value) {
+                        $minmax = $value->max - $value->min;
+                        if ($water_out_remaning > 0) {
+                            if (($water_out_remaning - $minmax) <= 0) {
+                                $t = ($water_out_remaning / 100 * $value->percentage) * $value->cost;
+                                $water_out[$key]->total = number_format($t, 2, '.', '');
+                                $water_out[$key]->water_remeaning = 0;
+                                $water_out_remaning = $water_out[$key]->water_remeaning;
+                                // $water_out[$key]->sewage_charge = ($water_out_remaning / 100 * $value->percentage) * 1.48;
+                            } else {
+                                $t = ($minmax / 100 * $value->percentage) * $value->cost;
+                                $water_out[$key]->total = number_format($t, 2, '.', '');
+                                $water_out[$key]->water_remeaning = $water_out_remaning - $minmax;
+                                $water_out_remaning = $water_out[$key]->water_remeaning;
+                                //  $water_out[$key]->sewage_charge = ($minmax / 100 * $value->percentage) * 1.48;
+                            }
+                        } else {
+                            $water_out[$key]->total = 0;
+                            // $water_out[$key]->sewage_charge = 0;
+                            $water_out[$key]->water_remeaning = 0;
+                        }
+                        if ($ratable_value <= 250000 && ($value->max <= 6)) {
+                            $water_out[$key]->total = 0;
+                        }
+                        $water_out_total += $water_out[$key]->total;
+                        //$sewage_charge += $water_out[$key]->sewage_charge;
+                    }
+                    $region_cost->water_out_total = number_format($water_out_total, 2, '.', '');
+                    // $region_cost->sewage_charge = number_format($sewage_charge, 2, '.', '');
+                    $region_cost->water_out = json_encode($water_out);
+                }
+            }
+
+            // addtional water out logic
+            if ($region_cost->waterout_additional) {
+                $waterout_additional = json_decode($region_cost->waterout_additional);
+                if (isset($waterout_additional) && !empty($waterout_additional)) {
+                    foreach ($waterout_additional as $key => $value) {
+                        $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                        $waterout_additional[$key]->total =  $cal_total;
+                        $waterout_additional_total += $cal_total;
+                    }
+                    $region_cost->water_out_related_total = number_format($waterout_additional_total, 2, '.', '');
+                    $region_cost->waterout_additional = json_encode($waterout_additional);
+                }
+            }
+        }
+
+        // electricity
+
+        if ($region_cost->electricity_used > 0) {
+            $electricity = json_decode($region_cost->electricity);
+
+            if (isset($electricity) && !empty($electricity)) {
+                foreach ($electricity as $key => $value) {
+                    $minmax = $value->max - $value->min;
+                    if ($electricity_remaning > 0) {
+                        if (($electricity_remaning - $minmax) <= 0) {
+                            //   echo $electricity_remaning;
+                            $electricity[$key]->total = number_format($electricity_remaning * $value->cost, 2, '.', '');
+                            $electricity[$key]->electricity_remeaning = 0;
+                            $electricity_remaning = $electricity[$key]->electricity_remeaning;
+                        } else {
+
+                            $electricity[$key]->total = number_format($minmax * $value->cost, 2, '.', '');
+                            $electricity[$key]->electricity_remeaning = $electricity_remaning - $minmax;
+                            $electricity_remaning = $electricity[$key]->electricity_remeaning;
+                        }
+                    } else {
+                        $electricity[$key]->electricity_remeaning = 0;
+                        $electricity[$key]->total = 0;
+                    }
+
+                    $electricity_total += $electricity[$key]->total;
+                }
+
+                $region_cost->electricity_total = number_format($electricity_total, 2, '.', '');
+                $region_cost->electricity = json_encode($electricity);
+            }
+            // additional cost for electricity
+            if ($region_cost->electricity_additional) {
+                $electricity_additional = json_decode($region_cost->electricity_additional);
+                if (isset($electricity_additional) && !empty($electricity_additional)) {
+                    foreach ($electricity_additional as $key => $value) {
+                        $cal_total = $region_cost->electricity_used * $value->percentage / 100 * $value->cost;
+                        $electricity_additional[$key]->total =  $cal_total;
+                        $electricity_additional_total += $cal_total;
+                    }
+                    $region_cost->electricity_related_total = number_format($electricity_additional_total, 2, '.', '');
+                    $region_cost->electricity_additional = json_encode($electricity_additional);
+                }
+            }
+        }
+        // additional cost
+        $additional = json_decode($region_cost->additional);
+
+        $sub_total = $water_in_total + $water_out_total + $electricity_total + $waterin_additional_total + $waterout_additional_total + $electricity_additional_total;
+        if (isset($additional) && !empty($additional)) {
+            foreach ($additional as $key => $value) {
+                if ($value->cost >= 0) {
+                    $sub_total += $value->cost;
+                } else {
+                    $rebate += $value->cost;
+                }
+            }
+        }
+
+
+        $subtotal_final = $sub_total - abs($rebate);
+
+        $region_cost->sub_total = number_format($subtotal_final, 2, '.', '');
+
+        $sub_total_vat = $subtotal_final * $region_cost->vat_percentage / 100;
+        $region_cost->sub_total_vat = number_format($sub_total_vat, 2, '.', '');
+
+        $final_total  = $subtotal_final + $sub_total_vat + $region_cost->vat_rate;
+        $region_cost->final_total = number_format($final_total, 2, '.', '');
+
+        return $region_cost;
+    }
+    public function calculateWaterBilling($region_cost, $reading, $type_id)
+    {
+    }
+    public function getElectricityBill()
+    {
     }
 }

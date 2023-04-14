@@ -65,17 +65,17 @@
                     </div>
                     <div class="form-group">
                         <label><strong>Vat In Percentage :</strong></label>
-                        <input class="form-control allow_decimal" type="number" placeholder="VAT Percentage" name="vat_percentage" value="{{$region_cost->vat_percentage ?? 0}}" required />
+                        <input class="form-control allow_decimal" type="text" placeholder="VAT Percentage" name="vat_percentage" value="{{$region_cost->vat_percentage ?? 0}}" required />
                     </div>
                     <hr>
                     <label style="font-size: 24px;font-weight: 800;"><strong>User Input : </strong></label>
                     <div class="form-group">
-                        <label><strong>Billing Date :</strong></label>
-                        <input class="form-control" type="date" placeholder="Billing Date" name="billing_date" value="{{$region_cost->billing_date}}" required />
+                        <label><strong>Billing Day :</strong></label>
+                        <input class="form-control allow_decimal" type="text" placeholder="Billing Day" name="billing_day" value="{{$region_cost->billing_day}}" required />
                     </div>
                     <div class="form-group">
                         <label><strong>Read Day :</strong></label>
-                        <input class="form-control" type="text" placeholder="Read Day" name="read_day" value="{{$region_cost->read_day}}" required />
+                        <input class="form-control allow_decimal" type="text" placeholder="Read Day" name="read_day" value="{{$region_cost->read_day}}" required />
                     </div>
                     <div class="form-group">
                         <label><strong>Ratable Value :</strong></label>
@@ -89,11 +89,11 @@
                     </div>
                     <div class="form-group water_used">
                         <label><strong>Water Used in KL :</strong></label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Water Usage" name="water_used" value="{{$region_cost->water_used ?? 0}}" required />
+                        <input class="form-control allow_decimal" type="text" placeholder="Water Usage" name="water_used" value="{{$region_cost->water_used ?? 0}}"  />
                     </div>
                     <div class="form-group ele_used">
                         <label><strong>Electricity Used in KWH :</strong></label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Electricity Usage" name="electricity_used" value="{{$region_cost->electricity_used ?? 0}}" required />
+                        <input class="form-control allow_decimal" type="text" placeholder="Electricity Usage" name="electricity_used" value="{{$region_cost->electricity_used ?? 0}}"  />
                     </div>
                     <div class="water_in_section">
                         <hr>
@@ -104,19 +104,19 @@
                             <div class="col-md-2">
                                 <label><strong>Min :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Min litres" name="waterin[{{$key}}][min]" value="{{$value->min}}" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterin[{{$key}}][min]" value="{{$value->min}}" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Max :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Max litres" name="waterin[{{$key}}][max]" value="{{$value->max}}" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterin[{{$key}}][max]" value="{{$value->max}}" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Cost :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="waterin[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin[{{$key}}][cost]" value="{{$value->cost}}" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -134,13 +134,14 @@
                         </div>
                         @endforeach
                         @endif
+                        <div class="waterin-cost-container"></div>
                         <div class="col-md-2" style="margin-left: 50%;">
                             <label><strong>Water In Total :</strong></label>
                             <div class="form-group">
                                 <input class="form-control" type="text" placeholder="Total" name="waterin_total" value="{{$region_cost->water_in_total ?? 0}}" required disabled />
                             </div>
                         </div>
-                        <div class="waterin-cost-container"></div>
+                        
                         <label><strong>Water in related Cost</strong> <a href="javascript:void(0)" id="add-waterin-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
                         @if(isset($region_cost->waterin_additional))
                         @foreach(json_decode($region_cost->waterin_additional) as $key => $value)
@@ -154,13 +155,13 @@
                             <div class="col-md-2">
                                 <label><strong>Percentage :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Percentage" name="waterin_additional[{{$key}}][percentage]" value="{{$value->percentage}}" />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterin_additional[{{$key}}][percentage]" value="{{$value->percentage}}" />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Cost :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="waterin_additional[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin_additional[{{$key}}][cost]" value="{{$value->cost}}" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -178,7 +179,6 @@
                         </div>
                         @endforeach
                         @endif
-
                         <div class="waterin-additional-cost-container"></div>
                         <div class="col-md-2" style="margin-left: 50%;">
                             <label><strong>WaterIn related Total :</strong></label>
@@ -198,25 +198,25 @@
                             <div class="col-md-2">
                                 <label><strong>Min :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Min litres" name="waterout[{{$key}}][min]" value="{{$value->min}}" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterout[{{$key}}][min]" value="{{$value->min}}" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Max :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Max litres" name="waterout[{{$key}}][max]" value="{{$value->max}}" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterout[{{$key}}][max]" value="{{$value->max}}" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Percentage :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Percentage" name="waterout[{{$key}}][percentage]" value="{{$value->percentage}}" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterout[{{$key}}][percentage]" value="{{$value->percentage}}" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Cost :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="waterout[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout[{{$key}}][cost]" value="{{$value->cost}}" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -234,13 +234,14 @@
                         </div>
                         @endforeach
                         @endif
+                        <div class="waterout-cost-container"></div>
                         <div class="col-md-2" style="margin-left: 67%;">
                             <label><strong>Water Out Total :</strong></label>
                             <div class="form-group">
                                 <input class="form-control" type="text" placeholder="Total" name="waterout_total" value="{{$region_cost->water_out_total ?? 0}}" required disabled />
                             </div>
                         </div>
-                        <div class="waterout-cost-container"></div>
+                        
                         <label><strong>Water out related Cost</strong> <a href="javascript:void(0)" id="add-waterout-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
                         @if(isset($region_cost->waterout_additional))
                         @foreach(json_decode($region_cost->waterout_additional) as $key => $value)
@@ -254,13 +255,13 @@
                             <div class="col-md-2">
                                 <label><strong>Percentage :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Percentage" name="waterout_additional[{{$key}}][percentage]" value="{{$value->percentage}}" />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterout_additional[{{$key}}][percentage]" value="{{$value->percentage}}" />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Cost :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="waterout_additional[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout_additional[{{$key}}][cost]" value="{{$value->cost}}" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -298,19 +299,19 @@
                             <div class="col-md-2">
                                 <label><strong>Min :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Min" name="electricity[{{$key}}][min]" value="{{$value->min}}" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Min" name="electricity[{{$key}}][min]" value="{{$value->min}}" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Max :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Max" name="electricity[{{$key}}][max]" value="{{$value->max}}" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Max" name="electricity[{{$key}}][max]" value="{{$value->max}}" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Cost :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="electricity[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity[{{$key}}][cost]" value="{{$value->cost}}" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -328,13 +329,14 @@
                         </div>
                         @endforeach
                         @endif
+                        <div class="electricity-cost-container"></div>
                         <div class="col-md-2" style="margin-left: 50%;">
                             <label><strong>Electricity Total :</strong></label>
                             <div class="form-group">
                                 <input class="form-control" type="text" placeholder="Total" name="electricity_total" value="{{$region_cost->electricity_total ?? 0}}" required disabled />
                             </div>
                         </div>
-                        <div class="electricity-cost-container"></div>
+                        
                         <label><strong>Electricity related Cost</strong> <a href="javascript:void(0)" id="add-electricity-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
                         @if(isset($region_cost->electricity_additional))
                         @foreach(json_decode($region_cost->electricity_additional) as $key => $value)
@@ -348,13 +350,13 @@
                             <div class="col-md-2">
                                 <label><strong>Percentage :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Percentage" name="electricity_additional[{{$key}}][percentage]" value="{{$value->percentage}}" />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="electricity_additional[{{$key}}][percentage]" value="{{$value->percentage}}" />
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Cost :</strong></label>
                                 <div class="form-group">
-                                    <input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="electricity_additional[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity_additional[{{$key}}][cost]" value="{{$value->cost}}" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -397,7 +399,7 @@
                         <div class="col-md-2">
                             <label><strong>Cost :</strong></label>
                             <div class="form-group">
-                                <input class="form-control " type="number" placeholder="Cost" name="additional[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                <input class="form-control " type="text" placeholder="Cost" name="additional[{{$key}}][cost]" value="{{$value->cost}}" required />
                             </div>
                         </div>
                         <div class="col-md-1">
@@ -416,15 +418,15 @@
                         </div>
                         <!-- <label><strong>Vat In Percentage :</strong></label>
                         <div class="form-group">
-                            <input class="form-control" type="number" placeholder="VAT Percentage" name="vat_percentage" value="{{$region_cost->vat_percentage ?? 0}}" required />
+                            <input class="form-control" type="text" placeholder="VAT Percentage" name="vat_percentage" value="{{$region_cost->vat_percentage ?? 0}}" required />
                         </div> -->
                         <label><strong>Subtotal of VAT Percentage</strong></label>
                         <div class="form-group">
-                            <input class="form-control" type="number" placeholder="VAT Rate" name="vat_rate" value="{{$region_cost->sub_total_vat ?? 0}}" required disabled />
+                            <input class="form-control" type="text" placeholder="VAT Rate" name="vat_rate" value="{{$region_cost->sub_total_vat ?? 0}}" required disabled />
                         </div>
                         <label><strong>Vat Rates :</strong></label>
                         <div class="form-group">
-                            <input class="form-control allow_decimal" type="number" placeholder="VAT Rate" name="vat_rate" value="{{$region_cost->vat_rate ?? 0}}" required />
+                            <input class="form-control allow_decimal" type="text" placeholder="VAT Rate" name="vat_rate" value="{{$region_cost->vat_rate ?? 0}}" required />
                         </div>
                         <label><strong>Final Total :</strong></label>
                         <div class="form-group">
@@ -565,19 +567,19 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Min :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" placeholder="Min litres" name="waterin[' + i + '][min]" required />' +
+                '<input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterin[' + i + '][min]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Max :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" placeholder="Max litres" name="waterin[' + i + '][max]" required />' +
+                '<input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterin[' + i + '][max]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="waterin[' + i + '][cost]" required />' +
+                '<input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin[' + i + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
@@ -610,13 +612,13 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Percentage :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" step=any placeholder="Percentage" name="waterin_additional[' + wa + '][percentage]" required />' +
+                '<input class="form-control allow_decimal" type="text" step=any placeholder="Percentage" name="waterin_additional[' + wa + '][percentage]" />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="waterin_additional[' + wa + '][cost]" required />' +
+                '<input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin_additional[' + wa + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
@@ -643,25 +645,25 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Min :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" placeholder="Min litres" name="waterout[' + o + '][min]" required />' +
+                '<input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterout[' + o + '][min]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Max :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" placeholder="Max litres" name="waterout[' + o + '][max]" required />' +
+                '<input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterout[' + o + '][max]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Percentage :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" step=any placeholder="Percentage" name="waterout[' + o + '][percentage]" required />' +
+                '<input class="form-control allow_decimal" type="text" step=any placeholder="Percentage" name="waterout[' + o + '][percentage]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="waterout[' + o + '][cost]" required />' +
+                '<input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout[' + o + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
@@ -693,13 +695,13 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Percentage :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" step=any placeholder="Percentage" name="waterout_additional[' + wo + '][percentage]" required />' +
+                '<input class="form-control allow_decimal" type="text" step=any placeholder="Percentage" name="waterout_additional[' + wo + '][percentage]" />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="waterout_additional[' + wo + '][cost]" required />' +
+                '<input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout_additional[' + wo + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
@@ -727,19 +729,19 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Min :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" placeholder="Min" name="electricity[' + e + '][min]" required />' +
+                '<input class="form-control allow_decimal" type="text" placeholder="Min" name="electricity[' + e + '][min]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Max :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" placeholder="Max" name="electricity[' + e + '][max]" required />' +
+                '<input class="form-control allow_decimal" type="text" placeholder="Max" name="electricity[' + e + '][max]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="electricity[' + e + '][cost]" required />' +
+                '<input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity[' + e + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
@@ -771,13 +773,13 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Percentage :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" step=any placeholder="Percentage" name="electricity_additional[' + eo + '][percentage]" required />' +
+                '<input class="form-control allow_decimal" type="text" step=any placeholder="Percentage" name="electricity_additional[' + eo + '][percentage]"  />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="electricity_additional[' + eo + '][cost]" required />' +
+                '<input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity_additional[' + eo + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
@@ -811,7 +813,7 @@
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
                 '<div class="form-group">' +
-                '<input class="form-control allow_decimal" type="number" placeholder="Cost" step=any name="additional[' + a + '][cost]" required />' +
+                '<input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="additional[' + a + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
 
