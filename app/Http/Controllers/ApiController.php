@@ -241,11 +241,7 @@ class ApiController extends Controller
                 'title' => $postData['title'],
                 'lat' => $postData['lat'],
                 'lng' => $postData['lng'],
-                'address' => $postData['address'],
-                'region_id' => $postData['region_id'],
-                'account_type_id' => $postData['account_type_id'],
-                'water_email' => $postData['water_email'],
-                'electricity_email' => $postData['electricity_email']
+                'address' => $postData['address']
             );
             if (!empty($postData['email']))
                 $siteArr['email'] = $postData['email'];
