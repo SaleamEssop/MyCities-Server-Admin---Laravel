@@ -89,11 +89,11 @@
                     </div>
                     <div class="form-group water_used">
                         <label><strong>Water Used in KL :</strong></label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Water Usage" name="water_used" value="{{$region_cost->water_used ?? 0}}"  />
+                        <input class="form-control allow_decimal" type="text" placeholder="Water Usage" name="water_used" value="{{$region_cost->water_used ?? 0}}" />
                     </div>
                     <div class="form-group ele_used">
                         <label><strong>Electricity Used in KWH :</strong></label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Electricity Usage" name="electricity_used" value="{{$region_cost->electricity_used ?? 0}}"  />
+                        <input class="form-control allow_decimal" type="text" placeholder="Electricity Usage" name="electricity_used" value="{{$region_cost->electricity_used ?? 0}}" />
                     </div>
                     <div class="water_in_section">
                         <hr>
@@ -141,7 +141,7 @@
                                 <input class="form-control" type="text" placeholder="Total" name="waterin_total" value="{{$region_cost->water_in_total ?? 0}}" required disabled />
                             </div>
                         </div>
-                        
+
                         <label><strong>Water in related Cost</strong> <a href="javascript:void(0)" id="add-waterin-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
                         @if(isset($region_cost->waterin_additional))
                         @foreach(json_decode($region_cost->waterin_additional) as $key => $value)
@@ -241,7 +241,7 @@
                                 <input class="form-control" type="text" placeholder="Total" name="waterout_total" value="{{$region_cost->water_out_total ?? 0}}" required disabled />
                             </div>
                         </div>
-                        
+
                         <label><strong>Water out related Cost</strong> <a href="javascript:void(0)" id="add-waterout-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
                         @if(isset($region_cost->waterout_additional))
                         @foreach(json_decode($region_cost->waterout_additional) as $key => $value)
@@ -336,7 +336,7 @@
                                 <input class="form-control" type="text" placeholder="Total" name="electricity_total" value="{{$region_cost->electricity_total ?? 0}}" required disabled />
                             </div>
                         </div>
-                        
+
                         <label><strong>Electricity related Cost</strong> <a href="javascript:void(0)" id="add-electricity-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a></label>
                         @if(isset($region_cost->electricity_additional))
                         @foreach(json_decode($region_cost->electricity_additional) as $key => $value)
@@ -420,11 +420,11 @@
                         <div class="form-group">
                             <input class="form-control" type="text" placeholder="VAT Percentage" name="vat_percentage" value="{{$region_cost->vat_percentage ?? 0}}" required />
                         </div> -->
-                        <label><strong>Subtotal of VAT Percentage</strong></label>
+                        <label><strong>VAT</strong></label>
                         <div class="form-group">
                             <input class="form-control" type="text" placeholder="VAT Rate" name="vat_rate" value="{{$region_cost->sub_total_vat ?? 0}}" required disabled />
                         </div>
-                        <label><strong>Vat Rates :</strong></label>
+                        <label><strong>Rates :</strong></label>
                         <div class="form-group">
                             <input class="form-control allow_decimal" type="text" placeholder="VAT Rate" name="vat_rate" value="{{$region_cost->vat_rate ?? 0}}" required />
                         </div>

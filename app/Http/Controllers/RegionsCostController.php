@@ -384,15 +384,11 @@ class RegionsCostController extends Controller
 
 
         $subtotal_final = $sub_total - abs($rebate);
-
         $region_cost->sub_total = number_format($subtotal_final, 2, '.', '');
-
         $sub_total_vat = $subtotal_final * $region_cost->vat_percentage / 100;
         $region_cost->sub_total_vat = number_format($sub_total_vat, 2, '.', '');
-
         $final_total  = $subtotal_final + $sub_total_vat + $region_cost->vat_rate;
         $region_cost->final_total = number_format($final_total, 2, '.', '');
-
         return $region_cost;
     }
     public function copyRecord(Request $request)

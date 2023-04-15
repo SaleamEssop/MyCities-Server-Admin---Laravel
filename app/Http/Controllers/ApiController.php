@@ -876,7 +876,7 @@ class ApiController extends Controller
     {
 
         $postData = $request->post();
-       
+
         if (!isset($postData['account_id']) && empty($postData['account_id'])) {
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
         }
@@ -914,6 +914,10 @@ class ApiController extends Controller
                     $final_reading = $endReading - $firstReading;
                     $final_reading = substr($final_reading, 0, -4);
                     $response = $this->getWaterBill($accountID, $final_reading, $meter, $daydiff);
+                    $response->firstReadingDate = date('d F Y', strtotime($firstReadingDate)) ?? null;
+                    $response->firstReading = substr($firstReading, 0, -4) ?? 0;
+                    $response->endReadingDate = date('d F Y', strtotime($endReadingDate)) ?? null;
+                    $response->endReading = substr($endReading, 0, -4) ?? 0;
                     return $response;
                 }
             } else {
@@ -923,8 +927,8 @@ class ApiController extends Controller
     }
     public function getWaterBill($accountID, $reading, $meters, $daydiff)
     {
-
         $type_id = $meters->meter_type_id;
+        $meter_number = $meters->meter_number;
         $account = Account::where('id', $accountID)->first();
 
         $region_cost = RegionsAccountTypeCost::where('region_id', $account->region_id)->where('account_type_id', $account->account_type_id)->first();
@@ -935,9 +939,11 @@ class ApiController extends Controller
                 // water
                 $water_remaning = $reading;
                 $electricity_remaning = 0;
+                $unit = "L";
             } elseif ($type_id == 2) {
                 $electricity_remaning = $reading;
                 $water_remaning = 0;
+                $unit = "kWh";
             }
             $water_in_total  = 0;
             $sub_total  = 0;
@@ -987,17 +993,24 @@ class ApiController extends Controller
                         $region_cost->water_in_total = number_format($water_in_total, 2, '.', '');
                     }
                 }
+                //echo "<pre>";print_r($water_in_total);exit();
                 // addtional water in logic
+                $waterin_additional = [];
                 if ($region_cost->waterin_additional) {
                     $waterin_additional = json_decode($region_cost->waterin_additional);
                     if (isset($waterin_additional) && !empty($waterin_additional)) {
                         foreach ($waterin_additional as $key => $value) {
-                            $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                            if ($value->percentage == null) {
+                                $cal_total = $value->cost;
+                            } else {
+                                $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                            }
                             $waterin_additional[$key]->total =  $cal_total;
                             $waterin_additional_total += $cal_total;
                         }
                         $region_cost->water_in_related_total = number_format($waterin_additional_total, 2, '.', '');
                         $region_cost->waterin_additional = $waterin_additional;
+                        $waterin_additional = $waterin_additional;
                     }
                 }
                 // echo "<pre>";print_r($waterin_additional_total);exit();
@@ -1041,16 +1054,22 @@ class ApiController extends Controller
                 }
 
                 // addtional water out logic
+                $waterout_additional = [];
                 if ($region_cost->waterout_additional) {
                     $waterout_additional = json_decode($region_cost->waterout_additional);
                     if (isset($waterout_additional) && !empty($waterout_additional)) {
                         foreach ($waterout_additional as $key => $value) {
-                            $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                            if ($value->percentage == null) {
+                                $cal_total = $value->cost;
+                            } else {
+                                $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                            }
                             $waterout_additional[$key]->total =  $cal_total;
                             $waterout_additional_total += $cal_total;
                         }
                         $region_cost->water_out_related_total = number_format($waterout_additional_total, 2, '.', '');
                         $region_cost->waterout_additional = $waterout_additional;
+                        $waterout_additional = $waterout_additional;
                     }
                 }
             }
@@ -1088,7 +1107,11 @@ class ApiController extends Controller
                     $electricity_additional = json_decode($region_cost->electricity_additional);
                     if (isset($electricity_additional) && !empty($electricity_additional)) {
                         foreach ($electricity_additional as $key => $value) {
-                            $cal_total = $region_cost->electricity_used * $value->percentage / 100 * $value->cost;
+                            if ($value->percentage == null) {
+                                $cal_total = $value->cost;
+                            } else {
+                                $cal_total = $region_cost->electricity_used * $value->percentage / 100 * $value->cost;
+                            }
                             $electricity_additional[$key]->total =  $cal_total;
                             $electricity_additional_total += $cal_total;
                         }
@@ -1113,8 +1136,10 @@ class ApiController extends Controller
             // start usages logic
             $region_cost->usage = $reading;
             $region_cost->usage_days = $daydiff;
-            $region_cost->daily_usage = number_format($reading / $daydiff, 2, '.', '');
+
+            $region_cost->daily_usage = number_format($reading * 1000 / $daydiff, 2, '.', '') . ' ' . $unit;
             $region_cost->monthly_usage =  number_format($reading / $daydiff * 31, 2, '.', '');
+
             // end usages logic
             $subtotal_final = $sub_total - abs($rebate);
 
@@ -1126,6 +1151,23 @@ class ApiController extends Controller
             $final_total  = $subtotal_final + $sub_total_vat + $region_cost->vat_rate;
             $region_cost->final_total = number_format($final_total, 2, '.', '');
 
+
+            $water_in_project[] = array(
+                'title' => 'water In',
+                'total' => $water_in_total
+            );
+            $water_out_project[] = array(
+                'title' => 'water Out',
+                'total' => $water_out_total
+            );
+            $vat[] = array(
+                'title' => 'VAT',
+                'total' => $region_cost->sub_total_vat
+            );
+
+            $region_cost->projection = array_merge($water_in_project, $water_out_project, $waterin_additional, $waterout_additional, $vat);
+            $region_cost->daily_cost = number_format($region_cost->final_total / 31, 2, '.', '');
+            $region_cost->meter_number = $meter_number;
             return $region_cost;
         } else {
             return 0;
