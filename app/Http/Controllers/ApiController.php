@@ -881,13 +881,16 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
         }
 
-        if (!isset($postData['meter_id']) && empty($postData['meter_id'])) {
-            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, meter_id is required!']);
+        // if (!isset($postData['meter_id']) && empty($postData['meter_id'])) {
+        //     return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, meter_id is required!']);
+        // }
+
+        $meters = Meter::with('readings')->where('account_id', $postData['account_id'])->get();
+        
+        foreach ($meters as $meter) {
+            $response[] = $this->getReadings($postData['account_id'], $meter);
         }
-
-        $meters = Meter::with('readings')->where('id', $postData['meter_id'])->first();
-
-        $response = $this->getReadings($postData['account_id'], $meters);
+       
         if (isset($response) && !empty($response)) {
             return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meters retrieved successfully!', 'data' => $response]);
         } else {
@@ -943,11 +946,12 @@ class ApiController extends Controller
     }
     public function getWaterBill($accountID, $reading, $meters, $daydiff)
     {
-
+        
         $type_id = $meters->meter_type_id; // meter type = 1 - water, 2 - electricity
+        $meter_id = $meters->id;
         $meter_number = $meters->meter_number;
         $account = Account::where('id', $accountID)->first();
-
+        
         $region_cost = RegionsAccountTypeCost::where('region_id', $account->region_id)->where('account_type_id', $account->account_type_id)->first();
 
         if (isset($region_cost) && !empty($region_cost)) {
@@ -1133,6 +1137,7 @@ class ApiController extends Controller
                 $region_cost->daily_cost = number_format($region_cost->final_total / $month_day, 2, '.', '');
                 $region_cost->meter_number = $meter_number;
                 $region_cost->type = $type_id;
+                $region_cost->meter_id = $meter_id;
                 return $region_cost;
             } elseif ($type_id == 2) {
                 $electricity_remaning = $reading;
@@ -1236,6 +1241,7 @@ class ApiController extends Controller
                 $region_cost->daily_cost = number_format($region_cost->final_total / $month_day, 2, '.', '');
                 $region_cost->meter_number = $meter_number;
                 $region_cost->type = $type_id;
+                $region_cost->meter_id = $meter_id;
                 return $region_cost;
             }
         } else {
