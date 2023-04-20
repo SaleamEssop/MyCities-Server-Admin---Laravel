@@ -2,28 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Account;
-use App\Models\AccountFixedCost;
-use App\Models\AccountType;
 use App\Models\Ads;
-use App\Models\AdsCategory;
-use App\Models\FixedCost;
-use App\Models\Meter;
-use App\Models\MeterReadings;
-use App\Models\MeterType;
-use App\Models\RegionAlarms;
-use App\Models\Regions;
-use App\Models\Settings;
 use App\Models\Site;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\URL;
-use PHPMailer\PHPMailer\PHPMailer;
+use App\Models\Meter;
 use PHPUnit\Exception;
+use App\Models\Account;
+use App\Models\Regions;
+use App\Models\Settings;
+use App\Models\FixedCost;
+use App\Models\MeterType;
+use App\Models\AccountType;
+use App\Models\AdsCategory;
+use App\Models\RegionAlarms;
+use Illuminate\Http\Request;
+use App\Models\MeterReadings;
+use App\Models\AccountFixedCost;
+use Illuminate\Support\Facades\DB;
+use PHPMailer\PHPMailer\PHPMailer;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Mail;
 use App\Models\RegionsAccountTypeCost;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 
 class ApiController extends Controller
 {
@@ -886,11 +887,11 @@ class ApiController extends Controller
         // }
 
         $meters = Meter::with('readings')->where('account_id', $postData['account_id'])->get();
-        
+
         foreach ($meters as $meter) {
             $response[] = $this->getReadings($postData['account_id'], $meter);
         }
-       
+        
         if (isset($response) && !empty($response)) {
             return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meters retrieved successfully!', 'data' => $response]);
         } else {
@@ -907,51 +908,59 @@ class ApiController extends Controller
                     $reading_dates[] = array('date' => $value->reading_date, 'reading_value' => $value->reading_value);;
                 }
 
-                sort($reading_dates);
-                $firstReadingDate = $reading_dates[0]['date'];
-                $firstReading = $reading_dates[0]['reading_value'];
-                $endReadingDate = $reading_dates[1]['date'];
-                $endReading = $reading_dates[1]['reading_value'];
-                $time1 = strtotime($firstReadingDate);
-                $time2 = strtotime($endReadingDate);
-                $daydiff = floor(($time2 - $time1) / 86400);
+                $firstReadingDate = $reading_dates[0]['date'] ?? null;
+                $firstReading = $reading_dates[0]['reading_value'] ?? null;
+                $endReadingDate = $reading_dates[1]['date'] ?? null;
+                $endReading = $reading_dates[1]['reading_value'] ?? null;
+                if (!empty($firstReadingDate) && !empty($firstReading) && !empty($endReadingDate) && !empty($endReading)) {
+                    $time1 = strtotime($firstReadingDate);
+                    $time2 = strtotime($endReadingDate);
+                    $daydiff = floor(($time2 - $time1) / 86400);
 
 
-                $final_reading = $endReading - $firstReading;
-                if ($meter->meter_type_id == 1) {
-                    // water
-                    $final_reading = substr($final_reading, 0, -4);
-                } else {
-                    // electricity
-                    $final_reading = substr($final_reading, 0, -1);
-                }
-                //echo "<pre>";print_r($final_reading);exit();
-                $response = $this->getWaterBill($accountID, $final_reading, $meter, $daydiff);
-                if (isset($response) && !empty($response)) {
-                    $response->firstReadingDate = date('d F Y', strtotime($firstReadingDate)) ?? null;
-                    $response->endReadingDate = date('d F Y', strtotime($endReadingDate)) ?? null;
+                    $final_reading = $endReading - $firstReading;
                     if ($meter->meter_type_id == 1) {
                         // water
-                        $response->firstReading = substr($firstReading, 0, -4) ?? 0;
-                        $response->endReading = substr($endReading, 0, -4) ?? 0;
+                        $final_reading = substr($final_reading, 0, -4);
                     } else {
                         // electricity
-                        $response->firstReading = substr($firstReading, 0, -1) ?? 0;
-                        $response->endReading = substr($endReading, 0, -1) ?? 0;
+                        $final_reading = substr($final_reading, 0, -1);
                     }
-                    return $response;
+                    //echo "<pre>";print_r($final_reading);exit();
+                    $response = $this->getWaterBill($accountID, $final_reading, $meter, $daydiff);
+                    if (isset($response) && !empty($response)) {
+                        $response->firstReadingDate = date('d F Y', strtotime($firstReadingDate)) ?? null;
+                        $response->endReadingDate = date('d F Y', strtotime($endReadingDate)) ?? null;
+                        if ($meter->meter_type_id == 1) {
+                            // water
+                            $response->firstReading = substr($firstReading, 0, -4) ?? 0;
+                            $response->endReading = substr($endReading, 0, -4) ?? 0;
+                        } else {
+                            // electricity
+                            $response->firstReading = substr($firstReading, 0, -1) ?? 0;
+                            $response->endReading = substr($endReading, 0, -1) ?? 0;
+                        }
+                        return $response;
+                    }
+                }else{
+                    return [
+                        'status'=>false,
+                        'code' => 400, 
+                        'msg' => 'You have invalid meter reading.',
+                        'data' => []
+                    ];
                 }
             }
         }
     }
     public function getWaterBill($accountID, $reading, $meters, $daydiff)
     {
-        
+
         $type_id = $meters->meter_type_id; // meter type = 1 - water, 2 - electricity
         $meter_id = $meters->id;
         $meter_number = $meters->meter_number;
         $account = Account::where('id', $accountID)->first();
-        
+
         $region_cost = RegionsAccountTypeCost::where('region_id', $account->region_id)->where('account_type_id', $account->account_type_id)->first();
 
         if (isset($region_cost) && !empty($region_cost)) {
@@ -977,7 +986,8 @@ class ApiController extends Controller
                 $electricity_remaning = 0;
                 $unit = "L";
 
-                if ($region_cost->water_used > 0) {
+                if ($water_remaning > 0) {
+                    // echo $water_remaning;exit();
                     // water in logic
                     if ($region_cost->water_in) {
                         $water_in = json_decode($region_cost->water_in);
@@ -1008,7 +1018,6 @@ class ApiController extends Controller
                             $region_cost->water_in_total = number_format($water_in_total, 2, '.', '');
                         }
                     }
-                    //echo "<pre>";print_r($water_in_total);exit();
                     // addtional water in logic
                     $waterin_additional = [];
                     if ($region_cost->waterin_additional) {
