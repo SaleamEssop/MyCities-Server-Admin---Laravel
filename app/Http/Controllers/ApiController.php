@@ -887,11 +887,11 @@ class ApiController extends Controller
         // }
 
         $meters = Meter::with('readings')->where('account_id', $postData['account_id'])->get();
-
+       
         foreach ($meters as $meter) {
             $response[] = $this->getReadings($postData['account_id'], $meter);
         }
-        
+
         if (isset($response) && !empty($response)) {
             return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meters retrieved successfully!', 'data' => $response]);
         } else {
@@ -902,51 +902,74 @@ class ApiController extends Controller
     {
         if ($meter) {
             // water
+           // $metersReading = MeterReadings::where('meter_id', 252)->get();
             $metersReading = MeterReadings::where('meter_id', $meter->id)->get();
             if (isset($metersReading) && !empty($metersReading)) {
                 foreach ($metersReading as $key => $value) {
                     $reading_dates[] = array('date' => $value->reading_date, 'reading_value' => $value->reading_value);;
                 }
+                if (count($reading_dates) >= 2) {
+                    $reading_arr = array_slice($reading_dates, -2, 2, true);
+                    usort($reading_arr, function ($a, $b) {
+                        return strtotime($a['date']) - strtotime($b['date']);
+                    });
 
-                $firstReadingDate = $reading_dates[0]['date'] ?? null;
-                $firstReading = $reading_dates[0]['reading_value'] ?? null;
-                $endReadingDate = $reading_dates[1]['date'] ?? null;
-                $endReading = $reading_dates[1]['reading_value'] ?? null;
-                if (!empty($firstReadingDate) && !empty($firstReading) && !empty($endReadingDate) && !empty($endReading)) {
-                    $time1 = strtotime($firstReadingDate);
-                    $time2 = strtotime($endReadingDate);
-                    $daydiff = floor(($time2 - $time1) / 86400);
+                    $firstReadingDate = $reading_arr[0]['date'] ?? null;
+                    $firstReading = $reading_arr[0]['reading_value'] ?? null;
+                    $endReadingDate = $reading_arr[1]['date'] ?? null;
+                    $endReading = $reading_arr[1]['reading_value'] ?? null;
+                    if (!empty($firstReadingDate) && !empty($firstReading) && !empty($endReadingDate) && !empty($endReading)) {
+                        $time1 = strtotime($firstReadingDate);
+                        $time2 = strtotime($endReadingDate);
+                        $daydiff = floor(($time2 - $time1) / 86400);
 
 
-                    $final_reading = $endReading - $firstReading;
-                    if ($meter->meter_type_id == 1) {
-                        // water
-                        $final_reading = substr($final_reading, 0, -4);
-                    } else {
-                        // electricity
-                        $final_reading = substr($final_reading, 0, -1);
-                    }
-                    //echo "<pre>";print_r($final_reading);exit();
-                    $response = $this->getWaterBill($accountID, $final_reading, $meter, $daydiff);
-                    if (isset($response) && !empty($response)) {
-                        $response->firstReadingDate = date('d F Y', strtotime($firstReadingDate)) ?? null;
-                        $response->endReadingDate = date('d F Y', strtotime($endReadingDate)) ?? null;
+                        $final_reading = $endReading - $firstReading;
                         if ($meter->meter_type_id == 1) {
                             // water
-                            $response->firstReading = substr($firstReading, 0, -4) ?? 0;
-                            $response->endReading = substr($endReading, 0, -4) ?? 0;
+                            $final_reading = substr($final_reading, 0, -4);
                         } else {
                             // electricity
-                            $response->firstReading = substr($firstReading, 0, -1) ?? 0;
-                            $response->endReading = substr($endReading, 0, -1) ?? 0;
+                            $final_reading = substr($final_reading, 0, -1);
                         }
-                        return $response;
+                        // previous reading and last reading same then error
+                        if (isset($final_reading) && !empty($final_reading)) {
+                            $response = $this->getWaterBill($accountID, $final_reading, $meter, $daydiff);
+                            if (isset($response) && !empty($response)) {
+                                $response->firstReadingDate = date('d F Y', strtotime($firstReadingDate)) ?? null;
+                                $response->endReadingDate = date('d F Y', strtotime($endReadingDate)) ?? null;
+                                if ($meter->meter_type_id == 1) {
+                                    // water
+                                    $response->firstReading = substr($firstReading, 0, -4) ?? 0;
+                                    $response->endReading = substr($endReading, 0, -4) ?? 0;
+                                } else {
+                                    // electricity
+                                    $response->firstReading = substr($firstReading, 0, -1) ?? 0;
+                                    $response->endReading = substr($endReading, 0, -1) ?? 0;
+                                }
+                                return $response;
+                            }
+                        } else {
+                            return [
+                                'status' => false,
+                                'code' => 400,
+                                'msg' => 'Your previous reading and current reading should be diffrent',
+                                'data' => []
+                            ];
+                        }
+                    } else {
+                        return [
+                            'status' => false,
+                            'code' => 400,
+                            'msg' => 'You have invalid meter reading.',
+                            'data' => []
+                        ];
                     }
-                }else{
+                } else {
                     return [
-                        'status'=>false,
-                        'code' => 400, 
-                        'msg' => 'You have invalid meter reading.',
+                        'status' => false,
+                        'code' => 400,
+                        'msg' => 'Please enter Previous and Current reading',
                         'data' => []
                     ];
                 }
@@ -1147,6 +1170,26 @@ class ApiController extends Controller
                 $region_cost->meter_number = $meter_number;
                 $region_cost->type = $type_id;
                 $region_cost->meter_id = $meter_id;
+                unset(
+                    $region_cost->water_in,
+                    $region_cost->water_out,
+                    $region_cost->template_name,
+                    $region_cost->read_day,
+                    $region_cost->start_date,
+                    $region_cost->end_date,
+                    $region_cost->water_used,
+                    $region_cost->electricity_used,
+                    $region_cost->electricity,
+                    $region_cost->electricity_additional,
+                    $region_cost->additional,
+                    $region_cost->billing_date,
+                    $region_cost->reading_date,
+                    $region_cost->created_at,
+                    $region_cost->updated_at,
+                    $region_cost->waterin_additional,
+                    $region_cost->waterout_additional,
+
+                );
                 return $region_cost;
             } elseif ($type_id == 2) {
                 $electricity_remaning = $reading;
@@ -1155,7 +1198,7 @@ class ApiController extends Controller
                 $region_cost->electricity_used = $electricity_remaning;
                 // electricity
 
-                if ($region_cost->electricity_used > 0) {
+                if ($electricity_remaning > 0) {
 
                     $electricity = json_decode($region_cost->electricity);
                     if (isset($electricity) && !empty($electricity)) {
@@ -1251,6 +1294,25 @@ class ApiController extends Controller
                 $region_cost->meter_number = $meter_number;
                 $region_cost->type = $type_id;
                 $region_cost->meter_id = $meter_id;
+                unset(
+                    $region_cost->water_in,
+                    $region_cost->water_out,
+                    $region_cost->template_name,
+                    $region_cost->read_day,
+                    $region_cost->start_date,
+                    $region_cost->end_date,
+                    $region_cost->water_used,
+                    $region_cost->electricity_used,
+                    $region_cost->electricity,
+                    $region_cost->electricity_additional,
+                    $region_cost->additional,
+                    $region_cost->billing_date,
+                    $region_cost->reading_date,
+                    $region_cost->created_at,
+                    $region_cost->updated_at,
+                    $region_cost->waterin_additional,
+                    $region_cost->waterout_additional
+                );
                 return $region_cost;
             }
         } else {
