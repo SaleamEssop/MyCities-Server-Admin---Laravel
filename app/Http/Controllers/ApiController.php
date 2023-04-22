@@ -873,14 +873,44 @@ class ApiController extends Controller
         }
         return false;
     }
+    public function getDefaultCostAccount($uid)
+    {
+        $fixedCosts = Account::with(['defaultFixedCosts.fixedCost'])->find($uid);
+        $fixedCostArr = [];
+        $user_additional_cost = [];
+        $rates_rebate = 0;
+        $rates = 0;
+        if (isset($fixedCosts['defaultFixedCosts']) && !empty($fixedCosts['defaultFixedCosts'])) {
+            foreach ($fixedCosts['defaultFixedCosts'] as $key => $value) {
+                if ($value->is_active == 1) {
+                    if ($value['fixedCost']['title'] == "Water Loss Levy" || $value['fixedCost']['title'] == "Refuse Collection") {
+                        $user_additional_cost[] = array(
+                            'title' => $value['fixedCost']['title'],
+                            'total' => $value['value']
+                        );
+                    } elseif ($value['fixedCost']['title'] == "Rates Rebate") {
+                        $rates_rebate  = $value['value'];
+                    } elseif ($value['fixedCost']['title'] == "Rates") {
+                        $rates  = $value['value'];
+                    } else {
+                        $fixedCostArr[] = array(
+                            'title' => $value['fixedCost']['title'],
+                            'total' => $value['value']
+                        );
+                    }
+                }
+            }
+        }
+        return ['fixedCost' => $fixedCostArr, 'user_additional_cost' => $user_additional_cost, 'rate_rebate' => $rates_rebate, 'rates' => $rates];
+    }
     public function getEastimateCost(Request $request)
     {
-        
+
         $postData = $request->post();
-       
+
         $water_fullbill = [];
         $electricity_fullbill = [];
-        
+
         if (!isset($postData['account_id']) && empty($postData['account_id'])) {
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
         }
@@ -894,6 +924,7 @@ class ApiController extends Controller
         foreach ($meters as $meter) {
             $response[] = $this->getReadings($postData['account_id'], $meter);
         }
+
         if ($postData['type'] == "fullbill") {
             if (isset($response) && !empty($response)) {
                 $account = Account::where('id', $postData['account_id'])->first();
@@ -904,6 +935,17 @@ class ApiController extends Controller
                 $additional_total  = 0;
                 $subtotal_all_cost = 0;
                 $grand_total = 0;
+                $default_fixed_cost = $this->getDefaultCostAccount($postData['account_id']);
+                $user_rate_rebate = 0;
+                $user_rates = 0;
+
+                $user_rate_rebate = isset($default_fixed_cost['rate_rebate']) ? $default_fixed_cost['rate_rebate'] : 0;
+                $user_rates = isset($default_fixed_cost['rates']) ? $default_fixed_cost['rates'] : 0;
+                // echo $user_rate_rebate;
+                // echo $user_rates;
+
+                $user_additional_cost = isset($default_fixed_cost['user_additional_cost']) ? $default_fixed_cost['user_additional_cost'] : [];
+
                 foreach ($response as $key => $value) {
                     $water_in_project = [];
                     $water_out_project = [];
@@ -915,7 +957,7 @@ class ApiController extends Controller
                         $water_fullbill[$value->meter_number]['meter_number'] = $value->meter_number;
                         $water_fullbill[$value->meter_number]['meter_title'] = $value->meter_title;
                         $water_fullbill[$value->meter_number]['water_email'] = $value->water_email;
-                
+
                         $water_in_project[] = array(
                             'title' => 'water In',
                             'use' => $value->usage,
@@ -927,7 +969,7 @@ class ApiController extends Controller
                         );
                         $waterin_additional = isset($value->waterin_additional) ? $value->waterin_additional : [];
                         $waterout_additional = isset($value->waterout_additional) ? $value->waterout_additional : [];
-                        
+
                         $water_fullbill[$value->meter_number]['projection'] = array_merge($water_in_project, $water_out_project, $waterin_additional, $waterout_additional, $vat);
                         $water_total += array_sum(array_column($water_fullbill[$value->meter_number]['projection'], 'total'));
                         //$water_fullbill['water_total'] = $water_total;
@@ -947,25 +989,26 @@ class ApiController extends Controller
 
                         $electricity_fullbill[$value->meter_number]['projection'] = array_merge($ele, $electricity_additional);
                         $ele_total += array_sum(array_column($electricity_fullbill[$value->meter_number]['projection'], 'total'));
-                        
                     }
                 }
-                
-                $additional_total += array_sum(array_column($value->common_additional, 'total'));
+                $use_plus_admin_additional_cost = array_merge($user_additional_cost, $value->common_additional);
+                //echo "<pre>";print_r($use_plus_admin_additional_cost);exit();
+                $additional_total += array_sum(array_column($use_plus_admin_additional_cost, 'total'));
                 //  echo $additional_total;exit();
+
                 $response_fullbill['water'] = $water_fullbill;
                 $response_fullbill['electricity'] = $electricity_fullbill;
-                $response_fullbill['additional'] = $value->common_additional;
+                $response_fullbill['additional'] = isset($use_plus_admin_additional_cost) ? $use_plus_admin_additional_cost : [];
                 $subtotal_all_cost = number_format($water_total + $ele_total + $additional_total, 2, '.', '');
                 $vat = $subtotal_all_cost * $region_cost_full_bill->vat_percentage / 100;
                 $sub_total_vat  = number_format($vat, 2, '.', '');
-                $grand_total = ($subtotal_all_cost + $subtotal_all_cost + $sub_total_vat + 0) - 10;
+                $grand_total = ($subtotal_all_cost + $subtotal_all_cost + $sub_total_vat + $user_rates) - $user_rate_rebate;
                 $response_fullbill['final_total'] = array(
                     'subtotal_of_all_cost' => $subtotal_all_cost,
                     'vat' => $sub_total_vat,
                     'total_including_vat' => $subtotal_all_cost + $sub_total_vat,
-                    'rates' => 0, // get from customer input,
-                    'rebate' => 0, // get from customer input
+                    'rates' => number_format($user_rates, 2, '.', ''), // get from customer input,
+                    'rebate' => number_format($user_rate_rebate, 2, '.', ''), // get from customer input
                     'grand_total' => number_format($grand_total, 2, '.', '')
                 );
                 if (isset($response_fullbill) && !empty($response_fullbill)) {
@@ -989,6 +1032,7 @@ class ApiController extends Controller
             // water
             // $metersReading = MeterReadings::where('meter_id', 252)->get();
             $metersReading = MeterReadings::where('meter_id', $meter->id)->get();
+
             if (isset($metersReading) && !empty($metersReading)) {
                 foreach ($metersReading as $key => $value) {
                     $reading_dates[] = array('date' => $value->reading_date, 'reading_value' => $value->reading_value);;
@@ -999,16 +1043,16 @@ class ApiController extends Controller
                         return strtotime($a['date']) - strtotime($b['date']);
                     });
 
-                    $firstReadingDate = $reading_arr[0]['date'] ?? null;
+                    $firstReadingDate = date('Y-m-d', strtotime($reading_arr[0]['date'])) ?? null;
                     $firstReading = $reading_arr[0]['reading_value'] ?? null;
-                    $endReadingDate = $reading_arr[1]['date'] ?? null;
+                    $endReadingDate = date('Y-m-d', strtotime($reading_arr[1]['date'])) ?? null;
                     $endReading = $reading_arr[1]['reading_value'] ?? null;
+                    
                     if (!empty($firstReadingDate) && !empty($firstReading) && !empty($endReadingDate) && !empty($endReading)) {
                         $time1 = strtotime($firstReadingDate);
                         $time2 = strtotime($endReadingDate);
+
                         $daydiff = floor(($time2 - $time1) / 86400);
-
-
                         $final_reading = $endReading - $firstReading;
                         if ($meter->meter_type_id == 1) {
                             // water
@@ -1017,9 +1061,11 @@ class ApiController extends Controller
                             // electricity
                             $final_reading = substr($final_reading, 0, -1);
                         }
+
                         // previous reading and last reading same then error
                         if (isset($final_reading) && !empty($final_reading)) {
                             $response = $this->getWaterBill($accountID, $final_reading, $meter, $daydiff);
+                            // echo "<pre>";print_r($response);exit();
                             if (isset($response) && !empty($response)) {
                                 $response->firstReadingDate = date('d F Y', strtotime($firstReadingDate)) ?? null;
                                 $response->endReadingDate = date('d F Y', strtotime($endReadingDate)) ?? null;
