@@ -875,8 +875,9 @@ class ApiController extends Controller
     }
     public function getEastimateCost(Request $request)
     {
-
+        
         $postData = $request->post();
+       
         $water_fullbill = [];
         $electricity_fullbill = [];
         
@@ -902,6 +903,7 @@ class ApiController extends Controller
                 $water_total  = 0;
                 $additional_total  = 0;
                 $subtotal_all_cost = 0;
+                $grand_total = 0;
                 foreach ($response as $key => $value) {
                     $water_in_project = [];
                     $water_out_project = [];
@@ -911,6 +913,9 @@ class ApiController extends Controller
                         $water_fullbill[$value->meter_number]['type'] = $value->type;
                         $water_fullbill[$value->meter_number]['usage'] = $value->usage;
                         $water_fullbill[$value->meter_number]['meter_number'] = $value->meter_number;
+                        $water_fullbill[$value->meter_number]['meter_title'] = $value->meter_title;
+                        $water_fullbill[$value->meter_number]['water_email'] = $value->water_email;
+                
                         $water_in_project[] = array(
                             'title' => 'water In',
                             'use' => $value->usage,
@@ -918,10 +923,12 @@ class ApiController extends Controller
                         );
                         $water_out_project[] = array(
                             'title' => 'water Out',
-                            'use' => $value->usage,
                             'total' => isset($value->water_out_total) ? $value->water_out_total : 0
                         );
-                        $water_fullbill[$value->meter_number]['projection'] = array_merge($water_in_project, $water_out_project, $value->waterin_additional, $value->waterout_additional, $vat);
+                        $waterin_additional = isset($value->waterin_additional) ? $value->waterin_additional : [];
+                        $waterout_additional = isset($value->waterout_additional) ? $value->waterout_additional : [];
+                        
+                        $water_fullbill[$value->meter_number]['projection'] = array_merge($water_in_project, $water_out_project, $waterin_additional, $waterout_additional, $vat);
                         $water_total += array_sum(array_column($water_fullbill[$value->meter_number]['projection'], 'total'));
                         //$water_fullbill['water_total'] = $water_total;
                     } else {
@@ -929,20 +936,22 @@ class ApiController extends Controller
                         $electricity_fullbill[$value->meter_number]['type'] = $value->type;
                         $electricity_fullbill[$value->meter_number]['usage'] = $value->usage;
                         $electricity_fullbill[$value->meter_number]['meter_number'] = $value->meter_number;
-                        //  $ele_total += $value->electricity_total + $value->electricity_additional['cost']; 
-                        //$water_in_total += $water_in[$key]->total;
+                        $electricity_fullbill[$value->meter_number]['meter_title'] = $value->meter_title;
+                        $water_fullbill[$value->meter_number]['electricity_email'] = $value->electricity_email;
                         $ele[] = array(
                             'title' => 'electricity',
                             'use' => $value->usage,
                             'total' => $value->electricity_total,
                         );
-                        $electricity_fullbill[$value->meter_number]['projection'] = array_merge($ele, $value->electricity_additional);
+                        $electricity_additional = isset($value->electricity_additional) ? $value->electricity_additional : [];
+
+                        $electricity_fullbill[$value->meter_number]['projection'] = array_merge($ele, $electricity_additional);
                         $ele_total += array_sum(array_column($electricity_fullbill[$value->meter_number]['projection'], 'total'));
-                        //$water_fullbill['ele_total'] = $ele_total;
+                        
                     }
                 }
-                // echo "<pre>";print_r($value->common_additional);exit();
-                $additional_total += array_sum(array_column($value->common_additional, 'cost'));
+                
+                $additional_total += array_sum(array_column($value->common_additional, 'total'));
                 //  echo $additional_total;exit();
                 $response_fullbill['water'] = $water_fullbill;
                 $response_fullbill['electricity'] = $electricity_fullbill;
@@ -950,16 +959,15 @@ class ApiController extends Controller
                 $subtotal_all_cost = number_format($water_total + $ele_total + $additional_total, 2, '.', '');
                 $vat = $subtotal_all_cost * $region_cost_full_bill->vat_percentage / 100;
                 $sub_total_vat  = number_format($vat, 2, '.', '');
+                $grand_total = ($subtotal_all_cost + $subtotal_all_cost + $sub_total_vat + 0) - 10;
                 $response_fullbill['final_total'] = array(
                     'subtotal_of_all_cost' => $subtotal_all_cost,
                     'vat' => $sub_total_vat,
                     'total_including_vat' => $subtotal_all_cost + $sub_total_vat,
                     'rates' => 0, // get from customer input,
                     'rebate' => 0, // get from customer input
-                    'grand_total' => ($subtotal_all_cost + $subtotal_all_cost + $sub_total_vat + 0) - 10
-
+                    'grand_total' => number_format($grand_total, 2, '.', '')
                 );
-
                 if (isset($response_fullbill) && !empty($response_fullbill)) {
                     return response()->json(['status' => true, 'code' => 200, 'msg' => 'Full bill get successfully!', 'data' => $response_fullbill]);
                 } else {
@@ -1059,6 +1067,7 @@ class ApiController extends Controller
         $type_id = $meters->meter_type_id; // meter type = 1 - water, 2 - electricity
         $meter_id = $meters->id;
         $meter_number = $meters->meter_number;
+        $meter_title = $meters->meter_title;
         $account = Account::where('id', $accountID)->first();
 
         $region_cost = RegionsAccountTypeCost::where('region_id', $account->region_id)->where('account_type_id', $account->account_type_id)->first();
@@ -1084,7 +1093,7 @@ class ApiController extends Controller
 
             if (isset($common_additional) && !empty($common_additional)) {
                 foreach ($common_additional as $key => $value) {
-                    $data[] = array('title' => $value->name, 'cost' => $value->cost);
+                    $data[] = array('title' => $value->name, 'total' => $value->cost);
                 }
                 $region_cost->common_additional = $data;
             } else {
@@ -1255,8 +1264,10 @@ class ApiController extends Controller
                 $region_cost->projection = array_merge($water_in_project, $water_out_project, $waterin_additional, $waterout_additional, $vat);
                 $region_cost->daily_cost = number_format($region_cost->final_total / $month_day, 2, '.', '');
                 $region_cost->meter_number = $meter_number;
+                $region_cost->meter_title = $meter_title;
                 $region_cost->type = $type_id;
                 $region_cost->meter_id = $meter_id;
+                $region_cost->water_email = $region_cost->water_email;
                 unset(
                     $region_cost->water_in,
                     $region_cost->water_out,
@@ -1379,8 +1390,10 @@ class ApiController extends Controller
                 $region_cost->projection = array_merge($electricity_project, $electricity_additional, $vat);
                 $region_cost->daily_cost = number_format($region_cost->final_total / $month_day, 2, '.', '');
                 $region_cost->meter_number = $meter_number;
+                $region_cost->meter_title = $meter_title;
                 $region_cost->type = $type_id;
                 $region_cost->meter_id = $meter_id;
+                $region_cost->electricity_email = $region_cost->electricity_email;
                 unset(
                     $region_cost->water_in,
                     $region_cost->water_out,
