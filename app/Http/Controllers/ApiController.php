@@ -1018,7 +1018,7 @@ class ApiController extends Controller
                     $subtotal_all_cost = number_format($water_total + $ele_total + $additional_total, 2, '.', '');
                     $vat = $subtotal_all_cost * $region_cost_full_bill->vat_percentage / 100;
                     $sub_total_vat  = number_format($vat, 2, '.', '');
-                    $grand_total = ($subtotal_all_cost + $subtotal_all_cost + $sub_total_vat + $user_rates) - $user_rate_rebate;
+                    $grand_total = ($subtotal_all_cost + $sub_total_vat + $user_rates) - $user_rate_rebate;
                     $response_fullbill['final_total'] = array(
                         'subtotal_of_all_cost' => $subtotal_all_cost,
                         'vat' => $sub_total_vat,
