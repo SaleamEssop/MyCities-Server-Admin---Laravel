@@ -918,112 +918,136 @@ class ApiController extends Controller
         // if (!isset($postData['meter_id']) && empty($postData['meter_id'])) {
         //     return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, meter_id is required!']);
         // }
+        $account = Account::where('id', $postData['account_id'])->first();
+        $region_cost_full_bill = RegionsAccountTypeCost::where('region_id', $account->region_id)->where('account_type_id', $account->account_type_id)->first();
 
-        $meters = Meter::with('readings')->where('account_id', $postData['account_id'])->get();
-
-        foreach ($meters as $meter) {
-            $response[] = $this->getReadings($postData['account_id'], $meter);
+        if (empty($region_cost_full_bill)) {
+            
+            $response = [
+                'status' => false,
+                'code' => 400,
+                'msg' => 'In Account Please select region and account type',
+                'data' => []
+            ];
+            return $response;
+            //return response()->json(['status' => false, 'code' => 400, 'msg' => 'In Account Please select region and account type', 'data' => []]);
         }
+        $meters = Meter::with('readings')->where('account_id', $postData['account_id'])->get();
+        // echo "<pre>";
+        // print_r(count($meters));
+        // exit();
+        if (count($meters) > 0) {
+            foreach ($meters as $meter) {
+                $response[] = $this->getReadings($postData['account_id'], $meter);
+            }
 
-        if ($postData['type'] == "fullbill") {
-            if (isset($response) && !empty($response)) {
-                $account = Account::where('id', $postData['account_id'])->first();
+            if ($postData['type'] == "fullbill") {
+                if (isset($response) && !empty($response)) {
+                    $account = Account::where('id', $postData['account_id'])->first();
 
-                $region_cost_full_bill = RegionsAccountTypeCost::where('region_id', $account->region_id)->where('account_type_id', $account->account_type_id)->first();
-                $ele_total  = 0;
-                $water_total  = 0;
-                $additional_total  = 0;
-                $subtotal_all_cost = 0;
-                $grand_total = 0;
-                $default_fixed_cost = $this->getDefaultCostAccount($postData['account_id']);
-                $user_rate_rebate = 0;
-                $user_rates = 0;
+                    $region_cost_full_bill = RegionsAccountTypeCost::where('region_id', $account->region_id)->where('account_type_id', $account->account_type_id)->first();
+                    $ele_total  = 0;
+                    $water_total  = 0;
+                    $additional_total  = 0;
+                    $subtotal_all_cost = 0;
+                    $grand_total = 0;
+                    $default_fixed_cost = $this->getDefaultCostAccount($postData['account_id']);
+                    $user_rate_rebate = 0;
+                    $user_rates = 0;
 
-                $user_rate_rebate = isset($default_fixed_cost['rate_rebate']) ? $default_fixed_cost['rate_rebate'] : 0;
-                $user_rates = isset($default_fixed_cost['rates']) ? $default_fixed_cost['rates'] : 0;
-                // echo $user_rate_rebate;
-                // echo $user_rates;
+                    $user_rate_rebate = isset($default_fixed_cost['rate_rebate']) ? $default_fixed_cost['rate_rebate'] : 0;
+                    $user_rates = isset($default_fixed_cost['rates']) ? $default_fixed_cost['rates'] : 0;
+                    // echo $user_rate_rebate;
+                    // echo $user_rates;
 
-                $user_additional_cost = isset($default_fixed_cost['user_additional_cost']) ? $default_fixed_cost['user_additional_cost'] : [];
+                    $user_additional_cost = isset($default_fixed_cost['user_additional_cost']) ? $default_fixed_cost['user_additional_cost'] : [];
+                    //echo "<pre>";print_r($response);exit();
+                    foreach ($response as $key => $value) {
+                        $water_in_project = [];
+                        $water_out_project = [];
+                        $vat = [];
+                       // echo "<pre>";printf($value->type);
+                        if ($value->type == 1) {
+                            $water_fullbill[$value->meter_number]['type'] = $value->type;
+                            $water_fullbill[$value->meter_number]['usage'] = $value->usage;
+                            $water_fullbill[$value->meter_number]['meter_number'] = $value->meter_number;
+                            $water_fullbill[$value->meter_number]['meter_title'] = $value->meter_title;
+                            $water_fullbill[$value->meter_number]['water_email'] = $value->water_email;
 
-                foreach ($response as $key => $value) {
-                    $water_in_project = [];
-                    $water_out_project = [];
-                    $vat = [];
+                            $water_in_project[] = array(
+                                'title' => 'water In',
+                                'use' => $value->usage,
+                                'total' => isset($value->water_in_total) ? $value->water_in_total : 0
+                            );
+                            $water_out_project[] = array(
+                                'title' => 'water Out',
+                                'total' => isset($value->water_out_total) ? $value->water_out_total : 0
+                            );
+                            $waterin_additional = isset($value->waterin_additional) ? $value->waterin_additional : [];
+                            $waterout_additional = isset($value->waterout_additional) ? $value->waterout_additional : [];
 
-                    if ($value->type == 1) {
-                        $water_fullbill[$value->meter_number]['type'] = $value->type;
-                        $water_fullbill[$value->meter_number]['usage'] = $value->usage;
-                        $water_fullbill[$value->meter_number]['meter_number'] = $value->meter_number;
-                        $water_fullbill[$value->meter_number]['meter_title'] = $value->meter_title;
-                        $water_fullbill[$value->meter_number]['water_email'] = $value->water_email;
+                            $water_fullbill[$value->meter_number]['projection'] = array_merge($water_in_project, $water_out_project, $waterin_additional, $waterout_additional, $vat);
+                            $water_total += array_sum(array_column($water_fullbill[$value->meter_number]['projection'], 'total'));
+                            //$water_fullbill['water_total'] = $water_total;
+                        } elseif ($value->type == 2) {
+                            // electricity
+                            $electricity_fullbill[$value->meter_number]['type'] = $value->type;
+                            $electricity_fullbill[$value->meter_number]['usage'] = $value->usage;
+                            $electricity_fullbill[$value->meter_number]['meter_number'] = $value->meter_number;
+                            $electricity_fullbill[$value->meter_number]['meter_title'] = $value->meter_title;
+                            $electricity_fullbill[$value->meter_number]['electricity_email'] = $value->electricity_email;
+                            $ele[] = array(
+                                'title' => 'electricity',
+                                'use' => $value->usage,
+                                'total' => $value->electricity_total,
+                            );
+                            $electricity_additional = isset($value->electricity_additional) ? $value->electricity_additional : [];
 
-                        $water_in_project[] = array(
-                            'title' => 'water In',
-                            'use' => $value->usage,
-                            'total' => isset($value->water_in_total) ? $value->water_in_total : 0
-                        );
-                        $water_out_project[] = array(
-                            'title' => 'water Out',
-                            'total' => isset($value->water_out_total) ? $value->water_out_total : 0
-                        );
-                        $waterin_additional = isset($value->waterin_additional) ? $value->waterin_additional : [];
-                        $waterout_additional = isset($value->waterout_additional) ? $value->waterout_additional : [];
-
-                        $water_fullbill[$value->meter_number]['projection'] = array_merge($water_in_project, $water_out_project, $waterin_additional, $waterout_additional, $vat);
-                        $water_total += array_sum(array_column($water_fullbill[$value->meter_number]['projection'], 'total'));
-                        //$water_fullbill['water_total'] = $water_total;
+                            $electricity_fullbill[$value->meter_number]['projection'] = array_merge($ele, $electricity_additional);
+                            $ele_total += array_sum(array_column($electricity_fullbill[$value->meter_number]['projection'], 'total'));
+                        }
+                    }
+                    $use_plus_admin_additional_cost = array_merge($user_additional_cost, $value->common_additional);
+                    //echo "<pre>";print_r($use_plus_admin_additional_cost);exit();
+                    $additional_total += array_sum(array_column($use_plus_admin_additional_cost, 'total'));
+                    //  echo $additional_total;exit();
+                   
+                    $response_fullbill['water'] = $water_fullbill;
+                    $response_fullbill['electricity'] = $electricity_fullbill;
+                    $response_fullbill['additional'] = isset($use_plus_admin_additional_cost) ? $use_plus_admin_additional_cost : [];
+                    $subtotal_all_cost = number_format($water_total + $ele_total + $additional_total, 2, '.', '');
+                    $vat = $subtotal_all_cost * $region_cost_full_bill->vat_percentage / 100;
+                    $sub_total_vat  = number_format($vat, 2, '.', '');
+                    $grand_total = ($subtotal_all_cost + $subtotal_all_cost + $sub_total_vat + $user_rates) - $user_rate_rebate;
+                    $response_fullbill['final_total'] = array(
+                        'subtotal_of_all_cost' => $subtotal_all_cost,
+                        'vat' => $sub_total_vat,
+                        'total_including_vat' => $subtotal_all_cost + $sub_total_vat,
+                        'rates' => number_format($user_rates, 2, '.', ''), // get from customer input,
+                        'rebate' => number_format($user_rate_rebate, 2, '.', ''), // get from customer input
+                        'grand_total' => number_format($grand_total, 2, '.', '')
+                    );
+                    if (isset($response_fullbill) && !empty($response_fullbill)) {
+                        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Full bill get successfully!', 'data' => $response_fullbill]);
                     } else {
-                        // electricity
-                        $electricity_fullbill[$value->meter_number]['type'] = $value->type;
-                        $electricity_fullbill[$value->meter_number]['usage'] = $value->usage;
-                        $electricity_fullbill[$value->meter_number]['meter_number'] = $value->meter_number;
-                        $electricity_fullbill[$value->meter_number]['meter_title'] = $value->meter_title;
-                        $water_fullbill[$value->meter_number]['electricity_email'] = $value->electricity_email;
-                        $ele[] = array(
-                            'title' => 'electricity',
-                            'use' => $value->usage,
-                            'total' => $value->electricity_total,
-                        );
-                        $electricity_additional = isset($value->electricity_additional) ? $value->electricity_additional : [];
-
-                        $electricity_fullbill[$value->meter_number]['projection'] = array_merge($ele, $electricity_additional);
-                        $ele_total += array_sum(array_column($electricity_fullbill[$value->meter_number]['projection'], 'total'));
+                        return response()->json(['status' => false, 'code' => 400, 'msg' => 'Cost Not Found in Admin Side', 'data' => []]);
                     }
                 }
-                $use_plus_admin_additional_cost = array_merge($user_additional_cost, $value->common_additional);
-                //echo "<pre>";print_r($use_plus_admin_additional_cost);exit();
-                $additional_total += array_sum(array_column($use_plus_admin_additional_cost, 'total'));
-                //  echo $additional_total;exit();
-
-                $response_fullbill['water'] = $water_fullbill;
-                $response_fullbill['electricity'] = $electricity_fullbill;
-                $response_fullbill['additional'] = isset($use_plus_admin_additional_cost) ? $use_plus_admin_additional_cost : [];
-                $subtotal_all_cost = number_format($water_total + $ele_total + $additional_total, 2, '.', '');
-                $vat = $subtotal_all_cost * $region_cost_full_bill->vat_percentage / 100;
-                $sub_total_vat  = number_format($vat, 2, '.', '');
-                $grand_total = ($subtotal_all_cost + $subtotal_all_cost + $sub_total_vat + $user_rates) - $user_rate_rebate;
-                $response_fullbill['final_total'] = array(
-                    'subtotal_of_all_cost' => $subtotal_all_cost,
-                    'vat' => $sub_total_vat,
-                    'total_including_vat' => $subtotal_all_cost + $sub_total_vat,
-                    'rates' => number_format($user_rates, 2, '.', ''), // get from customer input,
-                    'rebate' => number_format($user_rate_rebate, 2, '.', ''), // get from customer input
-                    'grand_total' => number_format($grand_total, 2, '.', '')
-                );
-                if (isset($response_fullbill) && !empty($response_fullbill)) {
-                    return response()->json(['status' => true, 'code' => 200, 'msg' => 'Full bill get successfully!', 'data' => $response_fullbill]);
-                } else {
-                    return response()->json(['status' => false, 'code' => 400, 'msg' => 'Cost Not Found in Admin Side', 'data' => []]);
-                }
             }
-        }
 
-
-        if (isset($response) && !empty($response)) {
-            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meters retrieved successfully!', 'data' => $response]);
-        } else {
-            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Cost Not Found in Admin Side', 'data' => []]);
+            if (isset($response) && !empty($response)) {
+                return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meters retrieved successfully!', 'data' => $response]);
+            } else {
+                return response()->json(['status' => false, 'code' => 400, 'msg' => 'Cost Not Found in Admin Side', 'data' => []]);
+            }
+        }else{
+            $response = [
+                'status' => false,
+                'code' => 400,
+                'msg' => 'Please add meter in this account',
+                'data' => []
+            ];
+            return $response;
         }
     }
     public function getReadings($accountID, $meter)
@@ -1047,7 +1071,7 @@ class ApiController extends Controller
                     $firstReading = $reading_arr[0]['reading_value'] ?? null;
                     $endReadingDate = date('Y-m-d', strtotime($reading_arr[1]['date'])) ?? null;
                     $endReading = $reading_arr[1]['reading_value'] ?? null;
-                    
+
                     if (!empty($firstReadingDate) && !empty($firstReading) && !empty($endReadingDate) && !empty($endReading)) {
                         $time1 = strtotime($firstReadingDate);
                         $time2 = strtotime($endReadingDate);
