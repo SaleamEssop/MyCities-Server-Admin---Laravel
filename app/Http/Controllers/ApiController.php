@@ -1320,11 +1320,11 @@ class ApiController extends Controller
 
                 $water_in_project[] = array(
                     'title' => 'water In',
-                    'total' => $water_in_total
+                    'total' => number_format($water_in_total, 2, '.', '')
                 );
                 $water_out_project[] = array(
                     'title' => 'water Out',
-                    'total' => $water_out_total
+                    'total' => number_format($water_out_total, 2, '.', '')
                 );
                 $vat[] = array(
                     'title' => 'VAT',
@@ -1449,7 +1449,7 @@ class ApiController extends Controller
 
                 $electricity_project[] = array(
                     'title' => 'electricity',
-                    'total' => $electricity_total
+                    'total' => number_format($electricity_total, 2, '.', '')
                 );
 
                 $vat[] = array(
