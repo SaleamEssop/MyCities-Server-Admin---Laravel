@@ -1022,7 +1022,7 @@ class ApiController extends Controller
                     $response_fullbill['final_total'] = array(
                         'subtotal_of_all_cost' => $subtotal_all_cost,
                         'vat' => $sub_total_vat,
-                        'total_including_vat' => $subtotal_all_cost + $sub_total_vat,
+                        'total_including_vat' => number_format($subtotal_all_cost + $sub_total_vat, 2, '.', ''),
                         'rates' => number_format($user_rates, 2, '.', ''), // get from customer input,
                         'rebate' => number_format($user_rate_rebate, 2, '.', ''), // get from customer input
                         'grand_total' => number_format($grand_total, 2, '.', '')
