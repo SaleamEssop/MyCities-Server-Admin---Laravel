@@ -1054,7 +1054,7 @@ class ApiController extends Controller
     {
         if ($meter) {
             // water
-            // $metersReading = MeterReadings::where('meter_id', 252)->get();
+            // $metersReading = MeterReadings::where('meter_id', 255)->get();
             $metersReading = MeterReadings::where('meter_id', $meter->id)->get();
 
             if (isset($metersReading) && !empty($metersReading)) {
@@ -1133,7 +1133,12 @@ class ApiController extends Controller
     }
     public function getWaterBill($accountID, $reading, $meters, $daydiff)
     {
-
+        
+        if($reading > 0 && $daydiff > 0 ){
+            $reading = number_format($reading / $daydiff * 31, 2, '.', '');
+        }else{
+            $reading = $reading;
+        }
         $type_id = $meters->meter_type_id; // meter type = 1 - water, 2 - electricity
         $meter_id = $meters->id;
         $meter_number = $meters->meter_number;
@@ -1218,8 +1223,8 @@ class ApiController extends Controller
                                 } else {
                                     $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
                                 }
-                                $waterin_additional[$key]->total =  $cal_total;
-                                $waterin_additional_total += $cal_total;
+                                $waterin_additional[$key]->total =  number_format($cal_total, 2, '.', '');
+                                $waterin_additional_total += number_format($cal_total, 2, '.', '');
                             }
                             $region_cost->water_in_related_total = number_format($waterin_additional_total, 2, '.', '');
                             $region_cost->waterin_additional = $waterin_additional;
@@ -1277,8 +1282,8 @@ class ApiController extends Controller
                                 } else {
                                     $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
                                 }
-                                $waterout_additional[$key]->total =  $cal_total;
-                                $waterout_additional_total += $cal_total;
+                                $waterout_additional[$key]->total = number_format($cal_total, 2, '.', '');
+                                $waterout_additional_total += number_format($cal_total, 2, '.', '');
                             }
                             $region_cost->water_out_related_total = number_format($waterout_additional_total, 2, '.', '');
                             $region_cost->waterout_additional = $waterout_additional;
@@ -1328,7 +1333,7 @@ class ApiController extends Controller
                 );
                 $vat[] = array(
                     'title' => 'VAT',
-                    'total' => $region_cost->sub_total_vat
+                    'total' => number_format($region_cost->sub_total_vat, 2, '.', '')
                 );
 
                 $region_cost->projection = array_merge($water_in_project, $water_out_project, $waterin_additional, $waterout_additional, $vat);

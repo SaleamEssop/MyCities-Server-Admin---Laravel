@@ -428,6 +428,10 @@
                         <div class="form-group">
                             <input class="form-control allow_decimal" type="text" placeholder="VAT Rate" name="vat_rate" value="{{$region_cost->vat_rate ?? 0}}" required />
                         </div>
+                        <label><strong>Rates Rebate :</strong></label>
+                        <div class="form-group">
+                            <input class="form-control allow_decimal" type="text" placeholder="Rates Rebate" name="rates_rebate" value="{{$region_cost->rates_rebate ?? 0}}" />
+                        </div>
                         <label><strong>Final Total :</strong></label>
                         <div class="form-group">
                             <input class="form-control" type="text" placeholder="Final Total" name="final_total" value="{{$region_cost->final_total ?? 0}}" required disabled />

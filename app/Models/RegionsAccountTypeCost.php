@@ -28,6 +28,7 @@ class RegionsAccountTypeCost extends Model
         'vat_rate',
         'vat_percentage',
         'ratable_value',
+        'rates_rebate',
         'is_active',
         'billing_day',
         'read_day',

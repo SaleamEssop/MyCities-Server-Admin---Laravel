@@ -378,9 +378,13 @@
                             <input class="form-control allow_decimal" type="text" placeholder="Sub Total" name="sub_total" value="0" required disabled />
                         </div>
 
-                        <label><strong>Vat Rates :</strong></label>
+                        <label><strong>VAT:</strong></label>
                         <div class="form-group">
                             <input class="form-control allow_decimal" type="text" placeholder="VAT Rate" name="vat_rate" value="0" required />
+                        </div>
+                        <label><strong>Rates Rebate :</strong></label>
+                        <div class="form-group">
+                            <input class="form-control allow_decimal" type="text" placeholder="Rates Rebate" name="rates_rebate" value="0" />
                         </div>
                         <label><strong>Final Total :</strong></label>
                         <div class="form-group">
