@@ -516,15 +516,15 @@
                 ?>;
         var e = <?php
                 if (isset($region_cost->electricity)) {
-                    echo count(json_decode($region_cost->electricity));
+                    echo count(json_decode($region_cost->electricity,true));
                 } else {
                     echo 0;
                 }
                 ?>;
         var a = <?php
-
-                if (isset($region_cost->additional)) {
-                    echo count(json_decode($region_cost->additional));
+        
+                if (isset($region_cost->additional) && !empty($region_cost->additional)) {
+                    echo count(json_decode($region_cost->additional,true));
                 } else {
                     echo 0;
                 }
