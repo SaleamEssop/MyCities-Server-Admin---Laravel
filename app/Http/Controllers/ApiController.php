@@ -922,7 +922,7 @@ class ApiController extends Controller
         $region_cost_full_bill = RegionsAccountTypeCost::where('region_id', $account->region_id)->where('account_type_id', $account->account_type_id)->first();
 
         if (empty($region_cost_full_bill)) {
-            
+
             $response = [
                 'status' => false,
                 'code' => 400,
@@ -966,7 +966,7 @@ class ApiController extends Controller
                         $water_in_project = [];
                         $water_out_project = [];
                         $vat = [];
-                       // echo "<pre>";printf($value->type);
+                        // echo "<pre>";printf($value->type);
                         if ($value->type == 1) {
                             $water_fullbill[$value->meter_number]['type'] = $value->type;
                             $water_fullbill[$value->meter_number]['usage'] = $value->usage;
@@ -1011,7 +1011,7 @@ class ApiController extends Controller
                     //echo "<pre>";print_r($use_plus_admin_additional_cost);exit();
                     $additional_total += array_sum(array_column($use_plus_admin_additional_cost, 'total'));
                     //  echo $additional_total;exit();
-                   
+
                     $response_fullbill['water'] = $water_fullbill;
                     $response_fullbill['electricity'] = $electricity_fullbill;
                     $response_fullbill['additional'] = isset($use_plus_admin_additional_cost) ? $use_plus_admin_additional_cost : [];
@@ -1040,7 +1040,7 @@ class ApiController extends Controller
             } else {
                 return response()->json(['status' => false, 'code' => 400, 'msg' => 'Cost Not Found in Admin Side', 'data' => []]);
             }
-        }else{
+        } else {
             $response = [
                 'status' => false,
                 'code' => 400,
@@ -1133,10 +1133,10 @@ class ApiController extends Controller
     }
     public function getWaterBill($accountID, $reading, $meters, $daydiff)
     {
-        
-        if($reading > 0 && $daydiff > 0 ){
+
+        if ($reading > 0 && $daydiff > 0) {
             $reading = number_format($reading / $daydiff * 31, 2, '.', '');
-        }else{
+        } else {
             $reading = $reading;
         }
         $type_id = $meters->meter_type_id; // meter type = 1 - water, 2 - electricity
@@ -1221,7 +1221,7 @@ class ApiController extends Controller
                                 if ($value->percentage == null) {
                                     $cal_total = $value->cost;
                                 } else {
-                                    $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                                    $cal_total = $reading * $value->percentage / 100 * $value->cost;
                                 }
                                 $waterin_additional[$key]->total =  number_format($cal_total, 2, '.', '');
                                 $waterin_additional_total += number_format($cal_total, 2, '.', '');
@@ -1232,11 +1232,11 @@ class ApiController extends Controller
                         }
                     }
                     // echo "<pre>";print_r($waterin_additional_total);exit();
-
+                    
                     //water out logic
                     if (!empty($region_cost->water_out)) {
                         $water_out = json_decode($region_cost->water_out);
-                        $water_out_remaning = $region_cost->water_used;
+                        $water_out_remaning = $reading;//$region_cost->water_used;
                         if (isset($water_out) && !empty($water_out)) {
                             foreach ($water_out as $key => $value) {
                                 $minmax = $value->max - $value->min;
@@ -1280,7 +1280,7 @@ class ApiController extends Controller
                                 if ($value->percentage == null) {
                                     $cal_total = $value->cost;
                                 } else {
-                                    $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
+                                    $cal_total = $reading * $value->percentage / 100 * $value->cost;
                                 }
                                 $waterout_additional[$key]->total = number_format($cal_total, 2, '.', '');
                                 $waterout_additional_total += number_format($cal_total, 2, '.', '');
@@ -1493,5 +1493,57 @@ class ApiController extends Controller
         } else {
             return 0;
         }
+    }
+    public function getAdditionalCost(Request $request)
+    {
+
+        $postData = $request->post();
+
+        // if (!isset($postData['account_id']) && empty($postData['account_id'])) {
+        //     return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
+        // }
+        // if (!isset($postData['region_id']) && empty($postData['region_id'])) {
+        //     return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, region_id is required!']);
+        // }
+        // if (!isset($postData['account_type_id']) && empty($postData['account_type_id'])) {
+        //     return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_type_id is required!']);
+        // }
+        $fixedCosts = FixedCost::select('title as name', 'value as cost', 'is_active')->where('account_id', $postData['account_id'])->get()->toArray();
+        $region_cost = RegionsAccountTypeCost::select('additional')->where('region_id', $postData['region_id'])->where('account_type_id', $postData['account_type_id'])->first()->toArray();
+        $additional_arr = json_decode($region_cost['additional'],true);
+      //  echo "<pre>";print_r($additional_arr);exit();
+        $arr = array_merge($fixedCosts,$additional_arr);
+        // echo "<pre>";print_r($arr);exit();
+        // if(isset($fixedCosts) && !empty($fixedCosts)){
+        //     foreach ($fixedCosts as $key => $value) {
+
+                
+        //         foreach ($additional_arr as $key1 => $value1) {
+        //            // echo "<pre>";print_r($value1);exit();
+        //            if(in_array( $value['name'] ,$yourarray ) )
+        //            {
+        //                echo "has bla";
+        //            }
+        //         }
+        //     }
+        // }
+        // exit();
+        //echo "<pre>";print_r($additional_arr);exit();
+        $arr = array_merge($fixedCosts,$additional_arr);
+        
+        return response()->json($arr);
+       //if (isset($fixedCosts) && !empty($fixedCosts)) {
+            //return response()->json($fixedCosts);
+       
+            
+            // if (isset($region_cost->additional) && !empty($region_cost->additional)) {
+            //     $additional_arr = json_decode($region_cost->additional);
+
+            //     return response()->json($additional_arr);
+            // } else {
+            //     return response()->json(['status' => false, 'code' => 400, 'msg' => 'Not Found additional cost in Admin Side', 'data' => []]);
+            // }
+            
+       // }
     }
 }
