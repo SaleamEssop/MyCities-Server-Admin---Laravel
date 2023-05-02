@@ -289,6 +289,9 @@ class ApiController extends Controller
         $account->account_type_id = $postData['account_type_id'] ?? null;
         $account->water_email = $postData['water_email'] ?? null;
         $account->electricity_email = $postData['electricity_email'] ?? null;
+        $account->bill_day = $postData['bill_day'] ?? null;
+        $account->read_day = $postData['read_day'] ?? null;
+        $account->bill_read_day_active = $postData['bill_read_day_active'] ?? null;
         if (!empty($postData['billing_date']))
             $account->billing_date = $postData['billing_date'];
 
@@ -299,26 +302,32 @@ class ApiController extends Controller
                 foreach ($removedCostIDs as $removedCostID)
                     FixedCost::where('id', $removedCostID)->delete();
             }
-
+            
             // Check if user has provided fixed-costs or not
             if (!empty($postData['fixed_cost'])) {
+                FixedCost::where('account_id', $account->id)->delete();
                 foreach ($postData['fixed_cost'] as $fixedCost) {
-
                     $fixedCostArr = array(
                         'account_id' => $account->id,
                         'title' => $fixedCost['name'],
-                        'value' => $fixedCost['value'],
-                        'added_by' => $postData['user_id'],
+                        'value' => $fixedCost['cost'],
+                       // 'added_by' => $postData['user_id'],
                         'created_at' => date("Y-m-d H:i:s")
                     );
-                    if (isset($fixedCost['is_active']))
-                        $fixedCostArr['is_active'] = $fixedCost['is_active'];
+                    if(isset($fixedCost['isApplicable']) && $fixedCost['isApplicable'] == true ){
+                        $fixedCostArr['is_active'] = 1;
+                    }else{
+                        $fixedCostArr['is_active'] = 0;
+                    }
+                    // if (isset($fixedCost['is_active']))
+                    //     $fixedCostArr['is_active'] = $fixedCost['is_active'];
 
                     if (!empty($fixedCost['id']))
                         FixedCost::where('id', $fixedCost['id'])->update($fixedCostArr);
                     else
                         FixedCost::create($fixedCostArr);
                 }
+               // exit();
             }
             // Check if there are any default fixed costs
             if (!empty($postData['default_fixed_cost'])) {
@@ -1232,11 +1241,11 @@ class ApiController extends Controller
                         }
                     }
                     // echo "<pre>";print_r($waterin_additional_total);exit();
-                    
+
                     //water out logic
                     if (!empty($region_cost->water_out)) {
                         $water_out = json_decode($region_cost->water_out);
-                        $water_out_remaning = $reading;//$region_cost->water_used;
+                        $water_out_remaning = $reading; //$region_cost->water_used;
                         if (isset($water_out) && !empty($water_out)) {
                             foreach ($water_out as $key => $value) {
                                 $minmax = $value->max - $value->min;
@@ -1509,41 +1518,43 @@ class ApiController extends Controller
         //     return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_type_id is required!']);
         // }
         $fixedCosts = FixedCost::select('title as name', 'value as cost', 'is_active')->where('account_id', $postData['account_id'])->get()->toArray();
-        $region_cost = RegionsAccountTypeCost::select('additional')->where('region_id', $postData['region_id'])->where('account_type_id', $postData['account_type_id'])->first()->toArray();
-        $additional_arr = json_decode($region_cost['additional'],true);
-      //  echo "<pre>";print_r($additional_arr);exit();
-        $arr = array_merge($fixedCosts,$additional_arr);
-        // echo "<pre>";print_r($arr);exit();
-        // if(isset($fixedCosts) && !empty($fixedCosts)){
-        //     foreach ($fixedCosts as $key => $value) {
+        $region_cost = RegionsAccountTypeCost::select('additional')->where('region_id', $postData['region_id'])->where('account_type_id', $postData['account_type_id'])->first();
+       // echo "<pre>";print_r($region_cost);exit();
+        $additional_arr = json_decode($region_cost['additional'], true);
+        if (isset($fixedCosts) && !empty($fixedCosts)) {
+            // after first time save
+            $result = array_udiff(
+                $additional_arr,
+                $fixedCosts,
+                fn ($a, $b) => ($a['name'] ?? $a['name']) <=> ($b['name'] ?? $b['name'])
+            );
+            $array_merged = array_merge($fixedCosts, $result);
+            if(isset($array_merged) && !empty($array_merged)){
+                foreach ($array_merged as $key => $value) {
+                    if($value['is_active'] == 1){
+                        $array_merged[$key]['isApplicable'] = true;
+                    }else{
+                        $array_merged[$key]['isApplicable'] = false;
+                    }
+                }
+            }
+            return response()->json($array_merged);
+        }else{
+            // intial stage
+            return response()->json($additional_arr);
+        }
+    }
+    public function getBillday(Request $request)
+    {
 
-                
-        //         foreach ($additional_arr as $key1 => $value1) {
-        //            // echo "<pre>";print_r($value1);exit();
-        //            if(in_array( $value['name'] ,$yourarray ) )
-        //            {
-        //                echo "has bla";
-        //            }
-        //         }
-        //     }
-        // }
-        // exit();
-        //echo "<pre>";print_r($additional_arr);exit();
-        $arr = array_merge($fixedCosts,$additional_arr);
+        $postData = $request->post();
+        $acc = Account::where('id',$postData['account_id'])->first();
+        if($acc->bill_read_day_active == 0){
+            $acc->bill_read_day_active = false;
+        }else{
+            $acc->bill_read_day_active = true;
+        }
         
-        return response()->json($arr);
-       //if (isset($fixedCosts) && !empty($fixedCosts)) {
-            //return response()->json($fixedCosts);
-       
-            
-            // if (isset($region_cost->additional) && !empty($region_cost->additional)) {
-            //     $additional_arr = json_decode($region_cost->additional);
-
-            //     return response()->json($additional_arr);
-            // } else {
-            //     return response()->json(['status' => false, 'code' => 400, 'msg' => 'Not Found additional cost in Admin Side', 'data' => []]);
-            // }
-            
-       // }
+        return response()->json($acc);
     }
 }

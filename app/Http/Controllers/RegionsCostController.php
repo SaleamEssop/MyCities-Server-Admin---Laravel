@@ -113,7 +113,7 @@ class RegionsCostController extends Controller
         $region_cost = RegionsAccountTypeCost::find($id);
         // get calculation
         $region_cost =  $this->calculateWaterBilling($region_cost);
-        //  echo "<pre>";print_r($region_cost);exit();
+         // echo "<pre>";print_r(json_decode($region_cost->additional,true));exit();
         $regions = Regions::all();
         $account_type = AccountType::all();
         return view('admin.region_cost.edit', compact('region_cost', 'regions', 'account_type'));
