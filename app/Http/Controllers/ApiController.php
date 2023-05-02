@@ -176,6 +176,9 @@ class ApiController extends Controller
         $accArr['electricity_email'] = $postData['electricity_email'] ?? null;
         $accArr['billing_date'] = $postData['billing_date'] ?? null;
         $accArr['optional_information'] = $postData['optional_information'] ?? null;
+        $accArr['bill_day'] = $postData['bill_day'] ?? null;
+        $accArr['read_day'] = $postData['read_day'] ?? null;
+        $accArr['bill_read_day_active'] = $postData['bill_read_day_active'] ?? null;
 
         $res = Account::create($accArr);
         if ($res) {
@@ -302,7 +305,7 @@ class ApiController extends Controller
                 foreach ($removedCostIDs as $removedCostID)
                     FixedCost::where('id', $removedCostID)->delete();
             }
-            
+
             // Check if user has provided fixed-costs or not
             if (!empty($postData['fixed_cost'])) {
                 FixedCost::where('account_id', $account->id)->delete();
@@ -311,12 +314,12 @@ class ApiController extends Controller
                         'account_id' => $account->id,
                         'title' => $fixedCost['name'],
                         'value' => $fixedCost['cost'],
-                       // 'added_by' => $postData['user_id'],
+                        // 'added_by' => $postData['user_id'],
                         'created_at' => date("Y-m-d H:i:s")
                     );
-                    if(isset($fixedCost['isApplicable']) && $fixedCost['isApplicable'] == true ){
+                    if (isset($fixedCost['isApplicable']) && $fixedCost['isApplicable'] == true) {
                         $fixedCostArr['is_active'] = 1;
-                    }else{
+                    } else {
                         $fixedCostArr['is_active'] = 0;
                     }
                     // if (isset($fixedCost['is_active']))
@@ -327,7 +330,7 @@ class ApiController extends Controller
                     else
                         FixedCost::create($fixedCostArr);
                 }
-               // exit();
+                // exit();
             }
             // Check if there are any default fixed costs
             if (!empty($postData['default_fixed_cost'])) {
@@ -1519,7 +1522,7 @@ class ApiController extends Controller
         // }
         $fixedCosts = FixedCost::select('title as name', 'value as cost', 'is_active')->where('account_id', $postData['account_id'])->get()->toArray();
         $region_cost = RegionsAccountTypeCost::select('additional')->where('region_id', $postData['region_id'])->where('account_type_id', $postData['account_type_id'])->first();
-       // echo "<pre>";print_r($region_cost);exit();
+        // echo "<pre>";print_r($region_cost);exit();
         $additional_arr = json_decode($region_cost['additional'], true);
         if (isset($fixedCosts) && !empty($fixedCosts)) {
             // after first time save
@@ -1529,18 +1532,22 @@ class ApiController extends Controller
                 fn ($a, $b) => ($a['name'] ?? $a['name']) <=> ($b['name'] ?? $b['name'])
             );
             $array_merged = array_merge($fixedCosts, $result);
-            if(isset($array_merged) && !empty($array_merged)){
+            if (isset($array_merged) && !empty($array_merged)) {
                 foreach ($array_merged as $key => $value) {
-                    if($value['is_active'] == 1){
+                    if (isset($value['is_active']) && $value['is_active'] == 1) {
                         $array_merged[$key]['isApplicable'] = true;
-                    }else{
+                    } else {
                         $array_merged[$key]['isApplicable'] = false;
                     }
                 }
             }
             return response()->json($array_merged);
-        }else{
-            // intial stage
+        } else {
+            if (isset($additional_arr) && !empty($additional_arr)) {
+                foreach ($additional_arr as $key => $value) {
+                    $additional_arr[$key]['isApplicable'] = true;
+                }
+            }
             return response()->json($additional_arr);
         }
     }
@@ -1548,13 +1555,13 @@ class ApiController extends Controller
     {
 
         $postData = $request->post();
-        $acc = Account::where('id',$postData['account_id'])->first();
-        if($acc->bill_read_day_active == 0){
+        $acc = Account::where('id', $postData['account_id'])->first();
+        if ($acc->bill_read_day_active == 0) {
             $acc->bill_read_day_active = false;
-        }else{
+        } else {
             $acc->bill_read_day_active = true;
         }
-        
+
         return response()->json($acc);
     }
 }
