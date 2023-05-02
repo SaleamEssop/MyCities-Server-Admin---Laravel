@@ -1019,7 +1019,13 @@ class ApiController extends Controller
                             $ele_total += array_sum(array_column($electricity_fullbill[$value->meter_number]['projection'], 'total'));
                         }
                     }
-                    $use_plus_admin_additional_cost = array_merge($user_additional_cost, $value->common_additional);
+                    $user_additional_cost = FixedCost::select('title', 'value as total')->where('account_id', $postData['account_id'])->get()->toArray();
+                    if (isset($user_additional_cost) && !empty($user_additional_cost)) {
+                        $use_plus_admin_additional_cost = $user_additional_cost;
+                    } else {
+                        $use_plus_admin_additional_cost = array_merge($user_additional_cost, $value->common_additional);
+                    }
+                    // $use_plus_admin_additional_cost = $user_additional_cost;//array_merge($user_additional_cost, $value->common_additional);
                     //echo "<pre>";print_r($use_plus_admin_additional_cost);exit();
                     $additional_total += array_sum(array_column($use_plus_admin_additional_cost, 'total'));
                     //  echo $additional_total;exit();
