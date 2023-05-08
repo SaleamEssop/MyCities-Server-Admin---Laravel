@@ -124,16 +124,16 @@ class ApiController extends Controller
         if (empty($postData['site_id'])) {
             // No site_id has passed, so this must be the new site case
             // Check for required params in case of adding new site
-            $requiredFields = ['user_id', 'title', 'lat', 'lng', 'address'];
+            $requiredFields = ['user_id', 'address'];
             $validated = validateData($requiredFields, $postData);
             if (!$validated['status'])
                 return response()->json(['status' => false, 'code' => 400, 'msg' => 'Site creation error: ' . $validated['error']]);
 
             $siteArr = array(
                 'user_id' => $postData['user_id'],
-                'title' => $postData['title'],
-                'lat' => $postData['lat'],
-                'lng' => $postData['lng'],
+                'title' => $postData['title'] ?? "",
+                'lat' => $postData['lat'] ?? "",
+                'lng' => $postData['lng'] ?? "",
                 'address' => $postData['address'],
             );
 
