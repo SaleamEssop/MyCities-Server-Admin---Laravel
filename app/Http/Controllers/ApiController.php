@@ -1528,34 +1528,39 @@ class ApiController extends Controller
         // }
         $fixedCosts = FixedCost::select('title as name', 'value as cost', 'is_active')->where('account_id', $postData['account_id'])->get()->toArray();
         $region_cost = RegionsAccountTypeCost::select('additional')->where('region_id', $postData['region_id'])->where('account_type_id', $postData['account_type_id'])->first();
-        // echo "<pre>";print_r($region_cost);exit();
-        $additional_arr = json_decode($region_cost['additional'], true);
-        if (isset($fixedCosts) && !empty($fixedCosts)) {
-            // after first time save
-            $result = array_udiff(
-                $additional_arr,
-                $fixedCosts,
-                fn ($a, $b) => ($a['name'] ?? $a['name']) <=> ($b['name'] ?? $b['name'])
-            );
-            $array_merged = array_merge($fixedCosts, $result);
-            if (isset($array_merged) && !empty($array_merged)) {
-                foreach ($array_merged as $key => $value) {
-                    if (isset($value['is_active']) && $value['is_active'] == 1) {
-                        $array_merged[$key]['isApplicable'] = true;
-                    } else {
-                        $array_merged[$key]['isApplicable'] = false;
+        if (isset($region_cost['additional']) && !empty($region_cost['additional'])) {
+            $additional_arr = json_decode($region_cost['additional'], true);
+            if (isset($fixedCosts) && !empty($fixedCosts)) {
+                // after first time save
+                $result = array_udiff(
+                    $additional_arr,
+                    $fixedCosts,
+                    fn ($a, $b) => ($a['name'] ?? $a['name']) <=> ($b['name'] ?? $b['name'])
+                );
+                $array_merged = array_merge($fixedCosts, $result);
+                if (isset($array_merged) && !empty($array_merged)) {
+                    foreach ($array_merged as $key => $value) {
+                        if (isset($value['is_active']) && $value['is_active'] == 1) {
+                            $array_merged[$key]['isApplicable'] = true;
+                        } else {
+                            $array_merged[$key]['isApplicable'] = false;
+                        }
                     }
                 }
-            }
-            return response()->json($array_merged);
-        } else {
-            if (isset($additional_arr) && !empty($additional_arr)) {
-                foreach ($additional_arr as $key => $value) {
-                    $additional_arr[$key]['isApplicable'] = true;
+                return response()->json($array_merged);
+            } else {
+                if (isset($additional_arr) && !empty($additional_arr)) {
+                    foreach ($additional_arr as $key => $value) {
+                        $additional_arr[$key]['isApplicable'] = true;
+                    }
                 }
+                return response()->json($additional_arr);
             }
-            return response()->json($additional_arr);
+        }else{
+            return response()->json([]);
         }
+        // echo "<pre>";print_r($region_cost);exit();
+
     }
     public function getBillday(Request $request)
     {
