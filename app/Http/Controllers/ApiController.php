@@ -96,14 +96,14 @@ class ApiController extends Controller
 
     public function deleteSite(Request $request)
     {
-
         $postData = $request->post();
         if (empty($postData['location_id']))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, location_id is required!']);
 
         DB::beginTransaction();
         try {
-            $result = Site::where('id', $postData['location_id'])->first()->delete();
+            $result = Site::where('id', $postData['location_id'])->delete();
+            $result1 = Account::where('site_id', $postData['location_id'])->delete();
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
