@@ -55,11 +55,11 @@
                         <label><strong>Applicable End Date :</strong></label>
                         <input class="form-control" type="date" placeholder="End Date" name="end_date" value="{{$region_cost->end_date}}" required />
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="display:none;">
                         <label><strong>Water Email :</strong></label>
                         <input class="form-control water_email" type="email" placeholder="Water Email" name="water_email" value="{{$region_cost->water_email}}" required />
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="display:none;">
                         <label><strong>Electricity Email :</strong></label>
                         <input class="form-control electricity_email" type="email" placeholder="Electricity Email" name="electricity_email" value="{{$region_cost->electricity_email}}" required />
                     </div>

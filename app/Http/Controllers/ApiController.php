@@ -1438,8 +1438,8 @@ class ApiController extends Controller
                                 } else {
                                     $cal_total = $region_cost->electricity_used * $value->percentage / 100 * $value->cost;
                                 }
-                                $electricity_additional[$key]->total =  $cal_total;
-                                $electricity_additional_total += $cal_total;
+                                $electricity_additional[$key]->total =  number_format($cal_total, 2, '.', '');
+                                $electricity_additional_total +=number_format($cal_total, 2, '.', '');
                             }
                             $region_cost->electricity_related_total = number_format($electricity_additional_total, 2, '.', '');
                             $region_cost->electricity_additional = $electricity_additional;
@@ -1449,7 +1449,6 @@ class ApiController extends Controller
                 }
 
                 $additional = json_decode($region_cost->additional);
-                // echo "<pre>";print_r($region_cost);exit();
                 $sub_total = $electricity_total  + $electricity_additional_total;
                 if (isset($additional) && !empty($additional)) {
                     foreach ($additional as $key => $value) {
