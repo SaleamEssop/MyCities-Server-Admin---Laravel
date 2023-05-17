@@ -944,7 +944,12 @@ class ApiController extends Controller
             return $response;
             //return response()->json(['status' => false, 'code' => 400, 'msg' => 'In Account Please select region and account type', 'data' => []]);
         }
-        $meters = Meter::with('readings')->where('account_id', $postData['account_id'])->get();
+        if(isset($postData['meter_id']) && !empty($postData['meter_id'])){
+            $meters = Meter::with('readings')->where('id', $postData['meter_id'])->get();
+        }else{
+            $meters = Meter::with('readings')->where('account_id', $postData['account_id'])->get();
+        }
+        
         // echo "<pre>";
         // print_r(count($meters));
         // exit();
@@ -952,7 +957,6 @@ class ApiController extends Controller
             foreach ($meters as $meter) {
                 $response[] = $this->getReadings($postData['account_id'], $meter);
             }
-
             if ($postData['type'] == "fullbill") {
                 if (isset($response) && !empty($response)) {
                     $account = Account::where('id', $postData['account_id'])->first();
@@ -979,7 +983,7 @@ class ApiController extends Controller
                         $water_out_project = [];
                         $vat = [];
                         // echo "<pre>";printf($value->type);
-                        if ($value->type == 1) {
+                        if (isset($value->type) && $value->type == 1) {
                             $water_fullbill[$value->meter_number]['type'] = $value->type;
                             $water_fullbill[$value->meter_number]['usage'] = $value->usage;
                             $water_fullbill[$value->meter_number]['meter_number'] = $value->meter_number;
@@ -1001,7 +1005,7 @@ class ApiController extends Controller
                             $water_fullbill[$value->meter_number]['projection'] = array_merge($water_in_project, $water_out_project, $waterin_additional, $waterout_additional, $vat);
                             $water_total += array_sum(array_column($water_fullbill[$value->meter_number]['projection'], 'total'));
                             //$water_fullbill['water_total'] = $water_total;
-                        } elseif ($value->type == 2) {
+                        } elseif (isset($value->type) && $value->type == 2) {
                             // electricity
                             $electricity_fullbill[$value->meter_number]['type'] = $value->type;
                             $electricity_fullbill[$value->meter_number]['usage'] = $value->usage;
@@ -1051,6 +1055,11 @@ class ApiController extends Controller
                         return response()->json(['status' => false, 'code' => 400, 'msg' => 'Cost Not Found in Admin Side', 'data' => []]);
                     }
                 }
+            }
+            if ((isset($response) && !empty($response)) && !empty($postData['meter_id'])) {
+                return response()->json($response);
+            } else {
+                return response()->json(['status' => false, 'code' => 400, 'msg' => 'Cost Not Found in Admin Side', 'data' => []]);
             }
 
             if (isset($response) && !empty($response)) {
