@@ -840,9 +840,9 @@ class ApiController extends Controller
 
         $postData = $request->post();
         if (!empty($postData['category_id']))
-            $categories = AdsCategory::with('ads')->where('id', $postData['category_id'])->get();
+            $categories = AdsCategory::with(['ads', 'childs'])->where('id', $postData['category_id'])->get();
         else
-            $categories = AdsCategory::with('ads')->get();
+            $categories = AdsCategory::with(['ads', 'childs'])->get();
 
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Ads categories retrieved successfully!', 'data' => $categories]);
     }

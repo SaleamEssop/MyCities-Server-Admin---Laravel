@@ -15,4 +15,8 @@ class AdsCategory extends Model
     {
         return $this->hasMany(Ads::class)->orderByRaw('ISNULL(priority), priority ASC');
     }
+    public function childs() {
+        return $this->hasMany(self::class,'parent_id','id');
+    }
+   
 }
