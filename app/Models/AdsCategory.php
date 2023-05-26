@@ -9,7 +9,7 @@ class AdsCategory extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name','parent_id'];
 
     public function ads()
     {
