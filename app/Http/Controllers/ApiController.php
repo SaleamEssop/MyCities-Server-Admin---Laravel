@@ -944,18 +944,18 @@ class ApiController extends Controller
             return $response;
             //return response()->json(['status' => false, 'code' => 400, 'msg' => 'In Account Please select region and account type', 'data' => []]);
         }
-        if(isset($postData['meter_id']) && !empty($postData['meter_id'])){
+        if (isset($postData['meter_id']) && !empty($postData['meter_id'])) {
             $meters = Meter::with('readings')->where('id', $postData['meter_id'])->get();
-        }else{
+        } else {
             $meters = Meter::with('readings')->where('account_id', $postData['account_id'])->get();
         }
-        
+
         // echo "<pre>";
         // print_r(count($meters));
         // exit();
         if (count($meters) > 0) {
             foreach ($meters as $meter) {
-                $response[] = $this->getReadings($postData['account_id'], $meter);
+                $response[] = $this->getReadings($postData['account_id'], $meter, $postData['type']);
             }
             if ($postData['type'] == "fullbill") {
                 if (isset($response) && !empty($response)) {
@@ -1077,8 +1077,9 @@ class ApiController extends Controller
             return $response;
         }
     }
-    public function getReadings($accountID, $meter)
+    public function getReadings($accountID, $meter, $bill_type)
     {
+
         if ($meter) {
             // water
             // $metersReading = MeterReadings::where('meter_id', 255)->get();
@@ -1115,7 +1116,7 @@ class ApiController extends Controller
 
                         // previous reading and last reading same then error
                         if (isset($final_reading) && !empty($final_reading)) {
-                            $response = $this->getWaterBill($accountID, $final_reading, $meter, $daydiff);
+                            $response = $this->getWaterBill($accountID, $final_reading, $meter, $daydiff, $bill_type);
                             // echo "<pre>";print_r($response);exit();
                             if (isset($response) && !empty($response)) {
                                 $response->firstReadingDate = date('d F Y', strtotime($firstReadingDate)) ?? null;
@@ -1158,7 +1159,7 @@ class ApiController extends Controller
             }
         }
     }
-    public function getWaterBill($accountID, $reading, $meters, $daydiff)
+    public function getWaterBill($accountID, $reading, $meters, $daydiff, $bill_type)
     {
 
         if ($reading > 0 && $daydiff > 0) {
@@ -1322,12 +1323,16 @@ class ApiController extends Controller
                 $additional = json_decode($region_cost->additional);
 
                 $sub_total = $water_in_total + $water_out_total + $electricity_total + $waterin_additional_total + $waterout_additional_total + $electricity_additional_total;
-                if (isset($additional) && !empty($additional)) {
-                    foreach ($additional as $key => $value) {
-                        if ($value->cost >= 0) {
-                            $sub_total += $value->cost;
-                        } else {
-                            $rebate += $value->cost;
+               
+                if ($bill_type == "fullbill") {
+
+                    if (isset($additional) && !empty($additional)) {
+                        foreach ($additional as $key => $value) {
+                            if ($value->cost >= 0) {
+                                $sub_total += $value->cost;
+                            } else {
+                                $rebate += $value->cost;
+                            }
                         }
                     }
                 }
@@ -1342,7 +1347,7 @@ class ApiController extends Controller
                 $subtotal_final = $sub_total - abs($rebate);
 
                 $region_cost->sub_total = number_format($subtotal_final, 2, '.', '');
-
+                
                 $sub_total_vat = $subtotal_final * $region_cost->vat_percentage / 100;
                 $region_cost->sub_total_vat = number_format($sub_total_vat, 2, '.', '');
 
@@ -1358,6 +1363,7 @@ class ApiController extends Controller
                     'title' => 'water Out',
                     'total' => number_format($water_out_total, 2, '.', '')
                 );
+
                 $vat[] = array(
                     'title' => 'VAT',
                     'total' => number_format($region_cost->sub_total_vat, 2, '.', '')
@@ -1439,7 +1445,7 @@ class ApiController extends Controller
                                     $cal_total = $region_cost->electricity_used * $value->percentage / 100 * $value->cost;
                                 }
                                 $electricity_additional[$key]->total =  number_format($cal_total, 2, '.', '');
-                                $electricity_additional_total +=number_format($cal_total, 2, '.', '');
+                                $electricity_additional_total += number_format($cal_total, 2, '.', '');
                             }
                             $region_cost->electricity_related_total = number_format($electricity_additional_total, 2, '.', '');
                             $region_cost->electricity_additional = $electricity_additional;
@@ -1564,7 +1570,7 @@ class ApiController extends Controller
                 }
                 return response()->json($additional_arr);
             }
-        }else{
+        } else {
             return response()->json([]);
         }
         // echo "<pre>";print_r($region_cost);exit();
