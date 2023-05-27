@@ -462,7 +462,7 @@ class AdminController extends Controller
 
     public function editAd(Request $request)
     {
-        $postData = $request->post();
+        $postData = $request->post();      
         if (empty($postData['ad_id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, ad ID is required.');
@@ -489,7 +489,7 @@ class AdminController extends Controller
 
         if (!empty($path))
             $ad->image = $path;
-
+           
         if ($ad->save()) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Ad updated successfully!');
