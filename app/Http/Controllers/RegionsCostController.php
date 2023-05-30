@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\RegionsAccountTypeCost;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class RegionsCostController extends Controller
 {
@@ -76,6 +77,7 @@ class RegionsCostController extends Controller
         } else {
             $rates_rebate = '-0';
         }
+    
         $costs = array(
             'template_name' => $request['template_name'],
             'region_id' => $request['region_id'],
@@ -151,6 +153,16 @@ class RegionsCostController extends Controller
             }
         } else {
             $rates_rebate = '-0';
+        }
+        $validator = Validator::make($request->all(), [
+            'start_date' => 'required|date',
+            'end_date' => 'date|after:start_date'
+        ]);
+
+        if ($validator->fails()) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', $validator->messages()->first());
+            return redirect()->route('region-cost-edit', $request->id);
         }
         
         RegionsAccountTypeCost::where('id', $request->id)->update([
