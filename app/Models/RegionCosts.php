@@ -9,5 +9,9 @@ class RegionCosts extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['meter_type_id', 'region_id', 'min', 'max', 'amount'];
+    protected $fillable = ['meter_type_id', 'start_date', 'end_date', 'region_id', 'min', 'max', 'amount'];
+    protected $dates = [
+        'start_date',
+        'end_date'
+    ];
 }

@@ -49,7 +49,7 @@
                     </div>
                     <div class="form-group">
                         <label><strong>Applicable Start Date :</strong></label>
-                        <input class="form-control" type="date" placeholder="Start Date" name="start_date" value="{{$region_cost->start_date}}" required />
+                        <input class="form-control" type="date" placeholder="Start Date" name="start_date" value="{{ $region_cost->start_date }}" required />
                     </div>
                     <div class="form-group">
                         <label><strong>Applicable End Date :</strong></label>
