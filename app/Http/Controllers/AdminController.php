@@ -425,7 +425,7 @@ class AdminController extends Controller
             return redirect()->back();
         }
         $ad = Ads::with('category')->find($id);
-        $categories = AdsCategory::whereNull('parent_id')->get();
+        $categories = AdsCategory::all();
         return view('admin.edit_ads', ['ad' => $ad, 'categories' => $categories]);
     }
 
@@ -742,7 +742,7 @@ class AdminController extends Controller
     public function showAdsCategories(Request $request)
     {
         
-        $categories = AdsCategory::all();
+        $categories = AdsCategory::with('child_display')->get();
         $parent_categories = AdsCategory::whereNull('parent_id')->pluck('name','id')->toArray();
         
         return view('admin.ads_categories', ['categories' => $categories,'parent_categories' => $parent_categories]);
@@ -751,7 +751,7 @@ class AdminController extends Controller
     public function showAds(Request $request)
     {
         $ads = Ads::with('category')->get();
-        $categories = AdsCategory::whereNull('parent_id')->get();
+        $categories = AdsCategory::all();
         return view('admin.ads', ['ads' => $ads, 'categories' => $categories]);
     }
 

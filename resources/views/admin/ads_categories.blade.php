@@ -25,6 +25,7 @@
                         <tr>
                             <th>#</th>
                             <th>Category Name</th>
+                            <th>Parent Category</th>
                             <th>Created Date</th>
                             <th>Action</th>
                         </tr>
@@ -33,6 +34,7 @@
                         <tr>
                             <th>#</th>
                             <th>Category Name</th>
+                            <th>Parent Category</th>
                             <th>Created Date</th>
                             <th>Action</th>
                         </tr>
@@ -42,6 +44,12 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $category->name }}</td>
+
+                            @if(isset($category->child_display))
+                            <td>{{ $category->child_display->name }}</td>
+                            @else
+                            <td> - </td>
+                            @endif
                             <td>{{ $category->created_at }}</td>
                             <td>
                                 <a href="#" id="updateCatBtn" data-id="{{ $category->id }}" data-title="{{ $category->name }}" data-parent-id="{{ $category->parent_id }}" data-toggle="modal" data-target="#updateModal" class="btn btn-warning btn-circle">

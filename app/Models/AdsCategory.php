@@ -18,5 +18,8 @@ class AdsCategory extends Model
     public function childs() {
         return $this->hasMany(self::class,'parent_id','id');
     }
+    public function child_display() {
+        return $this->hasOne(self::class,'id','parent_id');
+    }
    
 }
