@@ -156,7 +156,9 @@ class RegionsCostController extends Controller
         }
         $validator = Validator::make($request->all(), [
             'start_date' => 'required|date',
-            'end_date' => 'date|after:start_date'
+            'end_date' => 'date|after:start_date',
+            'water_used' => 'numeric|gt:0',
+            'electricity_used' => 'numeric|gt:0',
         ]);
 
         if ($validator->fails()) {
