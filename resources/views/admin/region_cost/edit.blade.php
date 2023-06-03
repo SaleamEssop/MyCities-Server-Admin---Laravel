@@ -89,11 +89,11 @@
                     </div>
                     <div class="form-group water_used">
                         <label><strong>Water Used in KL :</strong></label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Water Usage" name="water_used" value="{{$region_cost->water_used ?? 0}}" />
+                        <input class="form-control allow_decimal" type="text" placeholder="Water Usage" name="water_used" value="{{$region_cost->water_used ?? 1}}" />
                     </div>
                     <div class="form-group ele_used">
                         <label><strong>Electricity Used in KWH :</strong></label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Electricity Usage" name="electricity_used" value="{{$region_cost->electricity_used ?? 0}}" />
+                        <input class="form-control allow_decimal" type="text" placeholder="Electricity Usage" name="electricity_used" value="{{$region_cost->electricity_used ?? 1}}" />
                     </div>
                     <div class="water_in_section">
                         <hr>
