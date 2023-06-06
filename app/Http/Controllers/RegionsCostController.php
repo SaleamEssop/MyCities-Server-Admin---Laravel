@@ -77,7 +77,7 @@ class RegionsCostController extends Controller
         } else {
             $rates_rebate = '-0';
         }
-    
+
         $costs = array(
             'template_name' => $request['template_name'],
             'region_id' => $request['region_id'],
@@ -115,7 +115,7 @@ class RegionsCostController extends Controller
         $region_cost = RegionsAccountTypeCost::find($id);
         // get calculation
         $region_cost =  $this->calculateWaterBilling($region_cost);
-         // echo "<pre>";print_r(json_decode($region_cost->additional,true));exit();
+        // echo "<pre>";print_r(json_decode($region_cost->additional,true));exit();
         $regions = Regions::all();
         $account_type = AccountType::all();
         return view('admin.region_cost.edit', compact('region_cost', 'regions', 'account_type'));
@@ -142,7 +142,7 @@ class RegionsCostController extends Controller
             $electricity_used = $request['electricity_used'];
             $electricity = isset($request->electricity) ? json_encode($request->electricity) : NULL;
         }
-       
+
         if (isset($request['rates_rebate']) && !empty($request['rates_rebate'])) {
             //echo "1";exit();
             if (str_contains($request['rates_rebate'], '-')) {
@@ -166,7 +166,7 @@ class RegionsCostController extends Controller
             Session::flash('alert-message', $validator->messages()->first());
             return redirect()->route('region-cost-edit', $request->id);
         }
-        
+
         RegionsAccountTypeCost::where('id', $request->id)->update([
             'template_name' => $request['template_name'],
             'region_id' => $request['region_id'],
@@ -193,6 +193,42 @@ class RegionsCostController extends Controller
             'water_email' => isset($request['water_email']) ? $request['water_email'] : NULL,
             'electricity_email' => isset($request['electricity_email']) ? $request['electricity_email'] : NULL
         ]);
+
+        // Update value
+        if (isset($request->additional) && !empty($request->additional)) {
+
+            $get_all_fixed_cost = FixedCost::WhereNotNull('account_id')->get()->pluck('account_id');
+            if (isset($get_all_fixed_cost) && !empty($get_all_fixed_cost)) {
+                foreach ($get_all_fixed_cost as $key => $account_id) {
+                    DB::table('fixed_costs')->where('account_id', $account_id)->update(
+                        array(
+                            'is_active' => 0
+                        )
+                    );
+                    foreach ($request->additional as $key1 => $value1) {
+                        $id = FixedCost::insert(
+                            array(
+                                'account_id' =>  $account_id,
+                                'title'   =>   $value1['name'],
+                                'value' => $value1['cost'],
+                                'is_default' => 1,
+                                'is_active' => 1
+                            )
+                        );
+
+                        // AccountFixedCost::insert(
+                        //     array(
+                        //         'account_id' =>  $account_id,
+                        //         'fixed_cost_id'   =>   $id,
+                        //         'is_active' => 1,
+                        //     )
+                        // );
+
+                    }
+                }
+            }
+        }
+        DB::table('fixed_costs')->where('is_active', 0)->delete();
         Session::flash('alert-class', 'alert-success');
         Session::flash('alert-message', 'Success! Region Cost Update successfully!');
         return redirect()->route('region-cost-edit', $request->id);
