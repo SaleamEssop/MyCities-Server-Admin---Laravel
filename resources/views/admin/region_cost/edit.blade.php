@@ -49,17 +49,17 @@
                     </div>
                     <div class="form-group">
                         <label><strong>Applicable Start Date :</strong></label>
-                        <input class="form-control" type="date" placeholder="Start Date" name="start_date" value="{{$region_cost->start_date}}" required />
+                        <input class="form-control" type="date" placeholder="Start Date" name="start_date" value="{{ $region_cost->start_date }}" required />
                     </div>
                     <div class="form-group">
                         <label><strong>Applicable End Date :</strong></label>
                         <input class="form-control" type="date" placeholder="End Date" name="end_date" value="{{$region_cost->end_date}}" required />
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="display:none;">
                         <label><strong>Water Email :</strong></label>
                         <input class="form-control water_email" type="email" placeholder="Water Email" name="water_email" value="{{$region_cost->water_email}}" required />
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="display:none;">
                         <label><strong>Electricity Email :</strong></label>
                         <input class="form-control electricity_email" type="email" placeholder="Electricity Email" name="electricity_email" value="{{$region_cost->electricity_email}}" required />
                     </div>
@@ -89,11 +89,11 @@
                     </div>
                     <div class="form-group water_used">
                         <label><strong>Water Used in KL :</strong></label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Water Usage" name="water_used" value="{{$region_cost->water_used ?? 0}}" />
+                        <input class="form-control allow_decimal" type="text" placeholder="Water Usage" name="water_used" value="{{$region_cost->water_used ?? 1}}" />
                     </div>
                     <div class="form-group ele_used">
                         <label><strong>Electricity Used in KWH :</strong></label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Electricity Usage" name="electricity_used" value="{{$region_cost->electricity_used ?? 0}}" />
+                        <input class="form-control allow_decimal" type="text" placeholder="Electricity Usage" name="electricity_used" value="{{$region_cost->electricity_used ?? 1}}" />
                     </div>
                     <div class="water_in_section">
                         <hr>
@@ -428,6 +428,10 @@
                         <div class="form-group">
                             <input class="form-control allow_decimal" type="text" placeholder="VAT Rate" name="vat_rate" value="{{$region_cost->vat_rate ?? 0}}" required />
                         </div>
+                        <label><strong>Rates Rebate :</strong></label>
+                        <div class="form-group">
+                            <input class="form-control allow_decimal" type="text" placeholder="Rates Rebate" name="rates_rebate" value="{{$region_cost->rates_rebate ?? 0}}" />
+                        </div>
                         <label><strong>Final Total :</strong></label>
                         <div class="form-group">
                             <input class="form-control" type="text" placeholder="Final Total" name="final_total" value="{{$region_cost->final_total ?? 0}}" required disabled />
@@ -512,15 +516,15 @@
                 ?>;
         var e = <?php
                 if (isset($region_cost->electricity)) {
-                    echo count(json_decode($region_cost->electricity));
+                    echo count(json_decode($region_cost->electricity,true));
                 } else {
                     echo 0;
                 }
                 ?>;
         var a = <?php
-
-                if (isset($region_cost->additional)) {
-                    echo count(json_decode($region_cost->additional));
+        
+                if (isset($region_cost->additional) && !empty($region_cost->additional)) {
+                    echo count(json_decode($region_cost->additional,true));
                 } else {
                     echo 0;
                 }

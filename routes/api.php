@@ -82,6 +82,10 @@ Route::prefix('v1')->group(function() {
         Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getRegions']);
         Route::get('/getEmails/{id}', [\App\Http\Controllers\ApiController::class, 'getRegionEmails']);
         Route::get('/getEastimateCost', [\App\Http\Controllers\ApiController::class, 'getEastimateCost']);
+        Route::get('/getAdditionalCost', [\App\Http\Controllers\ApiController::class, 'getAdditionalCost']);
+        Route::get('/getBillday', [\App\Http\Controllers\ApiController::class, 'getBillday']);
+        
+        
     });
 
     Route::group(['prefix' => 'accountType'],function() {
@@ -89,7 +93,7 @@ Route::prefix('v1')->group(function() {
     });
 
     Route::get('/get-alarms', [\App\Http\Controllers\ApiController::class, 'getAlarms'])->middleware(['auth:sanctum']);
-    Route::get('/all-data', [\App\Http\Controllers\ApiController::class, 'getAllData'])->middleware(['auth:sanctum']);
+    Route::get('/all-data', [\App\Http\Controllers\ApiController::class, 'getAllData']);
     Route::get('/greetings', function() {
         return "Hello there";
     });

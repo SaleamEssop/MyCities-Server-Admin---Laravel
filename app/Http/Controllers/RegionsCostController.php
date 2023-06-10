@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\RegionsAccountTypeCost;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class RegionsCostController extends Controller
 {
@@ -66,6 +67,17 @@ class RegionsCostController extends Controller
             $electricity_used = $request['electricity_used'];
             $electricity = isset($request->electricity) ? json_encode($request->electricity) : NULL;
         }
+        if (isset($request['rates_rebate']) && $request['rates_rebate'] > 0) {
+            if (str_contains($request['rates_rebate'], '-')) {
+                $rates_rebate = $request['rates_rebate'];
+            } else {
+
+                $rates_rebate = '-' . $request['rates_rebate'];
+            }
+        } else {
+            $rates_rebate = '-0';
+        }
+
         $costs = array(
             'template_name' => $request['template_name'],
             'region_id' => $request['region_id'],
@@ -83,6 +95,7 @@ class RegionsCostController extends Controller
             'vat_percentage' => isset($request['vat_percentage']) ? $request['vat_percentage'] : 0,
             'vat_rate' => isset($request['vat_rate']) ? $request['vat_rate'] : 0,
             'ratable_value' => isset($request['ratable_value']) ? $request['ratable_value'] : 0,
+            'rates_rebate' => isset($rates_rebate) ? $rates_rebate : 0,
             'billing_day' => $request['billing_day'],
             'read_day' => $request['read_day'],
             'waterin_additional' => isset($request->waterin_additional) ? json_encode($request->waterin_additional) : NULL,
@@ -102,7 +115,7 @@ class RegionsCostController extends Controller
         $region_cost = RegionsAccountTypeCost::find($id);
         // get calculation
         $region_cost =  $this->calculateWaterBilling($region_cost);
-        //  echo "<pre>";print_r($region_cost);exit();
+        // echo "<pre>";print_r(json_decode($region_cost->additional,true));exit();
         $regions = Regions::all();
         $account_type = AccountType::all();
         return view('admin.region_cost.edit', compact('region_cost', 'regions', 'account_type'));
@@ -129,6 +142,31 @@ class RegionsCostController extends Controller
             $electricity_used = $request['electricity_used'];
             $electricity = isset($request->electricity) ? json_encode($request->electricity) : NULL;
         }
+
+        if (isset($request['rates_rebate']) && !empty($request['rates_rebate'])) {
+            //echo "1";exit();
+            if (str_contains($request['rates_rebate'], '-')) {
+                $rates_rebate = $request['rates_rebate'];
+            } else {
+
+                $rates_rebate = '-' . $request['rates_rebate'];
+            }
+        } else {
+            $rates_rebate = '-0';
+        }
+        $validator = Validator::make($request->all(), [
+            'start_date' => 'required|date',
+            'end_date' => 'date|after:start_date',
+            'water_used' => 'numeric|gt:0',
+            'electricity_used' => 'numeric|gt:0',
+        ]);
+
+        if ($validator->fails()) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', $validator->messages()->first());
+            return redirect()->route('region-cost-edit', $request->id);
+        }
+
         RegionsAccountTypeCost::where('id', $request->id)->update([
             'template_name' => $request['template_name'],
             'region_id' => $request['region_id'],
@@ -146,6 +184,7 @@ class RegionsCostController extends Controller
             'vat_percentage' => isset($request['vat_percentage']) ? $request['vat_percentage'] : 0,
             'vat_rate' => isset($request['vat_rate']) ? $request['vat_rate'] : 0,
             'ratable_value' => isset($request['ratable_value']) ? $request['ratable_value'] : 0,
+            'rates_rebate' => isset($rates_rebate) ? $rates_rebate : 0,
             'billing_day' => $request['billing_day'],
             'read_day' => $request['read_day'],
             'waterin_additional' => isset($request->waterin_additional) ? json_encode($request->waterin_additional) : NULL,
@@ -154,6 +193,42 @@ class RegionsCostController extends Controller
             'water_email' => isset($request['water_email']) ? $request['water_email'] : NULL,
             'electricity_email' => isset($request['electricity_email']) ? $request['electricity_email'] : NULL
         ]);
+
+        // Update value
+        if (isset($request->additional) && !empty($request->additional)) {
+
+            $get_all_fixed_cost = FixedCost::WhereNotNull('account_id')->get()->pluck('account_id');
+            if (isset($get_all_fixed_cost) && !empty($get_all_fixed_cost)) {
+                foreach ($get_all_fixed_cost as $key => $account_id) {
+                    DB::table('fixed_costs')->where('account_id', $account_id)->update(
+                        array(
+                            'is_active' => 0
+                        )
+                    );
+                    foreach ($request->additional as $key1 => $value1) {
+                        $id = FixedCost::insert(
+                            array(
+                                'account_id' =>  $account_id,
+                                'title'   =>   $value1['name'],
+                                'value' => $value1['cost'],
+                                'is_default' => 1,
+                                'is_active' => 1
+                            )
+                        );
+
+                        // AccountFixedCost::insert(
+                        //     array(
+                        //         'account_id' =>  $account_id,
+                        //         'fixed_cost_id'   =>   $id,
+                        //         'is_active' => 1,
+                        //     )
+                        // );
+
+                    }
+                }
+            }
+        }
+        DB::table('fixed_costs')->where('is_active', 0)->delete();
         Session::flash('alert-class', 'alert-success');
         Session::flash('alert-message', 'Success! Region Cost Update successfully!');
         return redirect()->route('region-cost-edit', $request->id);
@@ -248,12 +323,12 @@ class RegionsCostController extends Controller
                 $waterin_additional = json_decode($region_cost->waterin_additional);
                 if (isset($waterin_additional) && !empty($waterin_additional)) {
                     foreach ($waterin_additional as $key => $value) {
-                        if($value->percentage == null){
-                            $cal_total = $value->cost;    
-                        }else{
+                        if ($value->percentage == null) {
+                            $cal_total = $value->cost;
+                        } else {
                             $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
-                        } 
-                        $waterin_additional[$key]->total =  $cal_total;
+                        }
+                        $waterin_additional[$key]->total =  number_format($cal_total, 2, '.', '');
                         $waterin_additional_total += $cal_total;
                     }
                     $region_cost->water_in_related_total = number_format($waterin_additional_total, 2, '.', '');
@@ -305,12 +380,12 @@ class RegionsCostController extends Controller
                 $waterout_additional = json_decode($region_cost->waterout_additional);
                 if (isset($waterout_additional) && !empty($waterout_additional)) {
                     foreach ($waterout_additional as $key => $value) {
-                        if($value->percentage == null){
+                        if ($value->percentage == null) {
                             $cal_total = $value->cost;
-                        }else{
+                        } else {
                             $cal_total = $region_cost->water_used * $value->percentage / 100 * $value->cost;
                         }
-                        $waterout_additional[$key]->total =  $cal_total;
+                        $waterout_additional[$key]->total = number_format($cal_total, 2, '.', '');
                         $waterout_additional_total += $cal_total;
                     }
                     $region_cost->water_out_related_total = number_format($waterout_additional_total, 2, '.', '');
@@ -355,9 +430,9 @@ class RegionsCostController extends Controller
                 $electricity_additional = json_decode($region_cost->electricity_additional);
                 if (isset($electricity_additional) && !empty($electricity_additional)) {
                     foreach ($electricity_additional as $key => $value) {
-                        if($value->percentage == null){
-                            $cal_total = $value->cost;    
-                        }else{
+                        if ($value->percentage == null) {
+                            $cal_total = $value->cost;
+                        } else {
                             $cal_total = $region_cost->electricity_used * $value->percentage / 100 * $value->cost;
                         }
                         $electricity_additional[$key]->total =  $cal_total;
@@ -382,12 +457,14 @@ class RegionsCostController extends Controller
             }
         }
 
+        //echo "<pre>";print_r(abs($region_cost->rates_rebate));exit();
+        $subtotal_final = $sub_total - abs($region_cost->rates_rebate);
 
-        $subtotal_final = $sub_total - abs($rebate);
         $region_cost->sub_total = number_format($subtotal_final, 2, '.', '');
         $sub_total_vat = $subtotal_final * $region_cost->vat_percentage / 100;
         $region_cost->sub_total_vat = number_format($sub_total_vat, 2, '.', '');
         $final_total  = $subtotal_final + $sub_total_vat + $region_cost->vat_rate;
+        $final_total = $final_total - abs($region_cost->rates_rebate);
         $region_cost->final_total = number_format($final_total, 2, '.', '');
         return $region_cost;
     }

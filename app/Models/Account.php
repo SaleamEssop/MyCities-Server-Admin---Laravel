@@ -18,7 +18,11 @@ class Account extends Model
         'region_id',
         'account_type_id',
         'water_email',
-        'electricity_email'
+        'electricity_email',
+        'bill_day',
+        'read_day',
+        'bill_read_day_active'
+
     ];
 
     public function site()

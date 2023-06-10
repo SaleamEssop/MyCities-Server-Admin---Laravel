@@ -19,7 +19,11 @@ class Ads extends Model
     }
 
     public function getImageAttribute($value)
-    {
-        return URL::to(Storage::url($value));
+    {   
+        if(!empty($value)){
+            return URL::to(Storage::url($value));
+        }else{
+            return '';
+        }   
     }
 }

@@ -462,7 +462,7 @@ class AdminController extends Controller
 
     public function editAd(Request $request)
     {
-        $postData = $request->post();
+        $postData = $request->post();      
         if (empty($postData['ad_id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, ad ID is required.');
@@ -489,7 +489,7 @@ class AdminController extends Controller
 
         if (!empty($path))
             $ad->image = $path;
-
+           
         if ($ad->save()) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Ad updated successfully!');
@@ -741,8 +741,11 @@ class AdminController extends Controller
 
     public function showAdsCategories(Request $request)
     {
-        $categories = AdsCategory::all();
-        return view('admin.ads_categories', ['categories' => $categories]);
+        
+        $categories = AdsCategory::with('child_display')->get();
+        $parent_categories = AdsCategory::whereNull('parent_id')->pluck('name','id')->toArray();
+        
+        return view('admin.ads_categories', ['categories' => $categories,'parent_categories' => $parent_categories]);
     }
 
     public function showAds(Request $request)
@@ -785,9 +788,12 @@ class AdminController extends Controller
 
     public function createAdCategory(Request $request)
     {
+
         $postData = $request->post();
+        
         $category = array(
             'name' => $postData['category_name'],
+            'parent_id' => $postData['parent_id'] ?? null,
         );
         $categoryExists = AdsCategory::where('name', strtolower($postData['category_name']))->first();
         if (!empty($categoryExists)) {
@@ -1044,6 +1050,7 @@ class AdminController extends Controller
 
     public function editAdCategory(Request $request)
     {
+        
         $postData = $request->post();
         if (empty($postData['category_id'])) {
             Session::flash('alert-class', 'alert-danger');
@@ -1051,14 +1058,14 @@ class AdminController extends Controller
             return redirect()->back();
         }
 
-        $categoryExists = AdsCategory::where('name', strtolower($postData['category_name']))->first();
-        if (!empty($categoryExists)) {
-            Session::flash('alert-class', 'alert-danger');
-            Session::flash('alert-message', 'Oops, category with same name already exists.');
-            return redirect()->back();
-        }
+        // $categoryExists = AdsCategory::where('name', strtolower($postData['category_name']))->first();
+        // if (!empty($categoryExists)) {
+        //     Session::flash('alert-class', 'alert-danger');
+        //     Session::flash('alert-message', 'Oops, category with same name already exists.');
+        //     return redirect()->back();
+        // }
 
-        $category = array('name' => $postData['category_name']);
+        $category = array('name' => $postData['category_name'],'parent_id' => $postData['parent_id'] ?? null);
 
         $updated = AdsCategory::where('id', $postData['category_id'])->update($category);
         if ($updated) {
@@ -1123,7 +1130,7 @@ class AdminController extends Controller
             return redirect()->back();
         }
     }
-
+   
     public function deleteAdsCategory(Request $request, $id)
     {
         if (empty($id)) {

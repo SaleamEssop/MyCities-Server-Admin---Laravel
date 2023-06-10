@@ -43,11 +43,11 @@
                         <label><strong>Applicable End Date :</strong></label>
                         <input class="form-control" type="date" placeholder="End Date" name="end_date" required />
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="display:none;">
                         <label><strong>Water Email :</strong></label>
                         <input class="form-control water_email" type="email" placeholder="Water Email" name="water_email" required />
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="display:none;">
                         <label><strong>Electricity Email :</strong></label>
                         <input class="form-control electricity_email" type="email" placeholder="Electricity Email" name="electricity_email" required />
                     </div>
@@ -378,9 +378,13 @@
                             <input class="form-control allow_decimal" type="text" placeholder="Sub Total" name="sub_total" value="0" required disabled />
                         </div>
 
-                        <label><strong>Vat Rates :</strong></label>
+                        <label><strong>VAT:</strong></label>
                         <div class="form-group">
                             <input class="form-control allow_decimal" type="text" placeholder="VAT Rate" name="vat_rate" value="0" required />
+                        </div>
+                        <label><strong>Rates Rebate :</strong></label>
+                        <div class="form-group">
+                            <input class="form-control allow_decimal" type="text" placeholder="Rates Rebate" name="rates_rebate" value="0" />
                         </div>
                         <label><strong>Final Total :</strong></label>
                         <div class="form-group">
