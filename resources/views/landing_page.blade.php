@@ -25,7 +25,7 @@
         <div class="intro-txt">
             <h3>Welcome to the MyCities App where you can manage your meters and much more free of cost!</h3>
 			<div class="admin-btn">
-                <a class="admin-button" href="{{ url('/app') }}">Go to Web App</a>
+                <a class="admin-button" href="{{ url('/web-app') }}">Go to Web App</a>
             </div>
             <div class="admin-btn">
                 <a class="admin-button" href="{{ url('/admin') }}">Go to Admin Panel</a>
