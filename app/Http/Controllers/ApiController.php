@@ -18,6 +18,7 @@ use App\Models\RegionAlarms;
 use Illuminate\Http\Request;
 use App\Models\MeterReadings;
 use App\Models\AccountFixedCost;
+use App\Models\RegionCosts;
 use Illuminate\Support\Facades\DB;
 use PHPMailer\PHPMailer\PHPMailer;
 use Illuminate\Support\Facades\URL;
@@ -118,7 +119,6 @@ class ApiController extends Controller
 
     public function addAccount(Request $request)
     {
-
         $postData = $request->post();
         DB::beginTransaction();
         if (empty($postData['site_id'])) {
@@ -183,37 +183,54 @@ class ApiController extends Controller
         $res = Account::create($accArr);
         if ($res) {
             // Check if user has provided fixed-costs or not
-            if (!empty($postData['fixed_cost'])) {
+            // if (!empty($postData['fixed_cost'])) {
+            //     $fixedCostArr = [];
+            //     $n = 0;
+            //     foreach ($postData['fixed_cost'] as $fixedCost) {
+            //         $fixedCostArr[$n]['account_id'] = $res->id;
+            //         $fixedCostArr[$n]['title'] = $fixedCost['name'];
+            //         $fixedCostArr[$n]['value'] = $fixedCost['value'];
+            //         $fixedCostArr[$n]['added_by'] = $postData['user_id'];
+            //         $fixedCostArr[$n]['created_at'] = date("Y-m-d H:i:s");
+            //         if (isset($fixedCost['is_active']))
+            //             $fixedCostArr[$n]['is_active'] = $postData['is_active'];
+            //         $n++;
+            //     }
+            //     FixedCost::insert($fixedCostArr);
+            // }
+            $regions_data = RegionsAccountTypeCost::where('region_id',$postData['region_id'])->where('account_type_id',$postData['account_type_id'])->first();
+            if(isset($regions_data->additional) && !empty($regions_data->additional)){
+                $addtional = json_decode($regions_data->additional);
                 $fixedCostArr = [];
                 $n = 0;
-                foreach ($postData['fixed_cost'] as $fixedCost) {
+                foreach ($addtional as $fixedCost) {
                     $fixedCostArr[$n]['account_id'] = $res->id;
-                    $fixedCostArr[$n]['title'] = $fixedCost['name'];
-                    $fixedCostArr[$n]['value'] = $fixedCost['value'];
+                    $fixedCostArr[$n]['title'] = $fixedCost->name;
+                    $fixedCostArr[$n]['value'] = $fixedCost->cost;
                     $fixedCostArr[$n]['added_by'] = $postData['user_id'];
                     $fixedCostArr[$n]['created_at'] = date("Y-m-d H:i:s");
-                    if (isset($fixedCost['is_active']))
-                        $fixedCostArr[$n]['is_active'] = $postData['is_active'];
+                    $fixedCostArr[$n]['is_active'] = 1;
                     $n++;
                 }
                 FixedCost::insert($fixedCostArr);
             }
-            // Check if there are any default fixed costs
-            if (!empty($postData['default_fixed_cost'])) {
-                $d = 0;
-                $defaultCostArr = [];
-                foreach ($postData['default_fixed_cost'] as $defaultCost) {
-                    $defaultCostArr[$d]['account_id'] = $res->id;
-                    $defaultCostArr[$d]['fixed_cost_id'] = $defaultCost['id'];
-                    $defaultCostArr[$d]['value'] = $defaultCost['value'];
-                    $defaultCostArr[$d]['created_at'] = date("Y-m-d H:i:s");
-                    if (isset($defaultCost['is_active']))
-                        $defaultCostArr[$d]['is_active'] = $defaultCost['is_active'];
 
-                    $d++;
-                }
-                AccountFixedCost::insert($defaultCostArr);
-            }
+            // Check if there are any default fixed costs
+            // if (!empty($postData['default_fixed_cost'])) {
+            //     $d = 0;
+            //     $defaultCostArr = [];
+            //     foreach ($postData['default_fixed_cost'] as $defaultCost) {
+            //         $defaultCostArr[$d]['account_id'] = $res->id;
+            //         $defaultCostArr[$d]['fixed_cost_id'] = $defaultCost['id'];
+            //         $defaultCostArr[$d]['value'] = $defaultCost['value'];
+            //         $defaultCostArr[$d]['created_at'] = date("Y-m-d H:i:s");
+            //         if (isset($defaultCost['is_active']))
+            //             $defaultCostArr[$d]['is_active'] = $defaultCost['is_active'];
+
+            //         $d++;
+            //     }
+            //     AccountFixedCost::insert($defaultCostArr);
+            // }
 
             // $defaultFixedCosts = Account::join('account_fixed_costs as afc', 'afc.account_id', 'accounts.id')
             //     ->join('fixed_costs as fc', 'fc.id', 'afc.fixed_cost_id')
@@ -1531,7 +1548,7 @@ class ApiController extends Controller
         }
     }
     public function getAdditionalCost(Request $request)
-    {
+    { 
 
         $postData = $request->post();
 
