@@ -20,7 +20,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // APIs for mobile app
 Route::prefix('v1')->group(function() {
-
+    Route::get('/default-cost/get', [\App\Http\Controllers\ApiController::class, 'getDefaultCosts']);
+    Route::get('/ads/get-categories', [\App\Http\Controllers\ApiController::class, 'getAdsCategories']);
     Route::get('terms-and-conditions', [\App\Http\Controllers\ApiController::class, 'getTC']);
     // User related routes
     Route::post('/user/logout', [\App\Http\Controllers\UserController::class, 'logout'])->middleware('auth:sanctum');
@@ -62,7 +63,7 @@ Route::prefix('v1')->group(function() {
     // Ads related routes
     Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'ads'],function() {
         Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getAds']);
-        Route::get('/get-categories', [\App\Http\Controllers\ApiController::class, 'getAdsCategories']);
+      //  Route::get('/get-categories', [\App\Http\Controllers\ApiController::class, 'getAdsCategories']);
     });
 
     // Fixed Cost related routes
@@ -73,7 +74,7 @@ Route::prefix('v1')->group(function() {
 
     // Default Cost related routes
     Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'default-cost'],function() {
-        Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getDefaultCosts']);
+       // Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getDefaultCosts']);
         Route::post('/add', [\App\Http\Controllers\ApiController::class, 'addDefaultCost']);
     });
 
@@ -92,7 +93,7 @@ Route::prefix('v1')->group(function() {
         Route::get('/get', [\App\Http\Controllers\ApiController::class, 'getAccountTypes']);
     });
 
-    Route::get('/get-alarms', [\App\Http\Controllers\ApiController::class, 'getAlarms'])->middleware(['auth:sanctum']);
+    Route::get('/get-alarms', [\App\Http\Controllers\ApiController::class, 'getAlarms']);
     Route::get('/all-data', [\App\Http\Controllers\ApiController::class, 'getAllData']);
     Route::get('/greetings', function() {
         return "Hello there";
