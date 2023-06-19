@@ -325,7 +325,7 @@ class ApiController extends Controller
 
             // Check if user has provided fixed-costs or not
             if (!empty($postData['fixed_cost'])) {
-               // FixedCost::where('account_id', $account->id)->delete();
+                FixedCost::where('account_id', $account->id)->delete();
                 foreach ($postData['fixed_cost'] as $fixedCost) {
                     $fixedCostArr = array(
                         'account_id' => $account->id,
