@@ -389,6 +389,7 @@ class ApiController extends Controller
 
     public function deleteAccount(Request $request)
     {
+        
 
         $postData = $request->post();
         if (empty($postData['account_id']))
@@ -396,6 +397,14 @@ class ApiController extends Controller
 
         DB::beginTransaction();
         try {
+            // get Site id
+            $get_site_id = Account::where('id', $postData['account_id'])->first();
+            
+            $site_id = isset($get_site_id->site_id) ? $get_site_id->site_id : null;
+            
+            if(!empty($site_id)){
+                Site::where('id',$site_id)->delete();
+            }
             $result = Account::where('id', $postData['account_id'])->first()->delete();
             DB::commit();
         } catch (\Exception $e) {
