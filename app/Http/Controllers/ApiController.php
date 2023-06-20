@@ -1191,12 +1191,13 @@ class ApiController extends Controller
     }
     public function getWaterBill($accountID, $reading, $meters, $daydiff, $bill_type)
     {
-
-        if ($reading > 0 && $daydiff > 0) {
-            $reading = number_format($reading / $daydiff * 31, 2, '.', '');
-        } else {
-            $reading = $reading;
-        }
+        //echo "<pre>";print_r($daydiff);exit;
+        // if ($reading > 0 && $daydiff > 0) {
+        //     $reading = number_format($reading / $daydiff * 31, 2, '.', '');
+        // } else {
+        //     $reading = $reading;
+        // }
+        $reading = $reading;
         $type_id = $meters->meter_type_id; // meter type = 1 - water, 2 - electricity
         $meter_id = $meters->id;
         $meter_number = $meters->meter_number;
