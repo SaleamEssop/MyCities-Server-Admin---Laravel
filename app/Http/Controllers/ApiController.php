@@ -1372,7 +1372,7 @@ class ApiController extends Controller
                 $region_cost->usage_days = $daydiff;
 
                 $region_cost->daily_usage = number_format($reading * 1000 / $daydiff, 2, '.', '') . ' ' . $unit;
-                $region_cost->monthly_usage =  number_format($reading / $daydiff * $month_day, 2, '.', '');
+                $region_cost->monthly_usage =  number_format($reading / $daydiff * $month_day, 2, '.', ''). ' ' . $unit;
 
                 // end usages logic
                 $subtotal_final = $sub_total - abs($rebate);
