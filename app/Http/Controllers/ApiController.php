@@ -1149,8 +1149,18 @@ class ApiController extends Controller
                             $response = $this->getWaterBill($accountID, $final_reading, $meter, $daydiff, $bill_type);
                             // echo "<pre>";print_r($response);exit();
                             if (isset($response) && !empty($response)) {
-                                $response->firstReadingDate = date('d F Y', strtotime($firstReadingDate)) ?? null;
-                                $response->endReadingDate = date('d F Y', strtotime($endReadingDate)) ?? null;
+                                $account = Account::where('id', $accountID)->first();
+                                if(isset($account->bill_day) && !empty($account->bill_day)){
+                                    $bill_day = $account->bill_day;
+                                    $current_month = date($bill_day. ' F, Y');
+                                    $current_month = date("d F Y",strtotime($current_month));
+                                    $previous_month = date('d F Y', strtotime('-1 months', strtotime($current_month))); 
+                                    $response->firstReadingDate = $previous_month;
+                                    $response->endReadingDate = $current_month;
+                                  
+                                }
+                               //$response->firstReadingDate = date('d F Y', strtotime($firstReadingDate)) ?? null;
+                                //$response->endReadingDate = date('d F Y', strtotime($endReadingDate)) ?? null;
                                 if ($meter->meter_type_id == 1) {
                                     // water
                                     $response->firstReading = substr($firstReading, 0, -4) ?? 0;
@@ -1166,7 +1176,7 @@ class ApiController extends Controller
                             return [
                                 'status' => false,
                                 'code' => 400,
-                                'msg' => 'Your previous reading and current reading should be diffrent',
+                                'msg' => 'Your current reading should be greater than the previous reading.',
                                 'data' => []
                             ];
                         }
@@ -1217,6 +1227,8 @@ class ApiController extends Controller
             $waterin_additional_total = 0;
             $waterout_additional_total = 0;
             $electricity_additional_total = 0;
+            $region_cost->bill_day = $account->bill_day;
+
             if ($region_cost->ratable_value == 0) {
                 $ratable_value = 250000;
             } else {
@@ -1371,9 +1383,9 @@ class ApiController extends Controller
                 $region_cost->usage = $reading;
                 $region_cost->usage_days = $daydiff;
 
-                $region_cost->daily_usage = number_format($reading * 1000 / $daydiff, 2, '.', '') . ' ' . $unit;
-                $region_cost->monthly_usage =  number_format($reading / $daydiff * $month_day, 2, '.', ''). ' ' . $unit;
-
+                $region_cost->daily_usage = number_format($reading * 1000 / $month_day, 2, '.', '') . ' ' . $unit;
+               // $region_cost->monthly_usage =  number_format($reading / $daydiff * $month_day, 2, '.', ''). ' ' . $unit;
+                $region_cost->monthly_usage =  number_format($reading, 2, '.', ''). ' ' . $unit;
                 // end usages logic
                 $subtotal_final = $sub_total - abs($rebate);
 
