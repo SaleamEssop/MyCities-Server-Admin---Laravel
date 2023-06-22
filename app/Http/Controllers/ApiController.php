@@ -1249,7 +1249,7 @@ class ApiController extends Controller
                 // water
                 $water_remaning = $reading;
                 $electricity_remaning = 0;
-                $unit = "L";
+                $unit = "kl";
 
                 if ($water_remaning > 0) {
                     // echo $water_remaning;exit();
@@ -1382,10 +1382,13 @@ class ApiController extends Controller
                 // start usages logic
                 $region_cost->usage = $reading;
                 $region_cost->usage_days = $daydiff;
-
-                $region_cost->daily_usage = number_format($reading * 1000 / $month_day, 2, '.', '') . ' ' . $unit;
+                
+                $region_cost->daily_usage = number_format($reading / $daydiff, 2, '.', '') . ' ' . $unit;
+                $daily_uages = $reading / $daydiff;
                // $region_cost->monthly_usage =  number_format($reading / $daydiff * $month_day, 2, '.', ''). ' ' . $unit;
-                $region_cost->monthly_usage =  number_format($reading, 2, '.', ''). ' ' . $unit;
+                $monthly_uages =  $daily_uages * $month_day;
+                $region_cost->monthly_usage =  number_format($monthly_uages, 2, '.', ''). ' ' . $unit;
+
                 // end usages logic
                 $subtotal_final = $sub_total - abs($rebate);
 
