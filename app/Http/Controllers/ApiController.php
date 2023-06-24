@@ -198,8 +198,8 @@ class ApiController extends Controller
             //     }
             //     FixedCost::insert($fixedCostArr);
             // }
-            $regions_data = RegionsAccountTypeCost::where('region_id',$postData['region_id'])->where('account_type_id',$postData['account_type_id'])->first();
-            if(isset($regions_data->additional) && !empty($regions_data->additional)){
+            $regions_data = RegionsAccountTypeCost::where('region_id', $postData['region_id'])->where('account_type_id', $postData['account_type_id'])->first();
+            if (isset($regions_data->additional) && !empty($regions_data->additional)) {
                 $addtional = json_decode($regions_data->additional);
                 $fixedCostArr = [];
                 $n = 0;
@@ -389,7 +389,7 @@ class ApiController extends Controller
 
     public function deleteAccount(Request $request)
     {
-        
+
 
         $postData = $request->post();
         if (empty($postData['account_id']))
@@ -399,11 +399,11 @@ class ApiController extends Controller
         try {
             // get Site id
             $get_site_id = Account::where('id', $postData['account_id'])->first();
-            
+
             $site_id = isset($get_site_id->site_id) ? $get_site_id->site_id : null;
-            
-            if(!empty($site_id)){
-                Site::where('id',$site_id)->delete();
+
+            if (!empty($site_id)) {
+                Site::where('id', $site_id)->delete();
             }
             $result = Account::where('id', $postData['account_id'])->first()->delete();
             DB::commit();
@@ -922,7 +922,7 @@ class ApiController extends Controller
         if (isset($fixedCosts['defaultFixedCosts']) && !empty($fixedCosts['defaultFixedCosts'])) {
             foreach ($fixedCosts['defaultFixedCosts'] as $key => $value) {
                 if ($value->is_active == 1) {
-                    if(isset($value['fixedCost']) && !empty($value['fixedCost'])){
+                    if (isset($value['fixedCost']) && !empty($value['fixedCost'])) {
                         if ($value['fixedCost']['title'] == "Water Loss Levy" || $value['fixedCost']['title'] == "Refuse Collection") {
                             $user_additional_cost[] = array(
                                 'title' => $value['fixedCost']['title'],
@@ -1053,7 +1053,7 @@ class ApiController extends Controller
                             $ele_total += array_sum(array_column($electricity_fullbill[$value->meter_number]['projection'], 'total'));
                         }
                     }
-                    $user_additional_cost = FixedCost::select('title', 'value as total')->where('is_active',1)->where('account_id', $postData['account_id'])->get()->toArray();
+                    $user_additional_cost = FixedCost::select('title', 'value as total')->where('is_active', 1)->where('account_id', $postData['account_id'])->get()->toArray();
                     if (isset($user_additional_cost) && !empty($user_additional_cost)) {
                         $use_plus_admin_additional_cost = $user_additional_cost;
                     } else {
@@ -1113,20 +1113,47 @@ class ApiController extends Controller
         if ($meter) {
             // water
             // $metersReading = MeterReadings::where('meter_id', 255)->get();
+            $account = Account::where('id', $accountID)->first();
             $metersReading = MeterReadings::where('meter_id', $meter->id)->get();
 
             if (isset($metersReading) && !empty($metersReading)) {
                 foreach ($metersReading as $key => $value) {
-                    $reading_dates[] = array('date' => $value->reading_date, 'reading_value' => $value->reading_value);;
+                    $reading_dates[] = array(
+                        'date' => $value->reading_date,
+                        'reading_value' => $value->reading_value
+                    );
                 }
+                usort($reading_dates, function ($a, $b) {
+                    return $a['date'] <=> $a['date'];
+                });
+
+                // $closestReading = null;
+                foreach ($reading_dates as $reading) {
+
+                    $getOnlyDate = date('d',strtotime($reading['date']));
+                    if($getOnlyDate == 15){
+                        $closestReading = $reading;
+                    }elseif($getOnlyDate <= 15){
+                        $closestReading = $reading;
+                    }      
+                }
+                $closefirstReadingDate = "";
+                $closefirstReadingDate = date('Y-m-d', strtotime($closestReading['date'])) ?? null;
+                $closefirstReading = $closestReading['reading_value'] ?? null;
+              
+               
                 if (count($reading_dates) >= 2) {
                     $reading_arr = array_slice($reading_dates, -2, 2, true);
                     usort($reading_arr, function ($a, $b) {
                         return strtotime($a['date']) - strtotime($b['date']);
                     });
-
-                    $firstReadingDate = date('Y-m-d', strtotime($reading_arr[0]['date'])) ?? null;
-                    $firstReading = $reading_arr[0]['reading_value'] ?? null;
+                    if(!empty($closefirstReadingDate)){
+                        $firstReadingDate = date('Y-m-d', strtotime($closestReading['date'])) ?? null;
+                        $firstReading = $closestReading['reading_value'] ?? null;
+                    }else{
+                        $firstReadingDate = date('Y-m-d', strtotime($reading_arr[0]['date'])) ?? null;
+                        $firstReading = $reading_arr[0]['reading_value'] ?? null;
+                    }
                     $endReadingDate = date('Y-m-d', strtotime($reading_arr[1]['date'])) ?? null;
                     $endReading = $reading_arr[1]['reading_value'] ?? null;
 
@@ -1150,16 +1177,15 @@ class ApiController extends Controller
                             // echo "<pre>";print_r($response);exit();
                             if (isset($response) && !empty($response)) {
                                 $account = Account::where('id', $accountID)->first();
-                                if(isset($account->bill_day) && !empty($account->bill_day)){
+                                if (isset($account->bill_day) && !empty($account->bill_day)) {
                                     $bill_day = $account->bill_day;
-                                    $current_month = date($bill_day. ' F, Y');
-                                    $current_month = date("d F Y",strtotime($current_month));
-                                    $previous_month = date('d F Y', strtotime('-1 months', strtotime($current_month))); 
+                                    $current_month = date($bill_day . ' F, Y');
+                                    $current_month = date("d F Y", strtotime($current_month));
+                                    $previous_month = date('d F Y', strtotime('-1 months', strtotime($current_month)));
                                     $response->firstReadingDate = $previous_month;
                                     $response->endReadingDate = $current_month;
-                                  
                                 }
-                               //$response->firstReadingDate = date('d F Y', strtotime($firstReadingDate)) ?? null;
+                                //$response->firstReadingDate = date('d F Y', strtotime($firstReadingDate)) ?? null;
                                 //$response->endReadingDate = date('d F Y', strtotime($endReadingDate)) ?? null;
                                 if ($meter->meter_type_id == 1) {
                                     // water
@@ -1382,12 +1408,12 @@ class ApiController extends Controller
                 // start usages logic
                 $region_cost->usage = $reading;
                 $region_cost->usage_days = $daydiff;
-                
+
                 $region_cost->daily_usage = number_format($reading / $daydiff, 2, '.', '') . ' ' . $unit;
                 $daily_uages = $reading / $daydiff;
-               // $region_cost->monthly_usage =  number_format($reading / $daydiff * $month_day, 2, '.', ''). ' ' . $unit;
+                // $region_cost->monthly_usage =  number_format($reading / $daydiff * $month_day, 2, '.', ''). ' ' . $unit;
                 $monthly_uages =  $daily_uages * $month_day;
-                $region_cost->monthly_usage =  number_format($monthly_uages, 2, '.', ''). ' ' . $unit;
+                $region_cost->monthly_usage =  number_format($monthly_uages, 2, '.', '') . ' ' . $unit;
 
                 // end usages logic
                 $subtotal_final = $sub_total - abs($rebate);
@@ -1573,7 +1599,7 @@ class ApiController extends Controller
         }
     }
     public function getAdditionalCost(Request $request)
-    { 
+    {
 
         $postData = $request->post();
 
@@ -1589,13 +1615,13 @@ class ApiController extends Controller
         $fixedCosts = FixedCost::select('title as name', 'value as cost', 'is_active')->where('account_id', $postData['account_id'])->get()->toArray();
         if (isset($fixedCosts) && !empty($fixedCosts)) {
             // after first time save
-           
+
             $array_merged = $fixedCosts;
-            
+
             if (isset($array_merged) && !empty($array_merged)) {
                 foreach ($array_merged as $key => $value) {
                     if (isset($value['is_active']) && $value['is_active'] == 1) {
-                    $array_merged[$key]['isApplicable'] = true;
+                        $array_merged[$key]['isApplicable'] = true;
                     } else {
                         $array_merged[$key]['isApplicable'] = false;
                     }
@@ -1617,7 +1643,7 @@ class ApiController extends Controller
                 if (isset($array_merged) && !empty($array_merged)) {
                     foreach ($array_merged as $key => $value) {
                         if (isset($value['is_active']) && $value['is_active'] == 1) {
-                        $array_merged[$key]['isApplicable'] = true;
+                            $array_merged[$key]['isApplicable'] = true;
                         } else {
                             $array_merged[$key]['isApplicable'] = false;
                         }
