@@ -939,7 +939,6 @@ class ApiController extends Controller
                             );
                         }
                     }
-                    
                 }
             }
         }
@@ -985,7 +984,7 @@ class ApiController extends Controller
         // exit();
         if (count($meters) > 0) {
             foreach ($meters as $meter) {
-                $response[] = $this->getReadings($postData['account_id'], $meter, $postData['type']);
+                $response[] = $this->getReadings($postData['account_id'], $meter, $postData['type'],$postData['start_date'],$postData['end_date']);
             }
             if ($postData['type'] == "fullbill") {
                 if (isset($response) && !empty($response)) {
@@ -1107,9 +1106,18 @@ class ApiController extends Controller
             return $response;
         }
     }
-    public function getReadings($accountID, $meter, $bill_type)
+    function find_closest($array, $date)
     {
-
+        foreach ($array as $day) {
+            $interval[] = abs(strtotime($date) - strtotime($day['date']));
+        }
+        asort($interval);
+        $closest = key($interval);
+        return $array[$closest];
+    }
+    public function getReadings($accountID, $meter, $bill_type,$start_date,$end_date)
+    {
+     
         if ($meter) {
             // water
             // $metersReading = MeterReadings::where('meter_id', 255)->get();
@@ -1126,36 +1134,43 @@ class ApiController extends Controller
                 usort($reading_dates, function ($a, $b) {
                     return $a['date'] <=> $a['date'];
                 });
-
+                
+                
                 // $closestReading = null;
-                foreach ($reading_dates as $reading) {
+                // foreach ($reading_dates as $reading) {
 
-                    $getOnlyDate = date('d',strtotime($reading['date']));
-                    if($getOnlyDate == 15){
-                        $closestReading = $reading;
-                    }elseif($getOnlyDate <= 15){
-                        $closestReading = $reading;
-                    }      
-                }
-                $closefirstReadingDate = "";
-                $closefirstReadingDate = date('Y-m-d', strtotime($closestReading['date'])) ?? null;
-                $closefirstReading = $closestReading['reading_value'] ?? null;
-              
-               
+                //     $getOnlyDate = date('d', strtotime($reading['date']));
+                //     if ($getOnlyDate == 15) {
+                //         $closestReading = $reading;
+                //     } elseif ($getOnlyDate <= 15) {
+                //         $closestReading = $reading;
+                //     }
+                // }
+                // $closefirstReadingDate = "";
+                // $closefirstReadingDate = date('Y-m-d', strtotime($closestReading['date'])) ?? null;
+                // $closefirstReading = $closestReading['reading_value'] ?? null;
+
+
                 if (count($reading_dates) >= 2) {
                     $reading_arr = array_slice($reading_dates, -2, 2, true);
                     usort($reading_arr, function ($a, $b) {
                         return strtotime($a['date']) - strtotime($b['date']);
                     });
-                    if(!empty($closefirstReadingDate)){
-                        $firstReadingDate = date('Y-m-d', strtotime($closestReading['date'])) ?? null;
-                        $firstReading = $closestReading['reading_value'] ?? null;
-                    }else{
-                        $firstReadingDate = date('Y-m-d', strtotime($reading_arr[0]['date'])) ?? null;
-                        $firstReading = $reading_arr[0]['reading_value'] ?? null;
-                    }
-                    $endReadingDate = date('Y-m-d', strtotime($reading_arr[1]['date'])) ?? null;
-                    $endReading = $reading_arr[1]['reading_value'] ?? null;
+                    $previous_date = $this->find_closest($reading_dates,$start_date);
+                    $next_date = $this->find_closest($reading_dates,$end_date);
+                    $firstReadingDate = date('Y-m-d', strtotime($previous_date['date'])) ?? null;
+                    $firstReading = $previous_date['reading_value'] ?? null;
+                    $endReadingDate = date('Y-m-d', strtotime($next_date['date'])) ?? null;
+                    $endReading = $next_date['reading_value'] ?? null;
+                    // if (!empty($closefirstReadingDate)) {
+                    //     $firstReadingDate = date('Y-m-d', strtotime($closestReading['date'])) ?? null;
+                    //     $firstReading = $closestReading['reading_value'] ?? null;
+                    // } else {
+                    //     $firstReadingDate = date('Y-m-d', strtotime($reading_arr[0]['date'])) ?? null;
+                    //     $firstReading = $reading_arr[0]['reading_value'] ?? null;
+                    // }
+                    // $endReadingDate = date('Y-m-d', strtotime($reading_arr[1]['date'])) ?? null;
+                    // $endReading = $reading_arr[1]['reading_value'] ?? null;
 
                     if (!empty($firstReadingDate) && !empty($firstReading) && !empty($endReadingDate) && !empty($endReading)) {
                         $time1 = strtotime($firstReadingDate);
