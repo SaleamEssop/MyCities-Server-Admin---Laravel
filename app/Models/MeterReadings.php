@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\CommonModelFunctions;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\URL;
 
 class MeterReadings extends Model
 {
-    use HasFactory;
+    use HasFactory,CommonModelFunctions;
 
     protected $fillable = [
         'meter_id',

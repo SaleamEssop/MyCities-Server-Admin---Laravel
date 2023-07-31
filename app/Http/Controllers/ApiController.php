@@ -1117,7 +1117,7 @@ class ApiController extends Controller
     }
     public function getReadings($accountID, $meter, $bill_type,$start_date,$end_date)
     {
-     
+
         if ($meter) {
             // water
             // $metersReading = MeterReadings::where('meter_id', 255)->get();
@@ -1134,8 +1134,8 @@ class ApiController extends Controller
                 usort($reading_dates, function ($a, $b) {
                     return $a['date'] <=> $a['date'];
                 });
-                
-                
+
+
                 // $closestReading = null;
                 // foreach ($reading_dates as $reading) {
 
