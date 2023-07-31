@@ -89,7 +89,7 @@ if (!function_exists('getDaysBetweenTwoDates')) {
     {
         $date1 = Carbon::parse($lowestDate);
         $date2 = Carbon::parse($highestDate);
-        return $date1->diffInDays($date2) + 1;
+        return $date1->diffInDays($date2);
     }
 }
 

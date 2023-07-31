@@ -5,6 +5,7 @@ namespace App\Http\Services;
 use App\Models\Meter;
 use App\Models\MeterReadings;
 use App\Models\RegionsAccountTypeCost;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class MeterService
@@ -65,9 +66,18 @@ class MeterService
         }
         $totalUsage = $lastReading - $firstReading;
         $averageDailyUsage = round($totalUsage / $totalDaysInBetween, 2);
+
+        $reading = '000000';
+        if ($meter->meter_type_id == config('constants.meter.type.water')) {
+            $reading = sprintf("%04d", $totalUsage);
+        } else if ($meter->meter_type_id == config('constants.meter.type.electricity')) {
+            $reading = sprintf("%05d", $totalUsage);
+        }
         return [
+            'reading' => $reading,
             'meter_type' => $meter->meter_type_id,
             'total_usage' => $totalUsage,
+            'total_days' => $totalDaysInBetweenCurrentCycle,
             'average_usage' => $averageDailyUsage,
             'predictive_monthly_usage' => $averageDailyUsage * $totalDaysInBetweenCurrentCycle,
         ];
@@ -192,24 +202,48 @@ class MeterService
                     'additional_costs' => $waterOutAdditionalTotalCosts
                 ],
             ],
+            'daily_predictive' => round($predictiveCost / $usageInfo['total_days'], 2),
+            'daily_cost' => round($totalCost / $usageInfo['total_days'], 2),
             'total' => round($totalCost, 2),
             'predictive' => round($predictiveCost, 2)
         ];
     }
 
-    public function getElectricityMeterCost($regionAccountTypeCost, $usageInfo): array
+    public function getUsageElectricityMeterCost($regionAccountTypeCost, $usageInfo): array
     {
-        $waterInBrackets = json_decode($regionAccountTypeCost->water_in, true);
-        $waterOutBrackets = json_decode($regionAccountTypeCost->water_out, true);
+        $electricityBrackets = json_decode($regionAccountTypeCost->electricity, true);
+        $electricityPrediction = $this->getTotalCostByBrackets($electricityBrackets, $usageInfo['predictive_monthly_usage']);
+        $electricityTotal = $this->getTotalCostByBrackets($electricityBrackets, $usageInfo['total_usage']);
+        $electricityAdditionalPredictiveCosts = [
+            'additional_costs' => [],
+            'total' => 0
+        ];
+        $electricityAdditionalTotalCosts = [
+            'additional_costs' => [],
+            'total' => 0
+        ];
+        if ($regionAccountTypeCost->electricity_additional) {
+            $electricityAdditionalCostsModule = json_decode($regionAccountTypeCost->electricity_additional, true);
+            $electricityAdditionalPredictiveCosts = $this->getAdditionalCosts($electricityAdditionalCostsModule, $usageInfo['predictive_monthly_usage']);
+            $electricityAdditionalTotalCosts = $this->getAdditionalCosts($electricityAdditionalCostsModule, $usageInfo['total_usage']);
+        }
+        $totalCost = $electricityTotal + $electricityAdditionalTotalCosts['total'];
+        $predictiveCost = $electricityPrediction + $electricityAdditionalPredictiveCosts['total'];
         return [
-            'water_in' => [
-                'prediction' => $this->getTotalCostModule($waterInBrackets, $usageInfo['predictive_monthly_usage']),
-                'total' => $this->getTotalCostModule($waterInBrackets, $usageInfo['total_usage'])
+            'electricity' => [
+                'predictive' => [
+                    'total' => $electricityPrediction,
+                    'additional_costs' => $electricityAdditionalPredictiveCosts
+                ],
+                'real' => [
+                    'total' => $electricityTotal,
+                    'additional_costs' => $electricityAdditionalTotalCosts
+                ],
             ],
-            'water_out' => [
-                'prediction' => $this->getTotalCostModule($waterOutBrackets, $usageInfo['predictive_monthly_usage']),
-                'total' => $this->getTotalCostModule($waterOutBrackets, $usageInfo['total_usage'])
-            ]
+            'daily_predictive' => round($predictiveCost / $usageInfo['total_days'], 2),
+            'daily_cost' => round($totalCost / $usageInfo['total_days'], 2),
+            'total' => round($totalCost, 2),
+            'predictive' => round($predictiveCost, 2)
         ];
     }
 
@@ -239,8 +273,8 @@ class MeterService
         $regionAccountTypeCost = RegionsAccountTypeCost::query()
             ->where('region_id', $account['region_id'])
             ->where('account_type_id', $account['account_type_id'])
-//            ->where('start_date', '<=', $cycleDates['start_date'])
-//            ->where('end_date', '>=', $cycleDates['end_date'])
+            ->where('start_date', '<=', $cycleDates['start_date'])
+            ->where('end_date', '>=', $cycleDates['end_date'])
             ->first();
         if (!$regionAccountTypeCost) {
             return ['status' => false, 'message' => "No active cost module found. Please contact administrator!", 'status_code' => 404];
@@ -248,6 +282,36 @@ class MeterService
 
         $meterReadingInfo = $this->getReadingInfo($meterId, $cycleDates['start_date'], $cycleDates['end_date']);
         $usageInfo = $this->getUsageInfo($meter, $meterReadingInfo);
-        return $this->getUsageWaterMeterCost($regionAccountTypeCost, $usageInfo);
+        $finalData = [
+            'usage' => $usageInfo,
+            'month' => Carbon::parse($cycleDates['end_date'])->format('M Y'),
+            'cycle' => Carbon::parse($cycleDates['start_date'])->format('M Y') . ' to ' . Carbon::parse($cycleDates['end_date'])->format('M Y'),
+            'current_date' => Carbon::now()->format('D, d M Y'),
+            'meter_details' => $meter,
+            'status' => false,
+            'status_code' => 404,
+            'has_history' => false,
+        ];
+        if ($meter->meter_type_id == config('constants.meter.type.water')) {
+            $finalData['data'] = $this->getUsageWaterMeterCost($regionAccountTypeCost, $usageInfo);
+            $finalData['status_code'] = 200;
+            $finalData['status'] = true;
+        } else if ($meter->meter_type_id == config('constants.meter.type.electricity')) {
+            $finalData['data'] = $this->getUsageElectricityMeterCost($regionAccountTypeCost, $usageInfo);
+            $finalData['status_code'] = 200;
+            $finalData['status'] = true;
+        } else {
+            $finalData['message'] = 'Meter type is not supported yet';
+        }
+        if ($finalData['status']) {
+            $cycleDates = getMonthCycle($account['read_day'], (int)$month + 1); // get cycle date from and too of current or previous months
+            $totalReadings = MeterReadings::query()
+                ->where('reading_date', '>=', $cycleDates['start_date'])
+                ->where('reading_date', '<=', $cycleDates['end_date'])
+                ->where('meter_id', $meterId)->count();
+            $finalData['has_history'] = $totalReadings > 0;
+        }
+
+        return $finalData;
     }
 }
