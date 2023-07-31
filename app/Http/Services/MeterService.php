@@ -185,24 +185,24 @@ class MeterService
             'water_in' => [
                 'predictive' => [
                     'total' => $waterInPrediction,
-                    'additional_costs' => $waterInAdditionalPredictiveCosts
+                    'additional_costs' => $waterInAdditionalPredictiveCosts['additional_costs']
                 ],
                 'real' => [
                     'total' => $waterInTotal,
-                    'additional_costs' => $waterInAdditionalTotalCosts
+                    'additional_costs' => $waterInAdditionalTotalCosts['additional_costs']
                 ],
             ],
             'water_out' => [
                 'predictive' => [
                     'total' => $waterOutPrediction,
-                    'additional_costs' => $waterOutAdditionalPredictiveCosts
+                    'additional_costs' => $waterOutAdditionalPredictiveCosts['additional_costs']
                 ],
                 'real' => [
                     'total' => $waterOutTotal,
-                    'additional_costs' => $waterOutAdditionalTotalCosts
+                    'additional_costs' => $waterOutAdditionalTotalCosts['additional_costs']
                 ],
             ],
-            'daily_predictive' => round($predictiveCost / $usageInfo['total_days'], 2),
+            'daily_predictive_cost' => round($predictiveCost / $usageInfo['predictive_monthly_usage'], 2),
             'daily_cost' => round($totalCost / $usageInfo['total_days'], 2),
             'total' => round($totalCost, 2),
             'predictive' => round($predictiveCost, 2)
@@ -233,14 +233,14 @@ class MeterService
             'electricity' => [
                 'predictive' => [
                     'total' => $electricityPrediction,
-                    'additional_costs' => $electricityAdditionalPredictiveCosts
+                    'additional_costs' => $electricityAdditionalPredictiveCosts['additional_costs']
                 ],
                 'real' => [
                     'total' => $electricityTotal,
-                    'additional_costs' => $electricityAdditionalTotalCosts
+                    'additional_costs' => $electricityAdditionalTotalCosts['additional_costs']
                 ],
             ],
-            'daily_predictive' => round($predictiveCost / $usageInfo['total_days'], 2),
+            'daily_predictive_cost' => round($predictiveCost / $usageInfo['predictive_monthly_usage'], 2),
             'daily_cost' => round($totalCost / $usageInfo['total_days'], 2),
             'total' => round($totalCost, 2),
             'predictive' => round($predictiveCost, 2)
