@@ -180,6 +180,10 @@ class MeterService
         // Summing up all costs
         $totalCost = $waterInTotal + $waterOutTotal + $waterInAdditionalTotalCosts['total'] + $waterOutAdditionalTotalCosts['total'];
         $predictiveCost = $waterInPrediction + $waterOutPrediction + $waterInAdditionalPredictiveCosts['total'] + $waterOutAdditionalTotalCosts['total'];
+        $percentageValue = ((float)$regionAccountTypeCost->vat_percentage / 100) * $totalCost;
+        $predictivePercentageValue = ((float)$regionAccountTypeCost->vat_percentage / 100) * $predictiveCost;
+        $totalCost = $totalCost + $percentageValue;
+        $predictiveCost = $predictivePercentageValue + $predictivePercentageValue;
         // End Summing up all costs
         return [
             'water_in' => [
@@ -202,6 +206,8 @@ class MeterService
                     'additional_costs' => $waterOutAdditionalTotalCosts['additional_costs']
                 ],
             ],
+            'vat' => round($percentageValue,2),
+            'vat_predictive' => round($predictivePercentageValue, 2),
             'daily_predictive_cost' => round($predictiveCost / $usageInfo['predictive_monthly_usage'], 2),
             'daily_cost' => round($totalCost / $usageInfo['total_days'], 2),
             'total' => round($totalCost, 2),
@@ -229,6 +235,11 @@ class MeterService
         }
         $totalCost = $electricityTotal + $electricityAdditionalTotalCosts['total'];
         $predictiveCost = $electricityPrediction + $electricityAdditionalPredictiveCosts['total'];
+
+        $percentageValue = ((float)$regionAccountTypeCost->vat_percentage / 100) * $totalCost;
+        $predictivePercentageValue = ((float)$regionAccountTypeCost->vat_percentage / 100) * $predictiveCost;
+        $totalCost = $totalCost + $percentageValue;
+        $predictiveCost = $predictivePercentageValue + $predictivePercentageValue;
         return [
             'electricity' => [
                 'predictive' => [
@@ -240,6 +251,8 @@ class MeterService
                     'additional_costs' => $electricityAdditionalTotalCosts['additional_costs']
                 ],
             ],
+            'vat' => round($percentageValue,2),
+            'vat_predictive' => round($predictivePercentageValue, 2),
             'daily_predictive_cost' => round($predictiveCost / $usageInfo['predictive_monthly_usage'], 2),
             'daily_cost' => round($totalCost / $usageInfo['total_days'], 2),
             'total' => round($totalCost, 2),
@@ -251,24 +264,52 @@ class MeterService
     public function getCostEstimationByMeterId($meterId, $month = 0): array
     {
         $userDetails = loggedUserDetails();
+        $currentDate = Carbon::now()->format('D, d M Y');
         // check if account exits or not
         if (!$userDetails['account_ids']) {
-            return ['status' => false, 'message' => 'No account found! Please add one', 'status_code' => 404];
+            return [
+                'status' => false,
+                'current_date' => $currentDate,
+                'cycle' => '--',
+                'month' => '--',
+                'meter_details' => [],
+                'message' => 'No account found! Please add one',
+                'status_code' => 404
+            ];
         }
-        $meter = Meter::query()->whereIn('account_id', $userDetails['account_ids']) // condition to check if meter belongs to the current user
-        ->find($meterId);
+        $meter = Meter::query()
+            ->whereIn('account_id', $userDetails['account_ids']) // condition to check if meter belongs to the current user
+            ->find($meterId);
         if (!$meter) {
-            return ['status' => false, 'message' => 'Meter not found!', 'status_code' => 404];
+            return [
+                'status' => false,
+                'current_date' => $currentDate,
+                'cycle' => '--',
+                'month' => '--',
+                'meter_details' => [],
+                'message' => 'Meter not found!',
+                'status_code' => 404
+            ];
         }
         $account = $userDetails['accounts']->where('id', $meter->account_id)->first();
         $cycleDates = getMonthCycle($account['read_day'], (int)$month); // get cycle date from and too of current or previous months
+        $cycleMonth = Carbon::parse($cycleDates['end_date'])->format('M Y');
+        $cycle = Carbon::parse($cycleDates['start_date'])->format('M Y') . ' to ' . Carbon::parse($cycleDates['end_date'])->format('M Y');
         $totalReadings = MeterReadings::query() // getting the oldest date of the cycle month
         ->select(DB::raw('MIN(reading_date) as min_date'))
             ->where('reading_date', '>=', $cycleDates['start_date'])
             ->where('reading_date', '<=', $cycleDates['end_date'])
             ->where('meter_id', $meterId)->count();
         if ($totalReadings <= 1) {
-            return ['status' => false, 'message' => "There must be minimum of two readings for the cycle month! found readings: $totalReadings", 'status_code' => 422];
+            return [
+                'status' => false,
+                'current_date' => $currentDate,
+                'cycle' => $cycle,
+                'month' => $cycleMonth,
+                'meter_details' => $meter,
+                'message' => "There must be minimum of two readings for the cycle month! found readings: $totalReadings",
+                'status_code' => 422
+            ];
         }
         $regionAccountTypeCost = RegionsAccountTypeCost::query()
             ->where('region_id', $account['region_id'])
@@ -277,16 +318,24 @@ class MeterService
             ->where('end_date', '>=', $cycleDates['end_date'])
             ->first();
         if (!$regionAccountTypeCost) {
-            return ['status' => false, 'message' => "No active cost module found. Please contact administrator!", 'status_code' => 404];
+            return [
+                'status' => false,
+                'current_date' => $currentDate,
+                'cycle' => $cycle,
+                'month' => $cycleMonth,
+                'meter_details' => $meter,
+                'message' => "No active cost module found. Please contact administrator!",
+                'status_code' => 404
+            ];
         }
 
         $meterReadingInfo = $this->getReadingInfo($meterId, $cycleDates['start_date'], $cycleDates['end_date']);
         $usageInfo = $this->getUsageInfo($meter, $meterReadingInfo);
         $finalData = [
             'usage' => $usageInfo,
-            'month' => Carbon::parse($cycleDates['end_date'])->format('M Y'),
-            'cycle' => Carbon::parse($cycleDates['start_date'])->format('M Y') . ' to ' . Carbon::parse($cycleDates['end_date'])->format('M Y'),
-            'current_date' => Carbon::now()->format('D, d M Y'),
+            'current_date' => $currentDate,
+            'cycle' => $cycle,
+            'month' => $cycleMonth,
             'meter_details' => $meter,
             'status' => false,
             'status_code' => 404,
