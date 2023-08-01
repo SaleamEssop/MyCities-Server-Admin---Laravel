@@ -77,7 +77,8 @@ class MeterService
             'reading' => $reading,
             'meter_type' => $meter->meter_type_id,
             'total_usage' => $totalUsage,
-            'total_days' => $totalDaysInBetweenCurrentCycle,
+            'total_cycle_days' => $totalDaysInBetweenCurrentCycle,
+            'total_days' => $totalDaysInBetween,
             'average_usage' => $averageDailyUsage,
             'predictive_monthly_usage' => $averageDailyUsage * $totalDaysInBetweenCurrentCycle,
         ];
@@ -180,10 +181,10 @@ class MeterService
         // Summing up all costs
         $totalCost = $waterInTotal + $waterOutTotal + $waterInAdditionalTotalCosts['total'] + $waterOutAdditionalTotalCosts['total'];
         $predictiveCost = $waterInPrediction + $waterOutPrediction + $waterInAdditionalPredictiveCosts['total'] + $waterOutAdditionalTotalCosts['total'];
-        $percentageValue = ((float)$regionAccountTypeCost->vat_percentage / 100) * $totalCost;
-        $predictivePercentageValue = ((float)$regionAccountTypeCost->vat_percentage / 100) * $predictiveCost;
-        $totalCost = $totalCost + $percentageValue;
-        $predictiveCost = $predictivePercentageValue + $predictivePercentageValue;
+        $percentageVAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $totalCost;
+        $predictivePercentageVAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $predictiveCost;
+        $totalCost = $totalCost + $percentageVAT;
+        $predictiveCost = $predictiveCost + $predictivePercentageVAT;
         // End Summing up all costs
         return [
             'water_in' => [
@@ -206,9 +207,9 @@ class MeterService
                     'additional_costs' => $waterOutAdditionalTotalCosts['additional_costs']
                 ],
             ],
-            'vat' => round($percentageValue,2),
-            'vat_predictive' => round($predictivePercentageValue, 2),
-            'daily_predictive_cost' => round($predictiveCost / $usageInfo['predictive_monthly_usage'], 2),
+            'vat' => round($percentageVAT,2),
+            'vat_predictive' => round($predictivePercentageVAT, 2),
+            'daily_predictive_cost' => round($predictiveCost / $usageInfo['total_cycle_days'], 2),
             'daily_cost' => round($totalCost / $usageInfo['total_days'], 2),
             'total' => round($totalCost, 2),
             'predictive' => round($predictiveCost, 2)
@@ -235,10 +236,10 @@ class MeterService
         }
         $totalCost = $electricityTotal + $electricityAdditionalTotalCosts['total'];
         $predictiveCost = $electricityPrediction + $electricityAdditionalPredictiveCosts['total'];
-        $percentageValue = ((float)$regionAccountTypeCost->vat_percentage / 100) * $totalCost;
-        $predictivePercentageValue = ((float)$regionAccountTypeCost->vat_percentage / 100) * $predictiveCost;
-        $totalCost = $totalCost + $percentageValue;
-        $predictiveCost = $predictiveCost + $predictivePercentageValue;
+        $percentageVAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $totalCost;
+        $predictivePercentageVAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $predictiveCost;
+        $totalCost = $totalCost + $percentageVAT;
+        $predictiveCost = $predictiveCost + $predictivePercentageVAT;
         return [
             'electricity' => [
                 'predictive' => [
@@ -250,9 +251,9 @@ class MeterService
                     'additional_costs' => $electricityAdditionalTotalCosts['additional_costs']
                 ],
             ],
-            'vat' => round($percentageValue,2),
-            'vat_predictive' => round($predictivePercentageValue, 2),
-            'daily_predictive_cost' => round($predictiveCost / $usageInfo['predictive_monthly_usage'], 2),
+            'vat' => round($percentageVAT,2),
+            'vat_predictive' => round($predictivePercentageVAT, 2),
+            'daily_predictive_cost' => round($predictiveCost / $usageInfo['total_cycle_days'], 2),
             'daily_cost' => round($totalCost / $usageInfo['total_days'], 2),
             'total' => round($totalCost, 2),
             'predictive' => round($predictiveCost, 2)
