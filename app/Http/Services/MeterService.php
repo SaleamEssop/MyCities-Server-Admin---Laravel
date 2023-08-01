@@ -235,11 +235,10 @@ class MeterService
         }
         $totalCost = $electricityTotal + $electricityAdditionalTotalCosts['total'];
         $predictiveCost = $electricityPrediction + $electricityAdditionalPredictiveCosts['total'];
-
         $percentageValue = ((float)$regionAccountTypeCost->vat_percentage / 100) * $totalCost;
         $predictivePercentageValue = ((float)$regionAccountTypeCost->vat_percentage / 100) * $predictiveCost;
         $totalCost = $totalCost + $percentageValue;
-        $predictiveCost = $predictivePercentageValue + $predictivePercentageValue;
+        $predictiveCost = $predictiveCost + $predictivePercentageValue;
         return [
             'electricity' => [
                 'predictive' => [
