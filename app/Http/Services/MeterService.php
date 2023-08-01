@@ -7,6 +7,7 @@ use App\Models\MeterReadings;
 use App\Models\RegionsAccountTypeCost;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class MeterService
 {
@@ -85,7 +86,7 @@ class MeterService
     }
 
 
-    public function getTotalCostByBrackets($moduleBrackets, $usage): float
+    public function getTotalCostByBrackets($moduleBrackets, $usage, $breakable = false): float
     {
         $brackets = findBracketsBeforeAndIncluding($moduleBrackets, $usage);
         $usageCost = 0;
@@ -98,12 +99,13 @@ class MeterService
                 $total = $usage;
             }
             $usage -= $total;
-            if (isset($bracket['percentage'])) {
+            if (array_key_exists('percentage', $bracket)) {
                 $percentage = (float)$bracket['percentage'];
-                $total = $total - ($total * ($percentage / 100));
+                $total = ($percentage / 100) * $total;
             }
             $totalCost = $total * $cost;
             $usageCost += $totalCost;
+
         }
         return round($usageCost, 2);
     }
@@ -112,14 +114,14 @@ class MeterService
     {
         $finalAdditionalCosts = [];
         $total = 0;
-        foreach ($additionalCosts as $key => $additionalCost) {
+        foreach ($additionalCosts as $additionalCost) {
             if (isset($additionalCost['percentage']) && $additionalCost['percentage'] > 0) {
                 $percentage = (float)$additionalCost['percentage'];
                 if ($percentage != 100) {
                     $usage = $usage - ($usage * ($percentage / 100));
                 }
             }
-            if (array_key_exists('percentage',$additionalCost) && ($additionalCost['percentage'] == '' || $additionalCost['percentage'] == null)) {
+            if (array_key_exists('percentage', $additionalCost) && ($additionalCost['percentage'] == '' || $additionalCost['percentage'] == null)) {
                 $usage = 1;
             }
             $additionalCostValue = (float)$additionalCost['cost'];
@@ -161,7 +163,7 @@ class MeterService
 
         // Water out Costs
         $waterOutBrackets = json_decode($regionAccountTypeCost->water_out, true);
-        $waterOutPrediction = $this->getTotalCostByBrackets($waterOutBrackets, $usageInfo['predictive_monthly_usage']);
+        $waterOutPrediction = $this->getTotalCostByBrackets($waterOutBrackets, $usageInfo['predictive_monthly_usage'], true);
         $waterOutTotal = $this->getTotalCostByBrackets($waterOutBrackets, $usageInfo['total_usage']);
         $waterOutAdditionalPredictiveCosts = [
             'additional_costs' => [],
