@@ -294,7 +294,7 @@ class MeterService
         $account = $userDetails['accounts']->where('id', $meter->account_id)->first();
         $cycleDates = getMonthCycle($account['read_day'], (int)$month); // get cycle date from and too of current or previous months
         $cycleMonth = Carbon::parse($cycleDates['end_date'])->format('M Y');
-        $cycle = Carbon::parse($cycleDates['start_date'])->format('M Y') . ' to ' . Carbon::parse($cycleDates['end_date'])->format('M Y');
+        $cycle = Carbon::parse($cycleDates['start_date'])->format('M d Y') . ' to ' . Carbon::parse($cycleDates['end_date'])->format('M d Y');
         $totalReadings = MeterReadings::query() // getting the oldest date of the cycle month
         ->select(DB::raw('MIN(reading_date) as min_date'))
             ->where('reading_date', '>=', $cycleDates['start_date'])
