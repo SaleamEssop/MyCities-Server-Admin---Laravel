@@ -112,14 +112,14 @@ class MeterService
     {
         $finalAdditionalCosts = [];
         $total = 0;
-        foreach ($additionalCosts as $additionalCost) {
+        foreach ($additionalCosts as $key => $additionalCost) {
             if (isset($additionalCost['percentage']) && $additionalCost['percentage'] > 0) {
                 $percentage = (float)$additionalCost['percentage'];
                 if ($percentage != 100) {
                     $usage = $usage - ($usage * ($percentage / 100));
                 }
             }
-            if (isset($additionalCost['percentage']) && ($additionalCost['percentage'] == '' || $additionalCost['percentage'] == null)) {
+            if (array_key_exists('percentage',$additionalCost) && ($additionalCost['percentage'] == '' || $additionalCost['percentage'] == null)) {
                 $usage = 1;
             }
             $additionalCostValue = (float)$additionalCost['cost'];
@@ -207,7 +207,7 @@ class MeterService
                     'additional_costs' => $waterOutAdditionalTotalCosts['additional_costs']
                 ],
             ],
-            'vat' => round($percentageVAT,2),
+            'vat' => round($percentageVAT, 2),
             'vat_predictive' => round($predictivePercentageVAT, 2),
             'daily_predictive_cost' => round($predictiveCost / $usageInfo['total_cycle_days'], 2),
             'daily_cost' => round($totalCost / $usageInfo['total_days'], 2),
@@ -251,7 +251,7 @@ class MeterService
                     'additional_costs' => $electricityAdditionalTotalCosts['additional_costs']
                 ],
             ],
-            'vat' => round($percentageVAT,2),
+            'vat' => round($percentageVAT, 2),
             'vat_predictive' => round($predictivePercentageVAT, 2),
             'daily_predictive_cost' => round($predictiveCost / $usageInfo['total_cycle_days'], 2),
             'daily_cost' => round($totalCost / $usageInfo['total_days'], 2),
