@@ -21,8 +21,12 @@ class MeterController extends Controller
         return response($response);
     }
 
-    public function fixReads($meterId, Request $request)
+    public function completeBill($accountId, Request $request)
     {
-
+        $response = $this->service->getCompleteBillByAccount($accountId, $request->get('month', 0));
+        if (isset($response['status']) && !$response['status']) {
+            return response($response, $response['status_code']);
+        }
+        return response($response);
     }
 }

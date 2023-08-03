@@ -2,6 +2,7 @@
 
 namespace App\Http\Services;
 
+use App\Models\FixedCost;
 use App\Models\Meter;
 use App\Models\MeterReadings;
 use App\Models\RegionsAccountTypeCost;
@@ -139,7 +140,7 @@ class MeterService
     }
 
 
-    public function getUsageWaterMeterCost($regionAccountTypeCost, $usageInfo): array
+    public function getUsageWaterMeterCost($regionAccountTypeCost, $usageInfo, $includeVAT): array
     {
         // Water in Costs
         $waterInBrackets = json_decode($regionAccountTypeCost->water_in, true);
@@ -183,10 +184,13 @@ class MeterService
         // Summing up all costs
         $totalCost = $waterInTotal + $waterOutTotal + $waterInAdditionalTotalCosts['total'] + $waterOutAdditionalTotalCosts['total'];
         $predictiveCost = $waterInPrediction + $waterOutPrediction + $waterInAdditionalPredictiveCosts['total'] + $waterOutAdditionalTotalCosts['total'];
-        $percentageVAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $totalCost;
-        $predictivePercentageVAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $predictiveCost;
-        $totalCost = $totalCost + $percentageVAT;
-        $predictiveCost = $predictiveCost + $predictivePercentageVAT;
+
+        $VAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $totalCost;
+        $predictiveVAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $predictiveCost;
+        if ($includeVAT) {
+            $totalCost = $totalCost + $VAT;
+            $predictiveCost = $predictiveCost + $predictiveVAT;
+        }
         // End Summing up all costs
         return [
             'water_in' => [
@@ -209,8 +213,8 @@ class MeterService
                     'additional_costs' => $waterOutAdditionalTotalCosts['additional_costs']
                 ],
             ],
-            'vat' => round($percentageVAT, 2),
-            'vat_predictive' => round($predictivePercentageVAT, 2),
+            'vat' => round($VAT, 2),
+            'vat_predictive' => round($predictiveVAT, 2),
             'daily_predictive_cost' => round($predictiveCost / $usageInfo['total_cycle_days'], 2),
             'daily_cost' => round($totalCost / $usageInfo['total_days'], 2),
             'total' => round($totalCost, 2),
@@ -218,7 +222,7 @@ class MeterService
         ];
     }
 
-    public function getUsageElectricityMeterCost($regionAccountTypeCost, $usageInfo): array
+    public function getUsageElectricityMeterCost($regionAccountTypeCost, $usageInfo, $includeVAT): array
     {
         $electricityBrackets = json_decode($regionAccountTypeCost->electricity, true);
         $electricityPrediction = $this->getTotalCostByBrackets($electricityBrackets, $usageInfo['predictive_monthly_usage']);
@@ -236,12 +240,16 @@ class MeterService
             $electricityAdditionalPredictiveCosts = $this->getAdditionalCosts($electricityAdditionalCostsModule, $usageInfo['predictive_monthly_usage']);
             $electricityAdditionalTotalCosts = $this->getAdditionalCosts($electricityAdditionalCostsModule, $usageInfo['total_usage']);
         }
+
         $totalCost = $electricityTotal + $electricityAdditionalTotalCosts['total'];
         $predictiveCost = $electricityPrediction + $electricityAdditionalPredictiveCosts['total'];
-        $percentageVAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $totalCost;
-        $predictivePercentageVAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $predictiveCost;
-        $totalCost = $totalCost + $percentageVAT;
-        $predictiveCost = $predictiveCost + $predictivePercentageVAT;
+
+        $VAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $totalCost;
+        $predictiveVAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $predictiveCost;
+        if ($includeVAT) {
+            $totalCost = $totalCost + $VAT;
+            $predictiveCost = $predictiveCost + $predictiveVAT;
+        }
         return [
             'electricity' => [
                 'predictive' => [
@@ -253,8 +261,8 @@ class MeterService
                     'additional_costs' => $electricityAdditionalTotalCosts['additional_costs']
                 ],
             ],
-            'vat' => round($percentageVAT, 2),
-            'vat_predictive' => round($predictivePercentageVAT, 2),
+            'vat' => round($VAT, 2),
+            'vat_predictive' => round($predictiveVAT, 2),
             'daily_predictive_cost' => round($predictiveCost / $usageInfo['total_cycle_days'], 2),
             'daily_cost' => round($totalCost / $usageInfo['total_days'], 2),
             'total' => round($totalCost, 2),
@@ -263,7 +271,7 @@ class MeterService
     }
 
     // main function to calculate cost estimation
-    public function getCostEstimationByMeterId($meterId, $month = 0): array
+    public function getCostEstimationByMeterId($meterId, $month = 0, $includeVAT = true): array
     {
         $userDetails = loggedUserDetails();
         $currentDate = Carbon::now()->format('D, d M Y');
@@ -344,11 +352,11 @@ class MeterService
             'has_history' => false,
         ];
         if ($meter->meter_type_id == config('constants.meter.type.water')) {
-            $finalData['data'] = $this->getUsageWaterMeterCost($regionAccountTypeCost, $usageInfo);
+            $finalData['data'] = $this->getUsageWaterMeterCost($regionAccountTypeCost, $usageInfo, $includeVAT);
             $finalData['status_code'] = 200;
             $finalData['status'] = true;
         } else if ($meter->meter_type_id == config('constants.meter.type.electricity')) {
-            $finalData['data'] = $this->getUsageElectricityMeterCost($regionAccountTypeCost, $usageInfo);
+            $finalData['data'] = $this->getUsageElectricityMeterCost($regionAccountTypeCost, $usageInfo, $includeVAT);
             $finalData['status_code'] = 200;
             $finalData['status'] = true;
         } else {
@@ -365,4 +373,100 @@ class MeterService
 
         return $finalData;
     }
+
+    public function getCompleteBillByAccount($accountId, $month = 0): array
+    {
+        $userDetails = loggedUserDetails();
+        $currentDate = Carbon::now()->format('D, d M Y');
+        // check if account exits or not
+        if (!$userDetails['account_ids']) {
+            return [
+                'status' => false,
+                'current_date' => $currentDate,
+                'cycle' => '--',
+                'month' => '--',
+                'meter_details' => [],
+                'message' => 'No account found! Please add one',
+                'status_code' => 404
+            ];
+        }
+        $account = $userDetails['accounts']->where('id', $accountId)->first();
+        if (!$account) {
+            return [
+                'status' => false,
+                'current_date' => $currentDate,
+                'cycle' => '--',
+                'month' => '--',
+                'meter_details' => [],
+                'message' => 'Account not found!',
+                'status_code' => 404
+            ];
+        }
+        $cycleDates = getMonthCycle($account['read_day'], (int)$month); // get cycle date from and too of current or previous months
+        $cycleMonth = Carbon::parse($cycleDates['end_date'])->format('M Y');
+        $cycle = Carbon::parse($cycleDates['start_date'])->format('M d Y') . ' to ' . Carbon::parse($cycleDates['end_date'])->format('M d Y');
+        $regionAccountTypeCost = RegionsAccountTypeCost::query()
+            ->where('region_id', $account['region_id'])
+            ->where('account_type_id', $account['account_type_id'])
+            ->where('start_date', '<=', $cycleDates['start_date'])
+            ->where('end_date', '>=', $cycleDates['end_date'])
+            ->first();
+        if (!$regionAccountTypeCost) {
+            return [
+                'status' => false,
+                'current_date' => $currentDate,
+                'cycle' => $cycle,
+                'month' => $cycleMonth,
+                'message' => "No active cost module found. Please contact administrator!",
+                'status_code' => 404
+            ];
+        }
+        $meters = Meter::query()
+            ->where('account_id', $accountId)->get();
+        $metersData = [
+            'water_meters' => [],
+            'electricity_meters' => [],
+        ];
+        $subtotal = 0;
+        foreach ($meters as $meter) {
+            $response = $this->getCostEstimationByMeterId($meter->id, $month, false);
+            if ($meter->meter_type_id == config('constants.meter.type.water') && $response['status']) {
+                $metersData['water_meters'][] = $response;
+                $subtotal += $response['data']['predictive'];
+            } else if ($meter->meter_type_id == config('constants.meter.type.electricity') && $response['status']) {
+                $metersData['electricity_meters'][] = $response;
+                $subtotal += $response['data']['predictive'];
+            }
+        }
+        $additionalCosts = [];
+        if ($regionAccountTypeCost->additional) {
+            $additionalCosts = json_decode($regionAccountTypeCost->additional, true);
+            $fixedCosts = FixedCost::query()->where('account_id', $accountId)->where('is_active', true)->get();
+            foreach ($additionalCosts as $key => $additionalCost) {
+                $fixedCost = $fixedCosts->where('title', '=', $additionalCost['name'])->first();
+                if ($fixedCost) {
+                    $additionalCosts[$key]['cost'] = $fixedCost->value;
+                }
+            }
+        }
+        $additionalCosts = collect($additionalCosts);
+        $additionalCostsExemptVAT = $additionalCosts->where('exempt_vat', 'like', 'yes')->toArray();
+        $additionalCostsIncludeVAT = $additionalCosts->where('exempt_vat', 'like', 'no')->toArray();
+        foreach ($additionalCostsIncludeVAT as $additionalCostIncludeVAT) {
+            $subtotal += (float)$additionalCostIncludeVAT['cost'];
+        }
+        $VAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $subtotal;
+        foreach ($additionalCostsExemptVAT as $additionalCostExemptVAT) {
+            $subtotal += (float)$additionalCostExemptVAT['cost'];
+        }
+        $totalIncludingVAT = $subtotal + $VAT;
+        return [
+            'additional_costs' => array_values($additionalCosts->toArray()),
+            'meters' => $metersData,
+            'vat' => round($VAT, 2),
+            'subtotal' => round($subtotal, 2),
+            'total_including_vat' => round($totalIncludingVAT, 2),
+        ];
+    }
 }
+

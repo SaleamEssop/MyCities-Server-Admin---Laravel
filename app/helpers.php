@@ -44,8 +44,10 @@ if (!function_exists('getMonthCycle')) {
 
     function getMonthCycle($cycleDay = 15, $subtractMonths = 0): array
     {
+        if ($subtractMonths === 0) {
+            $subtractMonths = 1;
+        }
         $today = Carbon::today();
-
         if ($subtractMonths !== 0) {
             $cycleStart = $today->copy()->subMonths(abs($subtractMonths))->day($cycleDay);
         } else {
