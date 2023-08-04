@@ -465,17 +465,20 @@ class MeterService
         $additionalCosts = [];
         if ($regionAccountTypeCost->additional) {
             $additionalCosts = json_decode($regionAccountTypeCost->additional, true);
-            $fixedCosts = FixedCost::query()->where('account_id', $accountId)->where('is_active', true)->get();
+            $fixedCosts = FixedCost::query()->where('account_id', $accountId)
+                ->get();
             foreach ($additionalCosts as $key => $additionalCost) {
+                $additionalCosts[$key]['is_active'] = true;
                 $fixedCost = $fixedCosts->where('title', '=', $additionalCost['name'])->first();
                 if ($fixedCost) {
+                    $additionalCosts[$key]['is_active'] = $fixedCost->is_active == 1;
                     $additionalCosts[$key]['cost'] = $fixedCost->value;
                 }
             }
         }
         $additionalCosts = collect($additionalCosts);
-        $additionalCostsExemptVAT = $additionalCosts->where('exempt_vat', 'like', 'yes')->toArray();
-        $additionalCostsIncludeVAT = $additionalCosts->where('exempt_vat', 'like', 'no')->toArray();
+        $additionalCostsExemptVAT = $additionalCosts->where('exempt_vat', 'like', 'yes')->where('is_active', '=', true)->toArray();
+        $additionalCostsIncludeVAT = $additionalCosts->where('exempt_vat', 'like', 'no')->where('is_active', '=', true)->toArray();
         foreach ($additionalCostsIncludeVAT as $additionalCostIncludeVAT) {
             $subtotal += (float)$additionalCostIncludeVAT['cost'];
         }
