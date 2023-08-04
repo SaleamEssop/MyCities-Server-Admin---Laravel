@@ -479,7 +479,8 @@ class MeterService
         foreach ($additionalCostsIncludeVAT as $additionalCostIncludeVAT) {
             $subtotal += (float)$additionalCostIncludeVAT['cost'];
         }
-        $VAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $subtotal;
+        $vatExemptedSubtotal =  $subtotal;
+        $VAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $vatExemptedSubtotal;
         foreach ($additionalCostsExemptVAT as $additionalCostExemptVAT) {
             $subtotal += (float)$additionalCostExemptVAT['cost'];
         }
@@ -513,6 +514,7 @@ class MeterService
             'meters' => $metersData,
             'vat' => round($VAT, 2),
             'subtotal' => round($subtotal, 2),
+            'vat_exempted_subtotal' => round($vatExemptedSubtotal, 2),
             'total_including_vat' => round($totalIncludingVAT, 2),
         ];
     }
