@@ -406,8 +406,8 @@
                             <label><strong>VAT Exempt Charges:</strong></label>
                             <div class="form-group" style="display: flex;justify-content: space-around">
                                             <span><input type="radio" placeholder="Cost" name="additional[{{$key}}][exempt_vat]"
-                                                         value="yes" @if($value->exempt_vat === 'yes') checked @endif  required/> Yes</span>
-                                <span><input type="radio" @if($value->exempt_vat === 'no') checked @endif placeholder="Cost" name="additional[{{$key}}][exempt_vat]"
+                                                         value="yes" @if(isset($value->exempt_vat) && $value->exempt_vat === 'yes') checked @endif  required/> Yes</span>
+                                <span><input type="radio" @if(isset($value->exempt_vat) && $value->exempt_vat === 'no') checked @endif placeholder="Cost" name="additional[{{$key}}][exempt_vat]"
                                              value="no" required/> No</span>
                             </div>
                         </div>
