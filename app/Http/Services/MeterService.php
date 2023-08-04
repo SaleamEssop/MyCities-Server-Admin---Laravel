@@ -423,6 +423,30 @@ class MeterService
         }
         $meters = Meter::query()
             ->where('account_id', $accountId)->get();
+        $meterIds = $meters->pluck('id')->toArray();
+        $totalReadings = MeterReadings::query() // getting the oldest date of the cycle month
+        ->select(DB::raw('meter_id,count(*) as total'))
+            ->where('reading_date', '>=', $cycleDates['start_date'])
+            ->where('reading_date', '<=', $cycleDates['end_date'])
+            ->whereIn('meter_id', $meterIds)->groupBy('meter_id')->get()->toArray();
+        $readingCounts = 0;
+        foreach ($totalReadings as $totalReading) {
+            $readingCounts = $totalReading['total'];
+            if ($readingCounts > 1) {
+                break;
+            }
+        }
+        if ($readingCounts <= 1) {
+            return [
+                'status' => false,
+                'current_date' => $currentDate,
+                'cycle' => $cycle,
+                'month' => $cycleMonth,
+                'message' => "There must be minimum of two readings for the cycle month! found readings: $readingCounts",
+                'status_code' => 422
+            ];
+        }
+
         $metersData = [
             'water_meters' => [],
             'electricity_meters' => [],
@@ -460,7 +484,31 @@ class MeterService
             $subtotal += (float)$additionalCostExemptVAT['cost'];
         }
         $totalIncludingVAT = $subtotal + $VAT;
+
+        $cycleDates = getMonthCycle($account['read_day'], (int)$month + 1); // get cycle date from and too of current or previous months
+        $totalReadings = MeterReadings::query() // getting the oldest date of the cycle month
+        ->select(DB::raw('meter_id,count(*) as total'))
+            ->where('reading_date', '>=', $cycleDates['start_date'])
+            ->where('reading_date', '<=', $cycleDates['end_date'])
+            ->whereIn('meter_id', $meterIds)->groupBy('meter_id')->get()->toArray();
+        $readingCounts = 0;
+        foreach ($totalReadings as $totalReading) {
+            $readingCounts = $totalReading['total'];
+            if ($readingCounts > 1) {
+                break;
+            }
+        }
+        $hasHistory = false;
+        if ($readingCounts > 1) {
+            $hasHistory = true;
+        }
         return [
+            'status' => true,
+            'current_date' => $currentDate,
+            'has_history' => $hasHistory,
+            'cycle' => $cycle,
+            'month' => $cycleMonth,
+            'status_code' => 200,
             'additional_costs' => array_values($additionalCosts->toArray()),
             'meters' => $metersData,
             'vat' => round($VAT, 2),
