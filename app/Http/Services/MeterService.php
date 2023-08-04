@@ -477,8 +477,9 @@ class MeterService
             }
         }
         $additionalCosts = collect($additionalCosts);
-        $additionalCostsExemptVAT = $additionalCosts->where('exempt_vat', 'like', 'yes')->where('is_active', '=', true)->toArray();
-        $additionalCostsIncludeVAT = $additionalCosts->where('exempt_vat', 'like', 'no')->where('is_active', '=', true)->toArray();
+        $additionalCosts = $additionalCosts->where('is_active', '=', true);
+        $additionalCostsExemptVAT = $additionalCosts->where('exempt_vat', 'like', 'yes')->toArray();
+        $additionalCostsIncludeVAT = $additionalCosts->where('exempt_vat', 'like', 'no')->toArray();
         foreach ($additionalCostsIncludeVAT as $additionalCostIncludeVAT) {
             $subtotal += (float)$additionalCostIncludeVAT['cost'];
         }
