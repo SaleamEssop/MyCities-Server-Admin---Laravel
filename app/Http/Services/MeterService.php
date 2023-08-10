@@ -8,7 +8,6 @@ use App\Models\MeterReadings;
 use App\Models\RegionsAccountTypeCost;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class MeterService
 {
@@ -282,6 +281,7 @@ class MeterService
                 'current_date' => $currentDate,
                 'cycle' => '--',
                 'month' => '--',
+                'account' => [],
                 'meter_details' => [],
                 'message' => 'No account found! Please add one',
                 'status_code' => 404
@@ -296,6 +296,7 @@ class MeterService
                 'current_date' => $currentDate,
                 'cycle' => '--',
                 'month' => '--',
+                'account' => [],
                 'meter_details' => [],
                 'message' => 'Meter not found!',
                 'status_code' => 404
@@ -316,6 +317,7 @@ class MeterService
                 'current_date' => $currentDate,
                 'cycle' => $cycle,
                 'month' => $cycleMonth,
+                'account' => $account,
                 'meter_details' => $meter,
                 'message' => "There must be minimum of two readings for the cycle month! found readings: $totalReadings",
                 'status_code' => 422
@@ -333,6 +335,7 @@ class MeterService
                 'current_date' => $currentDate,
                 'cycle' => $cycle,
                 'month' => $cycleMonth,
+                'account' => $account,
                 'meter_details' => $meter,
                 'message' => "No active cost module found. Please contact administrator!",
                 'status_code' => 404
@@ -346,6 +349,7 @@ class MeterService
             'current_date' => $currentDate,
             'cycle' => $cycle,
             'month' => $cycleMonth,
+            'account' => $account,
             'meter_details' => $meter,
             'status' => false,
             'status_code' => 404,
@@ -483,7 +487,7 @@ class MeterService
         foreach ($additionalCostsIncludeVAT as $additionalCostIncludeVAT) {
             $subtotal += (float)$additionalCostIncludeVAT['cost'];
         }
-        $vatExemptedSubtotal =  $subtotal;
+        $vatExemptedSubtotal = $subtotal;
         $VAT = ((float)$regionAccountTypeCost->vat_percentage / 100) * $vatExemptedSubtotal;
         foreach ($additionalCostsExemptVAT as $additionalCostExemptVAT) {
             $subtotal += (float)$additionalCostExemptVAT['cost'];
