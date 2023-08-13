@@ -67,7 +67,6 @@ class MeterService
         }
         $totalUsage = $lastReading - $firstReading;
         $averageDailyUsage = round($totalUsage / $totalDaysInBetween, 2);
-
         $reading = '000000';
         if ($meter->meter_type_id == config('constants.meter.type.water')) {
             $reading = sprintf("%04d", $totalUsage);
@@ -77,7 +76,7 @@ class MeterService
         return [
             'reading' => $reading,
             'meter_type' => $meter->meter_type_id,
-            'total_usage' => $totalUsage,
+            'total_usage' => round($totalUsage,2),
             'total_cycle_days' => $totalDaysInBetweenCurrentCycle,
             'total_days' => $totalDaysInBetween,
             'average_usage' => $averageDailyUsage,
@@ -273,7 +272,7 @@ class MeterService
     public function getCostEstimationByMeterId($meterId, $month = 0, $includeVAT = true): array
     {
         $userDetails = loggedUserDetails();
-        $currentDate = Carbon::now()->format('D, d M Y');
+        $currentDate = Carbon::now()->format('d M Y');
         // check if account exits or not
         if (!$userDetails['account_ids']) {
             return [
@@ -381,7 +380,7 @@ class MeterService
     public function getCompleteBillByAccount($accountId, $month = 0): array
     {
         $userDetails = loggedUserDetails();
-        $currentDate = Carbon::now()->format('D, d M Y');
+        $currentDate = Carbon::now()->format('d M Y');
         // check if account exits or not
         if (!$userDetails['account_ids']) {
             return [
