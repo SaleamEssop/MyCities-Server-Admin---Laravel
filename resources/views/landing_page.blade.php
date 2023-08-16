@@ -16,6 +16,10 @@
     <meta property="og:url" content="https://www.mycities.co.za">
     <meta property="og:type" content="website">
     <meta property="thumbnail" content="{{url('/img/my_cities.png')}}">
+    <link rel="icon" type="image/png" sizes="128x128" href="{{url('/web-app/icons/favicon-128x128.png')}}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{url('/web-app/icons/favicon-96x96.png')}}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{url('/web-app/icons/favicon-32x32.png')}}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{url('/web-app/icons/favicon-16x16.png')}}">
     <title>MyCities</title>
 
     <!-- Custom fonts for this template-->

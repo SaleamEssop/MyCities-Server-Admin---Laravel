@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('landing_page');
+//    return view('landing_page');
+    return redirect()->to('/web-app');
 });
 
 Route::get('/app', function () {
@@ -39,7 +40,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::post('region_cost/update', [\App\Http\Controllers\RegionsCostController::class, 'update'])->name('update-region-cost');
     Route::get('/region_cost/delete/{id}', [\App\Http\Controllers\RegionsCostController::class, 'delete']);
     Route::post('region_cost/copy_record', [\App\Http\Controllers\RegionsCostController::class, 'copyRecord'])->name('copy-region-cost');
-    
+
     // Account Type routes
     Route::get('account_type', [\App\Http\Controllers\AdminController::class, 'showAccountType'])->name('account-type-list');
     Route::post('/account_type/edit', [\App\Http\Controllers\AdminController::class, 'editAccountType'])->name('edit-account-type');
