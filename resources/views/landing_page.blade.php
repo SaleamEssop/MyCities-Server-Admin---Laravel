@@ -12,7 +12,7 @@
     <meta property="og:image" content="{{ url('/img/my_cities.png') }}">
     <meta property="og:image:width" content="600">
     <meta property="og:image:height" content="600">
-    <meta name="twitter:image:src" content="{{url('/img/my_cities.png',[],true)}}">
+    <meta name="twitter:image:src" content="/img/my_cities.png">
     <meta data-hid="site_image" itemprop="image" content="{{url('/img/my_cities.png')}}">
     <meta property="og:url" content="https://www.mycities.co.za">
     <meta property="og:type" content="website">
