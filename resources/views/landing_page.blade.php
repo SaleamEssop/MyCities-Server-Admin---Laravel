@@ -8,9 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta property="og:title" content="The MyCities App">
     <meta property="og:description" content="Helping the cities people save with app technology, ideas, determination and cooperation.">
-    <meta property="og:image:width" content="300" />
-    <meta property="og:image:height" content="200" />
     <meta name="og_image" property="og:image" content="{{url('/img/my_cities.png')}}">
+    <meta property="og:image:width" content="600">
+    <meta property="og:image:height" content="600">
     <meta name="twitter:image:src" content="{{url('/img/my_cities.png')}}">
     <meta data-hid="site_image" itemprop="image" content="{{url('/img/my_cities.png')}}">
     <meta property="og:url" content="https://www.mycities.co.za">
