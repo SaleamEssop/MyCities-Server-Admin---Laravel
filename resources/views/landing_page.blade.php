@@ -45,9 +45,12 @@
                     <button style="background: none;border: none;font-size: 2rem;color: #fff">MyCities App</button>
                 </a>
             </div>
-            <div class="main-button-bg" style="margin-bottom: 50px">
-                <span style="background: none;border: none;font-size: 1.5rem;color: #fff;text-align: center;">You needed it, so we built it</span>
+            <div style="padding-bottom: 60px">
+                <div class="main-button-bg">
+                    <span style="background: none;border: none;font-size: 1.5rem;color: #fff;text-align: center;">You needed it, so we built it</span>
+                </div>
             </div>
+
         </div>
 {{--        <div class="intro-txt">--}}
 {{--            <h3>Welcome to the MyCities App where you can manage your meters and much more free of cost!</h3>--}}
