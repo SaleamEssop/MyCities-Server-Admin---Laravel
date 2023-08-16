@@ -38,7 +38,7 @@
 <div class="main-body">
     <div class="bg-image" >
         <div style="display: flex;justify-content: space-between;align-items: center;flex-direction: column;height: 100%">
-            <div style="padding-top: 60px">
+            <div style="padding-top: 100px">
                 <div class="main-button-bg">
                     <span style="background: none;border: none;font-size: 1.5rem;color: #fff;text-align: center;">You needed it, so we built it</span>
                 </div>
