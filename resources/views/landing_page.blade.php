@@ -6,10 +6,10 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta property="og:site_name" content="The MyCities App">
     <meta property="og:title" content="The MyCities App">
-    <meta property="og:description"
-          content="Helping the cities people save with app technology, ideas, determination and cooperation.">
-    <meta property="og:image" content="{{url('/img/my_cities.png',[],true)}}">
+    <meta property="og:description" content="Helping the cities people save with app technology, ideas, determination and cooperation.">
+    <meta property="og:image" itemprop="image" content="{{url('/img/my_cities.png',[],true)}}">
     <meta property="og:image:width" content="600">
     <meta property="og:image:height" content="600">
     <meta name="twitter:image:src" content="{{url('/img/my_cities.png',[],true)}}">
