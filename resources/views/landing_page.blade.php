@@ -36,17 +36,29 @@
 
 <body>
 <div class="main-body">
-    <div class="bg-image">
-        <div class="intro-txt">
-            <h3>Welcome to the MyCities App where you can manage your meters and much more free of cost!</h3>
-            <div class="admin-btn">
-                <a class="admin-button" href="{{ url('/web-app') }}">Go to Web App</a>
+    <div class="bg-image" >
+        <div style="display: flex;justify-content: space-between;align-items: center;flex-direction: column;height: 100%">
+            <div>
             </div>
-            <div class="admin-btn">
-                <a class="admin-button" href="{{ url('/admin') }}">Go to Admin Panel</a>
+            <div class="main-button-bg">
+                <a href="/web-app">
+                    <button style="background: none;border: none;font-size: 2rem;color: #fff">MyCities App</button>
+                </a>
             </div>
-
+            <div class="main-button-bg" style="margin-bottom: 50px">
+                <span style="background: none;border: none;font-size: 1.5rem;color: #fff;text-align: center;">You needed it, so we built it</span>
+            </div>
         </div>
+{{--        <div class="intro-txt">--}}
+{{--            <h3>Welcome to the MyCities App where you can manage your meters and much more free of cost!</h3>--}}
+{{--            <div class="admin-btn">--}}
+{{--                <a class="admin-button" href="{{ url('/web-app') }}">Go to Web App</a>--}}
+{{--            </div>--}}
+{{--            <div class="admin-btn">--}}
+{{--                <a class="admin-button" href="{{ url('/admin') }}">Go to Admin Panel</a>--}}
+{{--            </div>--}}
+
+{{--        </div>--}}
     </div>
 </div>
 </body>
