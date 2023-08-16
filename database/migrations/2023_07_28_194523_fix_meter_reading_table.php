@@ -33,9 +33,9 @@ class FixMeterReadingTable extends Migration
 //        });
 
         // Step 4: Rename the new column to the old column name
-        Schema::table($table, function (Blueprint $table) {
-            $table->renameColumn('reading_date_new', 'reading_date');
-        });
+//        Schema::table($table, function (Blueprint $table) {
+//            $table->renameColumn('reading_date_new', 'reading_date');
+//        });
     }
 
     /**
