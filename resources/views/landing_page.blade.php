@@ -38,19 +38,17 @@
 <div class="main-body">
     <div class="bg-image" >
         <div style="display: flex;justify-content: space-between;align-items: center;flex-direction: column;height: 100%">
-            <div>
+            <div style="padding-top: 60px">
+                <div class="main-button-bg">
+                    <span style="background: none;border: none;font-size: 1.5rem;color: #fff;text-align: center;">You needed it, so we built it</span>
+                </div>
             </div>
             <div class="main-button-bg">
                 <a href="/web-app">
                     <button style="background: none;border: none;font-size: 2rem;color: #fff">MyCities App</button>
                 </a>
             </div>
-            <div style="padding-bottom: 60px">
-                <div class="main-button-bg">
-                    <span style="background: none;border: none;font-size: 1.5rem;color: #fff;text-align: center;">You needed it, so we built it</span>
-                </div>
-            </div>
-
+            <div></div>
         </div>
 {{--        <div class="intro-txt">--}}
 {{--            <h3>Welcome to the MyCities App where you can manage your meters and much more free of cost!</h3>--}}
