@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-//    return view('landing_page');
-    return redirect()->to('/web-app');
+//    return redirect()->to('/web-app');
+    return view('landing_page');
 });
 
 Route::get('/app', function () {
