@@ -11,8 +11,8 @@
     <meta property="og:description" content="Helping the cities people save with app technology, ideas, determination and cooperation.">
     <meta property="og:image" content="{{url('/img/my_cities.png',[],true)}}">
     <meta itemprop="image" content="{{url('/img/my_cities.png',[],true)}}">
-    <meta property="og:image:width" content="600">
-    <meta property="og:image:height" content="600">
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="1024">
     <meta name="twitter:image:src" content="{{url('/img/my_cities.png',[],true)}}">
     <meta data-hid="site_image" itemprop="image" content="{{url('/img/my_cities.png',[],true)}}">
     <meta property="og:url" content="https://www.mycities.co.za">
