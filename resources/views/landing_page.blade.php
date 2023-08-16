@@ -9,8 +9,8 @@
     <meta property="og:site_name" content="The MyCities App">
     <meta property="og:title" content="The MyCities App">
     <meta property="og:description" content="Helping the cities people save with app technology, ideas, determination and cooperation.">
-    <meta property="og:image" content="https://maps.google.com/maps/api/staticmap?center=30.35427045%2C73.3861006&zoom=14&size=900x900&language=en&sensor=false&client=google-maps-frontend&signature=tizcctNyIXj7YIHepU-rJYVJ0t4">
-    <meta itemprop="image" content="https://maps.google.com/maps/api/staticmap?center=30.35427045%2C73.3861006&zoom=14&size=900x900&language=en&sensor=false&client=google-maps-frontend&signature=tizcctNyIXj7YIHepU-rJYVJ0t4">
+    <meta property="og:image" content="{{url('/img/my_cities.png',[],true)}}">
+    <meta itemprop="image" content="{{url('/img/my_cities.png',[],true)}}">
     <meta property="og:image:width" content="600">
     <meta property="og:image:height" content="600">
     <meta name="twitter:image:src" content="{{url('/img/my_cities.png',[],true)}}">
