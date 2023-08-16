@@ -9,11 +9,11 @@
     <meta property="og:title" content="The MyCities App">
     <meta property="og:description"
           content="Helping the cities people save with app technology, ideas, determination and cooperation.">
-    <meta property="og:image" content="{{ url('/img/my_cities.png') }}">
+    <meta property="og:image" content="{{url('/img/my_cities.png',[],true)}}">
     <meta property="og:image:width" content="600">
     <meta property="og:image:height" content="600">
-    <meta name="twitter:image:src" content="/img/my_cities.png">
-    <meta data-hid="site_image" itemprop="image" content="{{url('/img/my_cities.png')}}">
+    <meta name="twitter:image:src" content="{{url('/img/my_cities.png',[],true)}}">
+    <meta data-hid="site_image" itemprop="image" content="{{url('/img/my_cities.png',[],true)}}">
     <meta property="og:url" content="https://www.mycities.co.za">
     <meta property="og:type" content="website">
     <meta property="thumbnail" content="{{url('/img/my_cities.png')}}">
