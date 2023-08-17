@@ -61,22 +61,9 @@ if (!function_exists('getMonthCycle')) {
 
     function getMonthCycle($cycleDay = 15, $subtractMonths = 0): array
     {
-        if ($subtractMonths === 0) {
-            $subtractMonths = 1;
-        }
         $today = Carbon::today();
-        if ($subtractMonths !== 0) {
-            $cycleStart = $today->copy()->subMonths(abs($subtractMonths))->day($cycleDay);
-        } else {
-            $cycleStart = $today->copy()->day($cycleDay);
-        }
-
-        if ($today->day >= $cycleDay && $subtractMonths === 0) {
-            $cycleEnd = $cycleStart->copy()->addMonth()->day($cycleDay);
-        } else {
-            $cycleEnd = $cycleStart->copy()->addMonths(1)->day($cycleDay);
-        }
-
+        $cycleStart = $today->copy()->subMonths($subtractMonths - 1)->day($cycleDay);
+        $cycleEnd = $cycleStart->copy()->addMonth()->day($cycleDay);
         return [
             'start_date' => $cycleStart->format('Y-m-d'),
             'end_date' => $cycleEnd->format('Y-m-d'),
