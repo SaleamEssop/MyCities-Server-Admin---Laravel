@@ -75,7 +75,7 @@
             //$('.ckeditor').ckeditor();
 
             CKEDITOR.replace('description-editor', {
-                filebrowserUploadUrl: "{{route('ckeditor.image-upload', ['_token' => csrf_token() ])}}",
+                filebrowserUploadUrl: "/admin/ads/upload?_token={{ csrf_token() }}",
                 filebrowserUploadMethod: 'form'
             });
         });
