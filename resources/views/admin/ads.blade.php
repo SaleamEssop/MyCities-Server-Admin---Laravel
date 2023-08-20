@@ -140,7 +140,7 @@
             $('#acc-dataTable').dataTable();
 
             CKEDITOR.replace('description-editor', {
-                filebrowserUploadUrl: "{{route('ckeditor.image-upload', ['_token' => csrf_token() ])}}",
+                filebrowserUploadUrl: "/admin/terms-and-conditions/upload?_token={{ csrf_token() }}",
                 filebrowserUploadMethod: 'form'
             });
         });

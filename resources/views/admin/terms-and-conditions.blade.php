@@ -37,6 +37,7 @@
         $(document).ready(function() {
             CKEDITOR.replace('tc', {
                 filebrowserUploadUrl: "{{route('ckeditor.tc-image-upload', ['_token' => csrf_token() ])}}",
+                filebrowserUploadUrl: "/admin/ads/upload?_token={{ csrf_token() }}",
                 filebrowserUploadMethod: 'form'
             });
         });
