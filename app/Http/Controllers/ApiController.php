@@ -398,15 +398,16 @@ class ApiController extends Controller
         DB::beginTransaction();
         try {
             // get Site id
-            $get_site_id = Account::where('id', $postData['account_id'])->first();
+            $accountToRemove = Account::query()->where('id', $postData['account_id'])->first();
 
-            $site_id = isset($get_site_id->site_id) ? $get_site_id->site_id : null;
+            $site_id = $accountToRemove->site_id ?? null;
 
-            if (!empty($site_id)) {
-                Site::where('id', $site_id)->delete();
-            }
-            $result = Account::where('id', $postData['account_id'])->first()->delete();
+            $result = Account::query()->where('id', $postData['account_id'])->first()->delete();
             DB::commit();
+            $remainingAccountInSite = Account::query()->where('site_id', $site_id)->count();
+            if ($site_id && $remainingAccountInSite < 1) {
+                Site::query()->where('id', $site_id)->delete();
+            }
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back();
