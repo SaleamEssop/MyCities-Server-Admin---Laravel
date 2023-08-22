@@ -18,13 +18,21 @@ class MeterService
      * @param $cycleEndDate
      * @return array
      */
-    public function getReadingInfo($meterId, $cycleStartDate, $cycleEndDate): array
+    public function getReadingInfo($meterId, $cycleStartDate, $cycleEndDate, $usePreviousMonth, $oneMonthBehindCycleDates): array
     {
-        $minDate = MeterReadings::query() // getting the oldest date of the cycle month
-        ->select(DB::raw('MIN(reading_date) as min_date'))
-            ->where('reading_date', '>=', $cycleStartDate)
-            ->where('reading_date', '<=', $cycleEndDate)
-            ->where('meter_id', $meterId)->value('min_date');
+        if ($usePreviousMonth) {
+            $minDate = MeterReadings::query() // getting the oldest date of the cycle month
+            ->select(DB::raw('MAX(reading_date) as min_date'))
+                ->where('reading_date', '>=', $oneMonthBehindCycleDates['start_date'])
+                ->where('reading_date', '<=', $oneMonthBehindCycleDates['end_date'])
+                ->where('meter_id', $meterId)->value('min_date');
+        } else {
+            $minDate = MeterReadings::query() // getting the oldest date of the cycle month
+            ->select(DB::raw('MIN(reading_date) as min_date'))
+                ->where('reading_date', '>=', $cycleStartDate)
+                ->where('reading_date', '<=', $cycleEndDate)
+                ->where('meter_id', $meterId)->value('min_date');
+        }
         $maxDate = MeterReadings::query() // getting the latest date of the cycle month
         ->select(DB::raw('MAX(reading_date) as max_date'))
             ->where('reading_date', '>=', $cycleStartDate)
@@ -317,8 +325,9 @@ class MeterService
             ->where('reading_date', '>=', $cycleDates['start_date'])
             ->where('reading_date', '<=', $cycleDates['end_date'])
             ->where('meter_id', $meterId)->count();
-
-        if ($totalReadings <= 1) {
+        $usePreviousMonth = false;
+        $oneMonthBehindCycleDates = [];
+        if ($totalReadings == 0) {
             return [
                 'status' => false,
                 'current_date' => $currentDate,
@@ -330,6 +339,26 @@ class MeterService
                 'message' => "There must be minimum of two readings for the cycle month! found readings: $totalReadings",
                 'status_code' => 422
             ];
+        } else if ($totalReadings === 1) {
+            $oneMonthBehindCycleDates = getMonthCycle($account['read_day'], (int)$month + 1);
+            $oneMonthOldTotalReadings = MeterReadings::query()
+                ->where('reading_date', '>=', $oneMonthBehindCycleDates['start_date'])
+                ->where('reading_date', '<=', $oneMonthBehindCycleDates['end_date'])
+                ->where('meter_id', $meterId)->count();
+            $usePreviousMonth = true;
+            if ($oneMonthOldTotalReadings == 0) {
+                return [
+                    'status' => false,
+                    'current_date' => $currentDate,
+                    'has_history' => $hasHistory,
+                    'cycle' => $cycle,
+                    'month' => $cycleMonth,
+                    'account' => $account,
+                    'meter_details' => $meter,
+                    'message' => "There must be minimum of two readings for the cycle month! found readings: $totalReadings",
+                    'status_code' => 422
+                ];
+            }
         }
         $regionAccountTypeCost = RegionsAccountTypeCost::query()
             ->where('region_id', $account['region_id'])
@@ -351,7 +380,7 @@ class MeterService
             ];
         }
 
-        $meterReadingInfo = $this->getReadingInfo($meterId, $cycleDates['start_date'], $cycleDates['end_date']);
+        $meterReadingInfo = $this->getReadingInfo($meterId, $cycleDates['start_date'], $cycleDates['end_date'], $usePreviousMonth, $oneMonthBehindCycleDates);
         $usageInfo = $this->getUsageInfo($meter, $meterReadingInfo);
         $finalData = [
             'usage' => $usageInfo,
@@ -444,7 +473,7 @@ class MeterService
         }
 
         $hasHistory = false;
-        if ($readingCounts > 1) {
+        if ($readingCounts >= 1) {
             $hasHistory = true;
         }
 
@@ -461,7 +490,7 @@ class MeterService
             }
         }
 
-        if ($readingCounts <= 1) {
+        if ($readingCounts == 0) {
             return [
                 'status' => false,
                 'current_date' => $currentDate,
@@ -471,6 +500,31 @@ class MeterService
                 'message' => "There must be minimum of two readings for the cycle month! found readings: $readingCounts",
                 'status_code' => 422
             ];
+        } else if ($readingCounts == 1) {
+            $oneMonthBehindCycleDates = getMonthCycle($account['read_day'], (int)$month + 1);
+            $oneMonthOldTotalReadings = MeterReadings::query()
+                ->select(DB::raw('meter_id,count(*) as total'))
+                ->where('reading_date', '>=', $oneMonthBehindCycleDates['start_date'])
+                ->where('reading_date', '<=', $oneMonthBehindCycleDates['end_date'])
+                ->whereIn('meter_id', $meterIds)->groupBy('meter_id')->get()->toArray();
+            $oneMonthOldReadingCounts = 0;
+            foreach ($oneMonthOldTotalReadings as $oneMonthOldTotalReading) {
+                $oneMonthOldReadingCounts = $oneMonthOldTotalReading['total'];
+                if ($oneMonthOldReadingCounts > 1) {
+                    break;
+                }
+            }
+            if ($oneMonthOldReadingCounts == 0) {
+                return [
+                    'status' => false,
+                    'current_date' => $currentDate,
+                    'cycle' => $cycle,
+                    'has_history' => $hasHistory,
+                    'month' => $cycleMonth,
+                    'message' => "There must be minimum of two readings for the cycle month! found readings: $readingCounts",
+                    'status_code' => 422
+                ];
+            }
         }
 
         $metersData = [
