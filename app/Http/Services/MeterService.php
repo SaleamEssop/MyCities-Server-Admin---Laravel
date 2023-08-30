@@ -78,10 +78,13 @@ class MeterService
         $reading = '000000';
         if ($meter->meter_type_id == config('constants.meter.type.water')) {
             $reading = sprintf("%04d", $totalUsage);
+            $lastReading = sprintf("%04d", $lastReading);
         } else if ($meter->meter_type_id == config('constants.meter.type.electricity')) {
             $reading = sprintf("%05d", $totalUsage);
+            $lastReading = sprintf("%05d", $lastReading);
         }
         return [
+            'current_reading' => $lastReading,
             'reading' => $reading,
             'meter_type' => $meter->meter_type_id,
             'total_usage' => round($totalUsage, 2),
