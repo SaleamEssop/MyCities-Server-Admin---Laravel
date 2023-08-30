@@ -66,27 +66,31 @@ class MeterService
         if ($meter->meter_type_id == config('constants.meter.type.water')) {
             $firstReading = (int)substr($meterReadingInfo['min_reading']->reading_value, 0, -4) ?? 0;
             $lastReading = (int)substr($meterReadingInfo['max_reading']->reading_value, 0, -4) ?? 0;
+            $extractedDigits = (int)substr($meterReadingInfo['max_reading']->reading_value, -4, 2);
+            $extractedDigits = (float)($extractedDigits/100);
         } else if ($meter->meter_type_id == config('constants.meter.type.electricity')) {
             $firstReading = (int)substr($meterReadingInfo['min_reading']->reading_value, 0, -1) ?? 0;
             $lastReading = (int)substr($meterReadingInfo['max_reading']->reading_value, 0, -1) ?? 0;
+            $extractedDigits = (int)substr($meterReadingInfo['max_reading']->reading_value, -1);
+            $extractedDigits = (float)($extractedDigits/10);
         } else {
             $firstReading = 0;
             $lastReading = 0;
+            $extractedDigits = 0;
         }
         $totalUsage = $lastReading - $firstReading;
         $averageDailyUsage = round($totalUsage / $totalDaysInBetween, 2);
         $reading = '000000';
+        $lastReading = $lastReading + $extractedDigits;
         if ($meter->meter_type_id == config('constants.meter.type.water')) {
             $reading = sprintf("%04d", $totalUsage);
-            $lastReading = sprintf("%04d", $lastReading);
         } else if ($meter->meter_type_id == config('constants.meter.type.electricity')) {
             $reading = sprintf("%05d", $totalUsage);
-            $lastReading = sprintf("%05d", $lastReading);
-        }else{
+        } else {
             $lastReading = '000000';
         }
         return [
-            'current_reading' => $lastReading,
+            'current_reading' => (float)$lastReading,
             'reading' => $reading,
             'meter_type' => $meter->meter_type_id,
             'total_usage' => round($totalUsage, 2),
