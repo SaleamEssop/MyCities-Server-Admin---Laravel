@@ -63,7 +63,6 @@ class MeterService
     {
         $totalDaysInBetween = getDaysBetweenTwoDates($meterReadingInfo['min_date'], $meterReadingInfo['max_date']);
         $totalDaysInBetweenCurrentCycle = getDaysBetweenTwoDates($meterReadingInfo['cycle_start_date'], $meterReadingInfo['cycle_end_date']);
-        $lastReadingWithoutOffset = $meterReadingInfo['max_reading']->reading_value ?? 0;
         if ($meter->meter_type_id == config('constants.meter.type.water')) {
             $firstReading = (int)substr($meterReadingInfo['min_reading']->reading_value, 0, -4) ?? 0;
             $lastReading = (int)substr($meterReadingInfo['max_reading']->reading_value, 0, -4) ?? 0;
@@ -79,15 +78,15 @@ class MeterService
         $reading = '000000';
         if ($meter->meter_type_id == config('constants.meter.type.water')) {
             $reading = sprintf("%04d", $totalUsage);
-            $lastReadingWithoutOffset = sprintf("%04d", $lastReadingWithoutOffset);
+            $lastReading = sprintf("%04d", $lastReading);
         } else if ($meter->meter_type_id == config('constants.meter.type.electricity')) {
             $reading = sprintf("%05d", $totalUsage);
-            $lastReadingWithoutOffset = sprintf("%05d", $lastReadingWithoutOffset);
+            $lastReading = sprintf("%05d", $lastReading);
         }else{
-            $lastReadingWithoutOffset = '000000';
+            $lastReading = '000000';
         }
         return [
-            'current_reading' => $lastReadingWithoutOffset,
+            'current_reading' => $lastReading,
             'reading' => $reading,
             'meter_type' => $meter->meter_type_id,
             'total_usage' => round($totalUsage, 2),
