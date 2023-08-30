@@ -74,6 +74,9 @@ if (!function_exists('findBracketsBeforeAndIncluding')) {
 
     function findBracketsBeforeAndIncluding($data, $value): array
     {
+        if (!$data){
+            $data = [];
+        }
         $bracketsBefore = [];
 
         foreach ($data as $item) {
