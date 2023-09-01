@@ -49,10 +49,14 @@ if (!function_exists('getDayWithSuffix')) {
         }
 
         switch ($day % 10) {
-            case 1: return $day . 'st';
-            case 2: return $day . 'nd';
-            case 3: return $day . 'rd';
-            default: return $day . 'th';
+            case 1:
+                return $day . 'st';
+            case 2:
+                return $day . 'nd';
+            case 3:
+                return $day . 'rd';
+            default:
+                return $day . 'th';
         }
     }
 }
@@ -61,8 +65,8 @@ if (!function_exists('getMonthCycle')) {
 
     function getMonthCycle($cycleDay = 15, $subtractMonths = 0): array
     {
-        $today = Carbon::today();
-        $cycleStart = $today->copy()->subMonths($subtractMonths - 1)->day($cycleDay);
+        $carbon = Carbon::today();
+        $cycleStart = $carbon->copy()->subMonths($subtractMonths - 1)->day($cycleDay);
         $cycleEnd = $cycleStart->copy()->addMonth()->day($cycleDay);
         return [
             'start_date' => $cycleStart->format('Y-m-d'),
@@ -70,11 +74,26 @@ if (!function_exists('getMonthCycle')) {
         ];
     }
 }
+
+if (!function_exists('getFutureCycle')) {
+
+    function getFutureCycle($lastDate): array
+    {
+        $carbon = Carbon::parse($lastDate);
+        $cycleStart = $carbon->copy();
+        $cycleEnd = $cycleStart->copy()->addMonth();
+        return [
+            'start_date' => $cycleStart->format('Y-m-d'),
+            'end_date' => $cycleEnd->format('Y-m-d'),
+        ];
+    }
+}
+
 if (!function_exists('findBracketsBeforeAndIncluding')) {
 
     function findBracketsBeforeAndIncluding($data, $value): array
     {
-        if (!$data){
+        if (!$data) {
             $data = [];
         }
         $bracketsBefore = [];

@@ -67,12 +67,12 @@ class MeterService
             $firstReading = (int)substr($meterReadingInfo['min_reading']->reading_value, 0, -4) ?? 0;
             $lastReading = (int)substr($meterReadingInfo['max_reading']->reading_value, 0, -4) ?? 0;
             $extractedDigits = (int)substr($meterReadingInfo['max_reading']->reading_value, -4, 2);
-            $extractedDigits = (float)($extractedDigits/100);
+            $extractedDigits = (float)($extractedDigits / 100);
         } else if ($meter->meter_type_id == config('constants.meter.type.electricity')) {
             $firstReading = (int)substr($meterReadingInfo['min_reading']->reading_value, 0, -1) ?? 0;
             $lastReading = (int)substr($meterReadingInfo['max_reading']->reading_value, 0, -1) ?? 0;
             $extractedDigits = (int)substr($meterReadingInfo['max_reading']->reading_value, -1);
-            $extractedDigits = (float)($extractedDigits/10);
+            $extractedDigits = (float)($extractedDigits / 10);
         } else {
             $firstReading = 0;
             $lastReading = 0;
@@ -319,21 +319,41 @@ class MeterService
             ];
         }
         $account = $userDetails['accounts']->where('id', $meter->account_id)->first();
-        $cycleDates = getMonthCycle($account['read_day'], (int)$month + 1); // get cycle date from and too of current or previous months
+        $previousCycleDates = getMonthCycle($account['read_day'], (int)$month + 1);
+        $addPreviousMonths = 1;
+        if (Carbon::parse($previousCycleDates['end_date'])->isCurrentMonth()) {
+            $month += 1;
+            $addPreviousMonths = 2;
+        }
+        //history check
+        $cycleDates = getMonthCycle($account['read_day'], (int)$month + 1); // get cycle date from history
         $previousTotalReadings = MeterReadings::query()
             ->where('reading_date', '>=', $cycleDates['start_date'])
             ->where('reading_date', '<=', $cycleDates['end_date'])
             ->where('meter_id', $meterId)->count();
         $hasHistory = $previousTotalReadings > 0;
+        //end history check
 
         $cycleDates = getMonthCycle($account['read_day'], (int)$month); // get cycle date from and too of current or previous months
         $cycleMonth = Carbon::parse($cycleDates['end_date'])->format('M Y');
         $cycle = Carbon::parse($cycleDates['start_date'])->format('M d Y') . ' to ' . Carbon::parse($cycleDates['end_date'])->format('M d Y');
+
         $totalReadings = MeterReadings::query() // getting the oldest date of the cycle month
         ->select(DB::raw('MIN(reading_date) as min_date'))
             ->where('reading_date', '>=', $cycleDates['start_date'])
             ->where('reading_date', '<=', $cycleDates['end_date'])
             ->where('meter_id', $meterId)->count();
+
+        //future check
+        $futureCycle = getFutureCycle($cycleDates['end_date']); // get cycle date from history
+        $futureTotalReadings = MeterReadings::query()
+            ->where('reading_date', '>=', $futureCycle['start_date'])
+            ->where('reading_date', '<=', $futureCycle['end_date'])
+            ->where('meter_id', $meterId)->count();
+        $hasFuture = $futureTotalReadings > 0;
+        //future check
+
+
         $usePreviousMonth = false;
         $oneMonthBehindCycleDates = [];
         if ($totalReadings == 0) {
@@ -341,6 +361,8 @@ class MeterService
                 'status' => false,
                 'current_date' => $currentDate,
                 'has_history' => $hasHistory,
+                'has_future' => $hasFuture,
+                'add_previous_months' => $addPreviousMonths,
                 'cycle' => $cycle,
                 'month' => $cycleMonth,
                 'account' => $account,
@@ -360,6 +382,8 @@ class MeterService
                     'status' => false,
                     'current_date' => $currentDate,
                     'has_history' => $hasHistory,
+                    'has_future' => $hasFuture,
+                    'add_previous_months' => $addPreviousMonths,
                     'cycle' => $cycle,
                     'month' => $cycleMonth,
                     'account' => $account,
@@ -369,6 +393,7 @@ class MeterService
                 ];
             }
         }
+
         $regionAccountTypeCost = RegionsAccountTypeCost::query()
             ->where('region_id', $account['region_id'])
             ->where('account_type_id', $account['account_type_id'])
@@ -380,6 +405,8 @@ class MeterService
                 'status' => false,
                 'current_date' => $currentDate,
                 'has_history' => $hasHistory,
+                'has_future' => $hasFuture,
+                'add_previous_months' => $addPreviousMonths,
                 'cycle' => $cycle,
                 'month' => $cycleMonth,
                 'account' => $account,
@@ -395,6 +422,8 @@ class MeterService
             'usage' => $usageInfo,
             'current_date' => $currentDate,
             'has_history' => $hasHistory,
+            'has_future' => $hasFuture,
+            'add_previous_months' => $addPreviousMonths,
             'cycle' => $cycle,
             'month' => $cycleMonth,
             'account' => $account,
@@ -444,6 +473,12 @@ class MeterService
                 'status_code' => 404
             ];
         }
+        $previousCycleDates = getMonthCycle($account['read_day'], (int)$month + 1); // get cycle date from and too of current or previous months
+        $addPreviousMonths = 1;
+        if (Carbon::parse($previousCycleDates['end_date'])->isCurrentMonth()) {
+            $month += 1;
+            $addPreviousMonths = 2;
+        }
         $cycleDates = getMonthCycle($account['read_day'], (int)$month); // get cycle date from and too of current or previous months
         $cycleMonth = Carbon::parse($cycleDates['end_date'])->format('M Y');
         $cycle = Carbon::parse($cycleDates['start_date'])->format('M d Y') . ' to ' . Carbon::parse($cycleDates['end_date'])->format('M d Y');
@@ -467,14 +502,14 @@ class MeterService
             ->where('account_id', $accountId)->get();
         $meterIds = $meters->pluck('id')->toArray();
 
-        $previouseCycleDates = getMonthCycle($account['read_day'], (int)$month + 1); // get cycle date from and too of current or previous months
-        $totalPreviouseReadings = MeterReadings::query() // getting the oldest date of the cycle month
+        //history check
+        $totalPreviousReadings = MeterReadings::query() // getting the oldest date of the cycle month
         ->select(DB::raw('meter_id,count(*) as total'))
-            ->where('reading_date', '>=', $previouseCycleDates['start_date'])
-            ->where('reading_date', '<=', $previouseCycleDates['end_date'])
+            ->where('reading_date', '>=', $previousCycleDates['start_date'])
+            ->where('reading_date', '<=', $previousCycleDates['end_date'])
             ->whereIn('meter_id', $meterIds)->groupBy('meter_id')->get()->toArray();
         $readingCounts = 0;
-        foreach ($totalPreviouseReadings as $totalReading) {
+        foreach ($totalPreviousReadings as $totalReading) {
             $readingCounts = $totalReading['total'];
             if ($readingCounts > 1) {
                 break;
@@ -485,6 +520,28 @@ class MeterService
         if ($readingCounts >= 1) {
             $hasHistory = true;
         }
+        //end history check
+
+        $futureCycle = getFutureCycle($cycleDates['end_date']); // get cycle date from history
+        $totalFutureReadings = MeterReadings::query() // getting the oldest date of the cycle month
+        ->select(DB::raw('meter_id,count(*) as total'))
+            ->where('reading_date', '>=', $futureCycle['start_date'])
+            ->where('reading_date', '<=', $futureCycle['end_date'])
+            ->whereIn('meter_id', $meterIds)->groupBy('meter_id')->get()->toArray();
+        $readingCounts = 0;
+        foreach ($totalFutureReadings as $totalReading) {
+            $readingCounts = $totalReading['total'];
+            if ($readingCounts > 1) {
+                break;
+            }
+        }
+
+        $hasFuture = false;
+        if ($readingCounts >= 1) {
+            $hasFuture = true;
+        }
+        //end history check
+
 
         $totalReadings = MeterReadings::query() // getting the oldest date of the cycle month
         ->select(DB::raw('meter_id,count(*) as total'))
@@ -505,6 +562,8 @@ class MeterService
                 'current_date' => $currentDate,
                 'cycle' => $cycle,
                 'has_history' => $hasHistory,
+                'has_future' => $hasFuture,
+                'add_previous_months' => $addPreviousMonths,
                 'month' => $cycleMonth,
                 'message' => "There must be minimum of two readings for the cycle month! found readings: $readingCounts",
                 'status_code' => 422
@@ -529,6 +588,8 @@ class MeterService
                     'current_date' => $currentDate,
                     'cycle' => $cycle,
                     'has_history' => $hasHistory,
+                    'has_future' => $hasFuture,
+                    'add_previous_months' => $addPreviousMonths,
                     'month' => $cycleMonth,
                     'message' => "There must be minimum of two readings for the cycle month! found readings: $readingCounts",
                     'status_code' => 422
@@ -582,6 +643,8 @@ class MeterService
             'status' => true,
             'current_date' => $currentDate,
             'has_history' => $hasHistory,
+            'has_future' => $hasFuture,
+            'add_previous_months' => $addPreviousMonths,
             'cycle' => $cycle,
             'month' => $cycleMonth,
             'status_code' => 200,
