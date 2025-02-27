@@ -65,7 +65,9 @@
             <!-- Nav Item - Pages Collapse Menu -->
             <!-- Users Management -->
             {{-- @dd($user->can('users_access')) --}}
+          
             @if (auth()->user()->is_property_manager === 1)
+        
                 <div class="sidebar-heading mt-4">
                     Properties
                 </div>
@@ -81,8 +83,8 @@
                         </a>
                     </li>
                 @endforeach
-            @else
-                @can('users_access')
+            @elseif ((auth()->user()->is_super_admin === 1))
+                
                     <li class="nav-item">
                         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsers"
                             aria-expanded="true" aria-controls="collapseUsers">
@@ -97,9 +99,8 @@
                             </div>
                         </div>
                     </li>
-                @endcan
-                <!-- Property Management -->
-                @can('property_management')
+             
+             
                     <li class="nav-item">
                         <a class="nav-link collapsed" href="#" data-toggle="collapse"
                             data-target="#collapseProperties" aria-expanded="true" aria-controls="collapseProperties">
@@ -114,13 +115,7 @@
                             </div>
                         </div>
                     </li>
-                @endcan
-
-                <!-- Nav Item - Utilities Collapse Menu -->
-
-
-                <!-- Nav Item - Utilities Collapse Menu -->
-                @can('site_management')
+          
                     <li class="nav-item">
                         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSites"
                             aria-expanded="true" aria-controls="collapseSites">
@@ -135,9 +130,7 @@
                             </div>
                         </div>
                     </li>
-                @endcan
-                <!-- Nav Item - Utilities Collapse Menu -->
-                @can('acount_management')
+            
                     <li class="nav-item">
                         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
                             aria-expanded="true" aria-controls="collapseUtilities">
@@ -152,8 +145,7 @@
                             </div>
                         </div>
                     </li>
-                @endcan
-                @can('meter_management')
+           
                     <li class="nav-item">
                         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMeter"
                             aria-expanded="true" aria-controls="collapseMeter">
@@ -168,8 +160,7 @@
                             </div>
                         </div>
                     </li>
-                @endcan
-                @can('meter_reading')
+         
                     <li class="nav-item">
                         <a class="nav-link collapsed" href="#" data-toggle="collapse"
                             data-target="#collapseReadings" aria-expanded="true" aria-controls="collapseReadings">
@@ -184,8 +175,7 @@
                             </div>
                         </div>
                     </li>
-                @endcan
-                @can('ads_management')
+          
                     <li class="nav-item">
                         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAds"
                             aria-expanded="true" aria-controls="collapseAds">
@@ -200,8 +190,7 @@
                             </div>
                         </div>
                     </li>
-                @endcan
-                @can('permissions_management')
+       
                     <li class="nav-item">
                         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAds"
                             aria-expanded="true" aria-controls="collapseAds">
@@ -216,8 +205,7 @@
                             </div>
                         </div>
                     </li>
-                @endcan
-                @can('formula_cost')
+        
                     <!-- Divider -->
                     <hr class="sidebar-divider">
 
@@ -297,7 +285,7 @@
                             <i class="fas fa-fw fa-money-check"></i>
                             <span>Terms & Conditions</span></a>
                     </li>
-                @endcan
+          
                 <!-- Divider -->
                 <hr class="sidebar-divider d-none d-md-block">
 

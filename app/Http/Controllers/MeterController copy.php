@@ -71,7 +71,7 @@ class MeterController extends Controller
         $meterId = $meter->id;
         $includeVAT = true;
     
-        $readingInfo = $this->service->getReadingInfo($meterId, $cycleStartDate, $cycleEndDate);
+      
     
         $waterInCost = json_decode($meter->account->property->cost->water_in, true) ?: [];
         $waterOutCost = json_decode($meter->account->property->cost->water_out, true) ?: [];

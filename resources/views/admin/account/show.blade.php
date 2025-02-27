@@ -27,7 +27,7 @@
                         <div class="form-group">
                             <p><strong>Property Name:</strong> {{ $property->name }}</p>
                         </div>
-                    
+
                         <!-- Display account details -->
                         <div class="form-group">
                             <p><strong>Account Name:</strong> {{ $account->account_name }}</p>
@@ -46,16 +46,16 @@
                         <div class="form-group">
                             <p><strong>Property Address:</strong> {{ $property->address }}</p>
                         </div>
-                        
+
                         <div class="form-group">
                             <p><strong>Account Site:</strong> {{ $account->site->title }}</p>
                         </div>
                         <div class="form-group">
                             <p><strong>Region Account:</strong> {{ $property->region->name ?? '' }}</p>
                         </div>
-                        
+
                     </div>
-                
+
                 </div>
             </div>
         </div>
@@ -77,7 +77,7 @@
                     <table class="table table-bordered" id="acc-dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>#</th> 
+                                <th>#</th>
                                 <th>Account Holder</th>
                                 <th>Meter Title</th>
                                 <th>Meter Number</th>
@@ -97,7 +97,7 @@
                                     <td>{{ $meter->meter_number }}</td>
                                     <td>{{ $meter->meterTypes->title }}</td>
                                     <td>{{ $meter->meterCategory->name }}</td>
-                                
+
                                     <td>{{ \Carbon\Carbon::parse($meter->created_at)->format('m/d/Y h:i A') }}</td>
 
                                     <td>
@@ -105,7 +105,8 @@
                                             class="btn btn-success btn-circle">
                                             <i class="fas fa-book"></i>
                                         </a>
-                                        <a href="{{ url('admin/meter/edit/'.$meter->id) }}" class="btn btn-warning btn-circle">
+                                        <a href="{{ url('admin/meter/edit/' . $meter->id) }}"
+                                            class="btn btn-warning btn-circle">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <a href="{{ url('admin/meter/delete/' . $account->id) }}"
@@ -123,7 +124,7 @@
             </div>
         </div>
 
- 
+
 
         <h1 class="h3 mb-2 custom-text-heading">Meter Readings</h1>
 
@@ -138,7 +139,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                  <th>Account Holder</th>
+                                <th>Account Holder</th>
                                 <th>Meter Title</th>
                                 <th>Meter Number</th>
                                 <th>Meter Reading</th>
@@ -149,7 +150,7 @@
                         <tfoot>
                             <tr>
                                 <th>#</th>
-                                  <th>Account Holder</th>
+                                <th>Account Holder</th>
                                 <th>Meter Title</th>
                                 <th>Meter Number</th>
                                 <th>Meter Reading</th>
@@ -160,15 +161,16 @@
                         <tbody>
 
                             @foreach ($propertyAccountsMetersReadings as $meterReading)
-                             
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $meterReading->meter->account->user->name ?? '-' }}</td>
                                     <td>{{ $meterReading->meter->meter_title ?? '-' }}</td>
                                     <td>{{ $meterReading->meter->meter_number ?? '-' }}</td>
                                     <td>{{ $meterReading->reading_value }}</td>
-                            
-                                    <td>{{ \Carbon\Carbon::createFromFormat('d-m-Y', $meterReading->reading_date)->setTimezone('Africa/Johannesburg')->format('d/m/Y') }}</td>                                    {{-- <td>
+
+                                    <td>{{ \Carbon\Carbon::createFromFormat('d-m-Y', $meterReading->reading_date)->setTimezone('Africa/Johannesburg')->format('d/m/Y') }}
+                                    </td>
+                                    {{-- <td>
 
                                     <td>{{ \Carbon\Carbon::parse($meterReading->reading_date)->format('m/d/Y h:i A') }}</td>
 

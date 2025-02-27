@@ -28,26 +28,26 @@
             <div class="row">
                 <div class="col-md-6">
                     <form method="POST" action="{{ route('add-account') }}">
+                        @csrf
                         @if (isset($property))
-                    
-                        <div class="form-group">
-                            <label for="name" class="font-weight-bold">Property</label>
-                            <input type="hidden" name="property_id" value="{{ $property->id ?? '' }}">
-                            <input type="text" class="form-control" value="{{ $property->name ?? '' }}" readonly>
-                            
-                        </div>
-                    @else
-                      
-                        <div class="form-group">
-                            <label for="user-select" class="font-weight-bold">Select Property</label>
-                            <select class="form-control" id="property-select" name="property_id">
-                                <option disabled selected value="">-- Select Property --</option>
-                                @foreach ($properties as $item)
-                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    @endif
+
+                            <div class="form-group">
+                                <label for="name" class="font-weight-bold">Property</label>
+                                <input type="hidden" name="property_id" value="{{ $property->id ?? '' }}">
+                                <input type="text" class="form-control" value="{{ $property->name ?? '' }}" readonly>
+
+                            </div>
+                        @else
+                            <div class="form-group">
+                                <label for="user-select" class="font-weight-bold">Select Property</label>
+                                <select class="form-control" id="property-select" name="property_id">
+                                    <option disabled selected value="">-- Select Property --</option>
+                                    @foreach ($properties as $item)
+                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
 
 
                         <div class="form-group">
@@ -105,8 +105,8 @@
                             <input type="text" class="form-control" id="fetched-email" name="fetched-email" readonly>
                         </div>
 
-                          <!-- Region User Selection -->
-                          <div class="form-group">
+                        <!-- Region User Selection -->
+                        <div class="form-group">
                             <label for="region-select" class="font-weight-bold">Select Region</label>
                             <select class="form-control" id="region-select" name="region_id">
                                 <option disabled selected value="">-- Select Region --</option>
@@ -115,21 +115,22 @@
                                 @endforeach
                             </select>
                         </div>
-                        
+
                         <!-- Electricity Email -->
                         <div class="form-group">
                             <label for="electricity-email" class="font-weight-bold">Electricity Email</label>
-                            <input type="email" class="form-control" id="electricity-email" name="electricity_email" readonly>
+                            <input type="email" class="form-control" id="electricity-email" name="electricity_email"
+                                readonly>
                         </div>
-                        
+
                         <!-- Water Email -->
                         <div class="form-group">
                             <label for="water-email" class="font-weight-bold">Water Email</label>
                             <input type="email" class="form-control" id="water-email" name="water_email" readonly>
                         </div>
-                        
-                          <!-- Region User Selection -->
-                          <div  class="form-group">
+
+                        <!-- Region User Selection -->
+                        <div class="form-group">
                             <label for="user-select" class="font-weight-bold">Select Account Type</label>
                             <select class="form-control" id="account-type-select" name="account_type_id">
                                 <option disabled selected value="">-- Select Account Type --</option>
@@ -149,18 +150,18 @@
                                 required>
                         </div>
                         @if (isset($property))
-                        <div class="form-group">
-                            <label>Billing Date: </label>
-                            <input type="number" min="1" max="31" class="form-control"
-                                placeholder="Enter billing date" name="billing_date"  readonly value="{{ $property->billing_day }}">
-                        </div>
-                       
+                            <div class="form-group">
+                                <label>Billing Date: </label>
+                                <input type="number" min="1" max="31" class="form-control"
+                                    placeholder="Enter billing date" name="billing_date" readonly
+                                    value="{{ $property->billing_day }}">
+                            </div>
                         @else
-                        <div class="form-group">
-                            <label>Billing Date: </label>
-                            <input type="number" min="1" max="31" class="form-control"
-                                placeholder="Enter billing date" name="billing_date" required>
-                        </div>
+                            <div class="form-group">
+                                <label>Billing Date: </label>
+                                <input type="number" min="1" max="31" class="form-control"
+                                    placeholder="Enter billing date" name="billing_date" required>
+                            </div>
                         @endif
 
                         <div class="form-group">
@@ -221,7 +222,7 @@
                                 class="fa fa-plus"></i></a>
                         <br>
                         <br>
-                        @csrf
+                   
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
                 </div>
@@ -438,30 +439,30 @@
 
 
 
-{{-- get region emails script --}}
-<script>
-    $(document).ready(function () {
-        $('#region-select').change(function () {
-            var regionId = $(this).val();
-            
-            if (regionId) {
-                $.ajax({
-                    url: '/admin/get-region-emails/' + regionId, 
-                    type: 'GET',
-                    success: function (response) {
-                        if (response) {
-                            $('#electricity-email').val(response.electricity_email || '');
-                            $('#water-email').val(response.water_email || '');
+    {{-- get region emails script --}}
+    <script>
+        $(document).ready(function() {
+            $('#region-select').change(function() {
+                var regionId = $(this).val();
+
+                if (regionId) {
+                    $.ajax({
+                        url: '/admin/get-region-emails/' + regionId,
+                        type: 'GET',
+                        success: function(response) {
+                            if (response) {
+                                $('#electricity-email').val(response.electricity_email || '');
+                                $('#water-email').val(response.water_email || '');
+                            }
                         }
-                    }
-                });
-            } else {
-                $('#electricity-email').val('');
-                $('#water-email').val('');
-            }
+                    });
+                } else {
+                    $('#electricity-email').val('');
+                    $('#water-email').val('');
+                }
+            });
         });
-    });
-</script>
+    </script>
 
 
 @endsection

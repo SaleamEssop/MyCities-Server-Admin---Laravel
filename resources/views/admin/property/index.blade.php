@@ -66,9 +66,16 @@
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     
-                                        <a href="https://wa.me/{{ $property->whatsapp }}" class="btn btn-primary btn-circle" target="_blank" style="background-color: #1cc88a; border-color: #1cc88a;">
-                                            <i class="fab fa-whatsapp" style="font-size: x-large;"></i>
-                                        </a>
+                                        <?php
+                                        $whatsapp = $property->whatsapp;
+                                        $whatsapp = preg_replace('/[^0-9+]/', '', $whatsapp);   
+                                        if (!str_starts_with($whatsapp, '+')) {
+                                            $whatsapp = '+27' . ltrim($whatsapp, '0'); 
+                                        }
+                                    ?>
+                                    <a href="https://wa.me/{{ $whatsapp }}" class="btn btn-primary btn-circle" target="_blank" style="background-color: #1cc88a; border-color: #1cc88a;">
+                                        <i class="fab fa-whatsapp" style="font-size: x-large;"></i>
+                                    </a>
                                     </td>
                                 </tr>
                             @endforeach

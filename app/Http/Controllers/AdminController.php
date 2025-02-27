@@ -55,11 +55,11 @@ class AdminController extends Controller
         }
 
         // Now check if incoming user is admin or not
-        if (!$user->is_admin) {
-            Session::flash('alert-class', 'alert-danger');
-            Session::flash('alert-message', 'Oops, you are not authorized to access admin panel!');
-            return redirect()->back();
-        }
+        // if (!$user->is_admin) {
+        //     Session::flash('alert-class', 'alert-danger');
+        //     Session::flash('alert-message', 'Oops, you are not authorized to access admin panel!');
+        //     return redirect()->back();
+        // }
 
         Auth::login($user);
 
@@ -854,7 +854,8 @@ class AdminController extends Controller
         if ($result) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Meter created successfully!');
-            return redirect('admin/meters');
+            return back();
+            // return redirect('admin/meters');
         } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PermissionController;
+use Illuminate\Support\Facades\Artisan;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -12,6 +13,15 @@ use App\Http\Controllers\PermissionController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('/run-migrations', function () {
+    try {
+        Artisan::call('migrate');
+        return response()->json(['message' => 'Migrations ran successfully!'], 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+})->withoutMiddleware('auth');
 
 Route::get('/', function () {
     return view('landing_page');
@@ -119,6 +129,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     //make payment route 
     Route::post('make-payment', [\App\Http\Controllers\MeterController::class, 'makePayment'])->name('make-meter-payment');  
 
+    //destroy payment route
+    Route::delete('destroy-payment/{id}', [\App\Http\Controllers\PaymentController::class, 'destroy'])->name('destroy-meter-payment');
 
 
 

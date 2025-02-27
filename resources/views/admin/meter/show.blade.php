@@ -375,11 +375,13 @@
                                             data-payment-date="{{ \Carbon\Carbon::parse($payment->payment_date)->format('m/d/Y') }}">
                                             <i class="fas fa-money-bill"></i>
                                         </button>
-                                        <a href="{{ url('admin/meter-reading/delete/' . $payment->id) }}"
-                                            onclick="return confirm('Are you sure you want to delete this meter reading?')"
-                                            class="btn btn-danger btn-circle">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
+                                        <form action="{{ route('destroy-meter-payment', $payment->id) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-circle" onclick="return confirm('Are you sure you want to delete this meter reading?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             @endforeach

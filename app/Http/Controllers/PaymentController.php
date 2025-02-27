@@ -78,8 +78,10 @@ class PaymentController extends Controller
      * @param  \App\Models\Payment  $payment
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Payment $payment)
+    public function destroy($payment)
     {
-        //
+        $payment = Payment::find($payment);
+        $payment->delete();
+        return redirect()->back()->with('success', 'Payment deleted successfully');
     }
 }
