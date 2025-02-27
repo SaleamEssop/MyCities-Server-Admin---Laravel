@@ -319,6 +319,22 @@ legend {
     white-space: normal;
 }
 
+
+.choices__inner {
+    background-color: white !important;
+}
+
+.choices__item.choices__placeholder {
+    color: black !important;
+    font-family: inherit !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    line-height: 1.5 !important;
+}
+.choices__list.choices__list--dropdown{
+    background-color: white !important;
+}
+
 progress {
     vertical-align: baseline;
 }

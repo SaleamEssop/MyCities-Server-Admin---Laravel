@@ -58,6 +58,9 @@ Route::prefix('v1')->group(function() {
         Route::post('/update-readings', [\App\Http\Controllers\ApiController::class, 'updateMeterReadings']);
         Route::get('/get-readings', [\App\Http\Controllers\ApiController::class, 'getMeterReadings']);
         Route::post('/delete-readings', [\App\Http\Controllers\ApiController::class, 'deleteMeterReading']);
+        Route::get('/latest-usage', [\App\Http\Controllers\ApiController::class, 'getLatestUsage']);
+        Route::get('/account-summary', [\App\Http\Controllers\ApiController::class, 'getAccountSummary']);
+
     });
 
     // Ads related routes

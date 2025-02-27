@@ -1,6 +1,10 @@
 @extends('admin.layouts.main')
 @section('title', 'Users')
-
+<style>
+    .form-check-inline {
+        margin-right: 3.75rem !important;
+    }
+</style>
 @section('content')
     <!-- Begin Page Content -->
     <div class="container-fluid">
@@ -12,6 +16,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <form method="POST" action="{{ route('add-user') }}">
+                        @csrf
                         <div class="form-group">
                             <label><strong>Name :</strong></label>
                             <input type="text" class="form-control" value="{{ old('name') }}" placeholder="Enter name" name="name" required>
@@ -28,7 +33,24 @@
                             <label><strong>Password :</strong></label>
                             <input type="password" name="password" class="form-control" required id="exampleInputPassword1" placeholder="Password">
                         </div>
-                        @csrf
+                        <div class="form-group">
+                            <label><strong>Select Role:</strong></label><br>
+                            <div class="d-flex">
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" class="form-check-input" name="is_admin" value="1" {{ old('is_admin') ? 'checked' : '' }}>
+                                    <label class="form-check-label">Admin</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" class="form-check-input" name="is_super_admin" value="1" {{ old('is_super_admin') ? 'checked' : '' }}>
+                                    <label class="form-check-label">Super Admin</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" class="form-check-input" name="is_property_manager" value="1" {{ old('is_property_manager') ? 'checked' : '' }}>
+                                    <label class="form-check-label">Property Manager</label>
+                                </div>
+                            </div>
+                        </div>
+                      
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
                 </div>

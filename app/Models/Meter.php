@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Payment;
+use App\Models\BillingPeriod;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Meter extends Model
 {
@@ -38,6 +40,17 @@ class Meter extends Model
     {
         return $this->belongsTo(Account::class);
     }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function billings()
+    {
+        return $this->hasMany(BillingPeriod::class, 'meter_id');
+    }
+
 
     protected static function booted()
     {

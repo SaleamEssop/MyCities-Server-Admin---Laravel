@@ -2,25 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Ads;
 use App\Models\Site;
 use App\Models\User;
 use App\Models\Meter;
 use PHPUnit\Exception;
 use App\Models\Account;
+use App\Models\Payment;
 use App\Models\Regions;
 use App\Models\Settings;
 use App\Models\FixedCost;
 use App\Models\MeterType;
 use App\Models\AccountType;
 use App\Models\AdsCategory;
+use App\Models\RegionCosts;
 use App\Models\RegionAlarms;
 use Illuminate\Http\Request;
+use App\Models\BillingPeriod;
 use App\Models\MeterReadings;
 use App\Models\AccountFixedCost;
-use App\Models\RegionCosts;
 use Illuminate\Support\Facades\DB;
 use PHPMailer\PHPMailer\PHPMailer;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Mail;
 use App\Models\RegionsAccountTypeCost;
@@ -31,6 +35,7 @@ class ApiController extends Controller
 {
     public function addSite(Request $request)
     {
+
 
         $postData = $request->post();
         $requiredFields = ['user_id', 'title', 'lat', 'lng', 'address'];
@@ -120,6 +125,7 @@ class ApiController extends Controller
     public function addAccount(Request $request)
     {
         $postData = $request->post();
+       
         DB::beginTransaction();
         if (empty($postData['site_id'])) {
             // No site_id has passed, so this must be the new site case
@@ -387,36 +393,48 @@ class ApiController extends Controller
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account retrieved successfully!', 'data' => $data]);
     }
 
+   
+
+
     public function deleteAccount(Request $request)
     {
-
-
+      
         $postData = $request->post();
-        if (empty($postData['account_id']))
+      
+    
+        if (empty($postData['account_id'])) {
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
+        }
+    
+        $account = Account::where('id', $postData['account_id'])->first();
+    
+        if (!$account) {
+            return response()->json(['status' => false, 'code' => 404, 'msg' => 'Account not found!']);
+        }
+        // Check if the account was created within the last 1 hour
+        $oneHourAgo = now()->subHour();
+      
+        if ($account->created_at < $oneHourAgo) {
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Account cannot be deleted after one hour of creation.']);
+        }
 
         DB::beginTransaction();
         try {
-            // get Site id
-            $get_site_id = Account::where('id', $postData['account_id'])->first();
-
-            $site_id = isset($get_site_id->site_id) ? $get_site_id->site_id : null;
-
-            if (!empty($site_id)) {
-                Site::where('id', $site_id)->delete();
+            // Delete related site if it exists
+            if (!empty($account->site_id)) {
+                Site::where('id', $account->site_id)->delete();
             }
-            $result = Account::where('id', $postData['account_id'])->first()->delete();
+            // Delete the account
+            $account->delete();
             DB::commit();
+            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account removed successfully!']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back();
+            return response()->json(['status' => false, 'code' => 500, 'msg' => 'Oops, something went wrong!']);
         }
-
-        if ($result)
-            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account removed successfully!']);
-        else
-            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
     }
+    
+
 
     public function getAllData(Request $request)
     {
@@ -474,6 +492,7 @@ class ApiController extends Controller
     public function addMeter(Request $request)
     {
 
+
         $postData = $request->post();
         $requiredFields = ['account_id', 'meter_type_id', 'meter_title', 'meter_number', 'meter_reading_date', 'meter_reading'];
         $validated = validateData($requiredFields, $postData);
@@ -492,14 +511,33 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, meter with same information already exists.']);
 
         $res = Meter::create($meterArr);
+
+        $readingImg = null;
+
+        if ($request->has('meter_reading_image') && !empty($request->input('meter_reading_image'))) {
+            $base64Image = $request->input('meter_reading_image');
+            if (preg_match('#^data:image/\w+;base64,#i', $base64Image)) {
+                $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64Image));
+                $fileName = 'reading_' . time() . '.png';
+                $storagePath = 'public/readings/' . $fileName;
+                $publicPath = 'storage/readings/' . $fileName;
+
+                Storage::put($storagePath, $imageData);
+                $readingImg = $publicPath;
+            }
+        }
+
         if ($res) {
             // Add meter reading in system
             $meterReading = array(
                 'meter_id' => $res->id,
                 //'reading_date' => date('Y-m-d', strtotime($postData['meter_reading_date'])),
                 'reading_date' => $postData['meter_reading_date'],
-                'reading_value' => $postData['meter_reading']
+                'reading_value' => $postData['meter_reading'],
+                'added_by' => auth()->user()->id,
+                'reading_image' => $readingImg
             );
+
             MeterReadings::create($meterReading);
             $data = Meter::with('readings')->find($res->id);
 
@@ -507,6 +545,130 @@ class ApiController extends Controller
         } else
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
     }
+
+
+    //account summary
+    public function getAccountSummary(Request $request)
+{
+
+    //get meter id
+    $meterId = $request->query('meter_id');
+    $meter = Meter::find($meterId);
+    if (!$meter) {
+        return response()->json(['status' => false, 'code' => 404, 'msg' => 'Meter not found!']);
+    }
+
+    $account = $meter->account;
+    $property = $account->property;
+    $billingDay = $property->billing_day;
+    $currentDate = now();
+
+    if ($currentDate->day >= $billingDay) {
+        $currentCycleEnd = $currentDate->copy()->addMonth()->day($billingDay)->subDay();
+    } else {
+        $currentCycleEnd = $currentDate->copy()->day($billingDay)->subDay();
+    }
+
+    $billingPeriods = [];
+    for ($i = 0; $i < 4; $i++) {
+        $endDate = $currentCycleEnd->copy()->subMonths($i);
+        $startDate = $endDate->copy()->subMonth()->addDay();
+        $billingPeriods[] = [
+            'start_date' => $startDate->copy(),
+            'end_date' => $endDate->copy(),
+            'label' => $startDate->format('d M') . ' to ' . $endDate->format('d M'),
+            'value' => $startDate->toDateString() . ' to ' . $endDate->toDateString(),
+        ];
+    }
+    $billingPeriods = array_reverse($billingPeriods);
+
+    $billings = BillingPeriod::where('meter_id', $meterId)->orderBy('start_date')->get();
+    $payments = Payment::where('meter_id', $meterId)->orderBy('payment_date')->get();
+
+    $accountSummary = [];
+    foreach ($billingPeriods as $index => $period) {
+        $startDate = $period['start_date'];
+        $endDate = $period['end_date'];
+
+        $periodBillings = $billings->filter(function ($billing) use ($startDate, $endDate) {
+            return $billing->start_date <= $endDate && $billing->end_date >= $startDate;
+        });
+
+        $totalBillingAmount = 0;
+        foreach ($periodBillings as $billing) {
+            $totalBillingAmount += $billing->cost ?? 0;
+        }
+
+        $readingIds = $periodBillings->pluck('start_reading_id')->merge(
+            $periodBillings->pluck('end_reading_id')
+        )->unique()->filter();
+
+        // Filter payments strictly by billing_period_id to avoid overlap
+        $periodPayments = $payments->filter(function ($payment) use ($periodBillings) {
+            return $periodBillings->pluck('id')->contains($payment->billing_period_id);
+        });
+
+        $paidAmount = 0;
+        $latestPaymentDate = null;
+        $paymentDetails = []; // New array to store payment details
+        foreach ($periodPayments as $payment) {
+            if ($payment->status === 'paid') {
+                $paidAmount += $payment->amount;
+                $latestPaymentDate = $payment->payment_date > $latestPaymentDate ? $payment->payment_date : $latestPaymentDate;
+            } elseif ($payment->status === 'partially_paid') {
+                $paidAmount += $payment->paid_amount ?? 0;
+                $latestPaymentDate = $payment->payment_date > $latestPaymentDate ? $payment->payment_date : $latestPaymentDate;
+            }
+            // Add payment details for display
+            $paymentDetails[] = [
+                'id' => $payment->id,
+                'amount' => $payment->amount,
+                'paid_amount' => $payment->paid_amount ?? 0,
+                'status' => $payment->status,
+                'payment_date' => $payment->payment_date ? Carbon::parse($payment->payment_date)->format('d M Y') : null,
+                'billing_period_id' => $payment->billing_period_id,
+            ];
+        }
+
+        $balanceBf = $index === 0 ? 0 : $accountSummary[$index - 1]['balance_carried'];
+        $totalAmountDue = $totalBillingAmount + $balanceBf;
+        $balanceCarried = $totalAmountDue - $paidAmount;
+
+        $formattedPaymentDate = $latestPaymentDate ? Carbon::parse($latestPaymentDate)->format('d M Y') : null;
+        $isOverdue = $balanceCarried > 0 && $endDate < $currentDate;
+
+        $accountSummary[] = [
+            'period' => $period['label'],
+            'period_value' => $period['value'],
+            'balance_bf' => $balanceBf,
+            'total_amount' => $totalAmountDue,
+            'payment_amount' => $paidAmount,
+            'payment_date' => $formattedPaymentDate,
+            'balance_carried' => $balanceCarried,
+            'is_overdue' => $isOverdue,
+            'payments' => $paymentDetails, // Add payment details here
+        ];
+
+       
+    }
+
+    $overdueAmount = 0;
+    $overdueStartDate = null;
+    $overdueEndDate = null;
+    foreach ($accountSummary as $summary) {
+        if ($summary['is_overdue']) {
+            $overdueAmount += $summary['balance_carried'];
+            $dates = explode(' to ', $summary['period_value']);
+            if ($overdueStartDate === null) $overdueStartDate = Carbon::parse($dates[0]);
+            $overdueEndDate = Carbon::parse($dates[1]);
+        }
+    }
+Log::info($accountSummary); 
+    
+ 
+    return response()->json(['status' => true, 'data' => $accountSummary]);
+   
+}
 
     public function addFixedCost(Request $request)
     {
@@ -643,6 +805,7 @@ class ApiController extends Controller
 
     public function addMeterReadings(Request $request)
     {
+
         $postData = $request->post();
         $requiredFields = ['meter_id', 'meter_reading_date', 'meter_reading'];
         $validated = validateData($requiredFields, $postData);
@@ -650,10 +813,19 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => $validated['error']]);
 
         $readingImg = null;
-        // Check if meter reading image is provided
-        if ($request->hasFile('reading_image'))
-            $readingImg = $request->file('reading_image')->store('public/readings');
 
+        if ($request->has('reading_image') && !empty($request->input('reading_image'))) {
+            $base64Image = $request->input('reading_image');
+            if (preg_match('#^data:image/\w+;base64,#i', $base64Image)) {
+                $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64Image));
+                $fileName = 'reading_' . time() . '.png';
+                $storagePath = 'public/readings/' . $fileName;
+                $publicPath = 'storage/readings/' . $fileName;
+
+                Storage::put($storagePath, $imageData);
+                $readingImg = $publicPath;
+            }
+        }
         $siteArr = array(
             'meter_id' => $postData['meter_id'],
             'reading_date' => $postData['meter_reading_date'],
@@ -662,47 +834,127 @@ class ApiController extends Controller
         );
 
         $res = MeterReadings::create($siteArr);
+
         if ($res)
             return response()->json(['status' => true, 'code' => 200, 'data' => $res, 'msg' => 'Meter readings added successfully!']);
         else
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
     }
 
+ 
+
     public function deleteMeter(Request $request)
-    {
-
-        $postData = $request->post();
-        if (empty($postData['meter_id']))
-            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, location_id is required!']);
-
-        DB::beginTransaction();
-        try {
-            $result = Meter::where('id', $postData['meter_id'])->first()->delete();
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
-        }
-
-        if ($result)
-            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meter removed successfully!']);
-        else
-            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
+{
+    $postData = $request->post();
+    if (empty($postData['meter_id'])) {
+        return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, meter_id is required!']);
     }
+
+    // Get meter
+    $meter = Meter::where('id', $postData['meter_id'])->first();
+
+    if (!$meter) {
+        return response()->json(['status' => false, 'code' => 404, 'msg' => 'Meter not found!']);
+    }
+
+    // Check if the meter was created within the last 1 hour
+    $oneHourAgo = now()->subHour();
+    if ($meter->created_at < $oneHourAgo) {
+        return response()->json(['status' => false, 'code' => 400, 'msg' => 'Meter cannot be deleted after one hour of creation.']);
+    }
+
+    DB::beginTransaction();
+    try {
+        // Delete the meter
+        $meter->delete();
+        DB::commit();
+
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meter removed successfully!']);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['status' => false, 'code' => 500, 'msg' => 'Oops, something went wrong!']);
+    }
+}
+
+
 
     public function deleteMeterReading(Request $request)
     {
-
+        
         $postData = $request->post();
-        if (empty($postData['reading_id']))
-            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, location_id is required!']);
 
-        $result = MeterReadings::where('id', $postData['reading_id'])->delete();
-        if ($result)
-            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meter reading removed successfully!']);
-        else
-            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
+        if (empty($postData['reading_id'])) {
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, reading_id is required!'], 400);
+        }
+
+        $reading = MeterReadings::find($postData['reading_id']);
+      
+        if (!$reading) {
+            return response()->json(['status' => false, 'code' => 404, 'msg' => 'Reading not found!'], 404);
+        }
+
+        $oneHourAgo = now()->subHour();
+        if ($reading->created_at < $oneHourAgo) {
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'You can only delete readings created within the last hour.'], 400);
+        }
+
+        if ($reading->delete()) {
+            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meter reading removed successfully!'], 200);
+        }
+
+        return response()->json(['status' => false, 'code' => 500, 'msg' => 'Oops, something went wrong!'], 500);
     }
+
+
+    //get latest usages of meter
+    public function getLatestUsage(Request $request)
+    {
+        $meterId = $request->query('meter_id');
+    
+        // Fetch the latest reading
+        $latestReading = MeterReadings::where('meter_id', $meterId)
+            ->latest('created_at')
+            ->first();
+    
+        if (!$latestReading) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'No readings found for this meter.',
+            ], 404);
+        }
+    
+        // Fetch the previous reading
+        $previousReading = MeterReadings::where('meter_id', $meterId)
+            ->where('created_at', '<', $latestReading->created_at)
+            ->latest('created_at')
+            ->first();
+    
+        if (!$previousReading) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Not enough readings to calculate usage.',
+            ], 400);
+        }
+    
+        // Calculate usage
+        $usage = $latestReading->reading_value - $previousReading->reading_value;
+    
+        // Calculate cost (assuming $0.10 per unit)
+        $ratePerUnit = 0.10; // You can fetch this from a settings table or configuration
+        $cost = $usage * $ratePerUnit;
+    
+        return response()->json([
+            'status' => true,
+            'latestReading' => $latestReading,
+            'previousReading' => $previousReading,
+            'usage' => $usage,
+            'cost' => $cost,
+        ]);
+    }
+
+
+
+
 
     public function getMeterTypes(Request $request)
     {
@@ -746,7 +998,11 @@ class ApiController extends Controller
 
         try {
             // Email server settings
-            $mail->SMTPDebug = 0;
+            $mail->SMTPDebug = 2;  // Enable SMTP debug output (won't show in JSON response but will log details)
+            $mail->Debugoutput = function ($str, $level) {
+                error_log("SMTP Debug Level $level: $str");
+            };
+
             $mail->isSMTP();
             $mail->Host = $mailerHost;
             $mail->SMTPAuth = true;
@@ -757,19 +1013,21 @@ class ApiController extends Controller
 
             $mail->setFrom($mailerUsername, 'LightsAndWater');
             $mail->addAddress($postData['email']);
-
             $mail->addReplyTo($mailerUsername, 'LightsAndWater');
 
             $mail->isHTML(true);
-
             $mail->Subject = "Password Reset Code";
-            $mail->Body    = "Hi, we have received you password reset request. Please use the following code: " . $code;
+            $mail->Body    = "Hi, we have received your password reset request. Please use the following code: " . $code;
 
-            if (!$mail->send())
-                return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong while sending code via email.']);
+            if (!$mail->send()) {
+                error_log("PHPMailer Error: " . $mail->ErrorInfo);
+                return response()->json(['status' => false, 'code' => 400, 'msg' => 'Error while sending email: ' . $mail->ErrorInfo]);
+            }
         } catch (\Exception $e) {
-            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, an exception occurred!']);
+            error_log("Exception: " . $e->getMessage());
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Exception: ' . $e->getMessage()]);
         }
+
 
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'A code has been sent to your email.!']);
     }
@@ -804,28 +1062,41 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Wrong email provided!']);
     }
 
+
+
     public function updateMeterReadings(Request $request)
-    {
+{
+    $postData = $request->post();
+    $requiredFields = ['meter_reading_id', 'meter_id', 'meter_reading_date', 'meter_reading'];
+    $validated = validateData($requiredFields, $postData);
 
-        $postData = $request->post();
-        $requiredFields = ['meter_reading_id', 'meter_id', 'meter_reading_date', 'meter_reading'];
-        $validated = validateData($requiredFields, $postData);
-        if (!$validated['status'])
-            return response()->json(['status' => false, 'code' => 400, 'msg' => $validated['error']]);
-
-        $reading = MeterReadings::find($postData['meter_reading_id']);
-        if (empty($reading))
-            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, wrong meter_reading_id provided!']);
-
-        $reading->meter_id = $postData['meter_id'];
-        $reading->reading_date = $postData['meter_reading_date'];
-        $reading->reading_value = $postData['meter_reading'];
-
-        if ($reading->save())
-            return response()->json(['status' => true, 'code' => 200, 'data' => $reading, 'msg' => 'Meter readings updated successfully!']);
-        else
-            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
+    if (!$validated['status']) {
+        return response()->json(['status' => false, 'code' => 400, 'msg' => $validated['error']]);
     }
+
+    $reading = MeterReadings::find($postData['meter_reading_id']);
+    if (empty($reading)) {
+        return response()->json(['status' => false, 'code' => 404, 'msg' => 'Oops, wrong meter_reading_id provided!']);
+    }
+
+    // Check if the meter reading was created within the last 1 hour
+    $oneHourAgo = now()->subHour();
+    if ($reading->created_at < $oneHourAgo) {
+        return response()->json(['status' => false, 'code' => 400, 'msg' => 'Meter reading cannot be updated after one hour of creation.']);
+    }
+
+    // Update the meter reading
+    $reading->meter_id = $postData['meter_id'];
+    $reading->reading_date = $postData['meter_reading_date'];
+    $reading->reading_value = $postData['meter_reading'];
+
+    if ($reading->save()) {
+        return response()->json(['status' => true, 'code' => 200, 'data' => $reading, 'msg' => 'Meter reading updated successfully!']);
+    } else {
+        return response()->json(['status' => false, 'code' => 500, 'msg' => 'Oops, something went wrong!']);
+    }
+}
+
 
     public function getTC()
     {
@@ -984,7 +1255,7 @@ class ApiController extends Controller
         // exit();
         if (count($meters) > 0) {
             foreach ($meters as $meter) {
-                $response[] = $this->getReadings($postData['account_id'], $meter, $postData['type'],$postData['start_date'],$postData['end_date']);
+                $response[] = $this->getReadings($postData['account_id'], $meter, $postData['type'], $postData['start_date'], $postData['end_date']);
             }
             if ($postData['type'] == "fullbill") {
                 if (isset($response) && !empty($response)) {
@@ -1115,7 +1386,7 @@ class ApiController extends Controller
         $closest = key($interval);
         return $array[$closest];
     }
-    public function getReadings($accountID, $meter, $bill_type,$start_date,$end_date)
+    public function getReadings($accountID, $meter, $bill_type, $start_date, $end_date)
     {
 
         if ($meter) {
@@ -1156,8 +1427,8 @@ class ApiController extends Controller
                     usort($reading_arr, function ($a, $b) {
                         return strtotime($a['date']) - strtotime($b['date']);
                     });
-                    $previous_date = $this->find_closest($reading_dates,$start_date);
-                    $next_date = $this->find_closest($reading_dates,$end_date);
+                    $previous_date = $this->find_closest($reading_dates, $start_date);
+                    $next_date = $this->find_closest($reading_dates, $end_date);
                     $firstReadingDate = date('Y-m-d', strtotime($previous_date['date'])) ?? null;
                     $firstReading = $previous_date['reading_value'] ?? null;
                     $endReadingDate = date('Y-m-d', strtotime($next_date['date'])) ?? null;
@@ -1652,7 +1923,7 @@ class ApiController extends Controller
                 $result = array_udiff(
                     $additional_arr,
                     $fixedCosts,
-                    fn ($a, $b) => ($a['name'] ?? $a['name']) <=> ($b['name'] ?? $b['name'])
+                    fn($a, $b) => ($a['name'] ?? $a['name']) <=> ($b['name'] ?? $b['name'])
                 );
                 $array_merged = array_merge($fixedCosts, $result);
                 if (isset($array_merged) && !empty($array_merged)) {

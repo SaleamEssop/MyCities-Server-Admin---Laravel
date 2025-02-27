@@ -20,10 +20,10 @@
                         <tr>
                             <th>#</th>
                             <th>Account Name</th>
-                            <th>Meter Category</th>
-                            <th>Meter Type</th>
                             <th>Meter Title</th>
                             <th>Meter Number</th>
+                            <th>Meter Category</th>
+                            <th>Meter Type</th>
                             <th>Created Date</th>
                             <th>Action</th>
                         </tr>
@@ -32,10 +32,10 @@
                         <tr>
                             <th>#</th>
                             <th>Account Name</th>
-                            <th>Meter Category</th>
-                            <th>Meter Type</th>
                             <th>Meter Title</th>
                             <th>Meter Number</th>
+                            <th>Meter Category</th>
+                            <th>Meter Type</th>
                             <th>Created Date</th>
                             <th>Action</th>
                         </tr>
@@ -45,10 +45,10 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $meter->account->account_name ?? '-' }}</td>
-                                <td>{{ $meter->meterCategory->name ?? '-' }}</td>
-                                <td>{{ $meter->meterTypes->title }}</td>
                                 <td>{{ $meter->meter_title }}</td>
                                 <td>{{ $meter->meter_number }}</td>
+                                <td>{{ $meter->meterCategory->name ?? '-' }}</td>
+                                <td>{{ $meter->meterTypes->title }}</td>
                                 <td>{{ $meter->created_at }}</td>
                                 <td>
                                     <a href="{{ url('admin/meter/edit/'.$meter->id) }}" class="btn btn-warning btn-circle">

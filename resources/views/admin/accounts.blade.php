@@ -41,6 +41,7 @@
                         </tr>
                         </tfoot>
                         <tbody>
+                            
                         @foreach($accounts as $account)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>

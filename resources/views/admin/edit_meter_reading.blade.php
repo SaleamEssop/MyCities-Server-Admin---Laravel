@@ -23,7 +23,7 @@
                         </div>
                         <div class="form-group">
                             <label><strong>Meter Reading Date:</strong></label>
-                            <input type="date" class="form-control" value="{{ $meterReading->reading_date }}" placeholder="Enter meter reading date" name="reading_date" required>
+                            <input type="date" class="payment_date form-control" value="{{ $meterReading->reading_date }}" placeholder="Enter meter reading date" name="reading_date" required>
                         </div>
                         <div class="form-group">
                             <label><strong>Reading Value:</strong></label>

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\PermissionController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -31,6 +31,29 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/', function () {
         return view('admin.home');
     });
+
+    //permissions
+    Route::get('permissions-list', [PermissionController::class, 'index'])->name('permissions-list'); // Show all permissions
+    Route::get('permissions-create', [PermissionController::class, 'create'])->name('permissions-create'); // Show create form
+    Route::post('permissions-store', [PermissionController::class, 'store'])->name('permissions-store'); // Store new permission
+    Route::get('permissions-edit/{id}', [PermissionController::class, 'edit'])->name('permissions-edit'); // Show edit form
+    Route::post('permissions-update/{id}', [PermissionController::class, 'update'])->name('permissions-update'); // Update permission
+    Route::post('permissions-delete/{id}', [PermissionController::class, 'destroy'])->name('permissions-delete'); // Delete permission
+
+    //property routes
+    Route::get('properties-list', [\App\Http\Controllers\PropertyController::class, 'index'])->name('properties-list');
+    Route::get('create-property', [\App\Http\Controllers\PropertyController::class, 'create'])->name('create-property');
+    Route::post('store-property', [\App\Http\Controllers\PropertyController::class, 'store'])->name('store-property');
+    Route::get('edit-property/{id}', [\App\Http\Controllers\PropertyController::class, 'edit'])->name('edit-property');
+    Route::post('update-property/{id}', [\App\Http\Controllers\PropertyController::class, 'update'])->name('update-property');
+    Route::get('delete-property/{id}', [\App\Http\Controllers\PropertyController::class, 'delete'])->name('delete-property');
+    Route::get('show-property/{id}', [\App\Http\Controllers\PropertyController::class, 'show'])->name('show-property');
+    Route::get('add-account-form/{id}', [\App\Http\Controllers\PropertyController::class, 'addAccountForm'])->name('property.add-account-form');
+    Route::get('add-meter-form/{id}', [\App\Http\Controllers\PropertyController::class, 'addMeterForm'])->name('property.add-meter-form');
+    Route::get('get-region-emails/{id}', [\App\Http\Controllers\PropertyController::class, 'getRegionEmails']);
+
+
+
     // Account Type routes
     Route::get('region_cost', [\App\Http\Controllers\RegionsCostController::class, 'index'])->name('region-cost');
     Route::get('region_cost/create', [\App\Http\Controllers\RegionsCostController::class, 'create'])->name('region-cost-create');
@@ -39,7 +62,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::post('region_cost/update', [\App\Http\Controllers\RegionsCostController::class, 'update'])->name('update-region-cost');
     Route::get('/region_cost/delete/{id}', [\App\Http\Controllers\RegionsCostController::class, 'delete']);
     Route::post('region_cost/copy_record', [\App\Http\Controllers\RegionsCostController::class, 'copyRecord'])->name('copy-region-cost');
-    
+
     // Account Type routes
     Route::get('account_type', [\App\Http\Controllers\AdminController::class, 'showAccountType'])->name('account-type-list');
     Route::post('/account_type/edit', [\App\Http\Controllers\AdminController::class, 'editAccountType'])->name('edit-account-type');
@@ -66,6 +89,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/user/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editUserForm']);
     Route::post('/user/edit', [\App\Http\Controllers\AdminController::class, 'editUser'])->name('edit-user');
 
+    //account
     Route::get('accounts', [\App\Http\Controllers\AdminController::class, 'showAccounts'])->name('account-list');
     Route::get('accounts/add', [\App\Http\Controllers\AdminController::class, 'addAccountForm'])->name('add-account-form');
     Route::post('accounts/add', [\App\Http\Controllers\AdminController::class, 'createAccount'])->name('add-account');
@@ -73,6 +97,10 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/account/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editAccountForm']);
     Route::post('/account/edit', [\App\Http\Controllers\AdminController::class, 'editAccount'])->name('edit-account');
     Route::post('accounts/get-user-sites', [\App\Http\Controllers\AdminController::class, 'getUserSites']);
+    Route::get('accounts/show/{id}', [\App\Http\Controllers\AccountController::class, 'showDetail'])->name('account.account-details');
+    Route::get('accounts/edit-account/{id}', [\App\Http\Controllers\AccountController::class, 'edit'])->name('account.edit-account');
+    Route::post('accounts/update-account/{id}', [\App\Http\Controllers\AccountController::class, 'update'])->name('account.update-account');
+    Route::get('accounts/delete-account/{id}', [\App\Http\Controllers\AccountController::class, 'destroy'])->name('account.delete-account');
 
     Route::get('sites', [\App\Http\Controllers\AdminController::class, 'showSites'])->name('sites-list');
     Route::get('sites/add', [\App\Http\Controllers\AdminController::class, 'addSiteForm'])->name('add-site-form');
@@ -87,6 +115,12 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::post('meters/add', [\App\Http\Controllers\AdminController::class, 'createMeter'])->name('add-meter');
     Route::get('/meter/edit/{id}', [\App\Http\Controllers\AdminController::class, 'editMeterForm']);
     Route::post('/meter/edit', [\App\Http\Controllers\AdminController::class, 'editMeter'])->name('edit-meter');
+    Route::get('meters/show/{id}', [\App\Http\Controllers\MeterController::class, 'showDetail'])->name('show-meter-detail');
+    //make payment route 
+    Route::post('make-payment', [\App\Http\Controllers\MeterController::class, 'makePayment'])->name('make-meter-payment');  
+
+
+
 
     Route::get('meter-readings', [\App\Http\Controllers\AdminController::class, 'showMeterReadings'])->name('readings-list');
     Route::get('meter-readings/add', [\App\Http\Controllers\AdminController::class, 'addMeterReadingForm'])->name('add-readings-form');

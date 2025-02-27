@@ -2,14 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
+use App\Models\Payment;
+use App\Models\Property;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Account extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'property_id',
+        'user_id',
         'site_id',
         'account_name',
         'account_number',
@@ -23,11 +28,23 @@ class Account extends Model
         'read_day',
         'bill_read_day_active'
 
+
     ];
 
     public function site()
     {
         return $this->belongsTo(Site::class);
+    }
+
+    //region
+    public function region()
+    {
+        return $this->belongsTo(Regions::class);
+    }
+
+    public function accountType()
+    {
+        return $this->belongsTo(AccountType::class);
     }
 
     public function fixedCosts()
@@ -43,6 +60,21 @@ class Account extends Model
     public function meters()
     {
         return $this->hasMany(Meter::class);
+    }
+
+    public function property()
+    {
+        return $this->belongsTo(Property::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 
     protected static function booted()

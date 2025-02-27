@@ -23,11 +23,11 @@
                         </div>
                         <div class="form-group">
                             <label><strong>Meter Reading Image:</strong></label>
-                            <input type="file" name="reading_image" />
+                            <input type="file"  class="form-control" name="reading_image" />
                         </div>
                         <div class="form-group">
                             <label><strong>Reading Date:</strong></label>
-                            <input type="date" class="form-control" placeholder="Enter meter reading date" name="reading_date" required>
+                            <input type="date" class="payment_date form-control" placeholder="Enter meter reading date" name="reading_date" required>
                         </div>
                         <div class="form-group">
                             <label><strong>Reading Value:</strong></label>

@@ -137,3 +137,30 @@ if (!function_exists('getSqlQuery')) {
         return $string;
     }
 }
+
+
+
+
+if (!function_exists('addOrdinalSuffix')) {
+    /**
+     * Add ordinal suffix to a given day.
+     *
+     * @param int $day
+     * @return string
+     */
+    function addOrdinalSuffix($day)
+    {
+        if (!in_array(($day % 100), [11, 12, 13])) {
+            switch ($day % 10) {
+                case 1:
+                    return $day . 'st';
+                case 2:
+                    return $day . 'nd';
+                case 3:
+                    return $day . 'rd';
+            }
+        }
+        return $day . 'th';
+    }
+}
+
