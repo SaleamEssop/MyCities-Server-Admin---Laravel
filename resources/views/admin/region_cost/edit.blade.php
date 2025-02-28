@@ -402,6 +402,15 @@
                                 <input class="form-control " type="text" placeholder="Cost" name="additional[{{$key}}][cost]" value="{{$value->cost}}" required />
                             </div>
                         </div>
+                        <div class="col-md-2">
+                            <label><strong>VAT Exempt Charges:</strong></label>
+                            <div class="form-group" style="display: flex;justify-content: space-around">
+                                            <span><input type="radio" placeholder="Cost" name="additional[{{$key}}][exempt_vat]"
+                                                         value="yes" @if(isset($value->exempt_vat) && $value->exempt_vat === 'yes') checked @endif  required/> Yes</span>
+                                <span><input type="radio" @if(isset($value->exempt_vat) && $value->exempt_vat === 'no') checked @endif placeholder="Cost" name="additional[{{$key}}][exempt_vat]"
+                                             value="no" required/> No</span>
+                            </div>
+                        </div>
                         <div class="col-md-1">
                             <a href="javascript:void(0)" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger addi-cost-del-btn">
                                 <i class="fa fa-trash"></i>
@@ -522,11 +531,11 @@
                 }
                 ?>;
         var a = <?php
-        
+
                 if (isset($region_cost->additional) && !empty($region_cost->additional)) {
-                    echo count(json_decode($region_cost->additional,true));
+                    echo count(json_decode($region_cost->additional,true)) + 1;
                 } else {
-                    echo 0;
+                    echo 0 + 1;
                 }
 
                 ?>;
@@ -820,7 +829,13 @@
                 '<input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="additional[' + a + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
-
+                '<div class="col-md-2">'+
+                '<label><strong>VAT Exempt Charges:</strong></label>'+
+                '<div class="form-group" style="display: flex;justify-content: space-around">'+
+                '<span><input type="radio" placeholder="Cost" name="additional['+a+'][exempt_vat]"  value="yes" required/> Yes</span>'+
+                '<span><input type="radio" placeholder="Cost" name="additional['+a+'][exempt_vat]" checked value="no" required/> No</span>'+
+                '</div>'+
+                '</div>'+
                 '<div class="col-md-1">' +
                 '<a href="javascript:void(0)" data-id="" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger addi-cost-del-btn">' +
                 '<i class="fa fa-trash"></i>' +

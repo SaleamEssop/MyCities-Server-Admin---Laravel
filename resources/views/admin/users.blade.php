@@ -23,6 +23,7 @@
                             <th>Email</th>
                             <th>Contact number</th>
                             <th>Is Admin</th>
+                            <th>Is Property Manger</th>
                             <th>Created Date</th>
                             <th>Actions</th>
                         </tr>
@@ -34,6 +35,7 @@
                             <th>Email</th>
                             <th>Contact number</th>
                             <th>Is Admin</th>
+                            <th>Is Property Manger</th>
                             <th>Created Date</th>
                             <th>Actions</th>
                         </tr>
@@ -46,6 +48,7 @@
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->contact_number }}</td>
                                 <td>{{ $user->is_admin }}</td>
+                                <td>@if ($user->is_property_manager) Yes @else No @endif</td>
                                 <td>{{ $user->created_at }}</td>
                                 <td>
                                     <a href="{{ url('admin/user/details-v2/'.$user->id) }}" class="btn btn-success btn-circle">

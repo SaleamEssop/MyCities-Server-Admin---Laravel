@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -76,11 +77,13 @@ class UserController extends Controller
 
         $postData = $request->post();
         $requiredFields = ['email', 'password'];
+        
         $validated = validateData($requiredFields, $postData);
         if(!$validated['status'])
             return response()->json(['status' => false, 'code' => 400, 'msg' => $validated['error']]);
 
         $user = User::where(['email' => $postData['email']])->get();
+     
         if(count($user) !== 1)
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, username or password is wrong!']);
 

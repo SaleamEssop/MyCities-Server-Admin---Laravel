@@ -2,30 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Account;
-use App\Models\AccountFixedCost;
-use App\Models\AccountType;
+use Carbon\Carbon;
 use App\Models\Ads;
-use App\Models\AdsCategory;
-use App\Models\FixedCost;
-use App\Models\Meter;
-use App\Models\MeterCategory;
-use App\Models\MeterReadings;
-use App\Models\MeterType;
-use App\Models\RegionAlarms;
-use App\Models\RegionCosts;
-use App\Models\Regions;
-use App\Models\Settings;
 use App\Models\Site;
 use App\Models\User;
+use App\Models\Meter;
+use App\Models\Account;
+use App\Models\Regions;
+use App\Models\Property;
+use App\Models\Settings;
+use App\Models\FixedCost;
+use App\Models\MeterType;
+use App\Models\AccountType;
+use App\Models\AdsCategory;
+use App\Models\RegionCosts;
+use App\Models\RegionAlarms;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\MeterCategory;
+use App\Models\MeterReadings;
+use App\Models\AccountFixedCost;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\URL;
 
 class AdminController extends Controller
 {
@@ -53,11 +55,11 @@ class AdminController extends Controller
         }
 
         // Now check if incoming user is admin or not
-        if (!$user->is_admin) {
-            Session::flash('alert-class', 'alert-danger');
-            Session::flash('alert-message', 'Oops, you are not authorized to access admin panel!');
-            return redirect()->back();
-        }
+        // if (!$user->is_admin) {
+        //     Session::flash('alert-class', 'alert-danger');
+        //     Session::flash('alert-message', 'Oops, you are not authorized to access admin panel!');
+        //     return redirect()->back();
+        // }
 
         Auth::login($user);
 
@@ -112,6 +114,7 @@ class AdminController extends Controller
 
     public function createUser(Request $request)
     {
+
         $postData = $request->post();
         $alreadyExists = User::where('email', $postData['email'])->get();
         if (count($alreadyExists) > 0) {
@@ -123,7 +126,11 @@ class AdminController extends Controller
             'name' => $postData['name'],
             'email' => $postData['email'],
             'contact_number' => $postData['contact_number'],
-            'password' => bcrypt($postData['password'])
+            'password' => bcrypt($postData['password']),
+            'is_admin' => $request->has('is_admin') ? 1 : 0,
+            'is_super_admin' => $request->has('is_super_admin') ? 1 : 0,
+            'is_property_manager' => $request->has('is_property_manager') ? 1 : 0,
+
         );
         $result = User::create($userArr);
         if ($result) {
@@ -303,9 +310,14 @@ class AdminController extends Controller
 
     public function addAccountForm(Request $request)
     {
+        
+        $properties = Property::all();
+        $regions = Regions::all();
+        $accountTypes = AccountType::all();
         $users = User::where(['is_admin' => 0, 'is_super_admin' => 0])->get();
         $defaultCosts = FixedCost::where('is_default', 1)->get();
-        return view('admin.create_account', ['users' => $users, 'defaultCosts' => $defaultCosts]);
+
+        return view('admin.create_account', ['users' => $users, 'defaultCosts' => $defaultCosts , 'properties' => $properties, 'accountTypes' => $accountTypes, 'regions' => $regions]);
     }
 
     public function getUserSites(Request $request)
@@ -320,11 +332,74 @@ class AdminController extends Controller
         return json_encode(['status' => 200, 'details' => $sites, 'msg' => 'Sites retrieved successfully!']);
     }
 
+
     public function createAccount(Request $request)
     {
+
+        $request->validate([
+            'user_option' => 'required',
+            'user_id' => 'nullable|exists:users,id',
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|unique:users,email',
+            'password' => 'nullable|string|min:6',
+            'contact_number' => 'nullable|string|max:20',
+            'title' => 'required|string|max:255',
+            'number' => 'required|string|max:255',
+            'billing_date' => 'nullable|string',
+            'optional_info' => 'nullable|string',
+            'site' => 'required|string',
+            'lat' => 'nullable|string',
+            'lng' => 'nullable|string',
+            'fetched-email' => 'nullable|string',
+            'region_id' => 'nullable|exists:regions,id',
+            'electricity_email' => 'nullable|string',
+            'water_email' => 'nullable|string',
+            'account_type_id' => 'nullable|exists:account_type,id',
+            'property_id' => 'nullable|exists:properties,id',
+        
+        ]);
+
         $postData = $request->post();
+        $userId = null;
+
+        if ($postData['user_option'] === 'existing' && !empty($postData['user_id'])) {
+            $userId = $postData['user_id'];
+        } elseif ($postData['user_option'] === 'new') {
+            $newUser = User::create([
+                'name' => $postData['name'],
+                'email' => $postData['email'],
+                'password' => bcrypt($postData['password']),
+                'contact_number' => $postData['contact_number']
+            ]);
+            $userId = $newUser->id;
+        }
+
+        $siteArr = [
+            'user_id' => $userId,
+            'title' => $postData['fetched-email'] ?? '',
+            'lat' => $postData['lat'] ?? "", 
+            'lng' => $postData['lng'] ?? "", 
+            'address' => $postData['site'], 
+            'email' => $postData['fetched-email'] ?? '' ,
+        ];
+    
+        $siteExists = Site::where('user_id', $userId) 
+                      ->where('address', $postData['site'])
+                      ->first();
+
+        if ($siteExists) {
+           $siteID = $siteExists->id;
+        }else{
+            $site = Site::create($siteArr);
+            $siteID = $site->id;
+        }
+      
         $accArr = array(
-            'site_id' => $postData['site_id'],
+            'property_id' => $postData['property_id'],
+            'account_type_id' => $postData['account_type_id'],
+            'region_id' => $postData['region_id'],
+            'site_id' => $siteID,
+            'user_id' => $userId,
             'account_name' => $postData['title'],
             'account_number' => $postData['number']
         );
@@ -376,6 +451,95 @@ class AdminController extends Controller
             return redirect()->back();
         }
     }
+
+    // public function createAccount(Request $request)
+    // {
+    //     dd($request->all());
+    //     $request->validate([
+    //         'user_option' => 'required',
+    //         'user_id' => 'nullable|exists:users,id',
+    //         'name' => 'nullable|string|max:255',
+    //         'email' => 'nullable|email|unique:users,email',
+    //         'password' => 'nullable|string|min:6',
+    //         'contact_number' => 'nullable|string|max:20',
+    //         'title' => 'required|string|max:255',
+    //         'number' => 'required|string|max:255',
+    //         'billing_date' => 'nullable|string',
+    //         'optional_info' => 'nullable|string',
+    //     ]);
+
+    //     $postData = $request->post();
+    //     $userId = null;
+
+    //     if ($postData['user_option'] === 'existing' && !empty($postData['user_id'])) {
+    //         $userId = $postData['user_id'];
+    //     } 
+
+    //     elseif ($postData['user_option'] === 'new') {
+    //         $newUser = User::create([
+    //             'name' => $postData['name'],
+    //             'email' => $postData['email'],
+    //             'password' => bcrypt($postData['password']),
+    //             'contact_number' => $postData['contact_number']
+    //         ]);
+    //         $userId = $newUser->id;
+    //     }
+
+    //     $postData = $request->post();
+    //     $accArr = array(
+    //         'site_id' => $postData['site_id'],
+    //         'account_name' => $postData['title'],
+    //         'account_number' => $postData['number'],
+    //         'user_id' => $userId,
+    //     );
+
+    //     $exists = Account::where($accArr)->first();
+    //     if (!empty($exists)) {
+    //         Session::flash('alert-class', 'alert-danger');
+    //         Session::flash('alert-message', 'Oops, account with same information already exists.');
+    //         return redirect()->back();
+    //     }
+
+    //     $accArr['billing_date'] = $postData['billing_date'] ?? null;
+    //     $accArr['optional_information'] = $postData['optional_info'] ?? null;
+
+    //     $result = Account::create($accArr);
+    //     if ($result) {
+
+    //         // Add default cost
+    //         if (!empty($postData['default_cost_value']) && $postData['default_ids']) {
+    //             $accountDefaultCosts = [];
+    //             for ($i = 0; $i < count($postData['default_ids']); $i++) {
+    //                 $accountDefaultCosts[$i]['account_id'] = $result->id;
+    //                 $accountDefaultCosts[$i]['fixed_cost_id'] = $postData['default_ids'][$i];
+    //                 $accountDefaultCosts[$i]['value'] = $postData['default_cost_value'][$i];
+    //                 $accountDefaultCosts[$i]['created_at'] = date('Y-m-d H:i:s');
+    //             }
+    //             if (!empty($accountDefaultCosts))
+    //                 AccountFixedCost::insert($accountDefaultCosts);
+    //         }
+
+    //         if (!empty($postData['additional_cost_name'])) {
+    //             $fixedCostArr = [];
+    //             for ($i = 0; $i < count($postData['additional_cost_name']); $i++) {
+    //                 $fixedCostArr[$i]['account_id'] = $result->id;
+    //                 $fixedCostArr[$i]['title'] = $postData['additional_cost_name'][$i];
+    //                 $fixedCostArr[$i]['value'] = $postData['additional_cost_value'][$i];
+    //                 $fixedCostArr[$i]['added_by'] = Auth::user()->id;
+    //                 $fixedCostArr[$i]['created_at'] = date("Y-m-d H:i:s");
+    //             }
+    //             FixedCost::insert($fixedCostArr);
+    //         }
+
+    //         Session::flash('alert-class', 'alert-success');
+    //         Session::flash('alert-message', 'Account created successfully!');
+    //         return redirect('admin/accounts');
+    //     } else {
+    //         Session::flash('alert-class', 'alert-danger');
+    //         Session::flash('alert-message', 'Oops, something went wrong.');
+    //         return redirect()->back();
+    //     }
+    // }
 
     public function deleteAccount(Request $request, $id)
     {
@@ -462,7 +626,7 @@ class AdminController extends Controller
 
     public function editAd(Request $request)
     {
-        $postData = $request->post();      
+        $postData = $request->post();
         if (empty($postData['ad_id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, ad ID is required.');
@@ -489,7 +653,7 @@ class AdminController extends Controller
 
         if (!empty($path))
             $ad->image = $path;
-           
+
         if ($ad->save()) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Ad updated successfully!');
@@ -669,6 +833,7 @@ class AdminController extends Controller
             'meter_number' => $postData['number']
         );
 
+
         $exists = Meter::where($meterArr)->first();
         if (!empty($exists)) {
             Session::flash('alert-class', 'alert-danger');
@@ -677,10 +842,20 @@ class AdminController extends Controller
         }
 
         $result = Meter::create($meterArr);
+
+        //create meter readings if meter type is Water then create 00000000 reading value for the meter if meter type is Electricity then create 000000 reading value for the meter
+        if ($postData['meter_type_id'] == 1) {
+            MeterReadings::create(['meter_id' => $result->id, 'reading_value' => '00000000', 'reading_date' => now()]);
+        } else {
+            MeterReadings::create(['meter_id' => $result->id, 'reading_value' => '000000', 'reading_date' => now()]);
+        }
+
+    
         if ($result) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Meter created successfully!');
-            return redirect('admin/meters');
+            return back();
+            // return redirect('admin/meters');
         } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
@@ -741,11 +916,11 @@ class AdminController extends Controller
 
     public function showAdsCategories(Request $request)
     {
-        
+
         $categories = AdsCategory::with('child_display')->get();
-        $parent_categories = AdsCategory::whereNull('parent_id')->pluck('name','id')->toArray();
-        
-        return view('admin.ads_categories', ['categories' => $categories,'parent_categories' => $parent_categories]);
+        $parent_categories = AdsCategory::whereNull('parent_id')->pluck('name', 'id')->toArray();
+
+        return view('admin.ads_categories', ['categories' => $categories, 'parent_categories' => $parent_categories]);
     }
 
     public function showAds(Request $request)
@@ -765,20 +940,21 @@ class AdminController extends Controller
     {
         $postData = $request->post();
         $readingImg = null;
-        // Check if meter reading image is provided
         if ($request->hasFile('reading_image'))
             $readingImg = $request->file('reading_image')->store('public/readings');
         $meterArr = array(
             'meter_id' => $postData['meter_id'],
             'reading_date' => $postData['reading_date'],
             'reading_value' => $postData['reading_value'],
+            'added_by' => auth()->id(),
             'reading_image' => $readingImg
         );
         $result = MeterReadings::create($meterArr);
         if ($result) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Meter reading added successfully!');
-            return redirect('/admin/meter-readings');
+            return back();
+            // return redirect('/admin/meter-readings');
         } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
@@ -790,7 +966,7 @@ class AdminController extends Controller
     {
 
         $postData = $request->post();
-        
+
         $category = array(
             'name' => $postData['category_name'],
             'parent_id' => $postData['parent_id'] ?? null,
@@ -872,24 +1048,33 @@ class AdminController extends Controller
 
     public function editMeterReading(Request $request)
     {
+    dd($request->all());
+        //get reading date
+       
         $postData = $request->post();
+
         if (empty($postData['meter_reading_id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, reading ID is required.');
             return redirect()->back();
         }
+        $readingDate = $request->input('reading_date');
 
         $updArr = array(
             'meter_id' => $postData['meter_id'],
             'reading_date' => $postData['reading_date'],
-            'reading_value' => $postData['reading_value']
+            'reading_value' => $postData['reading_value'],
+            'added_by' => auth()->id(),
+
         );
+        
 
         $updated = MeterReadings::where('id', $postData['meter_reading_id'])->update($updArr);
         if ($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Meter reading updated successfully!');
-            return redirect('admin/meter-readings');
+            return back();
+            // return redirect('admin/meter-readings');
         } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
@@ -1050,7 +1235,7 @@ class AdminController extends Controller
 
     public function editAdCategory(Request $request)
     {
-        
+
         $postData = $request->post();
         if (empty($postData['category_id'])) {
             Session::flash('alert-class', 'alert-danger');
@@ -1065,7 +1250,7 @@ class AdminController extends Controller
         //     return redirect()->back();
         // }
 
-        $category = array('name' => $postData['category_name'],'parent_id' => $postData['parent_id'] ?? null);
+        $category = array('name' => $postData['category_name'], 'parent_id' => $postData['parent_id'] ?? null);
 
         $updated = AdsCategory::where('id', $postData['category_id'])->update($category);
         if ($updated) {
@@ -1130,7 +1315,7 @@ class AdminController extends Controller
             return redirect()->back();
         }
     }
-   
+
     public function deleteAdsCategory(Request $request, $id)
     {
         if (empty($id)) {
@@ -1382,7 +1567,7 @@ class AdminController extends Controller
     public function getEmailBasedRegion(Request $request, $id)
     {
         if (!empty($id)) {
-            $regions = Regions::select('water_email','electricity_email')->where('id', $id)->first();
+            $regions = Regions::select('water_email', 'electricity_email')->where('id', $id)->first();
             return $regions;
         }
         return false;
