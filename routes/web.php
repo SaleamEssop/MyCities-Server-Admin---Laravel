@@ -1,8 +1,9 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PermissionController;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\PermissionController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -34,6 +35,12 @@ Route::get('/app', function () {
 Route::get('/admin/login', function() {
     return view('admin.login');
 })->name('login');
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    Route::post('/logout', function () {
+        Auth::logout();
+         return view('landing_page');
+    })->name('logout');
+});
 
 Route::post('/admin/login', [\App\Http\Controllers\AdminController::class, 'login'])->name('admin.login');
 // Admin routes

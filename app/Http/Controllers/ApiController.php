@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\DB;
 use PHPMailer\PHPMailer\PHPMailer;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Models\RegionsAccountTypeCost;
 use Illuminate\Support\Facades\Storage;
@@ -125,7 +126,7 @@ class ApiController extends Controller
     public function addAccount(Request $request)
     {
         $postData = $request->post();
-       
+
         DB::beginTransaction();
         if (empty($postData['site_id'])) {
             // No site_id has passed, so this must be the new site case
@@ -393,27 +394,27 @@ class ApiController extends Controller
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account retrieved successfully!', 'data' => $data]);
     }
 
-   
+
 
 
     public function deleteAccount(Request $request)
     {
-      
+
         $postData = $request->post();
-      
-    
+
+
         if (empty($postData['account_id'])) {
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
         }
-    
+
         $account = Account::where('id', $postData['account_id'])->first();
-    
+
         if (!$account) {
             return response()->json(['status' => false, 'code' => 404, 'msg' => 'Account not found!']);
         }
         // Check if the account was created within the last 1 hour
         $oneHourAgo = now()->subHour();
-      
+
         if ($account->created_at < $oneHourAgo) {
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Account cannot be deleted after one hour of creation.']);
         }
@@ -433,7 +434,7 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 500, 'msg' => 'Oops, something went wrong!']);
         }
     }
-    
+
 
 
     public function getAllData(Request $request)
@@ -549,126 +550,164 @@ class ApiController extends Controller
 
     //account summary
     public function getAccountSummary(Request $request)
-{
-
-    //get meter id
-    $meterId = $request->query('meter_id');
-    $meter = Meter::find($meterId);
-    if (!$meter) {
-        return response()->json(['status' => false, 'code' => 404, 'msg' => 'Meter not found!']);
-    }
-
-    $account = $meter->account;
-    $property = $account->property;
-    $billingDay = $property->billing_day;
-    $currentDate = now();
-
-    if ($currentDate->day >= $billingDay) {
-        $currentCycleEnd = $currentDate->copy()->addMonth()->day($billingDay)->subDay();
-    } else {
-        $currentCycleEnd = $currentDate->copy()->day($billingDay)->subDay();
-    }
-
-    $billingPeriods = [];
-    for ($i = 0; $i < 4; $i++) {
-        $endDate = $currentCycleEnd->copy()->subMonths($i);
-        $startDate = $endDate->copy()->subMonth()->addDay();
-        $billingPeriods[] = [
-            'start_date' => $startDate->copy(),
-            'end_date' => $endDate->copy(),
-            'label' => $startDate->format('d M') . ' to ' . $endDate->format('d M'),
-            'value' => $startDate->toDateString() . ' to ' . $endDate->toDateString(),
-        ];
-    }
-    $billingPeriods = array_reverse($billingPeriods);
-
-    $billings = BillingPeriod::where('meter_id', $meterId)->orderBy('start_date')->get();
-    $payments = Payment::where('meter_id', $meterId)->orderBy('payment_date')->get();
-
-    $accountSummary = [];
-    foreach ($billingPeriods as $index => $period) {
-        $startDate = $period['start_date'];
-        $endDate = $period['end_date'];
-
-        $periodBillings = $billings->filter(function ($billing) use ($startDate, $endDate) {
-            return $billing->start_date <= $endDate && $billing->end_date >= $startDate;
-        });
-
-        $totalBillingAmount = 0;
-        foreach ($periodBillings as $billing) {
-            $totalBillingAmount += $billing->cost ?? 0;
-        }
-
-        $readingIds = $periodBillings->pluck('start_reading_id')->merge(
-            $periodBillings->pluck('end_reading_id')
-        )->unique()->filter();
-
-        // Filter payments strictly by billing_period_id to avoid overlap
-        $periodPayments = $payments->filter(function ($payment) use ($periodBillings) {
-            return $periodBillings->pluck('id')->contains($payment->billing_period_id);
-        });
-
-        $paidAmount = 0;
-        $latestPaymentDate = null;
-        $paymentDetails = []; // New array to store payment details
-        foreach ($periodPayments as $payment) {
-            if ($payment->status === 'paid') {
-                $paidAmount += $payment->amount;
-                $latestPaymentDate = $payment->payment_date > $latestPaymentDate ? $payment->payment_date : $latestPaymentDate;
-            } elseif ($payment->status === 'partially_paid') {
-                $paidAmount += $payment->paid_amount ?? 0;
-                $latestPaymentDate = $payment->payment_date > $latestPaymentDate ? $payment->payment_date : $latestPaymentDate;
-            }
-            // Add payment details for display
-            $paymentDetails[] = [
-                'id' => $payment->id,
-                'amount' => $payment->amount,
-                'paid_amount' => $payment->paid_amount ?? 0,
-                'status' => $payment->status,
-                'payment_date' => $payment->payment_date ? Carbon::parse($payment->payment_date)->format('d M Y') : null,
-                'billing_period_id' => $payment->billing_period_id,
-            ];
-        }
-
-        $balanceBf = $index === 0 ? 0 : $accountSummary[$index - 1]['balance_carried'];
-        $totalAmountDue = $totalBillingAmount + $balanceBf;
-        $balanceCarried = $totalAmountDue - $paidAmount;
-
-        $formattedPaymentDate = $latestPaymentDate ? Carbon::parse($latestPaymentDate)->format('d M Y') : null;
-        $isOverdue = $balanceCarried > 0 && $endDate < $currentDate;
-
-        $accountSummary[] = [
-            'period' => $period['label'],
-            'period_value' => $period['value'],
-            'balance_bf' => $balanceBf,
-            'total_amount' => $totalAmountDue,
-            'payment_amount' => $paidAmount,
-            'payment_date' => $formattedPaymentDate,
-            'balance_carried' => $balanceCarried,
-            'is_overdue' => $isOverdue,
-            'payments' => $paymentDetails, // Add payment details here
-        ];
-
-       
-    }
-
-    $overdueAmount = 0;
-    $overdueStartDate = null;
-    $overdueEndDate = null;
-    foreach ($accountSummary as $summary) {
-        if ($summary['is_overdue']) {
-            $overdueAmount += $summary['balance_carried'];
-            $dates = explode(' to ', $summary['period_value']);
-            if ($overdueStartDate === null) $overdueStartDate = Carbon::parse($dates[0]);
-            $overdueEndDate = Carbon::parse($dates[1]);
-        }
-    }
-Log::info($accountSummary); 
+    {
+        try {
+            $meterId = $request->query('meter_id');
     
- 
-    return response()->json(['status' => true, 'data' => $accountSummary]);
-   
-}
+            // Try to find the meter with a specific catch for not found
+            try {
+                $meter = Meter::findOrFail($meterId);
+            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                return response()->json(['status' => false, 'code' => 404, 'msg' => 'Meter not found!']);
+            }
+    
+            $account = $meter->account;
+            $property = $account->property;
+            $billingDay = $property->billing_day;
+            $currentDate = now();
+    
+            if ($currentDate->day >= $billingDay) {
+                $currentCycleEnd = $currentDate->copy()->addMonth()->day($billingDay)->subDay();
+            } else {
+                $currentCycleEnd = $currentDate->copy()->day($billingDay)->subDay();
+            }
+    
+            $billingPeriods = [];
+            for ($i = 0; $i < 4; $i++) {
+                $endDate = $currentCycleEnd->copy()->subMonths($i);
+                $startDate = $endDate->copy()->subMonth()->addDay();
+                $billingPeriods[] = [
+                    'start_date' => $startDate->copy(),
+                    'end_date' => $endDate->copy(),
+                    'label' => $startDate->format('d M') . ' to ' . $endDate->format('d M'),
+                    'value' => $startDate->toDateString() . ' to ' . $endDate->toDateString(),
+                ];
+            }
+            $billingPeriods = array_reverse($billingPeriods);
+
+            $billings = BillingPeriod::where('meter_id', $meterId)->orderBy('start_date')->get();
+            $payments = Payment::where('meter_id', $meterId)->orderBy('payment_date')->get();
+
+            $accountSummary = [];
+            foreach ($billingPeriods as $index => $period) {
+                $startDate = $period['start_date'];
+                $endDate = $period['end_date'];
+            
+                // Filter billing records for the period (still needed to link payments)
+                $periodBillings = $billings->filter(function ($billing) use ($startDate, $endDate) {
+                    return $billing->start_date <= $endDate && $billing->end_date >= $startDate;
+                });
+            
+                // Filter payments by billing_period_id
+                $periodPayments = $payments->filter(function ($payment) use ($periodBillings) {
+                    return $periodBillings->pluck('id')->contains($payment->billing_period_id);
+                });
+            
+                // Calculate total amount due based on payment amounts
+                $totalPaymentAmount = 0;
+                $paidAmount = 0;
+                $latestPaymentDate = null;
+                $paymentDetails = [];
+                foreach ($periodPayments as $payment) {
+                    // Add to totalPaymentAmount regardless of status (this is the "due" amount)
+                    $totalPaymentAmount += (float) $payment->amount;
+            
+                    // Only add to paidAmount if status is paid or partially_paid
+                    if ($payment->status === 'paid') {
+                        $paidAmount += (float) $payment->amount;
+                        $latestPaymentDate = $payment->payment_date > $latestPaymentDate ? $payment->payment_date : $latestPaymentDate;
+                    } elseif ($payment->status === 'partially_paid') {
+                        $paidAmount += (float) ($payment->total_paid_amount ?? 0);
+                        $latestPaymentDate = $payment->payment_date > $latestPaymentDate ? $payment->payment_date : $latestPaymentDate;
+                    }
+            
+                    // Add payment details for display
+                    $paymentDetails[] = [
+                        'id' => $payment->id,
+                        'amount' => $payment->amount,
+                        'paid_amount' => $payment->total_paid_amount ?? 0,
+                        'status' => $payment->status,
+                        'payment_date' => $payment->payment_date ? Carbon::parse($payment->payment_date)->format('d M Y') : null,
+                        'billing_period_id' => $payment->billing_period_id,
+                    ];
+                }
+            
+                $balanceBf = $index === 0 ? 0 : $accountSummary[$index - 1]['balance_carried'];
+                $totalAmountDue = $totalPaymentAmount + $balanceBf;
+                $balanceCarried = $totalAmountDue - $paidAmount;
+            
+                // Prevent negative balance_carried (optional, based on your earlier request)
+                if ($balanceCarried < 0) {
+                    Log::warning("Negative balance detected for meter_id: $meterId, period: {$period['label']}. Total due: $totalAmountDue, Paid: $paidAmount, Adjusted balance to 0.");
+                    $balanceCarried = 0;
+                }
+            
+                $formattedPaymentDate = $latestPaymentDate ? Carbon::parse($latestPaymentDate)->format('d M Y') : null;
+                $isOverdue = $balanceCarried > 0 && $endDate < $currentDate;
+                //get isCurrentPeriod
+                $isCurrentPeriod = $currentDate->between($startDate, $endDate);            
+                $accountSummary[] = [
+                    'period' => $period['label'],
+                    'period_value' => $period['value'],
+                    'balance_bf' => $balanceBf,
+                    'total_amount' => $totalAmountDue,
+                    'payment_amount' => $paidAmount,
+                    'payment_date' => $formattedPaymentDate,
+                    'balance_carried' => $balanceCarried,
+                    'is_overdue' => $isOverdue,
+                    'is_current_period' => $isCurrentPeriod,
+                    'payments' => $paymentDetails,
+                ];
+            }
+    
+            $overdueAmount = 0;
+            $overdueStartDate = null;
+            $overdueEndDate = null;
+            foreach ($accountSummary as $summary) {
+                if ($summary['is_overdue']) {
+                    $overdueAmount += $summary['balance_carried'];
+                    $dates = explode(' to ', $summary['period_value']);
+                    if ($overdueStartDate === null) $overdueStartDate = Carbon::parse($dates[0]);
+                    $overdueEndDate = Carbon::parse($dates[1]);
+                }
+            }
+    
+            // Try to get estimated cost with a fallback
+            $estimatedCost = null;
+            try {
+                $estimatedBilling = BillingPeriod::where('meter_id', $meter->id)
+                ->where('status', 'Estimated')
+                ->latest() // Orders by created_at DESC
+                ->first();                
+                
+                Log::info($estimatedBilling);
+
+
+                $estimatedCost = $estimatedBilling ? $estimatedBilling->cost : 0;
+            } catch (\Exception $e) {
+                Log::warning('Failed to fetch estimated cost: ' . $e->getMessage());
+                $estimatedCost = 0; 
+            }
+    
+            $user = Auth::user()->load('account.property');
+    
+    
+            return response()->json([
+                'status' => true,
+                'data' => $accountSummary,
+                'user' => $user,
+                'estimatedCost' => $estimatedCost
+            ]);
+        } catch (\Exception $e) {
+            // Log the error and return a generic failure response
+            Log::error('Error in getAccountSummary: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'code' => 500,
+                'msg' => 'An unexpected error occurred while processing your request.'
+            ], 500);
+        }
+    }
 
     public function addFixedCost(Request $request)
     {
@@ -841,46 +880,46 @@ Log::info($accountSummary);
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
     }
 
- 
+
 
     public function deleteMeter(Request $request)
-{
-    $postData = $request->post();
-    if (empty($postData['meter_id'])) {
-        return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, meter_id is required!']);
+    {
+        $postData = $request->post();
+        if (empty($postData['meter_id'])) {
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, meter_id is required!']);
+        }
+
+        // Get meter
+        $meter = Meter::where('id', $postData['meter_id'])->first();
+
+        if (!$meter) {
+            return response()->json(['status' => false, 'code' => 404, 'msg' => 'Meter not found!']);
+        }
+
+        // Check if the meter was created within the last 1 hour
+        $oneHourAgo = now()->subHour();
+        if ($meter->created_at < $oneHourAgo) {
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Meter cannot be deleted after one hour of creation.']);
+        }
+
+        DB::beginTransaction();
+        try {
+            // Delete the meter
+            $meter->delete();
+            DB::commit();
+
+            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meter removed successfully!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => false, 'code' => 500, 'msg' => 'Oops, something went wrong!']);
+        }
     }
-
-    // Get meter
-    $meter = Meter::where('id', $postData['meter_id'])->first();
-
-    if (!$meter) {
-        return response()->json(['status' => false, 'code' => 404, 'msg' => 'Meter not found!']);
-    }
-
-    // Check if the meter was created within the last 1 hour
-    $oneHourAgo = now()->subHour();
-    if ($meter->created_at < $oneHourAgo) {
-        return response()->json(['status' => false, 'code' => 400, 'msg' => 'Meter cannot be deleted after one hour of creation.']);
-    }
-
-    DB::beginTransaction();
-    try {
-        // Delete the meter
-        $meter->delete();
-        DB::commit();
-
-        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meter removed successfully!']);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json(['status' => false, 'code' => 500, 'msg' => 'Oops, something went wrong!']);
-    }
-}
 
 
 
     public function deleteMeterReading(Request $request)
     {
-        
+
         $postData = $request->post();
 
         if (empty($postData['reading_id'])) {
@@ -888,7 +927,7 @@ Log::info($accountSummary);
         }
 
         $reading = MeterReadings::find($postData['reading_id']);
-      
+
         if (!$reading) {
             return response()->json(['status' => false, 'code' => 404, 'msg' => 'Reading not found!'], 404);
         }
@@ -910,39 +949,39 @@ Log::info($accountSummary);
     public function getLatestUsage(Request $request)
     {
         $meterId = $request->query('meter_id');
-    
+
         // Fetch the latest reading
         $latestReading = MeterReadings::where('meter_id', $meterId)
             ->latest('created_at')
             ->first();
-    
+
         if (!$latestReading) {
             return response()->json([
                 'status' => false,
                 'msg' => 'No readings found for this meter.',
             ], 404);
         }
-    
+
         // Fetch the previous reading
         $previousReading = MeterReadings::where('meter_id', $meterId)
             ->where('created_at', '<', $latestReading->created_at)
             ->latest('created_at')
             ->first();
-    
+
         if (!$previousReading) {
             return response()->json([
                 'status' => false,
                 'msg' => 'Not enough readings to calculate usage.',
             ], 400);
         }
-    
+
         // Calculate usage
         $usage = $latestReading->reading_value - $previousReading->reading_value;
-    
+
         // Calculate cost (assuming $0.10 per unit)
         $ratePerUnit = 0.10; // You can fetch this from a settings table or configuration
         $cost = $usage * $ratePerUnit;
-    
+
         return response()->json([
             'status' => true,
             'latestReading' => $latestReading,
@@ -1065,37 +1104,37 @@ Log::info($accountSummary);
 
 
     public function updateMeterReadings(Request $request)
-{
-    $postData = $request->post();
-    $requiredFields = ['meter_reading_id', 'meter_id', 'meter_reading_date', 'meter_reading'];
-    $validated = validateData($requiredFields, $postData);
+    {
+        $postData = $request->post();
+        $requiredFields = ['meter_reading_id', 'meter_id', 'meter_reading_date', 'meter_reading'];
+        $validated = validateData($requiredFields, $postData);
 
-    if (!$validated['status']) {
-        return response()->json(['status' => false, 'code' => 400, 'msg' => $validated['error']]);
+        if (!$validated['status']) {
+            return response()->json(['status' => false, 'code' => 400, 'msg' => $validated['error']]);
+        }
+
+        $reading = MeterReadings::find($postData['meter_reading_id']);
+        if (empty($reading)) {
+            return response()->json(['status' => false, 'code' => 404, 'msg' => 'Oops, wrong meter_reading_id provided!']);
+        }
+
+        // Check if the meter reading was created within the last 1 hour
+        $oneHourAgo = now()->subHour();
+        if ($reading->created_at < $oneHourAgo) {
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Meter reading cannot be updated after one hour of creation.']);
+        }
+
+        // Update the meter reading
+        $reading->meter_id = $postData['meter_id'];
+        $reading->reading_date = $postData['meter_reading_date'];
+        $reading->reading_value = $postData['meter_reading'];
+
+        if ($reading->save()) {
+            return response()->json(['status' => true, 'code' => 200, 'data' => $reading, 'msg' => 'Meter reading updated successfully!']);
+        } else {
+            return response()->json(['status' => false, 'code' => 500, 'msg' => 'Oops, something went wrong!']);
+        }
     }
-
-    $reading = MeterReadings::find($postData['meter_reading_id']);
-    if (empty($reading)) {
-        return response()->json(['status' => false, 'code' => 404, 'msg' => 'Oops, wrong meter_reading_id provided!']);
-    }
-
-    // Check if the meter reading was created within the last 1 hour
-    $oneHourAgo = now()->subHour();
-    if ($reading->created_at < $oneHourAgo) {
-        return response()->json(['status' => false, 'code' => 400, 'msg' => 'Meter reading cannot be updated after one hour of creation.']);
-    }
-
-    // Update the meter reading
-    $reading->meter_id = $postData['meter_id'];
-    $reading->reading_date = $postData['meter_reading_date'];
-    $reading->reading_value = $postData['meter_reading'];
-
-    if ($reading->save()) {
-        return response()->json(['status' => true, 'code' => 200, 'data' => $reading, 'msg' => 'Meter reading updated successfully!']);
-    } else {
-        return response()->json(['status' => false, 'code' => 500, 'msg' => 'Oops, something went wrong!']);
-    }
-}
 
 
     public function getTC()

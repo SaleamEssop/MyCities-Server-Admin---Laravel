@@ -845,9 +845,9 @@ class AdminController extends Controller
 
         //create meter readings if meter type is Water then create 00000000 reading value for the meter if meter type is Electricity then create 000000 reading value for the meter
         if ($postData['meter_type_id'] == 1) {
-            MeterReadings::create(['meter_id' => $result->id, 'reading_value' => '00000000', 'reading_date' => date('Y-m-d')]);
+            MeterReadings::create(['meter_id' => $result->id, 'reading_value' => '00000000', 'reading_date' => now()]);
         } else {
-            MeterReadings::create(['meter_id' => $result->id, 'reading_value' => '000000', 'reading_date' => date('Y-m-d')]);
+            MeterReadings::create(['meter_id' => $result->id, 'reading_value' => '000000', 'reading_date' => now()]);
         }
 
     
@@ -1048,13 +1048,18 @@ class AdminController extends Controller
 
     public function editMeterReading(Request $request)
     {
-    
+    dd($request->all());
+        //get reading date
+       
         $postData = $request->post();
+
         if (empty($postData['meter_reading_id'])) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, reading ID is required.');
             return redirect()->back();
         }
+        $readingDate = $request->input('reading_date');
+
         $updArr = array(
             'meter_id' => $postData['meter_id'],
             'reading_date' => $postData['reading_date'],

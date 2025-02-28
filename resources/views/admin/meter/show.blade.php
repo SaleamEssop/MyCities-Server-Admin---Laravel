@@ -321,6 +321,7 @@
                                 <th>Meter Reading Date</th>
                                 <th>Payment</th>
                                 <th>Partially Paid</th>
+                                <th>Total Paid</th>
                                 <th>Payment Date</th>
                                 <th>Payment Status</th>
                                 <th>Action</th>
@@ -334,6 +335,7 @@
                                 <th>Meter Reading Date</th>
                                 <th>Payment</th>
                                 <th>Partially Paid</th>
+                                <th>Total Paid</th>
                                 <th>Payment Date</th>
                                 <th>Payment Status</th>
                                 <th>Action</th>
@@ -356,8 +358,9 @@
                                     </td>
                                     <td>{{ $payment->amount }}</td>
                                     <td>{{ $payment->paid_amount }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') }}</td>
-                                    <td>
+                                    <td>{{ $payment->total_paid_amount }}</td>
+                                    
+                                    <td>{{ $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') : '-' }}</td>                                    <td>
                                         <span
                                             style="padding: 3px 8px; border-radius: 12px; font-size: 0.9em; {{ $payment->status == 'partially_paid' ? 'background-color: #d3d3d3; color: #000000;' : ($payment->status == 'pending' ? 'background-color: #FDD600; color: #212529;' : ($payment->status == 'paid' ? 'background-color: #28a745; color: #fff;' : 'background-color: #6c757d; color: #fff;')) }}">
                                             {{ $payment->status == 'partially_paid' ? 'Partially Paid' : $payment->status }}

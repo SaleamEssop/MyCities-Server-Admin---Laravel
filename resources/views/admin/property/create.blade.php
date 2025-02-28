@@ -85,7 +85,7 @@
                         </div>
                         <div class="form-group">
                             <label><strong>Description :</strong></label>
-                            <textarea class="form-control" name="description" rows="3" placeholder="Enter property description" required>{{ old('description') }}</textarea>
+                            <textarea class="form-control" name="description" rows="3" placeholder="Enter property description" >{{ old('description') }}</textarea>
                         </div>
                     
                         <button type="submit" class="btn btn-primary">Submit</button>

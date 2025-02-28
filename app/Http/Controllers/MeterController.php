@@ -41,14 +41,14 @@ class MeterController extends Controller
                 ->subMonths($i);
             $startDate = Carbon::createFromDate($endDate->year, $endDate->month, $billingDate)
                 ->subMonth();
-    
+
             $perviousBillingCycles[] = [
                 'start_date' => $startDate->format('d M Y'),
                 'end_date' => $endDate->format('d M Y'),
                 'value' => $startDate->toDateString() . ' ' . $endDate->toDateString(),
             ];
         }
-    
+
         $perviousBillingCycles = array_reverse($perviousBillingCycles);
 
 
@@ -60,12 +60,16 @@ class MeterController extends Controller
             $startDate = $currentDate->copy()->setDay($billingDate);
             $endDate = $currentDate->copy()->addMonth()->setDay($billingDate - 1);
         }
-        function getOrdinalSuffix($day) {
+        function getOrdinalSuffix($day)
+        {
             if (!in_array(($day % 100), [11, 12, 13])) {
                 switch ($day % 10) {
-                    case 1: return 'st';
-                    case 2: return 'nd';
-                    case 3: return 'rd';
+                    case 1:
+                        return 'st';
+                    case 2:
+                        return 'nd';
+                    case 3:
+                        return 'rd';
                 }
             }
             return 'th';
@@ -80,11 +84,11 @@ class MeterController extends Controller
         $endDate = now()->subMonth()->setDay($billingDate)->startOfDay();
 
         $previousMonthReadings = $meterReadings
-            ->filter(function ($reading) use ($startDate, $endDate) {
-                $readingDate = Carbon::createFromFormat('m-d-Y', $reading->reading_date);
-                return $readingDate >= $startDate && $readingDate <= $endDate;
-            })
-            ->sortBy('reading_date');
+        ->filter(function ($reading) use ($startDate, $endDate) {
+            $readingDate = Carbon::createFromFormat('Y-m-d', $reading->reading_date);
+            return $readingDate >= $startDate && $readingDate <= $endDate;
+        })
+        ->sortBy('reading_date');
 
         $usage = [];
         $previousValue = null;
@@ -101,11 +105,13 @@ class MeterController extends Controller
 
 
         $payments = $meter->payments;
-    
+
         $meterType = strtolower($meter->meterTypes->title);
-        $cycleDates = getMonthCycle($property->billing_day);
+        $cycleDates = getCurrentMonthCycle($property->billing_day);
+
         $cycleStartDate = Carbon::parse($cycleDates['start_date']);
         $cycleEndDate = Carbon::parse($cycleDates['end_date'])->subDay();
+
 
         //current billing cycle payments
         $currentCyclePayments = $payments->filter(function ($payment) use ($cycleStartDate, $cycleEndDate) {
@@ -247,6 +253,7 @@ class MeterController extends Controller
             }
             return ['additional_costs' => $finalAdditionalCosts, 'total' => round($total, 2)];
         };
+
 
         $isCurrentCycle = $currentDate->between($cycleStartDate, $cycleEndDate);
 
@@ -420,6 +427,7 @@ class MeterController extends Controller
         $lastReadingId = $sortedReadings->isEmpty() ? null : $sortedReadings->last()->id;
         $prevLastReading = $sortedReadings->count() > 1 ? $sortedReadings->slice(-2, 1)->first() : null;
 
+
         if ($isCurrentCycle && $lastReadingDate->lt($cycleEndDate)) {
             $prevDate = $prevLastReading ? Carbon::createFromFormat('m-d-Y', $prevLastReading->reading_date) : $cycleStartDate;
             $daysSoFar = $prevDate->diffInDays($lastReadingDate);
@@ -476,6 +484,7 @@ class MeterController extends Controller
                 'status' => "Estimated"
             ];
         }
+
 
         // Remove overlapping estimated periods, use cycleStartDate if no readings exist
         $lastReadingDateCarbon = $sortedReadings->isEmpty() ? $cycleStartDate : Carbon::createFromFormat('m-d-Y', $sortedReadings->last()->reading_date);
@@ -567,20 +576,37 @@ class MeterController extends Controller
     //makePayment
     public function makePayment(Request $request)
     {
-        
         $paymentId = $request->input('payment_id');
         if ($paymentId) {
             $payment = Payment::find($paymentId);
 
-         
-            if ($request->status == 'partially_paid') {
-                $payment->paid_amount = $request->amount;
+
+            if (!$payment) {
+                return response()->json(['status' => false, 'msg' => 'Payment not found'], 404);
             }
+
+            $previousTotalPaidAmount = (float) $payment->total_paid_amount;
+
+            if ($request->status == 'partially_paid') {
+                $newPaidAmount = (float) $request->amount; 
+                $payment->paid_amount = $newPaidAmount;
+                $payment->total_paid_amount = $previousTotalPaidAmount + $newPaidAmount; 
         
+                if ($payment->total_paid_amount >= (float) $payment->amount) {
+                    $payment->total_paid_amount = (float) $payment->amount; 
+                    $payment->status = 'paid'; 
+                } else {
+                    $payment->status = $request->status;
+                }
+            } elseif ($request->status == 'paid') {
+                $payment->total_paid_amount = (float) $request->actual_amount;
+                $payment->status = $request->status;
+
+            }
+
             $payment->amount = $request->actual_amount;
-            $payment->status = $request->status;
-            $payment->payment_date = Carbon::createFromFormat('m/d/Y', $request->payment_date)->format('Y-m-d');
-            $payment->save();
+            $payment->payment_date = Carbon::createFromFormat('m-d-Y', $request->payment_date)->format('Y-m-d');
+                        $payment->save();
             if ($payment) {
                 Session::flash('alert-class', 'alert-success');
                 Session::flash('alert-message', 'Payment updated successfully!');

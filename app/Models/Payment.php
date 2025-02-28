@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Payment extends Model
 {
     use HasFactory;
-    protected $fillable = ['user_id', 'account_id', 'meter_id', 'reading_id', 'payment_date', 'payment_method', 'amount', 'status', 'billing_period_id', 'paid_amount'];
+    protected $fillable = ['user_id', 'account_id', 'meter_id', 'reading_id', 'payment_date', 'payment_method', 'amount', 'status', 'billing_period_id', 'paid_amount','total_paid_amount',];
     protected $dates = ['payment_date'];
     public function account()
     {

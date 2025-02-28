@@ -8,6 +8,7 @@ use App\Models\Account;
 use App\Models\Regions;
 use App\Models\AccountType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class AccountController extends Controller
 {
@@ -58,6 +59,15 @@ class AccountController extends Controller
 
         $account = Account::where('id', $id)->first();
         $account->update($validatedData);
+        if ($account) {
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Account updated successfully!');
+            return back();
+        } else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, something went wrong.');
+            return redirect()->back();
+        }
 
         return redirect()->route('admin.accounts.show', $id)->with('success', 'Account updated successfully');
     }

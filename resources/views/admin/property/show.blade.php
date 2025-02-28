@@ -323,8 +323,32 @@
                                     <td>{{ $meterReading->meter->meter_number ?? '-' }}</td>
                                     <td>{{ $meterReading->meter->meterTypes->title ?? '-' }}</td>
                                     <td>{{ $meterReading->reading_value }}</td>
-                                    <td>{{ $meterReading->reading_date ? \Carbon\Carbon::parse($meterReading->reading_date)->setTimezone('Africa/Johannesburg')->format('d/m/Y') : 'N/A' }}</td>
-                                    {{-- <td>
+                                    <td>
+                                        @if(!empty($meterReading->reading_date))
+                                            @php
+                                                try {
+                                                    $formattedDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $meterReading->reading_date)->format('d/m/Y');
+                                                } catch (\Exception $e) {
+                                                    try {
+                                                        $formattedDate = \Carbon\Carbon::createFromFormat('m-d-Y', $meterReading->reading_date)->format('d/m/Y');
+                                                    } catch (\Exception $e) {
+                                                        $formattedDate = 'Invalid Date';
+                                                    }
+                                                }
+                                            @endphp
+                                            {{ $formattedDate }}
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td>
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                    
+                                                                        {{-- <td>
                                                 @if ($meterReading->reading_image)
                                                     <img src="{{ asset( $meterReading->reading_image) }}" alt="Reading Image" width="50" height="50" style="object-fit: cover; border-radius: 5px;">
                                                 @else

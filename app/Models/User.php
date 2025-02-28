@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Account;
 use App\Models\Payment;
 use App\Models\Property;
 use Laravel\Sanctum\HasApiTokens;
@@ -58,7 +59,7 @@ class User extends Authenticatable
     protected static function booted()
     {
         static::deleted(function ($user) {
-            foreach($user->sites as $site) {
+            foreach ($user->sites as $site) {
                 Site::where('id', $site->id)->first()->delete();
             }
         });
@@ -73,6 +74,11 @@ class User extends Authenticatable
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+    //make relation with account 
+    public function account()
+    {
+        return $this->hasOne(Account::class);
     }
 
     public function permissions(): BelongsToMany

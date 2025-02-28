@@ -83,6 +83,30 @@ if (!function_exists('getMonthCycle')) {
         ];
     }
 }
+if (!function_exists('getCurrentMonthCycle')) {
+
+    function getCurrentMonthCycle($cycleDay = 15, $subtractMonths = 0): array
+    {
+       
+        $today = Carbon::today();
+        if ($subtractMonths !== 0) {
+            $cycleStart = $today->copy()->subMonths(abs($subtractMonths))->day($cycleDay);
+        } else {
+            $cycleStart = $today->copy()->day($cycleDay);
+        }
+
+        if ($today->day >= $cycleDay && $subtractMonths === 0) {
+            $cycleEnd = $cycleStart->copy()->addMonth()->day($cycleDay);
+        } else {
+            $cycleEnd = $cycleStart->copy()->addMonths(1)->day($cycleDay);
+        }
+
+        return [
+            'start_date' => $cycleStart->format('Y-m-d'),
+            'end_date' => $cycleEnd->format('Y-m-d'),
+        ];
+    }
+}
 if (!function_exists('findBracketsBeforeAndIncluding')) {
 
     function findBracketsBeforeAndIncluding($data, $value): array
