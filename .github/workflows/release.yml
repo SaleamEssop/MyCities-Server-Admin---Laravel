@@ -44,7 +44,9 @@ jobs:
 
           # Connect to the server, unzip the file, and restart the application
           ssh -i ssh_key -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
-            find /var/www/mycities.co.za/ -mindepth 1 -not -path "/var/www/mycities.co.za/storage*" -delete
+            find /var/www/mycities.co.za/ -mindepth 1 \
+              -not -path "/var/www/mycities.co.za/storage*" \
+              -not -path "/var/www/mycities.co.za/public/web-app*" -delete
             unzip -o /var/www/laravel_mycities_deployment_package.zip -d /var/www/mycities.co.za > /dev/null 2>&1
             cp -r /var/www/config/mycities.co.za/. /var/www/mycities.co.za
             cd /var/www/mycities.co.za
