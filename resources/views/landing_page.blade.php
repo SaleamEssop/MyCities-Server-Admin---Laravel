@@ -6,14 +6,22 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta property="og:site_name" content="The MyCities App">
     <meta property="og:title" content="The MyCities App">
     <meta property="og:description" content="Helping the cities people save with app technology, ideas, determination and cooperation.">
-    <meta property="og:image:width" content="800" />
-    <meta property="og:image:height" content="800" />
-    <meta property="og:image" content="{{url('/img/my_cities.png')}}">
+    <meta property="og:image" content="{{url('/img/my_cities.png',[],true)}}">
+    <meta itemprop="image" content="{{url('/img/my_cities.png',[],true)}}">
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="1024">
+    <meta name="twitter:image:src" content="{{url('/img/my_cities.png',[],true)}}">
+    <meta data-hid="site_image" itemprop="image" content="{{url('/img/my_cities.png',[],true)}}">
     <meta property="og:url" content="https://www.mycities.co.za">
     <meta property="og:type" content="website">
     <meta property="thumbnail" content="{{url('/img/my_cities.png')}}">
+    <link rel="icon" type="image/png" sizes="128x128" href="{{url('/web-app/icons/favicon-128x128.png')}}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{url('/web-app/icons/favicon-96x96.png')}}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{url('/web-app/icons/favicon-32x32.png')}}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{url('/web-app/icons/favicon-16x16.png')}}">
     <title>MyCities</title>
 
     <!-- Custom fonts for this template-->
@@ -28,17 +36,30 @@
 
 <body>
 <div class="main-body">
-    <div class="bg-image">
-        <div class="intro-txt">
-            <h3>Welcome to the MyCities App where you can manage your meters and much more free of cost!</h3>
-			<div class="admin-btn">
-                <a class="admin-button" href="{{ url('/web-app') }}">Go to Web App</a>
+    <div class="bg-image" >
+        <div style="display: flex;justify-content: space-between;align-items: center;flex-direction: column;height: 100%">
+            <div style="padding-top: 100px">
+                <div class="main-button-bg">
+                    <span style="background: none;border: none;font-size: 1.5rem;color: #fff;text-align: center;">You needed it, so we built it</span>
+                </div>
             </div>
-            <div class="admin-btn">
-                <a class="admin-button" href="{{ url('/admin') }}">Go to Admin Panel</a>
+            <div class="main-button-bg">
+                <a href="/web-app">
+                    <button style="background: none;border: none;font-size: 2rem;color: #fff">MyCities App</button>
+                </a>
             </div>
-
+            <div></div>
         </div>
+{{--        <div class="intro-txt">--}}
+{{--            <h3>Welcome to the MyCities App where you can manage your meters and much more free of cost!</h3>--}}
+{{--            <div class="admin-btn">--}}
+{{--                <a class="admin-button" href="{{ url('/web-app') }}">Go to Web App</a>--}}
+{{--            </div>--}}
+{{--            <div class="admin-btn">--}}
+{{--                <a class="admin-button" href="{{ url('/admin') }}">Go to Admin Panel</a>--}}
+{{--            </div>--}}
+
+{{--        </div>--}}
     </div>
 </div>
 </body>

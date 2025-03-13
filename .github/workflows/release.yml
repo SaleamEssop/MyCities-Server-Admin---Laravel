@@ -1,0 +1,64 @@
+name: Deploy Release My Cities Admin
+
+on:
+  push:
+    branches:
+      - release
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1' # specify the PHP version
+          extensions: mbstring, exif, pcntl, bcmath, gd, ext-http
+          ini-values: post_max_size=256M, upload_max_filesize=256M
+          coverage: none
+
+      - name: Zip deployment package
+        run: |
+          mkdir -p laravel_mycities_deployment_package
+          rsync -av --exclude=laravel_mycities_deployment_package --exclude=.git ./ laravel_mycities_deployment_package/ > /dev/null
+          cd laravel_mycities_deployment_package
+          composer install --no-dev --optimize-autoloader --quiet
+          zip -r ../laravel_mycities_deployment_package.zip . > /dev/null 2>&1
+
+      - name: Deploy Code To Server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_USER: ${{ vars.SSH_USER }}
+          SERVER_IP: ${{ vars.SERVER_IP }}
+        run: |
+          # Save the SSH key
+          echo "$SSH_PRIVATE_KEY" > ssh_key
+          chmod 600 ssh_key
+
+          # Transfer the zipped file to the server
+          scp -i ssh_key -o StrictHostKeyChecking=no laravel_mycities_deployment_package.zip $SSH_USER@$SERVER_IP:/var/www
+
+          # Connect to the server, unzip the file, and restart the application
+          ssh -i ssh_key -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
+            find /var/www/mycities.co.za/ -mindepth 1 \
+              -not -path "/var/www/mycities.co.za/storage*" \
+              -not -path "/var/www/mycities.co.za/public/web-app*" -delete
+            unzip -o /var/www/laravel_mycities_deployment_package.zip -d /var/www/mycities.co.za > /dev/null 2>&1
+            cp -r /var/www/config/mycities.co.za/. /var/www/mycities.co.za
+            cd /var/www/mycities.co.za
+            sudo chmod -R 775 storage bootstrap/cache
+            sudo chown -R www-data:www-data storage bootstrap/cache
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan storage:link
+            sudo systemctl restart apache2
+            rm -rf /var/www/laravel_mycities_deployment_package.zip
+          EOF
+
+      - name: Clean up
+        run: rm -f ssh_key laravel_mycities_deployment_package.zip

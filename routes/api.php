@@ -21,7 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // APIs for mobile app
 Route::prefix('v1')->group(function() {
     Route::get('/default-cost/get', [\App\Http\Controllers\ApiController::class, 'getDefaultCosts']);
-    Route::get('/ads/get-categories', [\App\Http\Controllers\ApiController::class, 'getAdsCategories']);
+    Route::get('/menu/get-categories', [\App\Http\Controllers\ApiController::class, 'getAdsCategories']);
     Route::get('terms-and-conditions', [\App\Http\Controllers\ApiController::class, 'getTC']);
     // User related routes
     Route::post('/user/logout', [\App\Http\Controllers\UserController::class, 'logout'])->middleware('auth:sanctum');
@@ -88,8 +88,8 @@ Route::prefix('v1')->group(function() {
         Route::get('/getEastimateCost', [\App\Http\Controllers\ApiController::class, 'getEastimateCost']);
         Route::get('/getAdditionalCost', [\App\Http\Controllers\ApiController::class, 'getAdditionalCost']);
         Route::get('/getBillday', [\App\Http\Controllers\ApiController::class, 'getBillday']);
-        
-        
+
+
     });
 
     Route::group(['prefix' => 'accountType'],function() {

@@ -25,6 +25,7 @@ Route::get('/run-migrations', function () {
 })->withoutMiddleware('auth');
 
 Route::get('/', function () {
+//    return redirect()->to('/web-app');
     return view('landing_page');
 });
 
