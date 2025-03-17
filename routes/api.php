@@ -60,6 +60,8 @@ Route::prefix('v1')->group(function() {
         Route::post('/delete-readings', [\App\Http\Controllers\ApiController::class, 'deleteMeterReading']);
         Route::get('/latest-usage', [\App\Http\Controllers\ApiController::class, 'getLatestUsage']);
         Route::get('/account-summary', [\App\Http\Controllers\ApiController::class, 'getAccountSummary']);
+        Route::get('/cost-calculation', [\App\Http\Controllers\ApiController::class, 'costCalculation']);
+        Route::post('/add-meter-readingForm', [\App\Http\Controllers\ApiController::class, 'addMeterReadingForm']);
 
     });
 

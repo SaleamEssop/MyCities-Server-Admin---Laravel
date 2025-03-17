@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Log;
 use Carbon\Carbon;
 use App\Models\Meter;
 use App\Models\Payment;
@@ -21,6 +22,7 @@ class MeterController extends Controller
 
     public function showDetail($id)
     {
+
         $meter = Meter::with(['meterTypes', 'meterCategory', 'readings.addedBy', 'account', 'payments.billingPeriod'])->where('id', $id)->firstOrFail();
         $meterReadings = $meter->readings;
 
@@ -84,11 +86,14 @@ class MeterController extends Controller
         $endDate = now()->subMonth()->setDay($billingDate)->startOfDay();
 
         $previousMonthReadings = $meterReadings
-        ->filter(function ($reading) use ($startDate, $endDate) {
-            $readingDate = Carbon::createFromFormat('Y-m-d', $reading->reading_date);
-            return $readingDate >= $startDate && $readingDate <= $endDate;
-        })
-        ->sortBy('reading_date');
+            ->filter(function ($reading) use ($startDate, $endDate) {
+
+                $readingDate = Carbon::createFromFormat('Y-m-d H:i:s', $reading->reading_date);
+
+                return $readingDate >= $startDate && $readingDate <= $endDate;
+            })
+            ->sortBy('reading_date');
+
 
         $usage = [];
         $previousValue = null;
@@ -109,31 +114,46 @@ class MeterController extends Controller
         $meterType = strtolower($meter->meterTypes->title);
         $cycleDates = getCurrentMonthCycle($property->billing_day);
 
+
         $cycleStartDate = Carbon::parse($cycleDates['start_date']);
-        $cycleEndDate = Carbon::parse($cycleDates['end_date'])->subDay();
+        $cycleEndDate = Carbon::parse($cycleDates['end_date']);
 
+        // Current billing cycle payments
+        $payments = $payments->load('billingPeriod');
 
-        //current billing cycle payments
         $currentCyclePayments = $payments->filter(function ($payment) use ($cycleStartDate, $cycleEndDate) {
-            $paymentDate = Carbon::parse($payment->payment_date);
-            return $paymentDate >= $cycleStartDate && $paymentDate <= $cycleEndDate;
+            $billingPeriod = $payment->billingPeriod;
+            if (!$billingPeriod) {
+                return false;
+            }
+        
+            $billingStart = Carbon::parse($billingPeriod->start_date);
+            $billingEnd = Carbon::parse($billingPeriod->end_date);
+        
+            return $billingStart->between($cycleStartDate, $cycleEndDate) ||
+                   $billingEnd->between($cycleStartDate, $cycleEndDate);
         });
+        
+
+
         $currentPaymentsAmount = $currentCyclePayments->sum('amount');
 
         // overdue payments
         $pendingPayments = $meter->payments->where('status', 'pending');
         $pendingPaymentsAmount = $pendingPayments->sum('amount');
         $partiallyPaidPayments = $meter->payments->where('status', 'partially_paid');
-        $partiallyPaidPaymentsAmount = $partiallyPaidPayments->sum('amount') - $partiallyPaidPayments->sum('paid_amount');
+        $partiallyPaidPaymentsAmount = $partiallyPaidPayments->sum('amount') - $partiallyPaidPayments->sum('total_paid_amount');
         $totalPendingAmount = $pendingPaymentsAmount + $partiallyPaidPaymentsAmount;
 
         //latest reading fot current billing cycle
         $latestReading = $meterReadings->filter(function ($reading) use ($cycleStartDate) {
-            return Carbon::createFromFormat('m-d-Y', $reading->reading_date)->gte($cycleStartDate);
+            return Carbon::createFromFormat('Y-m-d H:i:s', $reading->reading_date)
+                ->gte($cycleStartDate);
         })->sortByDesc('reading_date')->first();
+
         //get all readings of current billing cycle
         $currentCycleReadings = $meterReadings->filter(function ($reading) use ($cycleStartDate, $cycleEndDate) {
-            $readingDate = Carbon::createFromFormat('m-d-Y', $reading->reading_date);
+            $readingDate = Carbon::createFromFormat('Y-m-d H:i:s', $reading->reading_date);
             return $readingDate >= $cycleStartDate && $readingDate <= $cycleEndDate;
         });
 
@@ -219,7 +239,9 @@ class MeterController extends Controller
     ) {
         $billingPeriods = [];
         $prevReading = null;
-
+    
+        $sortedReadings = $sortedReadings->sortBy('reading_date');
+    
         $getCost = function ($usage, $costArray) {
             $totalCost = 0;
             $remainingUsage = $usage;
@@ -236,7 +258,7 @@ class MeterController extends Controller
             }
             return $totalCost;
         };
-
+    
         $getAdditionalCosts = function ($additionalCosts, $usage) {
             $finalAdditionalCosts = [];
             $total = 0;
@@ -253,250 +275,270 @@ class MeterController extends Controller
             }
             return ['additional_costs' => $finalAdditionalCosts, 'total' => round($total, 2)];
         };
-
-
+    
         $isCurrentCycle = $currentDate->between($cycleStartDate, $cycleEndDate);
-
+    
+    
+        BillingPeriod::where('meter_id', $meterId)
+            ->whereIn('status', ['Final Estimate'])
+            ->where('end_date', '<=', $cycleStartDate->toDateString())
+            ->where('end_reading_id', null)
+            ->delete();
+    
         foreach ($sortedReadings as $reading) {
-            $readingDate = Carbon::createFromFormat('m-d-Y', $reading->reading_date);
+            $readingDate = Carbon::createFromFormat('Y-m-d H:i:s', $reading->reading_date);
             $readingValue = (int) ltrim($reading->reading_value, '0');
             $rawReadingValue = $reading->reading_value;
             $readingId = $reading->id;
-
+    
             if ($prevReading) {
-                $prevDate = Carbon::createFromFormat('m-d-Y', $prevReading->reading_date);
+                $prevDate = Carbon::createFromFormat('Y-m-d H:i:s', $prevReading->reading_date);
                 $prevValue = (int) ltrim($prevReading->reading_value, '0');
                 $rawPrevValue = $prevReading->reading_value;
                 $prevReadingId = $prevReading->id;
                 $usage = max(0, $readingValue - $prevValue);
                 $daysInPeriod = $prevDate->diffInDays($readingDate);
-
-                if ($meterType === 'water') {
-                    $consumptionCharge = $getCost($usage, $waterInCost);
-                    $dischargeCharge = $getCost($usage, $waterOutCost);
-                    $waterInAdditionalCost = $getAdditionalCosts($waterInAdditional, $usage);
-                    $waterOutAdditionalCost = $getAdditionalCosts($waterOutAdditional, $usage);
-                    $baseCost = $consumptionCharge + $dischargeCharge + $waterInAdditionalCost['total'] + $waterOutAdditionalCost['total'];
-                    $vat = ($vatPercentage / 100) * $baseCost;
-                    $totalCost = $includeVAT ? $baseCost + $vat : $baseCost;
-                } elseif ($meterType === 'electricity') {
-                    $consumptionCharge = $getCost($usage, $electricityCost);
-                    $dischargeCharge = 0;
-                    $electricityAdditionalCost = $getAdditionalCosts($electricityAdditional, $usage);
-                    $baseCost = $consumptionCharge + $electricityAdditionalCost['total'];
-                    $vat = ($vatPercentage / 100) * $baseCost;
-                    $totalCost = $includeVAT ? $baseCost + $vat : $baseCost;
-                } else {
-                    $consumptionCharge = 0;
-                    $dischargeCharge = 0;
-                    $electricityAdditionalCost = ['additional_costs' => [], 'total' => 0];
-                    $baseCost = 0;
-                    $vat = 0;
-                    $totalCost = 0;
-                }
-
-                $dailyUsage = $daysInPeriod > 0 ? $usage / $daysInPeriod : 0;
-                $dailyCost = $daysInPeriod > 0 ? $totalCost / $daysInPeriod : 0;
-
-                $status = $readingDate->lte($cycleStartDate) ? "Final Estimate" : "Actual";
-
-                if ($prevDate->lt($cycleStartDate) && $readingDate->gt($cycleStartDate)) {
-                    $daysBeforeCycle = $prevDate->diffInDays($cycleStartDate);
-                    $totalDays = $prevDate->diffInDays($readingDate);
-                    $usageBeforeCycle = $daysBeforeCycle > 0 ? ($usage * $daysBeforeCycle / $totalDays) : 0;
-                    $usageInCycle = $usage - $usageBeforeCycle;
-                    $splitReadingValue = $prevValue + $usageBeforeCycle;
-                    $rawSplitReadingValue = str_pad((int)$splitReadingValue, 6, '0', STR_PAD_LEFT);
-
-                    if ($usageBeforeCycle > 0) {
-                        if ($meterType === 'water') {
-                            $beforeConsumptionCharge = $getCost($usageBeforeCycle, $waterInCost);
-                            $beforeDischargeCharge = $getCost($usageBeforeCycle, $waterOutCost);
-                            $beforeWaterInAdditional = $getAdditionalCosts($waterInAdditional, $usageBeforeCycle);
-                            $beforeWaterOutAdditional = $getAdditionalCosts($waterOutAdditional, $usageBeforeCycle);
-                            $beforeBaseCost = $beforeConsumptionCharge + $beforeDischargeCharge + $beforeWaterInAdditional['total'] + $beforeWaterOutAdditional['total'];
-                        } elseif ($meterType === 'electricity') {
-                            $beforeConsumptionCharge = $getCost($usageBeforeCycle, $electricityCost);
-                            $beforeDischargeCharge = 0;
-                            $beforeElectricityAdditional = $getAdditionalCosts($electricityAdditional, $usageBeforeCycle);
-                            $beforeBaseCost = $beforeConsumptionCharge + $beforeElectricityAdditional['total'];
+    
+                if ($prevDate->lte($cycleEndDate)) {
+                    $effectiveEndDate = $readingDate->gt($cycleEndDate) ? $cycleEndDate : $readingDate;
+    
+                    if ($meterType === 'water') {
+                        $consumptionCharge = $getCost($usage, $waterInCost);
+                        $dischargeCharge = $getCost($usage, $waterOutCost);
+                        $waterInAdditionalCost = $getAdditionalCosts($waterInAdditional, $usage);
+                        $waterOutAdditionalCost = $getAdditionalCosts($waterOutAdditional, $usage);
+                        $baseCost = $consumptionCharge + $dischargeCharge + $waterInAdditionalCost['total'] + $waterOutAdditionalCost['total'];
+                        $vat = ($vatPercentage / 100) * $baseCost;
+                        $totalCost = $includeVAT ? $baseCost + $vat : $baseCost;
+                    } elseif ($meterType === 'electricity') {
+                        $consumptionCharge = $getCost($usage, $electricityCost);
+                        $dischargeCharge = 0;
+                        $electricityAdditionalCost = $getAdditionalCosts($electricityAdditional, $usage);
+                        $baseCost = $consumptionCharge + $electricityAdditionalCost['total'];
+                        $vat = ($vatPercentage / 100) * $baseCost;
+                        $totalCost = $includeVAT ? $baseCost + $vat : $baseCost;
+                    } else {
+                        $consumptionCharge = 0;
+                        $dischargeCharge = 0;
+                        $electricityAdditionalCost = ['additional_costs' => [], 'total' => 0];
+                        $baseCost = 0;
+                        $vat = 0;
+                        $totalCost = 0;
+                    }
+    
+                    $dailyUsage = $daysInPeriod > 0 ? $usage / $daysInPeriod : 0;
+                    $dailyCost = $daysInPeriod > 0 ? $totalCost / $daysInPeriod : 0;
+    
+                    $status = $prevDate->gte($cycleStartDate) && $effectiveEndDate->lte($cycleEndDate) ? "Actual" : "Final Estimate";
+                    if ($daysInPeriod <= 1) {
+                        if ($effectiveEndDate->lte($cycleStartDate)) {
+                            $status = "Final Estimate";
                         } else {
-                            $beforeConsumptionCharge = 0;
-                            $beforeDischargeCharge = 0;
-                            $beforeElectricityAdditional = ['additional_costs' => [], 'total' => 0];
-                            $beforeBaseCost = 0;
+                            continue;
                         }
-                        $beforeVat = ($vatPercentage / 100) * $beforeBaseCost;
-                        $beforeTotalCost = $includeVAT ? $beforeBaseCost + $beforeVat : $beforeBaseCost;
-                        $beforeDailyUsage = $daysBeforeCycle > 0 ? $usageBeforeCycle / $daysBeforeCycle : 0;
-                        $beforeDailyCost = $daysBeforeCycle > 0 ? $beforeTotalCost / $daysBeforeCycle : 0;
-
+                    }
+    
+                    if ($prevDate->lt($cycleStartDate) && $readingDate->gt($cycleStartDate)) {
+                        $daysBeforeCycle = $prevDate->diffInDays($cycleStartDate);
+                        $daysInCycle = $cycleStartDate->diffInDays($readingDate); // Define $daysInCycle here
+                        $totalDays = $prevDate->diffInDays($readingDate);
+                        $usageBeforeCycle = $daysBeforeCycle > 0 ? ($usage * $daysBeforeCycle / $totalDays) : 0;
+                        $usageInCycle = $usage - $usageBeforeCycle;
+                        $splitReadingValue = $prevValue + $usageBeforeCycle;
+                        $rawSplitReadingValue = str_pad((int)$splitReadingValue, 6, '0', STR_PAD_LEFT);
+    
+                        if ($usageBeforeCycle > 0 && $daysBeforeCycle > 1) {
+                            if ($meterType === 'water') {
+                                $beforeConsumptionCharge = $getCost($usageBeforeCycle, $waterInCost);
+                                $beforeDischargeCharge = $getCost($usageBeforeCycle, $waterOutCost);
+                                $beforeWaterInAdditional = $getAdditionalCosts($waterInAdditional, $usageBeforeCycle);
+                                $beforeWaterOutAdditional = $getAdditionalCosts($waterOutAdditional, $usageBeforeCycle);
+                                $beforeBaseCost = $beforeConsumptionCharge + $beforeDischargeCharge + $beforeWaterInAdditional['total'] + $beforeWaterOutAdditional['total'];
+                            } elseif ($meterType === 'electricity') {
+                                $beforeConsumptionCharge = $getCost($usageBeforeCycle, $electricityCost);
+                                $beforeDischargeCharge = 0;
+                                $beforeElectricityAdditional = $getAdditionalCosts($electricityAdditional, $usageBeforeCycle);
+                                $beforeBaseCost = $beforeConsumptionCharge + $beforeElectricityAdditional['total'];
+                            } else {
+                                $beforeBaseCost = 0;
+                            }
+                            $beforeVat = ($vatPercentage / 100) * $beforeBaseCost;
+                            $beforeTotalCost = $includeVAT ? $beforeBaseCost + $beforeVat : $beforeBaseCost;
+                            $beforeDailyUsage = $daysBeforeCycle > 0 ? $usageBeforeCycle / $daysBeforeCycle : 0;
+                            $beforeDailyCost = $daysBeforeCycle > 0 ? $beforeTotalCost / $daysBeforeCycle : 0;
+    
+                            $billingPeriods[] = [
+                                'meter_id' => $meterId,
+                                'start_date' => $prevDate->toDateString(),
+                                'end_date' => $cycleStartDate->toDateString(),
+                                'start_reading' => $rawPrevValue,
+                                'end_reading' => $rawSplitReadingValue,
+                                'start_reading_id' => $prevReadingId,
+                                'end_reading_id' => null,
+                                'usage_liters' => round($usageBeforeCycle, 2),
+                                'cost' => $beforeTotalCost,
+                                'consumption_charge' => $beforeConsumptionCharge,
+                                'discharge_charge' => $beforeDischargeCharge,
+                                'additional_costs' => $meterType === 'water' ? $beforeWaterInAdditional['additional_costs'] : ($meterType === 'electricity' ? $beforeElectricityAdditional['additional_costs'] : []),
+                                'water_out_additional' => $meterType === 'water' ? $beforeWaterOutAdditional['additional_costs'] : [],
+                                'vat' => round($beforeVat, 2),
+                                'daily_usage' => round($beforeDailyUsage, 2),
+                                'daily_cost' => round($beforeDailyCost, 2),
+                                'status' => "Final Estimate"
+                            ];
+                        }
+    
+                        if ($usageInCycle > 0) {
+                            if ($meterType === 'water') {
+                                $inCycleConsumptionCharge = $getCost($usageInCycle, $waterInCost);
+                                $inCycleDischargeCharge = $getCost($usageInCycle, $waterOutCost);
+                                $inCycleWaterInAdditional = $getAdditionalCosts($waterInAdditional, $usageInCycle);
+                                $inCycleWaterOutAdditional = $getAdditionalCosts($waterOutAdditional, $usageInCycle);
+                                $inCycleBaseCost = $inCycleConsumptionCharge + $inCycleDischargeCharge + $inCycleWaterInAdditional['total'] + $inCycleWaterOutAdditional['total'];
+                            } elseif ($meterType === 'electricity') {
+                                $inCycleConsumptionCharge = $getCost($usageInCycle, $electricityCost);
+                                $inCycleDischargeCharge = 0;
+                                $inCycleElectricityAdditional = $getAdditionalCosts($electricityAdditional, $usageInCycle);
+                                $inCycleBaseCost = $inCycleConsumptionCharge + $inCycleElectricityAdditional['total'];
+                            } else {
+                                $inCycleBaseCost = 0;
+                            }
+                            $inCycleVat = ($vatPercentage / 100) * $inCycleBaseCost;
+                            $inCycleTotalCost = $includeVAT ? $inCycleBaseCost + $inCycleVat : $inCycleBaseCost;
+                            $inCycleDailyUsage = $daysInCycle > 0 ? $usageInCycle / $daysInCycle : 0;
+                            $inCycleDailyCost = $daysInCycle > 0 ? $inCycleTotalCost / $daysInCycle : 0;
+    
+                            $billingPeriods[] = [
+                                'meter_id' => $meterId,
+                                'start_date' => $cycleStartDate->toDateString(),
+                                'end_date' => $readingDate->toDateString(),
+                                'start_reading' => $rawPrevValue, // Use actual previous reading
+                                'end_reading' => $rawReadingValue,
+                                'start_reading_id' => $prevReadingId,
+                                'end_reading_id' => $readingId,
+                                'usage_liters' => $usage, // Use full actual usage
+                                'cost' => $totalCost, // Use full cost based on actual readings
+                                'consumption_charge' => $consumptionCharge,
+                                'discharge_charge' => $dischargeCharge,
+                                'additional_costs' => $meterType === 'water' ? $waterInAdditionalCost['additional_costs'] : ($meterType === 'electricity' ? $electricityAdditionalCost['additional_costs'] : []),
+                                'water_out_additional' => $meterType === 'water' ? $waterOutAdditionalCost['additional_costs'] : [],
+                                'vat' => round($vat, 2),
+                                'daily_usage' => round($dailyUsage, 2),
+                                'daily_cost' => round($dailyCost, 2),
+                                'status' => "Actual"
+                            ];
+                        }
+                    } else {
                         $billingPeriods[] = [
                             'meter_id' => $meterId,
                             'start_date' => $prevDate->toDateString(),
-                            'end_date' => $cycleStartDate->toDateString(),
+                            'end_date' => $effectiveEndDate->toDateString(),
                             'start_reading' => $rawPrevValue,
-                            'end_reading' => $rawSplitReadingValue,
-                            'start_reading_id' => $prevReadingId,
-                            'end_reading_id' => null,
-                            'usage_liters' => round($usageBeforeCycle, 2),
-                            'cost' => $beforeTotalCost,
-                            'consumption_charge' => $beforeConsumptionCharge,
-                            'discharge_charge' => $beforeDischargeCharge,
-                            'additional_costs' => $meterType === 'water' ? $beforeWaterInAdditional['additional_costs'] : ($meterType === 'electricity' ? $beforeElectricityAdditional['additional_costs'] : []),
-                            'water_out_additional' => $meterType === 'water' ? $beforeWaterOutAdditional['additional_costs'] : [],
-                            'vat' => round($beforeVat, 2),
-                            'daily_usage' => round($beforeDailyUsage, 2),
-                            'daily_cost' => round($beforeDailyCost, 2),
-                            'status' => "Final Estimate"
-                        ];
-                    }
-
-                    if ($usageInCycle > 0) {
-                        $daysInCycle = $cycleStartDate->diffInDays($readingDate);
-                        if ($meterType === 'water') {
-                            $inCycleConsumptionCharge = $getCost($usageInCycle, $waterInCost);
-                            $inCycleDischargeCharge = $getCost($usageInCycle, $waterOutCost);
-                            $inCycleWaterInAdditional = $getAdditionalCosts($waterInAdditional, $usageInCycle);
-                            $inCycleWaterOutAdditional = $getAdditionalCosts($waterOutAdditional, $usageInCycle);
-                            $inCycleBaseCost = $inCycleConsumptionCharge + $inCycleDischargeCharge + $inCycleWaterInAdditional['total'] + $inCycleWaterOutAdditional['total'];
-                        } elseif ($meterType === 'electricity') {
-                            $inCycleConsumptionCharge = $getCost($usageInCycle, $electricityCost);
-                            $inCycleDischargeCharge = 0;
-                            $inCycleElectricityAdditional = $getAdditionalCosts($electricityAdditional, $usageInCycle);
-                            $inCycleBaseCost = $inCycleConsumptionCharge + $inCycleElectricityAdditional['total'];
-                        } else {
-                            $inCycleConsumptionCharge = 0;
-                            $inCycleDischargeCharge = 0;
-                            $inCycleElectricityAdditional = ['additional_costs' => [], 'total' => 0];
-                            $inCycleBaseCost = 0;
-                        }
-                        $inCycleVat = ($vatPercentage / 100) * $inCycleBaseCost;
-                        $inCycleTotalCost = $includeVAT ? $inCycleBaseCost + $inCycleVat : $inCycleBaseCost;
-                        $inCycleDailyUsage = $daysInCycle > 0 ? $usageInCycle / $daysInCycle : 0;
-                        $inCycleDailyCost = $daysInCycle > 0 ? $inCycleTotalCost / $daysInCycle : 0;
-
-                        $billingPeriods[] = [
-                            'meter_id' => $meterId,
-                            'start_date' => $cycleStartDate->toDateString(),
-                            'end_date' => $readingDate->toDateString(),
-                            'start_reading' => $rawSplitReadingValue,
                             'end_reading' => $rawReadingValue,
                             'start_reading_id' => $prevReadingId,
                             'end_reading_id' => $readingId,
-                            'usage_liters' => round($usageInCycle, 2),
-                            'cost' => $inCycleTotalCost,
-                            'consumption_charge' => $inCycleConsumptionCharge,
-                            'discharge_charge' => $inCycleDischargeCharge,
-                            'additional_costs' => $meterType === 'water' ? $inCycleWaterInAdditional['additional_costs'] : ($meterType === 'electricity' ? $inCycleElectricityAdditional['additional_costs'] : []),
-                            'water_out_additional' => $meterType === 'water' ? $inCycleWaterOutAdditional['additional_costs'] : [],
-                            'vat' => round($inCycleVat, 2),
-                            'daily_usage' => round($inCycleDailyUsage, 2),
-                            'daily_cost' => round($inCycleDailyCost, 2),
-                            'status' => "Actual"
+                            'usage_liters' => $usage,
+                            'cost' => $totalCost,
+                            'consumption_charge' => $consumptionCharge,
+                            'discharge_charge' => $dischargeCharge,
+                            'additional_costs' => $meterType === 'water' ? $waterInAdditionalCost['additional_costs'] : ($meterType === 'electricity' ? $electricityAdditionalCost['additional_costs'] : []),
+                            'water_out_additional' => $meterType === 'water' ? $waterOutAdditionalCost['additional_costs'] : [],
+                            'vat' => round($vat, 2),
+                            'daily_usage' => round($dailyUsage, 2),
+                            'daily_cost' => round($dailyCost, 2),
+                            'status' => $status
                         ];
                     }
-                } else {
-                    $billingPeriods[] = [
-                        'meter_id' => $meterId,
-                        'start_date' => $prevDate->toDateString(),
-                        'end_date' => $readingDate->toDateString(),
-                        'start_reading' => $rawPrevValue,
-                        'end_reading' => $rawReadingValue,
-                        'start_reading_id' => $prevReadingId,
-                        'end_reading_id' => $readingId,
-                        'usage_liters' => $usage,
-                        'cost' => $totalCost,
-                        'consumption_charge' => $consumptionCharge,
-                        'discharge_charge' => $dischargeCharge,
-                        'additional_costs' => $meterType === 'water' ? $waterInAdditionalCost['additional_costs'] : ($meterType === 'electricity' ? $electricityAdditionalCost['additional_costs'] : []),
-                        'water_out_additional' => $meterType === 'water' ? $waterOutAdditionalCost['additional_costs'] : [],
-                        'vat' => round($vat, 2),
-                        'daily_usage' => round($dailyUsage, 2),
-                        'daily_cost' => round($dailyCost, 2),
-                        'status' => $status
-                    ];
                 }
             }
             $prevReading = $reading;
         }
-
-        $lastReadingDate = $sortedReadings->isEmpty() ? $cycleStartDate : Carbon::createFromFormat('m-d-Y', $sortedReadings->last()->reading_date);
+    
+    
+        $lastReadingDate = $sortedReadings->isEmpty() 
+            ? $cycleStartDate 
+            : Carbon::createFromFormat('Y-m-d H:i:s', $sortedReadings->last()->reading_date);
         $lastReadingValue = $sortedReadings->isEmpty() ? 0 : (int) ltrim($sortedReadings->last()->reading_value, '0');
         $rawLastReadingValue = $sortedReadings->isEmpty() ? '000000' : $sortedReadings->last()->reading_value;
         $lastReadingId = $sortedReadings->isEmpty() ? null : $sortedReadings->last()->id;
         $prevLastReading = $sortedReadings->count() > 1 ? $sortedReadings->slice(-2, 1)->first() : null;
-
-
+    
         if ($isCurrentCycle && $lastReadingDate->lt($cycleEndDate)) {
-            $prevDate = $prevLastReading ? Carbon::createFromFormat('m-d-Y', $prevLastReading->reading_date) : $cycleStartDate;
-            $daysSoFar = $prevDate->diffInDays($lastReadingDate);
-            $lastPeriodUsage = $prevLastReading ? ($lastReadingValue - (int) ltrim($prevLastReading->reading_value, '0')) : 0;
-            $dailyUsageRate = $daysSoFar > 0 ? $lastPeriodUsage / $daysSoFar : 0;
             $daysRemaining = $cycleEndDate->diffInDays($lastReadingDate);
-            $estimatedUsage = $dailyUsageRate * $daysRemaining;
-            $estimatedEndReading = $lastReadingValue + $estimatedUsage;
-            $rawEstimatedEndReading = str_pad((int)$estimatedEndReading, 6, '0', STR_PAD_LEFT);
-
-            if ($meterType === 'water') {
-                $estimatedConsumptionCharge = $getCost($estimatedUsage, $waterInCost);
-                $estimatedDischargeCharge = $getCost($estimatedUsage, $waterOutCost);
-                $estimatedWaterInAdditional = $getAdditionalCosts($waterInAdditional, $estimatedUsage);
-                $estimatedWaterOutAdditional = $getAdditionalCosts($waterOutAdditional, $estimatedUsage);
-                $estimatedBaseCost = $estimatedConsumptionCharge + $estimatedDischargeCharge + $estimatedWaterInAdditional['total'] + $estimatedWaterOutAdditional['total'];
-                $estimatedVat = ($vatPercentage / 100) * $estimatedBaseCost;
-                $estimatedCost = $includeVAT ? $estimatedBaseCost + $estimatedVat : $estimatedBaseCost;
-            } elseif ($meterType === 'electricity') {
-                $estimatedConsumptionCharge = $getCost($estimatedUsage, $electricityCost);
-                $estimatedDischargeCharge = 0;
-                $estimatedElectricityAdditional = $getAdditionalCosts($electricityAdditional, $estimatedUsage);
-                $estimatedBaseCost = $estimatedConsumptionCharge + $estimatedElectricityAdditional['total'];
-                $estimatedVat = ($vatPercentage / 100) * $estimatedBaseCost;
-                $estimatedCost = $includeVAT ? $estimatedBaseCost + $estimatedVat : $estimatedBaseCost;
-            } else {
-                $estimatedCost = 0;
-                $estimatedConsumptionCharge = 0;
-                $estimatedDischargeCharge = 0;
-                $estimatedElectricityAdditional = ['additional_costs' => [], 'total' => 0];
-                $estimatedVat = 0;
+            if ($daysRemaining > 1) {
+                $prevDate = $prevLastReading ? Carbon::createFromFormat('Y-m-d H:i:s', $prevLastReading->reading_date) : $cycleStartDate;
+                $daysSoFar = $prevDate->diffInDays($lastReadingDate);
+                $lastPeriodUsage = $prevLastReading ? ($lastReadingValue - (int) ltrim($prevLastReading->reading_value, '0')) : 0;
+                $dailyUsageRate = $daysSoFar > 0 ? $lastPeriodUsage / $daysSoFar : 0;
+                $estimatedUsage = $dailyUsageRate * $daysRemaining;
+                $estimatedEndReading = $lastReadingValue + $estimatedUsage;
+                $rawEstimatedEndReading = str_pad((int)$estimatedEndReading, 6, '0', STR_PAD_LEFT);
+    
+                if ($meterType === 'water') {
+                    $estimatedConsumptionCharge = $getCost($estimatedUsage, $waterInCost);
+                    $estimatedDischargeCharge = $getCost($estimatedUsage, $waterOutCost);
+                    $estimatedWaterInAdditional = $getAdditionalCosts($waterInAdditional, $estimatedUsage);
+                    $estimatedWaterOutAdditional = $getAdditionalCosts($waterOutAdditional, $estimatedUsage);
+                    $estimatedBaseCost = $estimatedConsumptionCharge + $estimatedDischargeCharge + $estimatedWaterInAdditional['total'] + $estimatedWaterOutAdditional['total'];
+                    $estimatedVat = ($vatPercentage / 100) * $estimatedBaseCost;
+                    $estimatedCost = $includeVAT ? $estimatedBaseCost + $estimatedVat : $estimatedBaseCost;
+                } elseif ($meterType === 'electricity') {
+                    $estimatedConsumptionCharge = $getCost($estimatedUsage, $electricityCost);
+                    $estimatedDischargeCharge = 0;
+                    $electricityAdditionalCost = $getAdditionalCosts($electricityAdditional, $usage);
+                    $estimatedBaseCost = $estimatedConsumptionCharge + $electricityAdditionalCost['total'];
+                    $estimatedVat = ($vatPercentage / 100) * $estimatedBaseCost;
+                    $estimatedCost = $includeVAT ? $estimatedBaseCost + $estimatedVat : $estimatedBaseCost;
+                } else {
+                    $estimatedCost = 0;
+                    $estimatedConsumptionCharge = 0;
+                    $estimatedDischargeCharge = 0;
+                    $estimatedElectricityAdditional = ['additional_costs' => [], 'total' => 0];
+                    $estimatedVat = 0;
+                }
+    
+                $estimatedDailyUsage = $daysRemaining > 0 ? $estimatedUsage / $daysRemaining : 0;
+                $estimatedDailyCost = $daysRemaining > 0 ? $estimatedCost / $daysRemaining : 0;
+    
+    
+                $billingPeriods[] = [
+                    'meter_id' => $meterId,
+                    'start_date' => $lastReadingDate->toDateString(),
+                    'end_date' => $cycleEndDate->toDateString(),
+                    'start_reading' => $rawLastReadingValue,
+                    'end_reading' => $rawEstimatedEndReading,
+                    'start_reading_id' => $lastReadingId,
+                    'end_reading_id' => null,
+                    'usage_liters' => round($estimatedUsage, 2),
+                    'cost' => $estimatedCost,
+                    'consumption_charge' => $estimatedConsumptionCharge,
+                    'discharge_charge' => $estimatedDischargeCharge,
+                    'additional_costs' => $meterType === 'water' ? $estimatedWaterInAdditional['additional_costs'] : ($meterType === 'electricity' ? $electricityAdditionalCost['additional_costs'] : []),
+                    'water_out_additional' => $meterType === 'water' ? $estimatedWaterOutAdditional['additional_costs'] : [],
+                    'vat' => round($estimatedVat, 2),
+                    'daily_usage' => round($estimatedDailyUsage, 2),
+                    'daily_cost' => round($estimatedDailyCost, 2),
+                    'status' => "Estimated"
+                ];
             }
-
-            $estimatedDailyUsage = $daysRemaining > 0 ? $estimatedUsage / $daysRemaining : 0;
-            $estimatedDailyCost = $daysRemaining > 0 ? $estimatedCost / $daysRemaining : 0;
-
-            $billingPeriods[] = [
-                'meter_id' => $meterId,
-                'start_date' => $lastReadingDate->toDateString(),
-                'end_date' => $cycleEndDate->toDateString(),
-                'start_reading' => $rawLastReadingValue,
-                'end_reading' => $rawEstimatedEndReading,
-                'start_reading_id' => $lastReadingId,
-                'end_reading_id' => null,
-                'usage_liters' => round($estimatedUsage, 2),
-                'cost' => $estimatedCost,
-                'consumption_charge' => $estimatedConsumptionCharge,
-                'discharge_charge' => $estimatedDischargeCharge,
-                'additional_costs' => $meterType === 'water' ? $estimatedWaterInAdditional['additional_costs'] : ($meterType === 'electricity' ? $estimatedElectricityAdditional['additional_costs'] : []),
-                'water_out_additional' => $meterType === 'water' ? $estimatedWaterOutAdditional['additional_costs'] : [],
-                'vat' => round($estimatedVat, 2),
-                'daily_usage' => round($estimatedDailyUsage, 2),
-                'daily_cost' => round($estimatedDailyCost, 2),
-                'status' => "Estimated"
-            ];
         }
-
-
-        // Remove overlapping estimated periods, use cycleStartDate if no readings exist
-        $lastReadingDateCarbon = $sortedReadings->isEmpty() ? $cycleStartDate : Carbon::createFromFormat('m-d-Y', $sortedReadings->last()->reading_date);
-        BillingPeriod::where('meter_id', $meterId)
-            ->where('status', 'Estimated')
-            ->where(function ($query) use ($lastReadingDateCarbon, $cycleEndDate) {
-                $query->where('start_date', '<', $lastReadingDateCarbon->toDateString())
-                    ->where('end_date', '>', $lastReadingDateCarbon->toDateString());
-            })
-            ->delete();
-
-        // Save billing periods and generate payments for actual and final estimate periods
+    
+        // Filter out unwanted single-day periods
+        $filteredBillingPeriods = [];
+        foreach ($billingPeriods as $period) {
+            $startDate = Carbon::parse($period['start_date']);
+            $endDate = Carbon::parse($period['end_date']);
+            if ($period['status'] === 'Final Estimate' && 
+                $startDate->diffInDays($endDate) <= 1 && 
+                $endDate->toDateString() === $cycleStartDate->toDateString() && 
+                $period['end_reading_id'] === null) {
+                continue; // Skip adjusting next period since we're using actual readings
+            }
+            $filteredBillingPeriods[] = $period;
+        }
+        $billingPeriods = $filteredBillingPeriods;
+    
+    
         foreach ($billingPeriods as $period) {
             $billingPeriod = BillingPeriod::updateOrCreate(
                 [
@@ -506,17 +548,14 @@ class MeterController extends Controller
                 ],
                 $period
             );
-
-            // Generate payments for "Actual" or "Final Estimate" periods with a valid end_reading_id
+    
             if (($period['status'] === 'Actual' || $period['status'] === 'Final Estimate') && !is_null($period['end_reading_id'])) {
                 $readingDate = Carbon::createFromFormat('Y-m-d', $period['end_date'])->toDateString();
-
-                // Check for existing payment to avoid duplicates
                 $existingPayment = Payment::where('meter_id', $meterId)
                     ->where('billing_period_id', $billingPeriod->id)
                     ->where('reading_id', $period['end_reading_id'])
                     ->exists();
-
+    
                 if (!$existingPayment) {
                     Payment::create([
                         'account_id' => $accountId,
@@ -531,23 +570,30 @@ class MeterController extends Controller
                 }
             }
         }
-
-        // Incremental sync if new readings exist
+    
         $latestReadingTimestamp = $sortedReadings->max('updated_at') ?? Carbon::minValue();
         $lastBillingUpdate = BillingPeriod::where('meter_id', $meterId)->max('updated_at') ?? Carbon::minValue();
         $hasNewReading = $latestReadingTimestamp > $lastBillingUpdate;
-
+    
         if ($hasNewReading) {
             $existingPeriods = BillingPeriod::where('meter_id', $meterId)
                 ->where('end_date', '<', $sortedReadings->isEmpty() ? $cycleStartDate->toDateString() : $sortedReadings->last()->reading_date)
                 ->get()
                 ->toArray();
-
+    
             $allPeriods = array_merge($existingPeriods, $billingPeriods);
-
+    
             $uniquePeriods = [];
             $seen = [];
             foreach ($allPeriods as $period) {
+                $startDate = Carbon::parse($period['start_date']);
+                $endDate = Carbon::parse($period['end_date']);
+                if ($period['status'] === 'Final Estimate' && 
+                    $startDate->diffInDays($endDate) <= 1 && 
+                    $endDate->toDateString() === $cycleStartDate->toDateString() && 
+                    $period['end_reading_id'] === null) {
+                    continue;
+                }
                 $key = $period['start_date'] . '|' . $period['end_date'];
                 if (!isset($seen[$key])) {
                     $seen[$key] = true;
@@ -557,7 +603,7 @@ class MeterController extends Controller
             usort($uniquePeriods, function ($a, $b) {
                 return strcmp($a['start_date'], $b['start_date']);
             });
-
+    
             foreach ($uniquePeriods as $period) {
                 BillingPeriod::updateOrCreate(
                     [
@@ -569,13 +615,15 @@ class MeterController extends Controller
                 );
             }
         }
-
+    
+    
         return $billingPeriods;
     }
 
     //makePayment
     public function makePayment(Request $request)
     {
+
         $paymentId = $request->input('payment_id');
         if ($paymentId) {
             $payment = Payment::find($paymentId);
@@ -588,25 +636,33 @@ class MeterController extends Controller
             $previousTotalPaidAmount = (float) $payment->total_paid_amount;
 
             if ($request->status == 'partially_paid') {
-                $newPaidAmount = (float) $request->amount; 
+                $newPaidAmount = (float) $request->amount;
                 $payment->paid_amount = $newPaidAmount;
-                $payment->total_paid_amount = $previousTotalPaidAmount + $newPaidAmount; 
-        
+                $payment->total_paid_amount = $previousTotalPaidAmount + $newPaidAmount;
+
                 if ($payment->total_paid_amount >= (float) $payment->amount) {
-                    $payment->total_paid_amount = (float) $payment->amount; 
-                    $payment->status = 'paid'; 
+                    $payment->total_paid_amount = (float) $payment->amount;
+                    $payment->status = 'paid';
                 } else {
                     $payment->status = $request->status;
                 }
             } elseif ($request->status == 'paid') {
                 $payment->total_paid_amount = (float) $request->actual_amount;
                 $payment->status = $request->status;
-
             }
 
             $payment->amount = $request->actual_amount;
-            $payment->payment_date = Carbon::createFromFormat('m-d-Y', $request->payment_date)->format('Y-m-d');
-                        $payment->save();
+            try {
+                $payment->payment_date = Carbon::createFromFormat('m-d-Y', $request->payment_date)->format('Y-m-d H:i:s');
+            } catch (\Exception $e) {
+                try {
+                    $payment->payment_date = Carbon::createFromFormat('m/d/Y', $request->payment_date)->format('Y-m-d H:i:s');
+                } catch (\Exception $e) {
+                    Session::flash('alert-class', 'alert-danger');
+                    Session::flash('alert-message', 'Invalid payment date format. Please use MM-DD-YYYY or MM/DD/YYYY.');
+                    return redirect()->back();
+                }
+            }           $payment->save();
             if ($payment) {
                 Session::flash('alert-class', 'alert-success');
                 Session::flash('alert-message', 'Payment updated successfully!');

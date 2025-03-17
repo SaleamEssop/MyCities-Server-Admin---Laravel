@@ -64,7 +64,7 @@ class Account extends Model
 
     public function property()
     {
-        return $this->belongsTo(Property::class);
+        return $this->belongsTo(Property::class, 'property_id');
     }
 
     public function user()
@@ -87,10 +87,9 @@ class Account extends Model
             FixedCost::where('account_id', $account->id)->delete();
             AccountFixedCost::where('account_id', $account->id)->delete();
 
-            foreach($account->meters as $meter) {
+            foreach ($account->meters as $meter) {
                 Meter::where('id', $meter->id)->first()->delete();
             }
         });
     }
-
 }

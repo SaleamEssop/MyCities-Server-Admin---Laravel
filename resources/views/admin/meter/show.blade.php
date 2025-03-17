@@ -29,7 +29,7 @@
                     <div class="col-md-6">
                         <!-- Display account details -->
                         <div class="form-group">
-                            <p><strong>Account Holder:</strong> {{ $account->user->name }}</p>
+                            <p><strong>Account User:</strong> {{ $account->user->name }}</p>
                         </div>
                         <div class="form-group">
                             <p><strong>Account Name:</strong> {{ $account->account_name }}</p>
@@ -60,7 +60,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <p><strong>Account Holder Phone:</strong> {{ $account->user->contact_number }}</p>
+                            <p><strong>Account User Phone:</strong> {{ $account->user->contact_number }}</p>
                         </div>
                         <div class="form-group">
                             <p><strong>Account Number:</strong> {{ $account->account_number }}</p>
@@ -146,7 +146,18 @@
                                     <td>{{ $loop->iteration }}</td>
 
                                     <td>{{ $meterReading->reading_value ?? '-' }}</td>
-                                    <td>{{ \Carbon\Carbon::createFromFormat('m-d-Y', $meterReading->reading_date)->format('d M Y') }}
+                                    <td>
+                                        @php
+                                            try {
+                                                echo \Carbon\Carbon::createFromFormat(
+                                                    'Y-m-d H:i:s',
+                                                    $meterReading->reading_date,
+                                                )->format('d M Y');
+                                            } catch (\Exception $e) {
+                                                echo 'Invalid Date';
+                                            }
+                                        @endphp
+                                    </td>
                                     </td>
                                     <td>
                                         {{ $meterReading->addedBy->name ?? '-' }}</td>
@@ -354,13 +365,27 @@
                                         @endif
                                     </td>
                                     <td>{{ $payment->billingPeriod->usage_liters ?? '-' }}</td>
-                                    <td>{{ \Carbon\Carbon::createFromFormat('m-d-Y', $payment->reading->reading_date)->format('d M Y') }}
+                                    <td>
+
+                                        @php
+                                            try {
+                                                echo \Carbon\Carbon::createFromFormat(
+                                                    'Y-m-d H:i:s',
+                                                    $payment->reading->reading_date,
+                                                )->format('d M Y');
+                                            } catch (\Exception $e) {
+                                                echo 'Invalid Date';
+                                            }
+                                        @endphp
                                     </td>
+
                                     <td>{{ $payment->amount }}</td>
                                     <td>{{ $payment->paid_amount }}</td>
                                     <td>{{ $payment->total_paid_amount }}</td>
-                                    
-                                    <td>{{ $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') : '-' }}</td>                                    <td>
+
+                                    <td>{{ $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('d M Y') : '-' }}
+                                    </td>
+                                    <td>
                                         <span
                                             style="padding: 3px 8px; border-radius: 12px; font-size: 0.9em; {{ $payment->status == 'partially_paid' ? 'background-color: #d3d3d3; color: #000000;' : ($payment->status == 'pending' ? 'background-color: #FDD600; color: #212529;' : ($payment->status == 'paid' ? 'background-color: #28a745; color: #fff;' : 'background-color: #6c757d; color: #fff;')) }}">
                                             {{ $payment->status == 'partially_paid' ? 'Partially Paid' : $payment->status }}
@@ -378,10 +403,12 @@
                                             data-payment-date="{{ \Carbon\Carbon::parse($payment->payment_date)->format('m/d/Y') }}">
                                             <i class="fas fa-money-bill"></i>
                                         </button>
-                                        <form action="{{ route('destroy-meter-payment', $payment->id) }}" method="POST" style="display: inline;">
+                                        <form action="{{ route('destroy-meter-payment', $payment->id) }}" method="POST"
+                                            style="display: inline;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-circle" onclick="return confirm('Are you sure you want to delete this meter reading?')">
+                                            <button type="submit" class="btn btn-danger btn-circle"
+                                                onclick="return confirm('Are you sure you want to delete this meter reading?')">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
@@ -587,18 +614,19 @@
     {{-- filter payments by status script  --}}
     <script>
         $(document).ready(function() {
-
             function applyFilters() {
                 let selectedStatus = $("#payment-status").val().toLowerCase();
+                let $rows = $("#payment-dataTable tbody tr");
 
-                let rowCount = $("#payment-dataTable tbody tr").length;
+                if ($rows.length === 0) {
+                    console.log("No rows found in #payment-dataTable tbody");
+                    return;
+                }
 
-
-                $("#payment-dataTable tbody tr").each(function(index) {
+                $rows.each(function(index) {
                     let $row = $(this);
-                    let rowStatus = $row.find("td:nth-child(8) span").text().trim().toLowerCase();
-
-
+                    let rowStatus = $row.find("td:nth-child(9) span").text().trim()
+                        .toLowerCase(); // Fix to 9th column
                     let showDueToStatus = true;
 
                     if (selectedStatus !== "payment status") {
@@ -624,35 +652,69 @@
 
     {{-- filter payments by period script --}}
     <script>
-        $(document).ready(function() {
-            function applyFilters() {
+  $(document).ready(function() {
+    function applyFilters() {
+        let selectedPeriod = $("#period").val().trim();
+        let $rows = $("#payment-dataTable tbody tr");
 
-                let selectedPeriod = $("#period").val().trim();
+        $rows.show();
 
-                $("#payment-dataTable tbody tr").show();
+        if (selectedPeriod === "Select Meter Reading Period") {
+            return;
+        }
 
-                $("#payment-dataTable tbody tr").each(function() {
-                    let $row = $(this);
+        let [startDateStr, endDateStr] = selectedPeriod.split(" "); // For "2025-02-24 2025-03-23"
+        let selectedStart = new Date(startDateStr);
+        let selectedEnd = new Date(endDateStr);
 
-                    let rowDateText = $row.find("td:nth-child(7)").text().trim();
-                    let rowDate = new Date(rowDateText.replace(/(\d+) (\w+) (\d+)/, "$2 $1, $3"));
+        if (isNaN(selectedStart) || isNaN(selectedEnd)) {
+            console.log("Invalid selected period:", selectedPeriod);
+            return;
+        }
 
-                    let showDueToDate = true;
+        $rows.each(function() {
+            let $row = $(this);
+            let billingPeriodText = $row.find("td:nth-child(2)").text().trim().replace(/\s+/g, " "); // Normalize whitespace
 
-                    if (selectedPeriod !== "select meter reading period") {
-                        let [startDate, endDate] = selectedPeriod.split(" ");
-                        startDate = new Date(startDate);
-                        endDate = new Date(endDate);
-                        showDueToDate = (rowDate >= startDate && rowDate <= endDate);
-                    }
-                    if (!(showDueToDate)) {
-                        $row.hide();
-                    }
-                });
+            if (billingPeriodText === "No Billing Period") {
+                $row.hide();
+                return;
             }
 
-            $("#period").on("change", applyFilters);
+            // Split and clean up billing period text
+            let periodParts = billingPeriodText.split(" - ").map(part => part.trim());
+            if (periodParts.length !== 2) {
+                console.log("Invalid billing period format:", billingPeriodText);
+                $row.hide();
+                return;
+            }
+
+            let [startText, endText] = periodParts;
+            if (!startText || !endText) {
+                console.log("Missing start or end date:", billingPeriodText);
+                $row.hide();
+                return;
+            }
+
+            let billingStart = new Date(startText);
+            let billingEnd = new Date(endText);
+
+            if (isNaN(billingStart) || isNaN(billingEnd)) {
+                console.log("Failed to parse dates:", startText, endText);
+                $row.hide();
+                return;
+            }
+
+            let overlaps = (billingStart <= selectedEnd && billingEnd >= selectedStart);
+
+            if (!overlaps) {
+                $row.hide();
+            }
         });
+    }
+
+    $("#period").on("change", applyFilters);
+});
     </script>
 
 

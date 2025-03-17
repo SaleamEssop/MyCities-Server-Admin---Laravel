@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateTempIdsTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('temp_ids', function (Blueprint $table) {
+            $table->id();
+            $table->string('token')->unique();
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('account_id');
+            $table->timestamps();
+            $table->index('token');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('temp_ids');
+    }
+}

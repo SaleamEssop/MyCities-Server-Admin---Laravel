@@ -14,12 +14,19 @@
                     <form method="POST" action="{{ route('add-meter') }}">
                         <div class="form-group">
                             <label><strong>Account :</strong></label>
+                            @if (isset($account))
+                                <input type="hidden" name="account_id" value="{{ $account->id }}">
+                                <input type="text" class="form-control" value="{{ $account->account_name }}" disabled>
+                                
+                            @else
                             <select class="form-control" id="exampleFormControlSelect1" name="account_id" required>
                                 <option disabled selected value="">--Select Account--</option>
                                 @foreach($accounts as $account)
                                     <option value="{{ $account->id }}">{{ $account->account_name }}</option>
                                 @endforeach
                             </select>
+                            @endif
+                          
                         </div>
                         <div class="form-group">
                             <label><strong>Meter Category :</strong></label>

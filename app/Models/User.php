@@ -30,6 +30,8 @@ class User extends Authenticatable
         'is_admin',
         'is_super_admin',
         'is_property_manager',
+        'original_password',
+        'account_id',
     ];
 
     /**

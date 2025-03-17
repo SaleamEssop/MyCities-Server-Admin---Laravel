@@ -16,12 +16,14 @@ use App\Models\MeterType;
 use App\Models\AccountType;
 use App\Models\AdsCategory;
 use App\Models\RegionCosts;
+use Illuminate\Support\Str;
 use App\Models\RegionAlarms;
 use Illuminate\Http\Request;
 use App\Models\MeterCategory;
 use App\Models\MeterReadings;
 use App\Models\AccountFixedCost;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -76,16 +78,31 @@ class AdminController extends Controller
 
         return view('admin.users', ['users' => $users]);
     }
+    public function showPropertyManger(Request $request)
+    {
+        $adminID = Auth::user()->id;
+        if (Auth::user()->is_super_admin)
+            //get all property mangers
+            $propertyMangers = User::where('is_property_manager', 1)->get();
+        else
+            $propertyMangers = []; // Because this admin should not have any propertyMangers under it; this could be changed in the future
+
+        return view('admin.propertyMangers', ['propertyMangers' => $propertyMangers]);
+    }
 
     public function showAccounts(Request $request)
     {
-        if (Auth::user()->is_super_admin)
-            $accounts = Account::with('site')->get();
-        else
+        if (Auth::user()->is_super_admin) {
+            $property_accounts = Account::with('site')->whereNotNull('property_id')->get();
+            $accounts = Account::with('site')->whereNull('property_id')->get();
+        } else {
             $accounts = []; // Because this admin should not have any users under it; this could be changed in the future
-
-        return view('admin.accounts', ['accounts' => $accounts]);
+            $property_accounts = [];
+        }
+    
+        return view('admin.accounts', ['property_accounts' => $property_accounts, 'accounts' => $accounts]);
     }
+    
 
     public function showSites(Request $request)
     {
@@ -126,6 +143,7 @@ class AdminController extends Controller
             'name' => $postData['name'],
             'email' => $postData['email'],
             'contact_number' => $postData['contact_number'],
+            'original_password' => $postData['password'],
             'password' => bcrypt($postData['password']),
             'is_admin' => $request->has('is_admin') ? 1 : 0,
             'is_super_admin' => $request->has('is_super_admin') ? 1 : 0,
@@ -136,7 +154,8 @@ class AdminController extends Controller
         if ($result) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'User added successfully!');
-            return redirect('admin/users');
+            // return redirect('admin/users');
+            return back();
         } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
@@ -310,14 +329,14 @@ class AdminController extends Controller
 
     public function addAccountForm(Request $request)
     {
-        
+
         $properties = Property::all();
         $regions = Regions::all();
         $accountTypes = AccountType::all();
         $users = User::where(['is_admin' => 0, 'is_super_admin' => 0])->get();
         $defaultCosts = FixedCost::where('is_default', 1)->get();
 
-        return view('admin.create_account', ['users' => $users, 'defaultCosts' => $defaultCosts , 'properties' => $properties, 'accountTypes' => $accountTypes, 'regions' => $regions]);
+        return view('admin.create_account', ['users' => $users, 'defaultCosts' => $defaultCosts, 'properties' => $properties, 'accountTypes' => $accountTypes, 'regions' => $regions]);
     }
 
     public function getUserSites(Request $request)
@@ -341,22 +360,13 @@ class AdminController extends Controller
             'user_id' => 'nullable|exists:users,id',
             'name' => 'nullable|string|max:255',
             'email' => 'nullable|email|unique:users,email',
-            'password' => 'nullable|string|min:6',
             'contact_number' => 'nullable|string|max:20',
             'title' => 'required|string|max:255',
             'number' => 'required|string|max:255',
-            'billing_date' => 'nullable|string',
             'optional_info' => 'nullable|string',
-            'site' => 'required|string',
-            'lat' => 'nullable|string',
-            'lng' => 'nullable|string',
-            'fetched-email' => 'nullable|string',
-            'region_id' => 'nullable|exists:regions,id',
-            'electricity_email' => 'nullable|string',
-            'water_email' => 'nullable|string',
             'account_type_id' => 'nullable|exists:account_type,id',
             'property_id' => 'nullable|exists:properties,id',
-        
+
         ]);
 
         $postData = $request->post();
@@ -368,40 +378,63 @@ class AdminController extends Controller
             $newUser = User::create([
                 'name' => $postData['name'],
                 'email' => $postData['email'],
-                'password' => bcrypt($postData['password']),
+                'original_password' => $randomPassword = $this->generateCustomPassword(),
+                'password' => bcrypt($randomPassword),
                 'contact_number' => $postData['contact_number']
             ]);
             $userId = $newUser->id;
         }
 
-        $siteArr = [
-            'user_id' => $userId,
-            'title' => $postData['fetched-email'] ?? '',
-            'lat' => $postData['lat'] ?? "", 
-            'lng' => $postData['lng'] ?? "", 
-            'address' => $postData['site'], 
-            'email' => $postData['fetched-email'] ?? '' ,
-        ];
-    
-        $siteExists = Site::where('user_id', $userId) 
-                      ->where('address', $postData['site'])
-                      ->first();
 
-        if ($siteExists) {
-           $siteID = $siteExists->id;
-        }else{
-            $site = Site::create($siteArr);
-            $siteID = $site->id;
-        }
-      
+        // $siteArr = [
+        //     'user_id' => $userId,
+        //     'title' => $postData['fetched-email'] ?? '',
+        //     'lat' => $postData['lat'] ?? "",
+        //     'lng' => $postData['lng'] ?? "",
+        //     'address' => $postData['site'],
+        //     'email' => $postData['fetched-email'] ?? '',
+        // ];
+
+        // $siteExists = Site::where('user_id', $userId)
+        //     ->where('address', $postData['site'])
+        //     ->first();
+
+        // if ($siteExists) {
+        //     $siteID = $siteExists->id;
+        // } else {
+        //     $site = Site::create($siteArr);
+        //     $siteID = $site->id;
+        // }
+
+        //get property 
+        $property = Property::where('id', $postData['property_id'])->first();
+        $siteID = $property->site_id;
+        //get site detail
+        $site = Site::where('id', $siteID)->first();
+        //now create new site for account 
+        $newSite = Site::create([
+            'user_id' => $userId,
+            'title' => $site->title,
+            'lat' => $site->lat,
+            'lng' => $site->lng,
+            'address' => $site->address,
+            'email' => $site->email,
+        ]);
+        $siteID = $newSite->id;
+        $region_id = $property->region_id;
+        $region = $property->region;
+
+
         $accArr = array(
-            'property_id' => $postData['property_id'],
+            'property_id' => $property->id,
             'account_type_id' => $postData['account_type_id'],
-            'region_id' => $postData['region_id'],
+            'region_id' => $region_id,
             'site_id' => $siteID,
             'user_id' => $userId,
             'account_name' => $postData['title'],
-            'account_number' => $postData['number']
+            'account_number' => $postData['number'],
+            'water_email' => $region->water_email,
+            'electricity_email' => $region->electricity_email,
         );
 
         $exists = Account::where($accArr)->first();
@@ -411,46 +444,100 @@ class AdminController extends Controller
             return redirect()->back();
         }
 
-        $accArr['billing_date'] = $postData['billing_date'] ?? null;
         $accArr['optional_information'] = $postData['optional_info'] ?? null;
+
+
+        $accArr['billing_date'] = $property->billing_day;
+
+    
+        $propertyFixedCosts = $property->defaultPropertyFixedCosts;
 
         $result = Account::create($accArr);
         if ($result) {
 
-            // Add default cost
-            if (!empty($postData['default_cost_value']) && $postData['default_ids']) {
+           
+            if ($propertyFixedCosts->isNotEmpty()) {
                 $accountDefaultCosts = [];
-                for ($i = 0; $i < count($postData['default_ids']); $i++) {
-                    $accountDefaultCosts[$i]['account_id'] = $result->id;
-                    $accountDefaultCosts[$i]['fixed_cost_id'] = $postData['default_ids'][$i];
-                    $accountDefaultCosts[$i]['value'] = $postData['default_cost_value'][$i];
-                    $accountDefaultCosts[$i]['created_at'] = date('Y-m-d H:i:s');
+        
+                foreach ($propertyFixedCosts as $fixedCost) {
+                    $accountDefaultCosts[] = [
+                        'account_id' => $result->id,
+                        'fixed_cost_id' => $fixedCost->fixed_cost_id,
+                        'value' => $fixedCost->value,
+                        'created_at' => date("Y-m-d H:i:s"),
+                    ];
                 }
-                if (!empty($accountDefaultCosts))
+        
+                
+                if (!empty($accountDefaultCosts)) {
                     AccountFixedCost::insert($accountDefaultCosts);
-            }
+                }
 
-            if (!empty($postData['additional_cost_name'])) {
+                // if (!empty($postData['default_cost_value']) && $postData['default_ids']) {
+                //     $accountDefaultCosts = [];
+                //     for ($i = 0; $i < count($postData['default_ids']); $i++) {
+                //         $accountDefaultCosts[$i]['account_id'] = $result->id;
+                //         $accountDefaultCosts[$i]['fixed_cost_id'] = $postData['default_ids'][$i];
+                //         $accountDefaultCosts[$i]['value'] = $postData['default_cost_value'][$i];
+                //         $accountDefaultCosts[$i]['created_at'] = date('Y-m-d H:i:s');
+                //     }
+                //     if (!empty($accountDefaultCosts))
+                //         AccountFixedCost::insert($accountDefaultCosts);
+                // }
+
+
+           
+                $fixedCosts = $property->fixedCostsProp;
                 $fixedCostArr = [];
-                for ($i = 0; $i < count($postData['additional_cost_name']); $i++) {
-                    $fixedCostArr[$i]['account_id'] = $result->id;
-                    $fixedCostArr[$i]['title'] = $postData['additional_cost_name'][$i];
-                    $fixedCostArr[$i]['value'] = $postData['additional_cost_value'][$i];
-                    $fixedCostArr[$i]['added_by'] = Auth::user()->id;
-                    $fixedCostArr[$i]['created_at'] = date("Y-m-d H:i:s");
+                foreach ($fixedCosts as $fixedCost) {
+                    $fixedCostArr[] = [
+                        'account_id' => $result->id,
+                        'title' => $fixedCost->title,
+                        'value' => $fixedCost->value,
+                        'added_by' => Auth::user()->id,
+                        'created_at' =>date("Y-m-d H:i:s"),
+                    ];
                 }
                 FixedCost::insert($fixedCostArr);
             }
+            // if (!empty($postData['additional_cost_name'])) {
+            //     $fixedCostArr = [];
+            //     for ($i = 0; $i < count($postData['additional_cost_name']); $i++) {
+            //         $fixedCostArr[$i]['account_id'] = $result->id;
+            //         $fixedCostArr[$i]['title'] = $postData['additional_cost_name'][$i];
+            //         $fixedCostArr[$i]['value'] = $postData['additional_cost_value'][$i];
+            //         $fixedCostArr[$i]['added_by'] = Auth::user()->id;
+            //         $fixedCostArr[$i]['created_at'] = date("Y-m-d H:i:s");
+            //     }
+            //     FixedCost::insert($fixedCostArr);
+            // }
 
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Account created successfully!');
-            return redirect('admin/accounts');
+            return back();
+            // return redirect('admin/accounts');
         } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
         }
     }
+
+
+    protected function generateCustomPassword($length = 6)
+    {
+        $letters = 'abcdefghijklmnopqrstuvwxyz';
+        $digits = '0123456789';
+
+        $password = '';
+        $password .= $digits[rand(0, 9)]; 
+        for ($i = 1; $i < $length; $i++) {
+            $password .= $letters[rand(0, 25)]; 
+        }
+
+        return str_shuffle($password);
+    }
+
 
     // public function createAccount(Request $request)
     // {
@@ -850,7 +937,7 @@ class AdminController extends Controller
             MeterReadings::create(['meter_id' => $result->id, 'reading_value' => '000000', 'reading_date' => now()]);
         }
 
-    
+
         if ($result) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Meter created successfully!');
@@ -938,13 +1025,18 @@ class AdminController extends Controller
 
     public function createMeterReading(Request $request)
     {
+
         $postData = $request->post();
+        $formattedDate = Carbon::createFromFormat('m-d-Y', $postData['reading_date'])
+            ->startOfDay()
+            ->format('Y-m-d H:i:s');
+
         $readingImg = null;
         if ($request->hasFile('reading_image'))
             $readingImg = $request->file('reading_image')->store('public/readings');
         $meterArr = array(
             'meter_id' => $postData['meter_id'],
-            'reading_date' => $postData['reading_date'],
+            'reading_date' => $formattedDate,
             'reading_value' => $postData['reading_value'],
             'added_by' => auth()->id(),
             'reading_image' => $readingImg
@@ -1048,9 +1140,8 @@ class AdminController extends Controller
 
     public function editMeterReading(Request $request)
     {
-    dd($request->all());
-        //get reading date
-       
+
+
         $postData = $request->post();
 
         if (empty($postData['meter_reading_id'])) {
@@ -1059,15 +1150,18 @@ class AdminController extends Controller
             return redirect()->back();
         }
         $readingDate = $request->input('reading_date');
+        $formattedDate = Carbon::createFromFormat('m-d-Y', $readingDate)
+            ->startOfDay()
+            ->format('Y-m-d H:i:s');
 
         $updArr = array(
             'meter_id' => $postData['meter_id'],
-            'reading_date' => $postData['reading_date'],
+            'reading_date' => $formattedDate,
             'reading_value' => $postData['reading_value'],
             'added_by' => auth()->id(),
 
         );
-        
+
 
         $updated = MeterReadings::where('id', $postData['meter_reading_id'])->update($updArr);
         if ($updated) {
