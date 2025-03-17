@@ -74,6 +74,9 @@ class UserController extends Controller
      * */
 
     public function login(Request $request) {
+        
+      
+
 
         $postData = $request->post();
         $requiredFields = ['email', 'password'];
@@ -83,7 +86,10 @@ class UserController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => $validated['error']]);
 
         $user = User::where(['email' => $postData['email']])->get();
-     
+     Log::info('User Login', [
+            'email' => $postData['email'],
+            'password' => $postData['password']
+        ]);
         if(count($user) !== 1)
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, username or password is wrong!']);
 
@@ -93,12 +99,23 @@ class UserController extends Controller
         if(!Hash::check($userPassword, $dbPasswordHash))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, username or password is wrong!']);
 
+
+            if ($request->filled('user_id') && $request->user_id != $user[0]->id) {
+                return response()->json(['status' => false, 'code' => 400, 'msg' => 'The email and password do not match!.']);
+            }
+            
+
         $token = $user[0]->createToken('lightsAndWaterAPP')->plainTextToken;
+  
+        $account_id = $request->input('account_id') ?? '';
+
+        
         $responseData = array(
             'id' => $user[0]->id,
             'name' => $user[0]->name,
             'email' => $user[0]->email,
-            'contact_number' => $user[0]->contact_number
+            'contact_number' => $user[0]->contact_number,
+            'account_id' => $account_id
         );
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'User logged in successfully!', 'token' => $token, 'data' => $responseData]);
     }

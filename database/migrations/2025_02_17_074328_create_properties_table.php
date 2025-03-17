@@ -20,7 +20,7 @@ class CreatePropertiesTable extends Migration
             $table->string('name');
             $table->string('contact_person');
             $table->string('address');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->string('phone');
             $table->string('whatsapp');
             $table->integer('billing_day');

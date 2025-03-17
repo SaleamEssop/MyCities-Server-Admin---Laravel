@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Site;
 use App\Models\User;
 use App\Models\Account;
 use App\Models\Regions;
@@ -10,7 +11,10 @@ use App\Models\FixedCost;
 use App\Models\MeterType;
 use App\Models\AccountType;
 use Illuminate\Http\Request;
+use App\Models\FixedCostProp;
 use App\Models\MeterCategory;
+use App\Models\PropertyFixedCost;
+use Illuminate\Support\Facades\Auth;
 use App\Models\RegionsAccountTypeCost;
 use Illuminate\Support\Facades\Session;
 
@@ -50,10 +54,13 @@ class PropertyController extends Controller
     public function create()
     {
 
+        $regions = Regions::all();
         $propertyManagers = User::where('is_property_manager', 1)->get();
         $RegionsAccountTypeCost = RegionsAccountTypeCost::all();
+        $defaultCosts = FixedCost::where('is_default', 1)->get();
 
-        return view('admin.property.create', compact('propertyManagers', 'RegionsAccountTypeCost'));
+
+        return view('admin.property.create', compact('propertyManagers', 'RegionsAccountTypeCost','defaultCosts', 'regions'));
     }
 
     /**
@@ -64,6 +71,7 @@ class PropertyController extends Controller
      */
     public function store(Request $request)
     {
+        
     
         $request->validate([
             'name' => 'required',
@@ -75,9 +83,40 @@ class PropertyController extends Controller
             'property_manager_id' => 'nullable|exists:users,id',
             'billing_day' => 'required|integer',
             'region_cost_id' => 'nullable|exists:regions_account_type_cost,id',
+            'site' => 'required|string',
+            'lat' => 'nullable|string',
+            'lng' => 'nullable|string',
+            'fetched-email' => 'nullable|string',
+            'region_id' => 'nullable|exists:regions,id',
+            'electricity_email' => 'nullable|string',
+            'water_email' => 'nullable|string',
         ]);
 
+
+        $postData = $request->post();
+        $siteArr = [
+            'user_id' => $request->property_manager_id,
+            'title' => $postData['fetched-email'] ?? '',
+            'lat' => $postData['lat'] ?? "",
+            'lng' => $postData['lng'] ?? "",
+            'address' => $postData['site'],
+            'email' => $postData['fetched-email'] ?? '',
+        ];
+
+        $siteExists = Site::where('user_id', $request->property_manager_id)
+            ->where('address', $postData['site'])
+            ->first();
+
+        if ($siteExists) {
+            $siteID = $siteExists->id;
+        } else {
+            $site = Site::create($siteArr);
+            $siteID = $site->id;
+        }
+
         $property = new Property();
+        $property->site_id = $siteID;
+        $property->region_id = $request->region_id;
         $property->name = $request->name;
         $property->contact_person = $request->contact_person;
         $property->address = $request->address;
@@ -87,7 +126,35 @@ class PropertyController extends Controller
         $property->property_manager_id = $request->property_manager_id;
         $property->billing_day = $request->billing_day;
         $property->region_cost_id = $request->region_cost_id;
+
         $property->save();
+
+        if ($property) {
+
+            // Add default cost
+            if (!empty($postData['default_cost_value']) && $postData['default_ids']) {
+                $accountDefaultCosts = [];
+                for ($i = 0; $i < count($postData['default_ids']); $i++) {
+                    $accountDefaultCosts[$i]['property_id'] = $property->id;
+                    $accountDefaultCosts[$i]['fixed_cost_id'] = $postData['default_ids'][$i];
+                    $accountDefaultCosts[$i]['value'] = $postData['default_cost_value'][$i];
+                    $accountDefaultCosts[$i]['created_at'] = date('Y-m-d H:i:s');
+                }
+                if (!empty($accountDefaultCosts))
+                    PropertyFixedCost::insert($accountDefaultCosts);
+            }
+
+            if (!empty($postData['additional_cost_name'])) {
+                $fixedCostArr = [];
+                for ($i = 0; $i < count($postData['additional_cost_name']); $i++) {
+                    $fixedCostArr[$i]['property_id'] = $property->id;
+                    $fixedCostArr[$i]['title'] = $postData['additional_cost_name'][$i];
+                    $fixedCostArr[$i]['value'] = $postData['additional_cost_value'][$i];
+                    $fixedCostArr[$i]['added_by'] = Auth::user()->id;
+                    $fixedCostArr[$i]['created_at'] = date("Y-m-d H:i:s");
+                }
+                FixedCostProp::insert($fixedCostArr);
+            }
 
         if ($property) {
             Session::flash('alert-class', 'alert-success');
@@ -99,6 +166,8 @@ class PropertyController extends Controller
             return redirect()->back();
         }
     }
+
+}
 
     /**
      * Display the specified resource.
@@ -123,8 +192,14 @@ class PropertyController extends Controller
         }
         $propertyAccountsMetersReadings = collect($readings)->flatten();
 
+        $accountUsers = [];
+        foreach ($propertyAccounts as $account) {
+            $accountUsers[] = $account->user;
+        }
 
-        return view('admin.property.show', compact('property', 'propertyManager', 'propertyAccounts', 'propertyAccountsMeters', 'propertyAccountsMetersReadings'));
+        
+
+        return view('admin.property.show', compact('property', 'accountUsers' ,'propertyManager', 'propertyAccounts', 'propertyAccountsMeters', 'propertyAccountsMetersReadings'));
     }
 
     /**

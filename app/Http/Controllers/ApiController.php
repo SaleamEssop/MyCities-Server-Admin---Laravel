@@ -7,10 +7,12 @@ use App\Models\Ads;
 use App\Models\Site;
 use App\Models\User;
 use App\Models\Meter;
+use App\Models\TempId;
 use PHPUnit\Exception;
 use App\Models\Account;
 use App\Models\Payment;
 use App\Models\Regions;
+use App\Models\Property;
 use App\Models\Settings;
 use App\Models\FixedCost;
 use App\Models\MeterType;
@@ -92,6 +94,7 @@ class ApiController extends Controller
     public function getSite(Request $request)
     {
 
+
         $postData = $request->post();
         if (empty($postData['user_id']))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, user_id is required!']);
@@ -126,6 +129,8 @@ class ApiController extends Controller
     public function addAccount(Request $request)
     {
         $postData = $request->post();
+       
+        $user_id = $postData['user_id'];
 
         DB::beginTransaction();
         if (empty($postData['site_id'])) {
@@ -177,6 +182,8 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account with same information already exists!']);
         }
 
+   
+        $accArr['user_id'] = $user_id;
         $accArr['region_id'] = $postData['region_id'] ?? null;
         $accArr['account_type_id'] = $postData['account_type_id'] ?? null;
         $accArr['water_email'] = $postData['water_email'] ?? null;
@@ -384,6 +391,8 @@ class ApiController extends Controller
     public function getAccounts(Request $request)
     {
 
+
+        Log::info('fffff');
         $accID = $request->get('account_id');
         if (empty($accID))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
@@ -393,6 +402,8 @@ class ApiController extends Controller
 
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account retrieved successfully!', 'data' => $data]);
     }
+
+
 
 
 
@@ -437,40 +448,179 @@ class ApiController extends Controller
 
 
 
+    // public function getAllData(Request $request)
+    // {
+
+    //     // Get sites, accounts, fixedCosts
+    //     if (empty($request->get('user_id')))
+    //         return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, user_id is required!']);
+
+    //     $userID = $request->get('user_id');
+    //     $defaultCosts = FixedCost::where('is_default', 1)->get();
+
+    //     $data = Site::with(['account' => function ($query) use ($userID) {
+    //         $query->where('user_id', $userID);
+    //     }, 'account.fixedCosts', 'account.defaultFixedCosts.fixedCost'])
+    //         ->where('user_id', $userID)
+    //         ->get();
+    //     foreach ($data as $site) {
+    //         $accounts = $site->account->where('user_id', $userID);
+    //         foreach ($accounts as $account) {
+    //             $accountDefaultAndOtherCosts = [];
+    //             foreach ($account->defaultFixedCosts as $accountCosts) {
+    //                 $accountDefaultAndOtherCosts[] = $accountCosts->fixed_cost_id;
+    //             }
+
+    //             foreach ($defaultCosts as $defaultCost) {
+    //                 // Check if this default cost is assigned to this account or not
+    //                 if (in_array($defaultCost->id, $accountDefaultAndOtherCosts)) // Continue as it exists already
+    //                     continue;
+
+    //                 // Now add this default cost in this account as well.
+    //                 $arr = array(
+    //                     'account_id' => $account->id,
+    //                     'fixed_cost_id' => $defaultCost->id,
+    //                     'is_active' => 1,
+    //                 );
+    //                 AccountFixedCost::create($arr);
+    //                 $account->refresh();
+    //             }
+
+    //             /*if (count($account->defaultFixedCosts) == 0 && count($defaultCosts) > 0) {
+    //                 // Looks like account default cost relationship has not been set yet
+    //                 $arr = [];
+    //                 foreach ($defaultCosts as $defaultCost) {
+    //                     $arr = array(
+    //                         'account_id' => $account->id,
+    //                         'fixed_cost_id' => $defaultCost->id,
+    //                         'is_active' => 1,
+
+    //                     );
+    //                     AccountFixedCost::create($arr);
+    //                 }
+    //                 $account->refresh();
+    //             }*/
+    //         }
+    //     }
+
+    //     return response()->json(['status' => true, 'code' => 200, 'msg' => 'Data retrieved successfully!', 'data' => $data]);
+    // }
+
+
     public function getAllData(Request $request)
     {
-
-        // Get sites, accounts, fixedCosts
-        if (empty($request->get('user_id')))
+        // // Get sites, accounts, fixedCosts
+        if (empty($request->get('user_id'))) {
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, user_id is required!']);
+        }
 
-        $userID = $request->get('user_id');
-        $defaultCosts = FixedCost::where('is_default', 1)->get();
+        $user_id = $request->get('user_id');
+        $user = User::where('id', $user_id)->first();
 
-        $data = Site::with(['account.fixedCosts', 'account.defaultFixedCosts.fixedCost'])->where('user_id', $userID)->get();
-        foreach ($data as $site) {
-            foreach ($site->account as $account) {
-                $accountDefaultAndOtherCosts = [];
-                foreach ($account->defaultFixedCosts as $accountCosts) {
-                    $accountDefaultAndOtherCosts[] = $accountCosts->fixed_cost_id;
-                }
+        // Check if user exists
+        if (!$user) {
+            return response()->json(['status' => false, 'code' => 404, 'msg' => 'User not found!']);
+        }
+        if ($user->is_property_manager) {
+            Log::info('User is property manager');
+            $account_id = $user->account_id;
+            $userID = $request->get('user_id');
+            $defaultCosts = FixedCost::where('is_default', 1)->get();
+            $property = Property::where('property_manager_id', $userID)->first();
+            if (!$property) {
+                return response()->json(['status' => false, 'msg' => 'Property not found'], 404);
+            }
 
-                foreach ($defaultCosts as $defaultCost) {
-                    // Check if this default cost is assigned to this account or not
-                    if (in_array($defaultCost->id, $accountDefaultAndOtherCosts)) // Continue as it exists already
-                        continue;
-
-                    // Now add this default cost in this account as well.
-                    $arr = array(
-                        'account_id' => $account->id,
-                        'fixed_cost_id' => $defaultCost->id,
-                        'is_active' => 1,
-                    );
-                    AccountFixedCost::create($arr);
+            $site_id = $property->site_id;
+            $site = Site::with(['account.fixedCosts', 'account.defaultFixedCosts.fixedCost', 'property'])
+                ->where('id', $site_id)
+                ->first();
+            if ($site && $site->account) {
+                $account = $site->account->where('id', $account_id)->first();
+                if ($account) {
+                    $accountDefaultAndOtherCosts = $account->defaultFixedCosts->pluck('fixed_cost_id')->toArray();
+                    foreach ($defaultCosts as $defaultCost) {
+                        if (in_array($defaultCost->id, $accountDefaultAndOtherCosts)) {
+                            continue;
+                        }
+                        $arr = [
+                            'account_id' => $account->id,
+                            'fixed_cost_id' => $defaultCost->id,
+                            'is_active' => 1,
+                        ];
+                        AccountFixedCost::create($arr);
+                    }
                     $account->refresh();
-                }
 
-                /*if (count($account->defaultFixedCosts) == 0 && count($defaultCosts) > 0) {
+
+                    $property = $account->property;
+                    $property_details = [
+                        'property_name' => $property->name ?? '',
+                        'property_manager' => $property->property_manager ? $property->property_manager->name : null,
+                        'property_address' => $property->address ?? '',
+                        'description' => $property->description ?? '',
+                    ];
+
+                    $data = $site->toArray();
+                    $data['account'] = [$account->toArray()];
+                    $data['property'] = $property_details;
+
+                    return response()->json([
+                        'status' => true,
+                        'code' => 200,
+                        'msg' => 'Data retrieved successfully!',
+                        'data' => $data
+                    ]);
+                }
+            }
+
+            return response()->json(['status' => false, 'msg' => 'No matching account found'], 404);
+        } else {
+            Log::info('User is not property manager');
+
+            $userID = $request->get('user_id');
+
+            $defaultCosts = FixedCost::where('is_default', 1)->get();
+
+            $user_accounts = Account::where('user_id', $userID)
+                ->select('id', 'site_id')
+                ->get();
+
+            $site_ids = array_column($user_accounts->toArray(), 'site_id');
+
+            $data = Site::with(['account' => function ($query) use ($userID) {
+                $query->where('user_id', $userID)
+                    ->with(['fixedCosts', 'defaultFixedCosts.fixedCost', 'property']);
+            }])
+                ->whereIn('id', $site_ids)
+                ->get();
+
+                
+            foreach ($data as $site) {
+                $accounts = $site->account;
+
+                foreach ($accounts as $account) {
+                    $accountDefaultAndOtherCosts = [];
+                    foreach ($account->defaultFixedCosts as $accountCosts) {
+                        $accountDefaultAndOtherCosts[] = $accountCosts->fixed_cost_id;
+                    }
+
+                    foreach ($defaultCosts as $defaultCost) {
+
+                        if (in_array($defaultCost->id, $accountDefaultAndOtherCosts))
+                            continue;
+
+
+                        $arr = array(
+                            'account_id' => $account->id,
+                            'fixed_cost_id' => $defaultCost->id,
+                            'is_active' => 1,
+                        );
+                        AccountFixedCost::create($arr);
+                        $account->refresh();
+                    }
+
+                    /*if (count($account->defaultFixedCosts) == 0 && count($defaultCosts) > 0) {
                     // Looks like account default cost relationship has not been set yet
                     $arr = [];
                     foreach ($defaultCosts as $defaultCost) {
@@ -484,10 +634,37 @@ class ApiController extends Controller
                     }
                     $account->refresh();
                 }*/
+                }
             }
-        }
+            $data = $data->toArray();
 
-        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Data retrieved successfully!', 'data' => $data]);
+            if (isset($user->account->property)) {
+                $property = $user->account->property;
+                $property_details = [
+                    'property_name' => $property->name ?? '',
+                    'property_manager' => $property->property_manager ? $property->property_manager->name : null,
+                    'property_address' => $property->address ?? '',
+                    'description' => $property->description ?? '',
+                ];
+            } else {
+                $property_details = [
+                    'property_name' => '',
+                    'property_manager' => null,
+                    'property_address' => '',
+                    'description' => ''
+                ];
+            }
+
+            $data = [
+                'sites' => $data,
+                'property' => $property_details
+            ];
+
+
+         
+
+            return response()->json(['status' => true, 'code' => 200, 'msg' => 'Data retrieved successfully!', 'data' => $data]);
+        }
     }
 
     public function addMeter(Request $request)
@@ -547,6 +724,13 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, something went wrong!']);
     }
 
+    public function addMeterReadingForm(Request $request)
+    {
+        $postData = $request->all();
+        Log::info('Meter reading form data', ['data' => $postData]);
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Payment added successfully!']);
+    }
+
 
     //account summary
     public function getAccountSummary(Request $request)
@@ -554,7 +738,6 @@ class ApiController extends Controller
         try {
             $meterId = $request->query('meter_id');
 
-            // Try to find the meter with a specific catch for not found
             try {
                 $meter = Meter::findOrFail($meterId);
             } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -593,26 +776,22 @@ class ApiController extends Controller
                 $startDate = $period['start_date'];
                 $endDate = $period['end_date'];
 
-                // Filter billing records for the period (still needed to link payments)
                 $periodBillings = $billings->filter(function ($billing) use ($startDate, $endDate) {
                     return $billing->start_date <= $endDate && $billing->end_date >= $startDate;
                 });
 
-                // Filter payments by billing_period_id
                 $periodPayments = $payments->filter(function ($payment) use ($periodBillings) {
                     return $periodBillings->pluck('id')->contains($payment->billing_period_id);
                 });
 
-                // Calculate total amount due based on payment amounts
                 $totalPaymentAmount = 0;
                 $paidAmount = 0;
                 $latestPaymentDate = null;
                 $paymentDetails = [];
                 foreach ($periodPayments as $payment) {
-                    // Add to totalPaymentAmount regardless of status (this is the "due" amount)
+
                     $totalPaymentAmount += (float) $payment->amount;
 
-                    // Only add to paidAmount if status is paid or partially_paid
                     if ($payment->status === 'paid') {
                         $paidAmount += (float) $payment->amount;
                         $latestPaymentDate = $payment->payment_date > $latestPaymentDate ? $payment->payment_date : $latestPaymentDate;
@@ -621,7 +800,6 @@ class ApiController extends Controller
                         $latestPaymentDate = $payment->payment_date > $latestPaymentDate ? $payment->payment_date : $latestPaymentDate;
                     }
 
-                    // Add payment details for display
                     $paymentDetails[] = [
                         'id' => $payment->id,
                         'amount' => $payment->amount,
@@ -636,15 +814,13 @@ class ApiController extends Controller
                 $totalAmountDue = $totalPaymentAmount + $balanceBf;
                 $balanceCarried = $totalAmountDue - $paidAmount;
 
-                // Prevent negative balance_carried (optional, based on your earlier request)
                 if ($balanceCarried < 0) {
-                    Log::warning("Negative balance detected for meter_id: $meterId, period: {$period['label']}. Total due: $totalAmountDue, Paid: $paidAmount, Adjusted balance to 0.");
                     $balanceCarried = 0;
                 }
 
                 $formattedPaymentDate = $latestPaymentDate ? Carbon::parse($latestPaymentDate)->format('d M Y') : null;
                 $isOverdue = $balanceCarried > 0 && $endDate < $currentDate;
-                //get isCurrentPeriod
+
                 $isCurrentPeriod = $currentDate->between($startDate, $endDate);
                 $accountSummary[] = [
                     'period' => $period['label'],
@@ -672,15 +848,13 @@ class ApiController extends Controller
                 }
             }
 
-            // Try to get estimated cost with a fallback
             $estimatedCost = null;
             try {
                 $estimatedBilling = BillingPeriod::where('meter_id', $meter->id)
-                ->where('status', 'Estimated')
-                ->latest() // Orders by created_at DESC
-                ->first();
+                    ->where('status', 'Estimated')
+                    ->latest()
+                    ->first();
 
-                Log::info($estimatedBilling);
 
 
                 $estimatedCost = $estimatedBilling ? $estimatedBilling->cost : 0;
@@ -699,7 +873,7 @@ class ApiController extends Controller
                 'estimatedCost' => $estimatedCost
             ]);
         } catch (\Exception $e) {
-            // Log the error and return a generic failure response
+
             Log::error('Error in getAccountSummary: ' . $e->getMessage());
             return response()->json([
                 'status' => false,
@@ -708,6 +882,513 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
+    public function costCalculation(Request $request)
+    {
+
+        $meter_id = $request->input('meter_id');
+        $meter = Meter::find($meter_id);
+        if (!$meter) {
+            Log::info("Meter not found for ID: $meter_id");
+            return response()->json(['error' => 'Meter not found'], 404);
+        }
+        $account = $meter->account;
+        if (!$account) {
+            Log::info("Account not found for meter ID: $meter_id");
+            return response()->json(['error' => 'Account not found'], 404);
+        }
+
+        $account = $meter->account;
+        $property = $account->property;
+        $billingDay = $property->billing_day;
+        $currentDate = now();
+
+
+        $billingDate = Carbon::create($currentDate->year, $currentDate->month, $billingDay);
+
+        $diff = $currentDate->diffInDays($billingDate);
+        $currentPeriodRemainingReadingDays = $diff;
+
+
+        if ($currentDate->day >= $billingDay) {
+            $currentCycleEnd = $currentDate->copy()->addMonth()->day($billingDay)->subDay();
+        } else {
+            $currentCycleEnd = $currentDate->copy()->day($billingDay)->subDay();
+        }
+
+        $billingPeriods = [];
+        for ($i = 0; $i < 4; $i++) {
+            $endDate = $currentCycleEnd->copy()->subMonths($i);
+            
+            $startDate = $endDate->copy()->subMonth()->addDay();
+           
+            $billingPeriods[] = [
+                'start_date' => $startDate->copy(),
+                'end_date' => $endDate->copy(),
+                'label' => $startDate->format('d M') . ' to ' . $endDate->format('d M'),
+                'value' => $startDate->toDateString() . ' to ' . $endDate->toDateString(),
+            ];
+        }
+        $billingPeriods = array_reverse($billingPeriods);
+       
+
+        $billings = BillingPeriod::where('meter_id', $meter->id)->orderBy('start_date')->get();
+        $payments = Payment::where('meter_id', $meter->id)->orderBy('payment_date')->get();
+
+        $accountSummary = [];
+        foreach ($billingPeriods as $index => $period) {
+            $startDate = $period['start_date'];
+            $endDate = $period['end_date'];
+
+            $periodBillings = $billings->filter(function ($billing) use ($startDate, $endDate) {
+                return $billing->start_date <= $endDate && $billing->end_date >= $startDate;
+            });
+
+            $periodPayments = $payments->filter(function ($payment) use ($periodBillings) {
+                return $periodBillings->pluck('id')->contains($payment->billing_period_id);
+            });
+
+            $totalPaymentAmount = 0;
+            $paidAmount = 0;
+            $latestPaymentDate = null;
+            $paymentDetails = [];
+            foreach ($periodPayments as $payment) {
+                $totalPaymentAmount += (float) $payment->amount;
+                if ($payment->status === 'paid') {
+                    $paidAmount += (float) $payment->amount;
+                    $latestPaymentDate = $payment->payment_date > $latestPaymentDate ? $payment->payment_date : $latestPaymentDate;
+                } elseif ($payment->status === 'partially_paid') {
+                    $paidAmount += (float) ($payment->total_paid_amount ?? 0);
+                    $latestPaymentDate = $payment->payment_date > $latestPaymentDate ? $payment->payment_date : $latestPaymentDate;
+                }
+                $paymentDetails[] = [
+                    'id' => $payment->id,
+                    'amount' => $payment->amount,
+                    'paid_amount' => $payment->total_paid_amount ?? 0,
+                    'status' => $payment->status,
+                    'payment_date' => $payment->payment_date ? Carbon::parse($payment->payment_date)->format('d M Y') : null,
+                    'billing_period_id' => $payment->billing_period_id,
+                ];
+            }
+
+            $balanceBf = $index === 0 ? 0 : $accountSummary[$index - 1]['balance_carried'];
+            $totalAmountDue = $totalPaymentAmount + $balanceBf;
+            $balanceCarried = $totalAmountDue - $paidAmount;
+
+            if ($balanceCarried < 0) {
+                $balanceCarried = 0;
+            }
+
+            $formattedPaymentDate = $latestPaymentDate ? Carbon::parse($latestPaymentDate)->format('d M Y') : null;
+            $isOverdue = $balanceCarried > 0 && $endDate < $currentDate;
+            $isCurrentPeriod = $currentDate->between($startDate, $endDate);
+            $accountSummary[] = [
+                'period' => $period['label'],
+                'period_value' => $period['value'],
+                'balance_bf' => $balanceBf,
+                'total_amount' => $totalAmountDue,
+                'payment_amount' => $paidAmount,
+                'payment_date' => $formattedPaymentDate,
+                'balance_carried' => $balanceCarried,
+                'is_overdue' => $isOverdue,
+                'is_current_period' => $isCurrentPeriod,
+                'payments' => $paymentDetails,
+            ];
+        }
+
+        $overdueAmount = 0;
+        $overdueStartDate = null;
+        $overdueEndDate = null;
+        foreach ($accountSummary as $summary) {
+            if ($summary['is_overdue']) {
+                $overdueAmount += $summary['balance_carried'];
+                $dates = explode(' to ', $summary['period_value']);
+                if ($overdueStartDate === null) $overdueStartDate = Carbon::parse($dates[0]);
+                $overdueEndDate = Carbon::parse($dates[1]);
+            }
+        }
+
+        $balanceBf = end($accountSummary)['balance_bf'];
+        $balanceCd = end($accountSummary)['balance_carried'];
+
+        //current month cost calculation 
+        if (!$meter) {
+            return response()->json(['status' => false, 'code' => 404, 'msg' => 'Meter not found!']);
+        }
+
+        $latestMeterReading = MeterReadings::where('meter_id', $meter_id)->orderBy('reading_date', 'desc')->first();
+
+        if (!$latestMeterReading) {
+            return response()->json(['status' => false, 'code' => 404, 'msg' => 'Meter reading not found!']);
+        }
+
+        $property = $meter->account->property;
+        $estimatedCost = 0;
+        $estimatedBilling = null;
+
+        try {
+            $estimatedBilling = BillingPeriod::where('meter_id', $meter->id)
+                ->where('status', 'Estimated')
+                ->latest()
+                ->first();
+
+
+            $periodStartDate = $estimatedBilling->start_date;
+
+            if ($estimatedBilling) {
+                $estimatedCost = $estimatedBilling->cost;
+            }
+        } catch (\Exception $e) {
+            Log::warning('Failed to fetch estimated cost2: ' . $e->getMessage());
+        }
+
+
+        $cycleDates = getCurrentMonthCycle($property->billing_day);
+        $currentPeriodStart = $cycleDates['start_date'];
+        $currentPeriodEnd = $cycleDates['end_date'];
+
+
+        $estimatedBillingInterim = BillingPeriod::where('meter_id', $meter->id)
+            ->whereIn('status', ['Estimated', 'Actual'])
+            ->where(function ($query) use ($currentPeriodStart, $currentPeriodEnd) {
+                $query->where(function ($q) use ($currentPeriodStart, $currentPeriodEnd) {
+                    $q->where('start_date', '<=', $currentPeriodEnd)
+                        ->where('end_date', '>=', $currentPeriodStart);
+                });
+            })
+            ->get();
+
+
+        $latestActualBillingPeriod = $estimatedBillingInterim->where('status', 'Actual')
+            ->sortByDesc('end_date')
+            ->first();
+
+        $estimatedBillingInterimDailyUsage = $latestActualBillingPeriod ? $latestActualBillingPeriod->daily_usage : null;
+        $estimatedBillingInterimDailyCost = $latestActualBillingPeriod ? $latestActualBillingPeriod->daily_cost : null;
+
+        $estimatedBillingInterimTotalUsage = $estimatedBillingInterim->sum('usage_liters');
+
+
+        $payments = Payment::whereIn('billing_period_id', $estimatedBillingInterim->pluck('id'))
+            ->where('status', 'paid')
+            ->orderBy('payment_date')
+            ->get();
+        $totalPaid = $payments->sum('amount');
+
+        $partialPayments = Payment::whereIn('billing_period_id', $estimatedBillingInterim->pluck('id'))
+            ->where('status', 'partial_paid')
+            ->orderBy('payment_date')
+            ->get();
+        $totalPartialPaid = $partialPayments->sum('total_paid_amount');
+        $estimatedBillingInterimCreditBalance = $totalPaid + $totalPartialPaid;
+
+
+        $estimatedBillingInterimCostSum = $estimatedBillingInterim->sum('cost');
+        $estimatedBillingInterimConsumptionChargeSum = $estimatedBillingInterim->sum('consumption_charge');
+        $estimatedBillingInterimDischargeCharges = $estimatedBillingInterim->sum('discharge_charge');
+
+        $estimatedBillingInterimInfrastructureSurcharge = $estimatedBillingInterim->sum(function ($item) {
+            return collect($item['additional_costs'])
+                ->where('title', 'Infrastructure Surcharge')
+                ->sum('cost');
+        });
+
+        $estimatedBillingInterimSewageDisposal = $estimatedBillingInterim->sum(function ($item) {
+            return collect($item['sewage_disposal'])
+                ->where('title', 'Sewage Disposal')
+                ->sum('cost');
+        });
+
+        $estimatedBillingInterimVat = $estimatedBillingInterim->sum('vat');
+
+        $estimatedBillingInterimBalance = $estimatedBillingInterimCostSum - $estimatedBillingInterimCreditBalance;
+
+
+        $estimatedBillingInterimFinal = [
+            'cycleDates' => $cycleDates,
+            'total_amount' => $estimatedBillingInterimCostSum,
+            'consumption_charge' => $estimatedBillingInterimConsumptionChargeSum,
+            'discharge_charges' => $estimatedBillingInterimDischargeCharges,
+            'infrastructure_surcharge' => $estimatedBillingInterimInfrastructureSurcharge,
+            'sewage_disposal' => $estimatedBillingInterimSewageDisposal,
+            'vat' => $estimatedBillingInterimVat,
+            'balance' => $estimatedBillingInterimBalance,
+            'estimated_billing_interim_credit_balance' => $estimatedBillingInterimCreditBalance,
+            'estimated_billing_interim_total_usage' => $estimatedBillingInterimTotalUsage,
+            'estimated_billing_interim_daily_usage' => $estimatedBillingInterimDailyUsage,
+            'estimated_billing_interim_daily_cost' => $estimatedBillingInterimDailyCost,
+        ];
+
+
+        $billingPeriods = BillingPeriod::where('meter_id', $meter->id)
+            ->where('status', '=', 'Actual')
+            ->where(function ($query) use ($currentPeriodStart, $currentPeriodEnd) {
+                $query->where(function ($q) use ($currentPeriodStart, $currentPeriodEnd) {
+                    $q->where('start_date', '<=', $currentPeriodEnd)
+                        ->where('end_date', '>=', $currentPeriodStart);
+                });
+            })
+            ->get();
+
+        $cost = 0;
+        foreach ($billingPeriods as $billing) {
+            $cost += $billing->cost;
+        }
+
+
+
+        $payments = Payment::whereIn('billing_period_id', $billingPeriods->pluck('id'))
+            ->where('status', 'paid')
+            ->orderBy('payment_date')
+            ->get();
+
+
+        $paymentDetails = $payments->map(function ($payment) {
+            return [
+                'total_paid_amount' => $payment->total_paid_amount,
+                'payment_date' => $payment->payment_date,
+            ];
+        })->values()->toArray();
+
+
+        $totalAmount = collect($paymentDetails)->sum('total_paid_amount');
+
+        $consumptionChargeSum = $billingPeriods->sum('consumption_charge');
+        $dischargeCharges = $billingPeriods->sum('discharge_charge');
+
+        $infrastructureSurchargeSum = $billingPeriods->sum(function ($billing) {
+            $additionalCosts = $billing->additional_costs ?? [];
+            foreach ($additionalCosts as $cost) {
+                if ($cost['title'] === 'Infrastructure Surcharge') {
+                    return (float) $cost['cost'];
+                }
+            }
+            return 0;
+        });
+
+        $sewageDisposalSum = $billingPeriods->sum(function ($billing) {
+            $waterOutAdditional = $billing->water_out_additional ?? [];
+            foreach ($waterOutAdditional as $cost) {
+                if ($cost['title'] === 'Sewage Disposal') {
+                    return (float) $cost['cost'];
+                }
+            }
+            return 0;
+        });
+
+        $vatSum = $billingPeriods->sum('vat');
+
+
+        $currentBill = [
+
+            'balance_bf' => $balanceCarried,
+            'consumption_charge' => $consumptionChargeSum,
+            'infrastructure_surcharge' => $infrastructureSurchargeSum,
+            'sewage_disposal' => $sewageDisposalSum,
+            'vat' => $vatSum,
+            'discharge_charges' => $dischargeCharges,
+            'total' => $cost + $balanceCarried,
+            'balanceCd' => $balanceCd,
+            'current_month_payment_details' => $paymentDetails,
+        ];
+
+
+
+
+
+        $usage_liters = $billingPeriods->sum('usage_liters');
+
+
+
+        // Part 1: Generate $accountSummary
+        $accountSummary = [];
+        foreach ($billingPeriods as $index => $period) {
+            $startDate = $period['start_date'];
+            $endDate = $period['end_date'];
+
+            $periodBillings = $billings->filter(function ($billing) use ($startDate, $endDate) {
+                return $billing->start_date <= $endDate && $billing->end_date >= $startDate;
+            });
+
+            $periodPayments = $payments->filter(function ($payment) use ($periodBillings) {
+                return $periodBillings->pluck('id')->contains($payment->billing_period_id);
+            });
+
+            $totalPaymentAmount = 0;
+            $paidAmount = 0;
+            $latestPaymentDate = null;
+            $paymentDetails = [];
+            foreach ($periodPayments as $payment) {
+                $totalPaymentAmount += (float) $payment->amount;
+                if ($payment->status === 'paid') {
+                    $paidAmount += (float) $payment->amount;
+                    $latestPaymentDate = $payment->payment_date > $latestPaymentDate ? $payment->payment_date : $latestPaymentDate;
+                } elseif ($payment->status === 'partially_paid') {
+                    $paidAmount += (float) ($payment->total_paid_amount ?? 0);
+                    $latestPaymentDate = $payment->payment_date > $latestPaymentDate ? $payment->payment_date : $latestPaymentDate;
+                }
+                $paymentDetails[] = [
+                    'id' => $payment->id,
+                    'amount' => $payment->amount,
+                    'paid_amount' => $payment->total_paid_amount ?? 0,
+                    'status' => $payment->status,
+                    'payment_date' => $payment->payment_date ? Carbon::parse($payment->payment_date)->format('d M Y') : null,
+                    'billing_period_id' => $payment->billing_period_id,
+                ];
+            }
+
+            $balanceBf = $index === 0 ? 0 : $accountSummary[$index - 1]['balance_carried'];
+            $totalAmountDue = $totalPaymentAmount + $balanceBf;
+            $balanceCarried = $totalAmountDue - $paidAmount;
+
+            if ($balanceCarried < 0) {
+                $balanceCarried = 0;
+            }
+
+            $formattedPaymentDate = $latestPaymentDate ? Carbon::parse($latestPaymentDate)->format('d M Y') : null;
+            $currentDate = Carbon::today();
+            $isOverdue = $balanceCarried > 0 && $endDate < $currentDate;
+            $isCurrentPeriod = $currentDate->between($startDate, $endDate);
+            $accountSummary[] = [
+                'period' => $period['label'],
+                'period_value' => $period['value'],
+                'balance_bf' => $balanceBf,
+                'total_amount' => $totalAmountDue,
+                'payment_amount' => $paidAmount,
+                'payment_date' => $formattedPaymentDate,
+                'balance_carried' => $balanceCarried,
+                'is_overdue' => $isOverdue,
+                'is_current_period' => $isCurrentPeriod,
+                'payments' => $paymentDetails,
+            ];
+        }
+
+        // Part 2: Get Balance Carried for Previous Cycle and Update $perviousBill
+        $perviousCycleDates = getPerviousMonthCycle($property->billing_day); // e.g., "2025-01-24 to 2025-02-23"
+
+        // Find the matching period in $accountSummary
+        $previousPeriodSummary = collect($accountSummary)->firstWhere('period_value', "{$perviousCycleDates['previous_start_date']} to {$perviousCycleDates['previous_end_date']}");
+        $balanceCarriedFromSummary = $previousPeriodSummary ? $previousPeriodSummary['balance_carried'] : 0;
+
+        // Fetch previous billing periods
+        $perviousBillingPeriods = BillingPeriod::where('meter_id', $meter->id)
+            ->where('status', '=', 'Final Estimate')
+            ->where(function ($query) use ($perviousCycleDates) {
+                $query->where(function ($q) use ($perviousCycleDates) {
+                    $q->where('start_date', '<=', $perviousCycleDates['previous_end_date'])
+                        ->where('end_date', '>=', $perviousCycleDates['previous_start_date']);
+                });
+            })
+            ->get();
+
+        // Get unpaid amount for previous cycle
+        $perviousPayments = Payment::whereIn('billing_period_id', $perviousBillingPeriods->pluck('id'))
+            ->whereIn('status', ['pending', 'partially_paid'])
+            ->orderBy('payment_date')
+            ->get();
+
+        // Calculate outstanding amount
+        $partiallyPaidTotal = $perviousPayments->where('status', 'partially_paid')
+            ->sum(fn($payment) => $payment->amount - $payment->total_paid_amount);
+        $pendingTotal = $perviousPayments->where('status', 'pending')->sum('amount');
+        $totalOutstandingAmount = $partiallyPaidTotal + $pendingTotal;
+
+        // Get total cost for previous cycles
+        $cost = $perviousBillingPeriods->sum('cost');
+        $month_total_cost = $cost - $totalOutstandingAmount;
+
+        // Get paid amount for previous cycles
+        $payments = Payment::whereIn('billing_period_id', $perviousBillingPeriods->pluck('id'))
+            ->where('status', 'paid')
+            ->orderBy('payment_date')
+            ->get();
+
+        // Get total_paid_amount from payments
+        $paymentDetails = $payments->map(fn($payment) => [
+            'total_paid_amount' => (float) $payment->total_paid_amount,
+            'payment_date' => $payment->payment_date,
+        ])->values()->toArray();
+        $totalAmount = collect($paymentDetails)->sum('total_paid_amount');
+
+        // Calculate balanceCd for this period
+        $balanceCd = ($cost + $balanceCarriedFromSummary) - $totalAmount;
+
+        // Calculate additional sums
+        $consumptionChargeSum = $perviousBillingPeriods->sum('consumption_charge');
+        $dischargeCharges = $perviousBillingPeriods->sum('discharge_charge');
+        $infrastructureSurchargeSum = $perviousBillingPeriods->flatMap(fn($billing) => $billing->additional_costs ?? [])
+            ->where('title', 'Infrastructure Surcharge')
+            ->sum('cost');
+        $sewageDisposalSum = $perviousBillingPeriods->flatMap(fn($billing) => $billing->water_out_additional ?? [])
+            ->where('title', 'Sewage Disposal')
+            ->sum('cost');
+        $vatSum = $perviousBillingPeriods->sum('vat');
+
+
+        // Prepare current bill details with updated balanceCd
+        $perviousBill = [
+            'balance_bf' => $balanceCarriedFromSummary,
+            'consumption_charge' => $consumptionChargeSum,
+            'infrastructure_surcharge' => $infrastructureSurchargeSum,
+            'sewage_disposal' => $sewageDisposalSum,
+            'vat' => $vatSum,
+            'discharge_charges' => $dischargeCharges,
+            'total_cost' => $cost,
+            'total' => $cost + $balanceCarriedFromSummary,
+            'balanceCd' => $balanceCd,
+            'month_total_cost' => $month_total_cost,
+            'totalOutstandingAmount' => $totalOutstandingAmount,
+            'perviousCycleDates' => $perviousCycleDates,
+
+        ];
+
+
+        //Reading overdue calculation
+
+        $latestPerviousBillingPeriod = $perviousBillingPeriods->last();
+   
+        $lastReadingEndDate = Carbon::parse($latestPerviousBillingPeriod?->end_date)->timezone('UTC');
+
+        $currentPeriodStart = Carbon::parse($cycleDates['start_date']);
+        $expectedEndDate = $currentPeriodStart->copy()->subDay()->endOfDay();
+
+        if ($lastReadingEndDate->lt($expectedEndDate)) {
+            if ($currentDate->gt($expectedEndDate)) {
+                $overdueDays = $currentDate->diffInDays($expectedEndDate);
+                $overdueDaysMessage = "Reading overdue > {$overdueDays} day" . ($overdueDays !== 1 ? 's' : ''); 
+            } else {
+                $overdueDaysMessage = "Reading is not overdue.";
+            }
+        } else {
+            $overdueDaysMessage = "Reading is up to date.";
+        }
+
+        
+        $currentBill['overdueDays'] = $overdueDaysMessage;
+
+
+        $estimatedBillingInterim = [
+            'current_period' => $cycleDates,
+            'currentPeriodRemainingReadingDays' => $currentPeriodRemainingReadingDays,
+
+        ];
+
+        return response()->json([
+            'status' => true,
+            'currentPeriodRemainingReadingDays' => $currentPeriodRemainingReadingDays,
+            'meter' => $meter,
+            'latest_meter_reading' => $latestMeterReading,
+            'estimated_bill' => $estimatedBilling ?? '',
+            'current_period' => $cycleDates,
+            'current_bill' => $currentBill,
+            'perviousBill' => $perviousBill,
+            'estimated_billing_interim' => $estimatedBillingInterimFinal,
+
+
+        ]);
+    }
+
+
 
     public function addFixedCost(Request $request)
     {
@@ -820,14 +1501,22 @@ class ApiController extends Controller
 
     public function getMeter(Request $request)
     {
+        
 
         $accountID = $request->get('account_id');
+        
         if (empty($accountID))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
+        $account = Account::find($accountID);
+        if (empty($account))
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'Account not found!']);
+
+        $property = $account->property_id ? Property::find($account->property_id) : null;
+        
 
         $meters = Meter::with('readings')->where('account_id', $accountID)->get();
 
-        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meters retrieved successfully!', 'data' => $meters]);
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meters retrieved successfully!', 'data' => $meters, 'property' => $property]);
     }
 
     public function getMeterReadings(Request $request)
@@ -1210,6 +1899,7 @@ class ApiController extends Controller
     }
     public function getAccountTypes()
     {
+
         $accountType = AccountType::select('id', 'type')->get();
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account Type retrieved  successfully!', 'data' => $accountType]);
     }

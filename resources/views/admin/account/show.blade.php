@@ -36,9 +36,10 @@
                             <p><strong>Account Number:</strong> {{ $account->account_number }}</p>
                         </div>
                         <div class="form-group">
-                            <p><strong>Account Type:</strong> {{ $account->accountType->title }}</p>
+                            <p><strong>Account Type:</strong> {{ $account->accountType->type }}</p>
                         </div>
                     </div>
+             
                     <div class="col-md-6">
                         <div class="form-group">
                             <p><strong>Property Contact Person:</strong> {{ $property->contact_person }}</p>
@@ -65,9 +66,9 @@
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold">List of meters added by users</h6>
+                <h6 class="m-0 font-weight-bold">List of meters</h6>
                 <div>
-                    <a href="{{ route('property.add-meter-form', $property->id) }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('account.add-account-meter-form', $account->id) }}" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus"></i> Create
                     </a>
                 </div>
@@ -78,7 +79,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Account Holder</th>
+                                <th>Account User</th>
                                 <th>Meter Title</th>
                                 <th>Meter Number</th>
                                 <th>Meter Type</th>
@@ -139,7 +140,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Account Holder</th>
+                                <th>Account User</th>
                                 <th>Meter Title</th>
                                 <th>Meter Number</th>
                                 <th>Meter Reading</th>
@@ -150,7 +151,7 @@
                         <tfoot>
                             <tr>
                                 <th>#</th>
-                                <th>Account Holder</th>
+                                <th>Account User</th>
                                 <th>Meter Title</th>
                                 <th>Meter Number</th>
                                 <th>Meter Reading</th>
@@ -168,8 +169,12 @@
                                     <td>{{ $meterReading->meter->meter_number ?? '-' }}</td>
                                     <td>{{ $meterReading->reading_value }}</td>
 
-                                    <td>{{ \Carbon\Carbon::createFromFormat('d-m-Y', $meterReading->reading_date)->setTimezone('Africa/Johannesburg')->format('d/m/Y') }}
+                                    <td>
+                                        {{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $meterReading->reading_date)
+                                            ->setTimezone('Africa/Johannesburg')
+                                            ->format('d/m/Y') }}
                                     </td>
+                                    
                                     {{-- <td>
 
                                     <td>{{ \Carbon\Carbon::parse($meterReading->reading_date)->format('m/d/Y h:i A') }}</td>

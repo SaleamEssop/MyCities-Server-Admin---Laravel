@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\PermissionController;
+use Illuminate\Support\Facades\Request;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -98,6 +100,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/region/email/{id}', [\App\Http\Controllers\AdminController::class, 'getEmailBasedRegion'])->name('get-email-region');
 
     Route::get('users', [\App\Http\Controllers\AdminController::class, 'showUsers'])->name('show-users');
+    Route::get('property-mangers', [\App\Http\Controllers\AdminController::class, 'showPropertyManger'])->name('show-property-manger');
     Route::get('users/add', [\App\Http\Controllers\AdminController::class, 'addUserForm'])->name('add-user-form');
     Route::get('user/details/{id}', [\App\Http\Controllers\AdminController::class, 'showUserDetails'])->name('user-details');
     Route::get('user/details-v2/{id}', [\App\Http\Controllers\AdminController::class, 'showUserDetailsV2'])->name('user-details');
@@ -118,6 +121,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('accounts/edit-account/{id}', [\App\Http\Controllers\AccountController::class, 'edit'])->name('account.edit-account');
     Route::post('accounts/update-account/{id}', [\App\Http\Controllers\AccountController::class, 'update'])->name('account.update-account');
     Route::get('accounts/delete-account/{id}', [\App\Http\Controllers\AccountController::class, 'destroy'])->name('account.delete-account');
+    Route::get('add-account-meter-form/{id}', [\App\Http\Controllers\AccountController::class, 'addMeterForm'])->name('account.add-account-meter-form');
+    Route::post('/update-account-id', [\App\Http\Controllers\AccountController::class, 'updateAccountID'])->name('update.account-id');
+
 
     Route::get('sites', [\App\Http\Controllers\AdminController::class, 'showSites'])->name('sites-list');
     Route::get('sites/add', [\App\Http\Controllers\AdminController::class, 'addSiteForm'])->name('add-site-form');
@@ -173,6 +179,10 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('terms-and-conditions', [\App\Http\Controllers\AdminController::class, 'showTC'])->name('tc');
     Route::post('terms-and-conditions', [\App\Http\Controllers\AdminController::class, 'updateTC'])->name('updateTC');
     Route::post('terms-and-conditions/upload', [\App\Http\Controllers\AdminController::class, 'uploadTCPics'])->name('ckeditor.tc-image-upload');
+
+
+
+
 
 });
 

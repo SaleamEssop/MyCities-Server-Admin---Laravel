@@ -87,7 +87,7 @@
         <div class="card shadow mb-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold">List of accounts added by users</h6>
+                    <h6 class="m-0 font-weight-bold">List of accounts</h6>
                     <div>
                         <a href="{{ route('property.add-account-form', $property->id) }}" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus"></i> Create
@@ -95,7 +95,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-bordered" id="sites-dataTable" width="100%" cellspacing="0">
@@ -105,7 +104,9 @@
                                 <th>Site</th>
                                 <th>Region</th>
                                 <th>Acc Type</th>
-                                <th>Account Holder</th>
+                                <th>Account User</th>
+                                <th>User Email</th>
+                                <th>Password</th>
                                 <th>Acc Name</th>
                                 <th>Acc Number</th>
                                 {{-- <th>Billing Date</th> --}}
@@ -115,12 +116,32 @@
                         <tbody>
 
                             @foreach ($propertyAccounts as $account)
+                                <?php
+                                
+                                $whatsapp = $account->user->contact_number ?? '';
+                                $whatsapp = preg_replace('/[^0-9+]/', '', $whatsapp);
+                                if (!str_starts_with($whatsapp, '+')) {
+                                    $whatsapp = '+27' . ltrim($whatsapp, '0');
+                                }
+                                $email = $account->user->email ?? 'N/A';
+                                $password = $account->user->original_password ?? 'N/A';
+                                $message = urlencode("Here are your login details:\nEmail: $email\nPassword: $password");
+                                ?>
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $account->site->title ?? '-' }}</td>
                                     <td>{{ $account->region->name ?? '-' }}</td>
                                     <td>{{ $account->accountType->type ?? '-' }}</td>
                                     <td>{{ $account->user->name ?? '-' }}</td>
+                                    <td>{{ $account->user->email ?? '-' }}</td>
+                                    <td>
+                                        {{ $account->user->original_password ?? '-' }}
+
+                                        <a href="https://wa.me/{{ $whatsapp }}?text={{ $message }}"
+                                            target="_blank" title="Share Password via WhatsApp" class="ml-2 text-success">
+                                            <i class="fas fa-share-alt" style="font-size: large;"></i>
+                                        </a>
+                                    </td>
                                     <td>{{ $account->account_name }}</td>
                                     <td>{{ $account->account_number }}</td>
                                     {{-- <td>{{ $account->billing_date }}{{ $account->billing_day_with_suffix }}</td> --}}
@@ -146,9 +167,20 @@
                                             class="btn btn-danger btn-circle">
                                             <i class="fas fa-trash"></i>
                                         </a>
-                                        <a href="http://your-vue-project-url.com" class="btn btn-primary btn-circle">
-                                            {{-- <i class="fas fa-external-link-alt"></i> --}}
-                                        </a>
+                                        {{-- <a href="https://mycities.co.za/web-app/#/auth/login" class="btn btn-primary btn-circle">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a> --}}
+                                        {{-- @if (auth()->user()->is_property_manager === 1) --}}
+                                  
+                                       
+                                        <a href="http://localhost:8080/web-app/#/auth/login" 
+                                        target="_blank" 
+                                        class="btn btn-primary btn-circle update-account"
+                                        data-account-id="{{ $account->id }}">
+                                         <i class="fas fa-external-link-alt"></i>
+                                     </a>
+                                      
+                                        {{-- @endif --}}
                                     </td>
                                 </tr>
                             @endforeach
@@ -164,7 +196,7 @@
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold">List of meters added by users</h6>
+                <h6 class="m-0 font-weight-bold">List of meters</h6>
                 <div>
                     <a href="{{ route('property.add-meter-form', $property->id) }}" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus"></i> Create
@@ -182,7 +214,7 @@
                                 <th>Meter Type</th>
                                 <th>Account Name</th>
                                 <th>Account Number</th>
-                                <th>Account Holder</th>
+                                <th>Account User</th>
                                 <th>Created Date</th>
                                 <th>Action</th>
                             </tr>
@@ -288,7 +320,7 @@
                                 <th>#</th>
                                 <th>Account</th>
                                 <th>Account Number</th>
-                                <th>Account Holder</th>
+                                <th>Account User</th>
                                 <th>Meter Title</th>
                                 <th>Meter Number</th>
                                 <th>Meter Type</th>
@@ -302,7 +334,7 @@
                                 <th>#</th>
                                 <th>Account</th>
                                 <th>Account Number</th>
-                                <th>Account Holder</th>
+                                <th>Account User</th>
                                 <th>Meter Title</th>
                                 <th>Meter Number</th>
                                 <th>Meter Type</th>
@@ -324,13 +356,19 @@
                                     <td>{{ $meterReading->meter->meterTypes->title ?? '-' }}</td>
                                     <td>{{ $meterReading->reading_value }}</td>
                                     <td>
-                                        @if(!empty($meterReading->reading_date))
+                                        @if (!empty($meterReading->reading_date))
                                             @php
                                                 try {
-                                                    $formattedDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $meterReading->reading_date)->format('d/m/Y');
+                                                    $formattedDate = \Carbon\Carbon::createFromFormat(
+                                                        'Y-m-d H:i:s',
+                                                        $meterReading->reading_date,
+                                                    )->format('d/m/Y');
                                                 } catch (\Exception $e) {
                                                     try {
-                                                        $formattedDate = \Carbon\Carbon::createFromFormat('m-d-Y', $meterReading->reading_date)->format('d/m/Y');
+                                                        $formattedDate = \Carbon\Carbon::createFromFormat(
+                                                            'm-d-Y',
+                                                            $meterReading->reading_date,
+                                                        )->format('d/m/Y');
                                                     } catch (\Exception $e) {
                                                         $formattedDate = 'Invalid Date';
                                                     }
@@ -341,14 +379,14 @@
                                             N/A
                                         @endif
                                     </td>
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    
-                                    
-                                                                        {{-- <td>
+
+
+
+
+
+
+
+                                    {{-- <td>
                                                 @if ($meterReading->reading_image)
                                                     <img src="{{ asset( $meterReading->reading_image) }}" alt="Reading Image" width="50" height="50" style="object-fit: cover; border-radius: 5px;">
                                                 @else
@@ -387,4 +425,42 @@
             $('#reading-dataTable').dataTable();
         });
     </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".update-account").forEach(button => {
+        button.addEventListener("click", function (event) {
+            event.preventDefault(); // Prevent the default navigation
+
+            // Open the link immediately in a new tab (user action)
+            let url = this.href;
+            let newWindow = window.open(url, "_blank");
+
+            // Now send the AJAX request to update the account_id
+            let accountId = this.getAttribute("data-account-id");
+
+            fetch("{{ route('update.account-id') }}", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ account_id: accountId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log("Account updated successfully!");
+                } else {
+                    console.error("Failed to update account.");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    });
+});
+
+
+</script>
+
 @endsection

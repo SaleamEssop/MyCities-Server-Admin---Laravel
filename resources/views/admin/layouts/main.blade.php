@@ -85,20 +85,36 @@
                 @endforeach
             @elseif ((auth()->user()->is_super_admin === 1))
                 
-                    <li class="nav-item">
-                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsers"
-                            aria-expanded="true" aria-controls="collapseUsers">
-                            <i class="fas fa-fw fa-building"></i>
-                            <span>Users Management</span>
-                        </a>
-                        <div id="collapseUsers" class="collapse" aria-labelledby="headingUsers"
-                            data-parent="#accordionSidebar">
-                            <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
-                                <a class="collapse-item cust-sidebar-sub" href="{{ route('show-users') }}">List</a>
-                                <a class="collapse-item cust-sidebar-sub" href="{{ route('add-user-form') }}">Add</a>
-                            </div>
-                        </div>
-                    </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsersManagement"
+                    aria-expanded="true" aria-controls="collapseUsersManagement">
+                    <i class="fas fa-fw fa-users"></i>
+                    <span>Users Management</span>
+                </a>
+                <div id="collapseUsersManagement" class="collapse" aria-labelledby="headingUsersManagement"
+                    data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
+                        <a class="collapse-item cust-sidebar-sub" href="{{ route('show-users') }}">List</a>
+                        <a class="collapse-item cust-sidebar-sub" href="{{ route('add-user-form') }}">Add</a>
+                    </div>
+                </div>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePropertyManagers"
+                    aria-expanded="true" aria-controls="collapsePropertyManagers">
+                    <i class="fas fa-fw fa-building"></i>
+                    <span>Property Managers</span>
+                </a>
+                <div id="collapsePropertyManagers" class="collapse" aria-labelledby="headingPropertyManagers"
+                    data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
+                        <a class="collapse-item cust-sidebar-sub" href="{{ route('show-property-manger') }}">List</a>
+                        <a class="collapse-item cust-sidebar-sub" href="{{ route('add-user-form') }}">Add</a>
+                    </div>
+                </div>
+            </li>
+            
              
              
                     <li class="nav-item">

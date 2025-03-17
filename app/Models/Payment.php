@@ -52,6 +52,6 @@ class Payment extends Model
 
     public function billingPeriod()
     {
-        return $this->belongsTo(BillingPeriod::class);
+        return $this->belongsTo(BillingPeriod::class, 'billing_period_id');
     }
 }
