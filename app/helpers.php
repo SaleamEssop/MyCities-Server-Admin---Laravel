@@ -58,10 +58,10 @@ if (!function_exists('getDayWithSuffix')) {
 }
 
 if (!function_exists('getMonthCycle')) {
-    
+
     function getMonthCycle($cycleDay = 15, $subtractMonths = 0): array
     {
-        
+
         if ($subtractMonths === 0) {
             $subtractMonths = 1;
         }
@@ -89,20 +89,34 @@ if (!function_exists('getCurrentMonthCycle')) {
     function getCurrentMonthCycle($cycleDay = 15, $subtractMonths = 0): array
     {
         $today = Carbon::today();
-    
+
         if ($subtractMonths !== 0) {
             $cycleStart = $today->copy()->subMonths(abs($subtractMonths))->day($cycleDay);
         } else {
-          
+
             if ($today->day < $cycleDay) {
                 $cycleStart = $today->copy()->subMonth()->day($cycleDay);
             } else {
                 $cycleStart = $today->copy()->day($cycleDay);
             }
         }
-    
+
         $cycleEnd = $cycleStart->copy()->addMonth()->day($cycleDay)->subDay();
-    
+
+        return [
+            'start_date' => $cycleStart->format('Y-m-d'),
+            'end_date' => $cycleEnd->format('Y-m-d'),
+        ];
+    }
+}
+if (!function_exists('getFutureCycle')) {
+
+
+    function getFutureCycle($lastDate): array
+    {
+        $carbon = Carbon::parse($lastDate);
+        $cycleStart = $carbon->copy();
+        $cycleEnd = $cycleStart->copy()->addMonth();
         return [
             'start_date' => $cycleStart->format('Y-m-d'),
             'end_date' => $cycleEnd->format('Y-m-d'),
@@ -140,7 +154,7 @@ function getPerviousMonthCycle($cycleDay = 15, $subtractMonths = 0, $getPrevious
     }
 
     return [
-      
+
         'previous_start_date' => $previousCycleStart ? $previousCycleStart->format('Y-m-d') : null,
         'previous_end_date' => $previousCycleEnd ? $previousCycleEnd : null,
     ];
