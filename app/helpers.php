@@ -77,6 +77,7 @@ if (!function_exists('getMonthCycle')) {
 
 if (!function_exists('getFutureCycle')) {
 
+
     function getFutureCycle($lastDate): array
     {
         $carbon = Carbon::parse($lastDate);
