@@ -173,7 +173,7 @@
                                         {{-- @if (auth()->user()->is_property_manager === 1) --}}
                                   
                                        
-                                        <a href="http://localhost:8080/web-app/#/auth/login" 
+                                        <a href="https://staging.mycities.co.za//web-app/#/auth/login" 
                                         target="_blank" 
                                         class="btn btn-primary btn-circle update-account"
                                         data-account-id="{{ $account->id }}">
@@ -430,13 +430,12 @@
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".update-account").forEach(button => {
         button.addEventListener("click", function (event) {
-            event.preventDefault(); // Prevent the default navigation
+            event.preventDefault(); 
 
-            // Open the link immediately in a new tab (user action)
             let url = this.href;
             let newWindow = window.open(url, "_blank");
 
-            // Now send the AJAX request to update the account_id
+            /
             let accountId = this.getAttribute("data-account-id");
 
             fetch("{{ route('update.account-id') }}", {
