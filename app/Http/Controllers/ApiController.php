@@ -392,7 +392,7 @@ class ApiController extends Controller
     {
 
 
-        Log::info('fffff');
+     
         $accID = $request->get('account_id');
         if (empty($accID))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account_id is required!']);
@@ -527,6 +527,7 @@ class ApiController extends Controller
             $userID = $request->get('user_id');
             $defaultCosts = FixedCost::where('is_default', 1)->get();
             $property = Property::where('property_manager_id', $userID)->first();
+            
             if (!$property) {
                 return response()->json(['status' => false, 'msg' => 'Property not found'], 404);
             }
@@ -571,6 +572,7 @@ class ApiController extends Controller
                         'msg' => 'Data retrieved successfully!',
                         'data' => $data
                     ]);
+                    dd($data);
                 }
             }
 
@@ -659,7 +661,7 @@ class ApiController extends Controller
                 'sites' => $data,
                 'property' => $property_details
             ];
-
+          
 
          
 
@@ -1094,10 +1096,12 @@ class ApiController extends Controller
         });
 
         $estimatedBillingInterimSewageDisposal = $estimatedBillingInterim->sum(function ($item) {
-            return collect($item['sewage_disposal'])
+            return collect($item['water_out_additional']) 
                 ->where('title', 'Sewage Disposal')
                 ->sum('cost');
         });
+        
+      
 
         $estimatedBillingInterimVat = $estimatedBillingInterim->sum('vat');
 
@@ -1264,9 +1268,18 @@ class ApiController extends Controller
         }
 
         // Part 2: Get Balance Carried for Previous Cycle and Update $perviousBill
-        $perviousCycleDates = getPerviousMonthCycle($property->billing_day); // e.g., "2025-01-24 to 2025-02-23"
-
-        // Find the matching period in $accountSummary
+        $perviousCycleDates = getPerviousMonthCycle($property->billing_day); 
+        $meterReadings = MeterReadings::where('meter_id', $meter->id)
+        ->whereBetween('reading_date', [
+            $perviousCycleDates['previous_start_date'], 
+            Carbon::parse($perviousCycleDates['previous_end_date'])->endOfDay() // Ensure we get all readings on 23rd
+        ])
+        ->get();
+    
+        $latestReading = $meterReadings->sortByDesc('reading_date')->first();
+        $perviousMonthLatestReadingDate = Carbon::parse($latestReading?->reading_date)
+        ->format('d M Y');
+    // Find the matching period in $accountSummary
         $previousPeriodSummary = collect($accountSummary)->firstWhere('period_value', "{$perviousCycleDates['previous_start_date']} to {$perviousCycleDates['previous_end_date']}");
         $balanceCarriedFromSummary = $previousPeriodSummary ? $previousPeriodSummary['balance_carried'] : 0;
 
@@ -1280,6 +1293,15 @@ class ApiController extends Controller
                 });
             })
             ->get();
+
+            $latestBillingPeriod = $perviousBillingPeriods->sortByDesc('end_date')->first();
+            $perviousMonthDailyUsage = $latestBillingPeriod->daily_usage ?? 0;
+            $perviousMonthDailyCost = $latestBillingPeriod->daily_cost ?? 0;
+
+            //now get total usages from perviousBillingPeriods
+            $perviousMonthTotalUsage = $perviousBillingPeriods->sum('usage_liters');
+
+
 
         // Get unpaid amount for previous cycle
         $perviousPayments = Payment::whereIn('billing_period_id', $perviousBillingPeriods->pluck('id'))
@@ -1325,7 +1347,8 @@ class ApiController extends Controller
         $vatSum = $perviousBillingPeriods->sum('vat');
 
 
-        // Prepare current bill details with updated balanceCd
+
+    
         $perviousBill = [
             'balance_bf' => $balanceCarriedFromSummary,
             'consumption_charge' => $consumptionChargeSum,
@@ -1339,6 +1362,10 @@ class ApiController extends Controller
             'month_total_cost' => $month_total_cost,
             'totalOutstandingAmount' => $totalOutstandingAmount,
             'perviousCycleDates' => $perviousCycleDates,
+            'perviousMonthLatestReadingDate' => $perviousMonthLatestReadingDate,
+            'perviousMonthDailyUsage' => $perviousMonthDailyUsage,
+            'perviousMonthDailyCost' => $perviousMonthDailyCost,
+            'perviousMonthTotalUsage' => $perviousMonthTotalUsage,
 
         ];
 
@@ -1346,7 +1373,7 @@ class ApiController extends Controller
         //Reading overdue calculation
 
         $latestPerviousBillingPeriod = $perviousBillingPeriods->last();
-   
+        
         $lastReadingEndDate = Carbon::parse($latestPerviousBillingPeriod?->end_date)->timezone('UTC');
 
         $currentPeriodStart = Carbon::parse($cycleDates['start_date']);
@@ -1515,6 +1542,7 @@ class ApiController extends Controller
         
 
         $meters = Meter::with('readings')->where('account_id', $accountID)->get();
+        Log::info($property);
 
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meters retrieved successfully!', 'data' => $meters, 'property' => $property]);
     }
