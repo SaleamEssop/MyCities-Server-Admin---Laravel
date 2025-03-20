@@ -46,7 +46,7 @@
                             <label><strong>Optional Information :</strong></label>
                             <input type="text" value="{{ $account->optional_information }}" name="optional_info" class="form-control" placeholder="Enter optional information">
                         </div>
-                        {{-- <hr>
+                        <hr>
                         <p><u>Default Costs</u></p>
                         <div class="row">
                             <div class="col-md-4"><b>Title</b></div>
@@ -54,28 +54,38 @@
                             <div class="col-md-4"><b>Your Value</b></div>
                         </div>
                         <br>
-                        @foreach($account->defaultFixedCosts as $accDefaultCost)
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>{{ $accDefaultCost->fixedCost->title ?? null }}</label>
-                                    </div>
+
+                        
+
+
+                        @php
+                        $uniqueFixedCosts = $account->defaultFixedCosts->unique(fn($cost) => $cost->fixedCost->title ?? '');
+                    @endphp
+                    
+                    @foreach($uniqueFixedCosts as $accDefaultCost)
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>{{ $accDefaultCost->fixedCost->title ?? null }}</label>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <input class="form-control" type="text" value="{{ $accDefaultCost->fixedCost->value ?? null }}" readonly/>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <input class="form-control" type="number" name="default_cost_value[]" value="{{ $accDefaultCost->value ?? null }}" />
-                                    </div>
-                                </div>
-                                <input type="hidden" name="default_ids[]" value="{{$accDefaultCost->id ?? null }}" />
                             </div>
-                        @endforeach
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input class="form-control" type="text" value="{{ $accDefaultCost->fixedCost->value ?? null }}" readonly/>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input class="form-control" type="number" name="default_cost_value[]" value="{{ $accDefaultCost->value ?? null }}" />
+                                </div>
+                            </div>
+                            <input type="hidden" name="default_ids[]" value="{{ $accDefaultCost->id ?? null }}" />
+                        </div>
+                    @endforeach
+                    
                         <hr>
                         <p>Fixed Costs</p>
+                        
                         @foreach($account->fixedCosts as $fixedCost)
                             <div class="row">
                                 <div class="col-md-4">
@@ -103,7 +113,7 @@
 
                         <a href="#" id="add-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
                         <br>
-                        <br> --}}
+                        <br>
                         <input type="hidden" name="account_id" value="{{ $account->id }}" />
                         @csrf
                         <button type="submit" class="btn btn-primary">Submit</button>
