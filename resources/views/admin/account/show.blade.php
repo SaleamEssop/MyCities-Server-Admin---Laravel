@@ -170,10 +170,12 @@
                                     <td>{{ $meterReading->reading_value }}</td>
 
                                     <td>
-                                        {{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $meterReading->reading_date)
+                                        {{ $meterReading->reading_date ? \Carbon\Carbon::parse($meterReading->reading_date)
                                             ->setTimezone('Africa/Johannesburg')
-                                            ->format('d/m/Y') }}
+                                            ->format('d/m/Y') : 'N/A' }}
                                     </td>
+                                    
+                                    
                                     
                                     {{-- <td>
 
