@@ -133,6 +133,7 @@
                             <div class="col-md-4"><b>Default Value</b></div>
                             <div class="col-md-4"><b>Your Value</b></div>
                         </div>
+                        
                         <br>
                         @php
                         $uniqueTitles = $defaultCosts->unique('title');
