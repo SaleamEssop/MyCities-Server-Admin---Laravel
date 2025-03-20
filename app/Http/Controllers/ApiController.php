@@ -1416,7 +1416,7 @@ class ApiController extends Controller
             'current_period_start_date' => $current_period_start_date,
             'current_period_end_date' => $currentPeriodEnd,
 
-
+//
         ]);
     }
 
