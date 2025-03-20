@@ -1050,6 +1050,7 @@ class ApiController extends Controller
         $currentPeriodStart = $cycleDates['start_date'];
         $currentPeriodEnd = $cycleDates['end_date'];
 
+        $current_period_start_date = \Carbon\Carbon::parse($currentPeriodStart)->format('Y-m-d');
 
         $estimatedBillingInterim = BillingPeriod::where('meter_id', $meter->id)
             ->whereIn('status', ['Estimated', 'Actual'])
@@ -1401,6 +1402,7 @@ class ApiController extends Controller
 
         ];
 
+
         return response()->json([
             'status' => true,
             'currentPeriodRemainingReadingDays' => $currentPeriodRemainingReadingDays,
@@ -1411,8 +1413,10 @@ class ApiController extends Controller
             'current_bill' => $currentBill,
             'perviousBill' => $perviousBill,
             'estimated_billing_interim' => $estimatedBillingInterimFinal,
+            'current_period_start_date' => $current_period_start_date,
+            'current_period_end_date' => $currentPeriodEnd,
 
-
+//
         ]);
     }
 
