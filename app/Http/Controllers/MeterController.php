@@ -88,7 +88,7 @@ class MeterController extends Controller
         $previousMonthReadings = $meterReadings
             ->filter(function ($reading) use ($startDate, $endDate) {
 
-                $readingDate = Carbon::createFromFormat('Y-m-d H:i:s', $reading->reading_date);
+                $readingDate = Carbon::parse($reading->reading_date);
 
                 return $readingDate >= $startDate && $readingDate <= $endDate;
             })
@@ -147,13 +147,13 @@ class MeterController extends Controller
 
         //latest reading fot current billing cycle
         $latestReading = $meterReadings->filter(function ($reading) use ($cycleStartDate) {
-            return Carbon::createFromFormat('Y-m-d H:i:s', $reading->reading_date)
+            return Carbon::parse( $reading->reading_date)
                 ->gte($cycleStartDate);
         })->sortByDesc('reading_date')->first();
 
         //get all readings of current billing cycle
         $currentCycleReadings = $meterReadings->filter(function ($reading) use ($cycleStartDate, $cycleEndDate) {
-            $readingDate = Carbon::createFromFormat('Y-m-d H:i:s', $reading->reading_date);
+            $readingDate = Carbon::parse($reading->reading_date);
             return $readingDate >= $cycleStartDate && $readingDate <= $cycleEndDate;
         });
 
@@ -286,13 +286,13 @@ class MeterController extends Controller
             ->delete();
     
         foreach ($sortedReadings as $reading) {
-            $readingDate = Carbon::createFromFormat('Y-m-d H:i:s', $reading->reading_date);
+            $readingDate = Carbon::parse( $reading->reading_date);
             $readingValue = (int) ltrim($reading->reading_value, '0');
             $rawReadingValue = $reading->reading_value;
             $readingId = $reading->id;
     
             if ($prevReading) {
-                $prevDate = Carbon::createFromFormat('Y-m-d H:i:s', $prevReading->reading_date);
+                $prevDate = Carbon::parse($prevReading->reading_date);
                 $prevValue = (int) ltrim($prevReading->reading_value, '0');
                 $rawPrevValue = $prevReading->reading_value;
                 $prevReadingId = $prevReading->id;
@@ -457,7 +457,7 @@ class MeterController extends Controller
     
         $lastReadingDate = $sortedReadings->isEmpty() 
             ? $cycleStartDate 
-            : Carbon::createFromFormat('Y-m-d H:i:s', $sortedReadings->last()->reading_date);
+            : Carbon::parse($sortedReadings->last()->reading_date);
         $lastReadingValue = $sortedReadings->isEmpty() ? 0 : (int) ltrim($sortedReadings->last()->reading_value, '0');
         $rawLastReadingValue = $sortedReadings->isEmpty() ? '000000' : $sortedReadings->last()->reading_value;
         $lastReadingId = $sortedReadings->isEmpty() ? null : $sortedReadings->last()->id;
@@ -466,7 +466,7 @@ class MeterController extends Controller
         if ($isCurrentCycle && $lastReadingDate->lt($cycleEndDate)) {
             $daysRemaining = $cycleEndDate->diffInDays($lastReadingDate);
             if ($daysRemaining > 1) {
-                $prevDate = $prevLastReading ? Carbon::createFromFormat('Y-m-d H:i:s', $prevLastReading->reading_date) : $cycleStartDate;
+                $prevDate = $prevLastReading ? Carbon::parse( $prevLastReading->reading_date) : $cycleStartDate;
                 $daysSoFar = $prevDate->diffInDays($lastReadingDate);
                 $lastPeriodUsage = $prevLastReading ? ($lastReadingValue - (int) ltrim($prevLastReading->reading_value, '0')) : 0;
                 $dailyUsageRate = $daysSoFar > 0 ? $lastPeriodUsage / $daysSoFar : 0;
@@ -550,7 +550,7 @@ class MeterController extends Controller
             );
     
             if (($period['status'] === 'Actual' || $period['status'] === 'Final Estimate') && !is_null($period['end_reading_id'])) {
-                $readingDate = Carbon::createFromFormat('Y-m-d', $period['end_date'])->toDateString();
+                $readingDate = Carbon::parse($period['end_date'])->toDateString();
                 $existingPayment = Payment::where('meter_id', $meterId)
                     ->where('billing_period_id', $billingPeriod->id)
                     ->where('reading_id', $period['end_reading_id'])
@@ -653,10 +653,10 @@ class MeterController extends Controller
 
             $payment->amount = $request->actual_amount;
             try {
-                $payment->payment_date = Carbon::createFromFormat('m-d-Y', $request->payment_date)->format('Y-m-d H:i:s');
+                $payment->payment_date = Carbon::parse($request->payment_date)->format('Y-m-d H:i:s');
             } catch (\Exception $e) {
                 try {
-                    $payment->payment_date = Carbon::createFromFormat('m/d/Y', $request->payment_date)->format('Y-m-d H:i:s');
+                    $payment->payment_date = Carbon::parse($request->payment_date)->format('Y-m-d H:i:s');
                 } catch (\Exception $e) {
                     Session::flash('alert-class', 'alert-danger');
                     Session::flash('alert-message', 'Invalid payment date format. Please use MM-DD-YYYY or MM/DD/YYYY.');
@@ -679,7 +679,7 @@ class MeterController extends Controller
             $payment->meter_id = $reading->meter_id;
             $payment->reading_id = $reading->id;
             $payment->paid_by = auth()->user()->id;
-            $payment->payment_date = Carbon::createFromFormat('m/d/Y', $request->payment_date)->format('Y-m-d');
+            $payment->payment_date = Carbon::parse($request->payment_date)->format('Y-m-d');
             $payment->amount = $request->amount;
             $payment->status = $request->status;
             $payment->save();
