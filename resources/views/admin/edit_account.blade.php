@@ -46,7 +46,7 @@
                             <label><strong>Optional Information :</strong></label>
                             <input type="text" value="{{ $account->optional_information }}" name="optional_info" class="form-control" placeholder="Enter optional information">
                         </div>
-                        <hr>
+                        {{-- <hr>
                         <p><u>Default Costs</u></p>
                         <div class="row">
                             <div class="col-md-4"><b>Title</b></div>
@@ -103,7 +103,7 @@
 
                         <a href="#" id="add-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
                         <br>
-                        <br>
+                        <br> --}}
                         <input type="hidden" name="account_id" value="{{ $account->id }}" />
                         @csrf
                         <button type="submit" class="btn btn-primary">Submit</button>
