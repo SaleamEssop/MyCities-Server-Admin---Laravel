@@ -356,7 +356,6 @@ class AdminController extends Controller
     {
 
         $request->validate([
-            'user_option' => 'required',
             'user_id' => 'nullable|exists:users,id',
             'name' => 'nullable|string|max:255',
             'email' => 'nullable|email|unique:users,email',
@@ -372,9 +371,7 @@ class AdminController extends Controller
         $postData = $request->post();
         $userId = null;
 
-        if ($postData['user_option'] === 'existing' && !empty($postData['user_id'])) {
-            $userId = $postData['user_id'];
-        } elseif ($postData['user_option'] === 'new') {
+        
             $newUser = User::create([
                 'name' => $postData['name'],
                 'email' => $postData['email'],
@@ -383,7 +380,7 @@ class AdminController extends Controller
                 'contact_number' => $postData['contact_number']
             ]);
             $userId = $newUser->id;
-        }
+        
 
 
         // $siteArr = [
@@ -406,10 +403,10 @@ class AdminController extends Controller
         //     $siteID = $site->id;
         // }
 
-        //get property 
+        
         $property = Property::where('id', $postData['property_id'])->first();
         $siteID = $property->site_id;
-        //get site detail
+       
         $site = Site::where('id', $siteID)->first();
         //now create new site for account 
         $newSite = Site::create([
@@ -877,29 +874,30 @@ class AdminController extends Controller
             Session::flash('alert-message', 'Oops, something went wrong.');
             return redirect()->back();
         }
-
-        // In next phase delete all the related models as well.
+    
+        $meter = Meter::find($id);
+        if (!$meter) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Meter not found.');
+            return redirect()->back();
+        }
+    
         DB::beginTransaction();
         try {
-            $deleted = Meter::where('id', $id)->first()->delete();
+            $meter->delete();
             DB::commit();
+    
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Success! Meter deleted successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
-            return redirect()->back();
         }
-
-        if ($deleted) {
-            Session::flash('alert-class', 'alert-success');
-            Session::flash('alert-message', 'Success! Meter deleted successfully!');
-            return redirect()->back();
-        } else {
-            Session::flash('alert-class', 'alert-danger');
-            Session::flash('alert-message', 'Oops, something went wrong.');
-            return redirect()->back();
-        }
+    
+        return redirect()->back();
     }
+    
 
     public function addMeterForm(Request $request)
     {

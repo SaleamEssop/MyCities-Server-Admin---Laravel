@@ -50,14 +50,7 @@
                         @endif
 
 
-                        <div class="form-group">
-                            <label for="user-option" class="font-weight-bold">User Selection</label>
-                            <select class="form-control" id="user-option" name="user_option" required>
-                                <option value="" disabled selected>-- Choose an option --</option>
-                                <option value="existing">Select Existing User</option>
-                                <option value="new">Create New User</option>
-                            </select>
-                        </div>
+                    
 
                         <!-- Existing User Selection -->
                         <div id="existing-user-section" class="form-group d-none">
@@ -71,7 +64,6 @@
                         </div>
 
                         <!-- New User Form -->
-                        <div id="new-user-section" class="d-none">
                             <div class="form-group">
                                 <label for="name" class="font-weight-bold">Full Name</label>
                                 <input type="text" class="form-control" id="name" name="name"
@@ -91,7 +83,6 @@
                                 <input type="text" class="form-control" id="contact_number" name="contact_number"
                                     placeholder="Enter contact number">
                             </div>
-                        </div>
 
              
                         <!-- Region User Selection -->
@@ -105,8 +96,8 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Account Title: </label>
-                            <input type="text" class="form-control" placeholder="Enter account title" name="title"
+                            <label>Account Description: </label>
+                            <input type="text" class="form-control" placeholder="Enter account description" name="title"
                                 required>
                         </div>
                         <div class="form-group">
@@ -149,25 +140,6 @@
 @section('page-level-scripts')
 
 
-    {{-- user selection script --}}
-    <script>
-        document.getElementById('user-option').addEventListener('change', function() {
-            let selectedOption = this.value;
-            let existingUserSection = document.getElementById('existing-user-section');
-            let newUserSection = document.getElementById('new-user-section');
-
-            if (selectedOption === "existing") {
-                existingUserSection.classList.remove('d-none');
-                newUserSection.classList.add('d-none');
-            } else if (selectedOption === "new") {
-                existingUserSection.classList.add('d-none');
-                newUserSection.classList.remove('d-none');
-            } else {
-                existingUserSection.classList.add('d-none');
-                newUserSection.classList.add('d-none');
-            }
-        });
-    </script>
 
     {{-- select2 script --}}
     <script type="text/javascript">

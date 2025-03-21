@@ -533,11 +533,13 @@ class ApiController extends Controller
             }
 
             $site_id = $property->site_id;
-            $site = Site::with(['account.fixedCosts', 'account.defaultFixedCosts.fixedCost', 'property'])
+            $site = Site::with(['account.fixedCosts', 'account.defaultFixedCosts.fixedCost'])
                 ->where('id', $site_id)
                 ->first();
-            if ($site && $site->account) {
-                $account = $site->account->where('id', $account_id)->first();
+                
+                if ($site && $site->account) {
+                    $account = $site->account->first(); // Get the first account
+                    Log::info('site', ['accounts' => $account]);
                 if ($account) {
                     $accountDefaultAndOtherCosts = $account->defaultFixedCosts->pluck('fixed_cost_id')->toArray();
                     foreach ($defaultCosts as $defaultCost) {
@@ -554,7 +556,7 @@ class ApiController extends Controller
                     $account->refresh();
 
 
-                    $property = $account->property;
+                    
                     $property_details = [
                         'property_name' => $property->name ?? '',
                         'property_manager' => $property->property_manager ? $property->property_manager->name : null,
@@ -576,7 +578,7 @@ class ApiController extends Controller
                 }
             }
 
-            return response()->json(['status' => false, 'msg' => 'No matching account found'], 404);
+            // return response()->json(['status' => false, 'msg' => 'No matching account found'], 404);
         } else {
             Log::info('User is not property manager');
 
@@ -1416,7 +1418,7 @@ class ApiController extends Controller
             'current_period_start_date' => $current_period_start_date,
             'current_period_end_date' => $currentPeriodEnd,
 
-//
+
         ]);
     }
 
