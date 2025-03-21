@@ -82,7 +82,7 @@ class AccountController extends Controller
         $account = Account::where('id', $id)->first();
         $account->delete();
 
-        return redirect()->route('admin.properties.index')->with('success', 'Account deleted successfully');
+        return back()->with('success', 'Account deleted successfully');
     }
 
     //addMeterForm

@@ -79,7 +79,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Account User</th>
+                                <th>User Name</th>
                                 <th>Meter Title</th>
                                 <th>Meter Number</th>
                                 <th>Meter Type</th>
@@ -110,7 +110,7 @@
                                             class="btn btn-warning btn-circle">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="{{ url('admin/meter/delete/' . $account->id) }}"
+                                        <a href="{{ url('admin/meter/delete/' . $meter->id) }}"
                                             onclick="return confirm('Are you sure you want to delete this meter?')"
                                             class="btn btn-danger btn-circle">
                                             <i class="fas fa-trash"></i>

@@ -101,13 +101,12 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Site</th>
                                 <th>Region</th>
                                 <th>Acc Type</th>
-                                <th>Account User</th>
+                                <th>User Name</th>
                                 <th>User Email</th>
                                 <th>Password</th>
-                                <th>Acc Name</th>
+                                <th>Acc Description</th>
                                 <th>Acc Number</th>
                                 {{-- <th>Billing Date</th> --}}
                                 <th>Actions</th>
@@ -129,7 +128,6 @@
                                 ?>
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $account->site->title ?? '-' }}</td>
                                     <td>{{ $account->region->name ?? '-' }}</td>
                                     <td>{{ $account->accountType->type ?? '-' }}</td>
                                     <td>{{ $account->user->name ?? '-' }}</td>
@@ -167,18 +165,19 @@
                                             class="btn btn-danger btn-circle">
                                             <i class="fas fa-trash"></i>
                                         </a>
-                                        {{-- <a href="https://mycities.co.za/web-app/#/auth/login" class="btn btn-primary btn-circle">
+                                        <a href="http://localhost:8080/web-app/#/auth/login" class="btn btn-primary btn-circle">
                                             <i class="fas fa-external-link-alt"></i>
-                                        </a> --}}
+                                        </a>
                                         {{-- @if (auth()->user()->is_property_manager === 1) --}}
                                   
-                                       
-                                        <a href="https://staging.mycities.co.za//web-app/#/auth/login" 
+                                        {{-- <a href="https://staging.mycities.co.za//web-app/#/auth/login" 
                                         target="_blank" 
                                         class="btn btn-primary btn-circle update-account"
                                         data-account-id="{{ $account->id }}">
-                                         <i class="fas fa-external-link-alt"></i>
-                                     </a>
+                                        <i class="fas fa-mobile-alt"></i> 
+                                      
+                                     </a> --}}
+                                     
                                       
                                         {{-- @endif --}}
                                     </td>
