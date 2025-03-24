@@ -94,7 +94,7 @@ class ApiController extends Controller
     public function getSite(Request $request)
     {
 
-
+Log::info('Get site request', ['request' => $request->all()]);
         $postData = $request->post();
         if (empty($postData['user_id']))
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, user_id is required!']);
@@ -391,7 +391,7 @@ class ApiController extends Controller
     public function getAccounts(Request $request)
     {
 
-
+Log::info('Get accounts request', ['request' => $request->all()]);
 
         $accID = $request->get('account_id');
         if (empty($accID))
@@ -524,22 +524,28 @@ class ApiController extends Controller
         if ($user->is_property_manager) {
             Log::info('User is property manager');
             $account_id = $user->account_id;
+
+            // Get account details
+            $account = Account::where('id', $account_id)->first();
+            if (!$account) {
+                return response()->json(['status' => false, 'msg' => 'Account not found'], 404);
+            }
+            
             $userID = $request->get('user_id');
             $defaultCosts = FixedCost::where('is_default', 1)->get();
-            $property = Property::where('property_manager_id', $userID)->first();
-
+            $property = Property::where('id', $account->property_id)->first();
+            
             if (!$property) {
                 return response()->json(['status' => false, 'msg' => 'Property not found'], 404);
             }
-
-            $site_id = $property->site_id;
-            $site = Site::with(['account.fixedCosts', 'account.defaultFixedCosts.fixedCost'])
+            
+            $site_id = $account->site_id;
+            $data = Site::with(['account.fixedCosts', 'account.defaultFixedCosts.fixedCost'])
                 ->where('id', $site_id)
                 ->first();
+            
+            if ($data && $data->account) {
                 
-                if ($site && $site->account) {
-                    $account = $site->account->first(); // Get the first account
-                    Log::info('site', ['accounts' => $account]);
                 if ($account) {
                     $accountDefaultAndOtherCosts = $account->defaultFixedCosts->pluck('fixed_cost_id')->toArray();
                     foreach ($defaultCosts as $defaultCost) {
@@ -554,31 +560,30 @@ class ApiController extends Controller
                         AccountFixedCost::create($arr);
                     }
                     $account->refresh();
-
-
-                    
-                    $property_details = [
-                        'property_name' => $property->name ?? '',
-                        'property_manager' => $property->property_manager ? $property->property_manager->name : null,
-                        'property_address' => $property->address ?? '',
-                        'description' => $property->description ?? '',
-                    ];
-
-                    $data = $site->toArray();
-                    $data['account'] = [$account->toArray()];
-                    $data['property'] = $property_details;
-
-                    return response()->json([
-                        'status' => true,
-                        'code' => 200,
-                        'msg' => 'Data retrieved successfully!',
-                        'data' => $data
-                    ]);
-                    dd($data);
                 }
             }
-
-            // return response()->json(['status' => false, 'msg' => 'No matching account found'], 404);
+            
+            $data = $data ? $data->toArray() : null; 
+            
+            $property_details = [
+                'property_name' => $property->name ?? '',
+                'property_manager' => $property->property_manager ? $property->property_manager->name : null,
+                'property_address' => $property->address ?? '',
+                'description' => $property->description ?? '',
+            ];
+            
+            $responseData = [
+                'sites' => $data ? [$data] : [], 
+                'property' => $property_details
+            ];
+            
+            return response()->json([
+                'status' => true,
+                'code' => 200,
+                'msg' => 'Data retrieved successfully!',
+                'data' => $responseData
+            ]);
+            
         } else {
             Log::info('User is not property manager');
 
@@ -1429,7 +1434,6 @@ class ApiController extends Controller
     public function showDetail($id)
     {
 
-        Log::info('here2');
 
         $meter = Meter::with(['meterTypes', 'meterCategory', 'readings.addedBy', 'account', 'payments.billingPeriod'])->where('id', $id)->firstOrFail();
         $meterReadings = $meter->readings;
@@ -2016,15 +2020,6 @@ class ApiController extends Controller
 
 
 
-
-
-
-
-
-
-
-
-
     public function addFixedCost(Request $request)
     {
 
@@ -2136,6 +2131,7 @@ class ApiController extends Controller
 
     public function getMeter(Request $request)
     {
+        Log::info('property');
 
 
         $accountID = $request->get('account_id');
@@ -2150,7 +2146,6 @@ class ApiController extends Controller
 
 
         $meters = Meter::with('readings')->where('account_id', $accountID)->get();
-        Log::info($property);
 
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Meters retrieved successfully!', 'data' => $meters, 'property' => $property]);
     }
