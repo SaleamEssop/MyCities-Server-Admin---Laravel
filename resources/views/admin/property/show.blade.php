@@ -165,20 +165,19 @@
                                             class="btn btn-danger btn-circle">
                                             <i class="fas fa-trash"></i>
                                         </a>
-                                        <a href="http://localhost:8080/web-app/#/auth/login" class="btn btn-primary btn-circle">
-                                            <i class="fas fa-external-link-alt"></i>
+                                    
+                                        {{-- <a href="http://localhost:8080/web-app/#/auth/login" target="_blank"
+                                            class="btn btn-primary btn-circle update-account"
+                                            data-account-id="{{ $account->id }}">
+                                            <i class="fas fa-mobile-alt"></i>
+                                        </a> --}}
+                                        <a href="https://staging.mycities.co.za//web-app/#/auth/login" target="_blank"
+                                            class="btn btn-primary btn-circle update-account"
+                                            data-account-id="{{ $account->id }}">
+                                            <i class="fas fa-mobile-alt"></i>
                                         </a>
-                                        {{-- @if (auth()->user()->is_property_manager === 1) --}}
-                                  
-                                        {{-- <a href="https://staging.mycities.co.za//web-app/#/auth/login" 
-                                        target="_blank" 
-                                        class="btn btn-primary btn-circle update-account"
-                                        data-account-id="{{ $account->id }}">
-                                        <i class="fas fa-mobile-alt"></i> 
-                                      
-                                     </a> --}}
-                                     
-                                      
+
+
                                         {{-- @endif --}}
                                     </td>
                                 </tr>
@@ -425,40 +424,41 @@
         });
     </script>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".update-account").forEach(button => {
-        button.addEventListener("click", function (event) {
-            event.preventDefault(); 
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".update-account").forEach(button => {
+                button.addEventListener("click", function(event) {
+                    event.preventDefault(); // Prevent default anchor behavior if needed
 
-            let url = this.href;
-            let newWindow = window.open(url, "_blank");
+                    // Open the link in a new tab
+                    const url = this.getAttribute("href");
+                    const newWindow = window.open(url, "_blank");
 
-            /
-            let accountId = this.getAttribute("data-account-id");
+                    // Get the account ID from the data attribute
+                    const accountId = this.getAttribute("data-account-id");
 
-            fetch("{{ route('update.account-id') }}", {
-                method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ account_id: accountId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log("Account updated successfully!");
-                } else {
-                    console.error("Failed to update account.");
-                }
-            })
-            .catch(error => console.error("Error:", error));
+                    // Send the account ID to the Laravel backend
+                    fetch("{{ route('update.account-id') }}", {
+                            method: "POST",
+                            headers: {
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}", // Laravel CSRF protection
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                account_id: accountId
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log("Account updated successfully!");
+                            } else {
+                                console.error("Failed to update account.");
+                            }
+                        })
+                        .catch(error => console.error("Error:", error));
+                });
+            });
         });
-    });
-});
-
-
-</script>
-
+    </script>
 @endsection

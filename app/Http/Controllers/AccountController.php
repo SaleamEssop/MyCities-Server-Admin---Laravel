@@ -100,6 +100,7 @@ class AccountController extends Controller
 
     public function updateAccountID(Request $request)
     {
+        
         $request->validate([
             'account_id' => 'nullable',
         ]);
@@ -109,7 +110,6 @@ class AccountController extends Controller
         
         $user->save();
        
-
         return response()->json(['success' => true, 'message' => 'Account updated successfully.']);
     }
 }
