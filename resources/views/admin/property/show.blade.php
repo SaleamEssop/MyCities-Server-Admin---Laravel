@@ -152,19 +152,24 @@
                                 <td>{{ $account->email }}</td>
                                 <td>{{ $account->created_at }}</td> --}}
                                     <td>
+                                         
+                                        
                                         <a href="{{ route('account.account-details', $account->id) }}"
                                             class="btn btn-success btn-circle">
                                             <i class="fas fa-book"></i>
                                         </a>
+                                        @if (auth()->user()->is_property_manager != 1)
                                         <a href="{{ route('account.edit-account', $account->id) }}"
                                             class="btn btn-warning btn-circle">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        @endif
                                         <a href="{{ route('account.delete-account', $account->id) }}"
                                             onclick="return confirm('Are you sure you want to delete this site?')"
                                             class="btn btn-danger btn-circle">
                                             <i class="fas fa-trash"></i>
                                         </a>
+                                        //
                                     
                                         {{-- <a href="http://localhost:8080/web-app/#/auth/login" target="_blank"
                                             class="btn btn-primary btn-circle update-account"
