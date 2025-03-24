@@ -12,43 +12,28 @@
             <div class="row">
                 <div class="col-md-6">
                     <form method="POST" action="{{ route('edit-account') }}">
+                <input type="hidden" name="user_id" value="{{ $account->user->id }}" />
                         <div class="form-group">
-                            <div class="form-group">
-                                <label>User: </label>
-                                <select class="form-control" id="user-select" name="user_id" required>
-                                    <option disabled selected value="">--Select User--</option>
-                                    @foreach ($users as $user)
-                                        <option value="{{ $user->id }}"
-                                            {{ $user->id == $account->site->user->id ? 'selected' : '' }}>
-                                            {{ $user->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <label><strong>Site :</strong></label>
-                            <select class="form-control" id="site-select" name="site_id" required>
-                                <option disabled value="">--Select Site--</option>
-                                @foreach ($sites as $site)
-                                    <option value="{{ $site->id }}"
-                                        {{ $site->id == $account->site_id ? 'selected' : '' }}>{{ $site->title }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <label><strong>Full Name:</strong></label>
+                            <input type="text" value="{{ $account->user->name }}" class="form-control"
+                                placeholder="Enter account title" name="name" required>
                         </div>
                         <div class="form-group">
-                            <label><strong>Account Name :</strong></label>
+                            <label><strong>Email:</strong></label>
+                            <input type="text" value="{{ $account->user->email }}" class="form-control"
+                                placeholder="Enter account title" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label><strong>Contact Number:</strong></label>
+                            <input type="text" value="{{ $account->user->contact_number }}" class="form-control"
+                                placeholder="Enter account title" name="contact_number" required>
+                        </div>
+                        <div class="form-group">
+                            <label><strong>Account Description:</strong></label>
                             <input type="text" value="{{ $account->account_name }}" class="form-control"
                                 placeholder="Enter account title" name="title" required>
                         </div>
-                        <div class="form-group">
-                            <label><strong>Account Number :</strong></label>
-                            <input type="text" value="{{ $account->account_number }}" class="form-control"
-                                placeholder="Enter account number" name="number" required>
-                        </div>
-                        <div class="form-group">
-                            <label><strong>Billing Date :</strong></label>
-                            <input type="number" min="1" max="31" value="{{ $account->billing_date }}"
-                                class="form-control" placeholder="Enter billing date" name="billing_date" required>
-                        </div>
+                      
                         <div class="form-group">
                             <label><strong>Optional Information :</strong></label>
                             <input type="text" value="{{ $account->optional_information }}" name="optional_info"
