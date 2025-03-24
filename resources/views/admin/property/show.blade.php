@@ -169,6 +169,7 @@
                                             class="btn btn-danger btn-circle">
                                             <i class="fas fa-trash"></i>
                                         </a>
+                                        //
                                     
                                         {{-- <a href="http://localhost:8080/web-app/#/auth/login" target="_blank"
                                             class="btn btn-primary btn-circle update-account"
