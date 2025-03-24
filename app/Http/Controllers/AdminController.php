@@ -792,9 +792,9 @@ class AdminController extends Controller
         }
 
         $updArr = array(
-            'site_id' => $postData['site_id'],
-            'account_name' => $postData['title'],
-            'account_number' => $postData['number']
+            
+            'account_name' => $postData['title']
+            
         );
 
         $exists = Account::where($updArr)->where('id', '<>', $postData['account_id'])->first();
@@ -804,7 +804,7 @@ class AdminController extends Controller
             return redirect()->back();
         }
 
-        $updArr['billing_date'] = $postData['billing_date'] ?? null;
+        
         $updArr['optional_information'] = $postData['optional_info'] ?? null;
 
         $updated = Account::where('id', $postData['account_id'])->update($updArr);
@@ -850,10 +850,26 @@ class AdminController extends Controller
             }
         }
 
+
+        //get user detail from request and update user 
+        $updUser = array(
+            
+            'name' => $postData['name'],
+            'email' => $postData['email'],
+            'contact_number' => $postData['contact_number']
+            
+        );
+        if (!empty($postData['user_id'])) {
+            $user = User::find($postData['user_id']);
+            if (!empty($user)) {
+                $user->update($updUser);
+            }
+        }
+
         if ($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Account    updated successfully!');
-            return redirect('admin/accounts');
+            return redirect()->back();
         } else {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, something went wrong.');
