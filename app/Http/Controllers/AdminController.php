@@ -444,27 +444,28 @@ class AdminController extends Controller
             return redirect()->back();
         }
 
-        $updArr = array(
-            'region_id' => $postData['region_id'],
-            'user_id' => $postData['user_id'],
-            'title' => $postData['title'],
-            'lat' => $postData['lat'],
-            'lng' => $postData['lng'],
-            'address' => $postData['address'],
-            'email' => $postData['email'],
-            'billing_type' => $postData['billing_type'] ?? 'monthly',
-            'site_username' => $postData['site_username'] ?? null
-        );
+        $site = Site::find($postData['site_id']);
+        if (!$site) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, site not found.');
+            return redirect()->back();
+        }
 
-        $updated = Site::where('id', $postData['site_id'])->update($updArr);
+        $site->region_id = $postData['region_id'];
+        $site->user_id = $postData['user_id'];
+        $site->title = $postData['title'];
+        $site->lat = $postData['lat'];
+        $site->lng = $postData['lng'];
+        $site->address = $postData['address'];
+        $site->email = $postData['email'];
+        $site->billing_type = $postData['billing_type'] ?? 'monthly';
+        $site->site_username = $postData['site_username'] ?? null;
 
         if (!empty($postData['site_password'])) {
-            $site = Site::find($postData['site_id']);
-            if ($site) {
-                $site->site_password = bcrypt($postData['site_password']);
-                $site->save();
-            }
+            $site->site_password = bcrypt($postData['site_password']);
         }
+
+        $updated = $site->save();
 
         if ($updated) {
             Session::flash('alert-class', 'alert-success');
