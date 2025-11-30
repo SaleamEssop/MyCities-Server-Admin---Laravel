@@ -228,11 +228,12 @@ class AdminController extends Controller
             'billing_type' => $postData['billing_type'] ?? 'monthly',
             'site_username' => $postData['site_username'] ?? null
         );
-        if (!empty($postData['site_password'])) {
-            $siteArr['site_password'] = bcrypt($postData['site_password']);
-        }
         $result = Site::create($siteArr);
         if ($result) {
+            if (!empty($postData['site_password'])) {
+                $result->site_password = bcrypt($postData['site_password']);
+                $result->save();
+            }
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Site created successfully!');
             return redirect('admin/sites');
@@ -455,11 +456,16 @@ class AdminController extends Controller
             'site_username' => $postData['site_username'] ?? null
         );
 
+        $updated = Site::where('id', $postData['site_id'])->update($updArr);
+
         if (!empty($postData['site_password'])) {
-            $updArr['site_password'] = bcrypt($postData['site_password']);
+            $site = Site::find($postData['site_id']);
+            if ($site) {
+                $site->site_password = bcrypt($postData['site_password']);
+                $site->save();
+            }
         }
 
-        $updated = Site::where('id', $postData['site_id'])->update($updArr);
         if ($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Site updated successfully!');

@@ -14,7 +14,7 @@ class AddBillingAndLoginColumnsToSitesTable extends Migration
     public function up()
     {
         Schema::table('sites', function (Blueprint $table) {
-            $table->string('billing_type')->default('monthly')->nullable();
+            $table->string('billing_type')->default('monthly');
             $table->string('site_username')->nullable();
             $table->string('site_password')->nullable();
         });
