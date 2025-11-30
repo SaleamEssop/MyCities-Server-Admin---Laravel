@@ -22,6 +22,10 @@ class Site extends Model
         'site_password'
     ];
 
+    protected $hidden = [
+        'site_password'
+    ];
+
     public function account()
     {
         return $this->hasMany(Account::class);
