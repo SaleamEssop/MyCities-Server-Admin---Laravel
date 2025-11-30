@@ -224,8 +224,13 @@ class AdminController extends Controller
             'lat' => $postData['lat'],
             'lng' => $postData['lng'],
             'email' => $postData['email'],
-            'address' => $postData['address']
+            'address' => $postData['address'],
+            'billing_type' => $postData['billing_type'] ?? 'monthly',
+            'site_username' => $postData['site_username'] ?? null
         );
+        if (!empty($postData['site_password'])) {
+            $siteArr['site_password'] = bcrypt($postData['site_password']);
+        }
         $result = Site::create($siteArr);
         if ($result) {
             Session::flash('alert-class', 'alert-success');
@@ -445,8 +450,14 @@ class AdminController extends Controller
             'lat' => $postData['lat'],
             'lng' => $postData['lng'],
             'address' => $postData['address'],
-            'email' => $postData['email']
+            'email' => $postData['email'],
+            'billing_type' => $postData['billing_type'] ?? 'monthly',
+            'site_username' => $postData['site_username'] ?? null
         );
+
+        if (!empty($postData['site_password'])) {
+            $updArr['site_password'] = bcrypt($postData['site_password']);
+        }
 
         $updated = Site::where('id', $postData['site_id'])->update($updArr);
         if ($updated) {

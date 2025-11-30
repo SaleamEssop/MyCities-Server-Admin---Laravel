@@ -16,7 +16,10 @@ class Site extends Model
         'lat',
         'lng',
         'address',
-        'email'
+        'email',
+        'billing_type',
+        'site_username',
+        'site_password'
     ];
 
     public function account()
