@@ -50,6 +50,21 @@
                             <label><strong>Address:</strong></label>
                             <textarea name="address" placeholder="Enter address" class="form-control" rows="4">{{ $site->address }}</textarea>
                         </div>
+                        <div class="form-group">
+                            <label><strong>Billing Type:</strong></label>
+                            <select class="form-control" name="billing_type" required>
+                                <option value="monthly" {{ ($site->billing_type == 'monthly') ? 'selected' : '' }}>Monthly</option>
+                                <option value="date_to_date" {{ ($site->billing_type == 'date_to_date') ? 'selected' : '' }}>Date-to-Date</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><strong>Site Login Username:</strong></label>
+                            <input type="text" name="site_username" class="form-control" placeholder="Enter site login username" value="{{ $site->site_username }}">
+                        </div>
+                        <div class="form-group">
+                            <label><strong>Site Login Password:</strong></label>
+                            <input type="password" name="site_password" class="form-control" placeholder="Leave blank to keep unchanged">
+                        </div>
                         <input type="hidden" name="site_id" value="{{ $site->id }}" />
                         @csrf
                         <button type="submit" class="btn btn-primary">Submit</button>
