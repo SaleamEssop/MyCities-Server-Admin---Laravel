@@ -1,0 +1,45 @@
+name: Deploy to Digital Ocean
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Deploy files to server
+        uses: easingthemes/ssh-deploy@v5
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.DO_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.DO_HOST }}
+          REMOTE_USER: ${{ secrets.DO_USERNAME }}
+          TARGET: /var/www/mycities.co.za
+
+      - name: Run post-deployment commands
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            cd /var/www/mycities.co.za
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
