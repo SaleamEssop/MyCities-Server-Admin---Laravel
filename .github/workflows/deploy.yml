@@ -1,44 +1,39 @@
-root@mycities:~# cat /etc/apache2/sites-enabled/mycities.co.za.conf
-<VirtualHost *:80>
-        # The ServerName directive sets the request scheme, hostname and port that
-        # the server uses to identify itself. This is used when creating
-        # redirection URLs. In the context of virtual hosts, the ServerName
-        # specifies what hostname must appear in the request's Host: header to
-        # match this virtual host. For the default virtual host (this file) this
-        # value is not decisive as it is used as a last resort host regardless.
-        # However, you must set it for any further virtual host explicitly.
-        #ServerName www.example.com
+name: Deploy to Digital Ocean
 
-        ServerName mycities.co.za
-        ServerAlias www.mycities.co.za
-#       UseCanonicalName Off
-        ServerAdmin webmaster@localhost
-        DocumentRoot /var/www/mycities.co.za/public
-        # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
-        # error, crit, alert, emerg.
-        # It is also possible to configure the loglevel for particular
-        # modules, e.g.
-        #LogLevel info ssl:warn
+on:
+  push:
+    branches: [ main ]
 
-        ErrorLog ${APACHE_LOG_DIR}/error.log
-        CustomLog ${APACHE_LOG_DIR}/access.log combined
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-        # For most configuration files from conf-available/, which are
-        # enabled or disabled at a global level, it is possible to
-        # include a line for only one particular virtual host. For example the
-        # following line enables the CGI configuration for this host only
-        # after it has been globally disabled with "a2disconf".
-        #Include conf-available/serve-cgi-bin.conf
-RewriteEngine on
-RewriteCond %{SERVER_NAME} =mycities.co.za [OR]
-RewriteCond %{SERVER_NAME} =www.mycities.co.za
-RewriteRule ^ https://%{SERVER_NAME}%{REQUEST_URI} [END,NE,R=permanent]
-</VirtualHost>
-#       <VirtualHost 146.190.105.178:80>
-#               ServerName 146.190.105.178
-#               Redirect 403 /
-#       </VirtualHost>
-#NameVirtualHost mycities.co.za:80
+    steps:
+    - uses: actions/checkout@v2
 
-# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
-root@mycities:~# 
+    - name: Install Composer Dependencies
+      run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+    - name: Deploy to Server
+      uses: easingthemes/ssh-deploy@main
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.DO_SSH_KEY }}
+        ARGS: "-rltgoDzvO"
+        SOURCE: "."
+        REMOTE_HOST: ${{ secrets.DO_HOST }}
+        REMOTE_USER: ${{ secrets.DO_USERNAME }}
+        TARGET: "/var/www/mycities.co.za"
+        EXCLUDE: "/node_modules/"
+
+    - name: Execute Remote Commands
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DO_HOST }}
+        username: ${{ secrets.DO_USERNAME }}
+        key: ${{ secrets.DO_SSH_KEY }}
+        script: |
+          cd /var/www/mycities.co.za
+          php artisan migrate --force
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
