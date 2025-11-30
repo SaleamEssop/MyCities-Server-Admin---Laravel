@@ -11,6 +11,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    # NEW STEP: Force PHP 8.0 to match your project requirements
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.0'
+
     - name: Install Composer Dependencies
       run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
