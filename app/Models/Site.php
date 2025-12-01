@@ -16,7 +16,18 @@ class Site extends Model
         'lat',
         'lng',
         'address',
-        'email'
+        'email',
+        'billing_type',
+        'site_username'
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'site_password',
     ];
 
     public function account()

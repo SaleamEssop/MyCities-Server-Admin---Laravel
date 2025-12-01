@@ -224,10 +224,16 @@ class AdminController extends Controller
             'lat' => $postData['lat'],
             'lng' => $postData['lng'],
             'email' => $postData['email'],
-            'address' => $postData['address']
+            'address' => $postData['address'],
+            'billing_type' => $postData['billing_type'] ?? 'monthly',
+            'site_username' => $postData['site_username'] ?? null
         );
         $result = Site::create($siteArr);
         if ($result) {
+            if (!empty($postData['site_password'])) {
+                $result->site_password = bcrypt($postData['site_password']);
+                $result->save();
+            }
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Site created successfully!');
             return redirect('admin/sites');
@@ -438,17 +444,29 @@ class AdminController extends Controller
             return redirect()->back();
         }
 
-        $updArr = array(
-            'region_id' => $postData['region_id'],
-            'user_id' => $postData['user_id'],
-            'title' => $postData['title'],
-            'lat' => $postData['lat'],
-            'lng' => $postData['lng'],
-            'address' => $postData['address'],
-            'email' => $postData['email']
-        );
+        $site = Site::find($postData['site_id']);
+        if (!$site) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Oops, site not found.');
+            return redirect()->back();
+        }
 
-        $updated = Site::where('id', $postData['site_id'])->update($updArr);
+        $site->region_id = $postData['region_id'];
+        $site->user_id = $postData['user_id'];
+        $site->title = $postData['title'];
+        $site->lat = $postData['lat'];
+        $site->lng = $postData['lng'];
+        $site->address = $postData['address'];
+        $site->email = $postData['email'];
+        $site->billing_type = $postData['billing_type'] ?? 'monthly';
+        $site->site_username = $postData['site_username'] ?? null;
+
+        if (!empty($postData['site_password'])) {
+            $site->site_password = bcrypt($postData['site_password']);
+        }
+
+        $updated = $site->save();
+
         if ($updated) {
             Session::flash('alert-class', 'alert-success');
             Session::flash('alert-message', 'Success! Site updated successfully!');

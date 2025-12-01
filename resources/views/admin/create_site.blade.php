@@ -50,6 +50,21 @@
                             <label><strong>Address:</strong></label>
                             <textarea name="address" placeholder="Enter address" class="form-control" rows="4" required></textarea>
                         </div>
+                        <div class="form-group">
+                            <label><strong>Billing Type:</strong></label>
+                            <select class="form-control" name="billing_type">
+                                <option value="monthly" selected>Monthly</option>
+                                <option value="date_to_date">Date-to-Date</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><strong>Site Username:</strong></label>
+                            <input type="text" class="form-control" placeholder="Enter site username" name="site_username">
+                        </div>
+                        <div class="form-group">
+                            <label><strong>Site Password:</strong></label>
+                            <input type="password" class="form-control" placeholder="Enter site password" name="site_password">
+                        </div>
                         @csrf
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
