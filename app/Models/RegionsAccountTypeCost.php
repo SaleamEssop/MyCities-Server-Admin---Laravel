@@ -11,6 +11,16 @@ class RegionsAccountTypeCost extends Model
 
     protected $table  = 'regions_account_type_cost';
 
+    protected $casts = [
+        'water_in' => 'array',
+        'water_out' => 'array',
+        'electricity' => 'array',
+        'additional' => 'array',
+        'waterin_additional' => 'array',
+        'waterout_additional' => 'array',
+        'electricity_additional' => 'array',
+    ];
+
     protected $fillable = [
         'template_name',
         'region_id',
