@@ -104,7 +104,7 @@
     <!-- /.container-fluid -->
 @endsection
 
-@section('page-level-scripts')
+@section('script')
     <script type="text/javascript">
         $(document).ready(function() {
             $('#user-dataTable').dataTable();
@@ -138,17 +138,17 @@
 
             $(document).on("change", '#user-select', function () {
                 let user_id = $(this).val();
-                let token = $("[name='_token']").val();
+                let token = $('meta[name="csrf-token"]').attr('content');
                 // Get list of accounts added under this user
                 $.ajax({
                     type: 'POST',
                     dataType: 'JSON',
                     headers: { 'X-CSRF-TOKEN': token },
-                    url: '/admin/accounts/get-user-sites',
-                    data: {user: user_id},
+                    url: '/admin/sites/get-by-user',
+                    data: {user_id: user_id},
                     success: function (result) {
                         $('#site-select').empty();
-                        $.each(result.details, function(key, value) {
+                        $.each(result.data, function(key, value) {
                             $('#site-select').append($('<option>', {
                                 value: value.id,
                                 text: value.title
