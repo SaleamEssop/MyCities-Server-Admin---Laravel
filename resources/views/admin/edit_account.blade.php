@@ -157,21 +157,15 @@
 
             $(document).on("change", '#user-select', function () {
                 let user_id = $(this).val();
-                // FIX: Use the secure CSRF token
-                let token = $('meta[name="csrf-token"]').attr('content');
                 
-                // Get list of sites added under this user
                 $.ajax({
-                    type: 'POST',
+                    // CHANGED: Use GET
+                    type: 'GET',
                     dataType: 'JSON',
-                    headers: { 'X-CSRF-TOKEN': token },
-                    // FIX: Correct URL
-                    url: '/admin/sites/get-by-user',
-                    // FIX: Correct parameter name
+                    url: '{{ route("get-sites-by-user") }}',
                     data: {user_id: user_id},
                     success: function (result) {
                         $('#site-select').empty();
-                        // FIX: Iterate over result.data
                         $.each(result.data, function(key, value) {
                             $('#site-select').append($('<option>', {
                                 value: value.id,
