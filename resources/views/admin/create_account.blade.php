@@ -122,14 +122,12 @@
             $(document).on("change", '#user-select', function () {
                 let user_id = $(this).val();
                 
-                // CHANGED: Get token from the form input (like the working Edit page)
-                let token = $("[name='_token']").val();
-                
                 $.ajax({
-                    type: 'POST',
+                    // CHANGED: Use GET to avoid CSRF 419 error
+                    type: 'GET',
                     dataType: 'JSON',
-                    headers: { 'X-CSRF-TOKEN': token },
-                    url: '/admin/sites/get-by-user',
+                    // URL uses route helper for accuracy
+                    url: '{{ route("get-sites-by-user") }}',
                     data: {user_id: user_id},
                     success: function (result) {
                         $('#site-select').empty();
