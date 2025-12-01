@@ -106,12 +106,19 @@ class AdminController extends Controller
     public function createSite(Request $request) {
         $postData = $request->post();
         Site::create([
-            'user_id'=>$postData['user_id'], 'title'=>$postData['title'], 'lat'=>$postData['lat'], 'lng'=>$postData['lng'], 
-            'address'=>$postData['address'], 'email'=>$postData['email']??null, 'region_id'=>$postData['region_id'], 
-            'billing_type'=>$postData['billing_type']??'monthly', 'site_username'=>$postData['site_username']??null
+            'user_id' => $postData['user_id'], 
+            'title' => $postData['title'], 
+            'lat' => $postData['lat'] ?? 0.0,     // Default to 0 if not provided
+            'lng' => $postData['lng'] ?? 0.0,     // Default to 0 if not provided
+            'address' => $postData['address'], 
+            'email' => $postData['email'] ?? null, 
+            'region_id' => $postData['region_id'], 
+            'billing_type' => $postData['billing_type'] ?? 'monthly', 
+            'site_username' => $postData['site_username'] ?? null
         ]);
         return redirect(route('show-sites'));
     }
+
     public function deleteSite($id) { Site::destroy($id); return redirect()->back(); }
     public function editSiteForm($id) { return view('admin.edit_site', ['site'=>Site::find($id), 'users'=>User::all(), 'regions'=>Regions::all()]); }
     public function editSite(Request $request) { Site::where('id', $request->id)->update(['title'=>$request->title]); return redirect(route('show-sites')); }
