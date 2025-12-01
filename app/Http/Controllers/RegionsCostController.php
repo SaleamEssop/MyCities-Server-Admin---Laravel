@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\RegionCost; // Assuming you have a model for this table
+use App\Models\RegionCost;
 use App\Models\Regions;
+use App\Models\MeterType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -11,16 +12,21 @@ class RegionsCostController extends Controller
 {
     public function index()
     {
-        // List all costs grouped by region
-        return view('admin.region_costs.index', [
-            'costs' => RegionCost::with('region')->get()
-        ]);
+        // Get costs with their related Region and Meter Type (e.g. Electricity)
+        $costs = RegionCost::with(['region', 'meterType'])
+                    ->orderBy('region_id')
+                    ->orderBy('meter_type_id')
+                    ->orderBy('min')
+                    ->get();
+
+        return view('admin.region_cost.index', ['costs' => $costs]);
     }
 
     public function create()
     {
-        return view('admin.region_costs.create', [
-            'regions' => Regions::all()
+        return view('admin.region_cost.create', [
+            'regions' => Regions::all(),
+            'meterTypes' => MeterType::all() // Pass meter types to the view
         ]);
     }
 
@@ -28,18 +34,22 @@ class RegionsCostController extends Controller
     {
         $postData = $request->validate([
             'region_id' => 'required|exists:regions,id',
-            'cost_type' => 'required|string', // e.g., 'electricity', 'water'
-            'amount' => 'required|numeric',   // e.g., 2.50
-            'valid_from' => 'required|date',
+            'meter_type_id' => 'required|exists:meter_types,id',
+            'min' => 'required|numeric|min:0',
+            'max' => 'required|numeric|gte:min',
+            'amount' => 'required|numeric',
         ]);
 
         RegionCost::create($postData);
 
         Session::flash('alert-class', 'alert-success');
-        Session::flash('alert-message', 'Region Cost updated successfully!');
+        Session::flash('alert-message', 'Tiered Cost added successfully!');
         
         return redirect()->route('region-cost');
     }
 
-    // ... (Edit/Update methods would follow similar logic)
+    public function delete($id) {
+        RegionCost::destroy($id);
+        return redirect()->back();
+    }
 }
