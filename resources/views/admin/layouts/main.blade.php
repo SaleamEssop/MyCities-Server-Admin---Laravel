@@ -85,7 +85,7 @@
             </div>
         </li>
         
-        <!-- Nav Item - User Accounts (Previously Accounts) -->
+        <!-- Nav Item - User Accounts -->
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAccounts"
                aria-expanded="true" aria-controls="collapseAccounts">
@@ -101,7 +101,7 @@
             </div>
         </li>
 
-        <!-- Nav Item - Meters -->
+        <!-- Nav Item - Meters (Restored) -->
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMeters"
                aria-expanded="true" aria-controls="collapseMeters">
@@ -117,7 +117,7 @@
             </div>
         </li>
 
-        <!-- Nav Item - Readings -->
+        <!-- Nav Item - Readings (Restored) -->
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReadings"
                aria-expanded="true" aria-controls="collapseReadings">
@@ -129,6 +129,22 @@
                 <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
                     <a class="collapse-item cust-sidebar-sub" href="{{ route('meter-reading-list') }}">List</a>
                     <a class="collapse-item cust-sidebar-sub" href="{{ route('add-meter-reading-form') }}">Add</a>
+                </div>
+            </div>
+        </li>
+
+        <!-- NEW: Nav Item - Payments -->
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePayments"
+               aria-expanded="true" aria-controls="collapsePayments">
+                <i class="fas fa-fw fa-dollar-sign"></i>
+                <span>Payments</span>
+            </a>
+            <div id="collapsePayments" class="collapse" aria-labelledby="headingUtilities"
+                 data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('payments-list') }}">History</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-payment-form') }}">Record Payment</a>
                 </div>
             </div>
         </li>
