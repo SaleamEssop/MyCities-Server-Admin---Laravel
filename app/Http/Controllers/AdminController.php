@@ -43,7 +43,6 @@ class AdminController extends Controller
             return redirect()->back();
         }
 
-        // Now check if incoming user is admin or not
         if (!$user->is_admin) {
             Session::flash('alert-class', 'alert-danger');
             Session::flash('alert-message', 'Oops, you are not authorized to access admin panel!');
@@ -51,7 +50,6 @@ class AdminController extends Controller
         }
 
         Auth::login($user);
-
         return redirect()->intended('admin/');
     }
 
@@ -59,45 +57,59 @@ class AdminController extends Controller
 
     public function showUsers(Request $request)
     {
-        $adminID = Auth::user()->id;
-        $users = User::whereNotIn('id', [$adminID])->get();
-        return view('admin.users', ['users' => $users]);
+        try {
+            $adminID = Auth::user()->id;
+            $users = User::whereNotIn('id', [$adminID])->get();
+            return view('admin.users', ['users' => $users]);
+        } catch (\Exception $e) { return "Error in showUsers: " . $e->getMessage(); }
     }
 
     public function showAccounts(Request $request)
     {
-        $accounts = Account::with('site')->get();
-        return view('admin.accounts', ['accounts' => $accounts]);
+        try {
+            $accounts = Account::with('site')->get();
+            return view('admin.accounts', ['accounts' => $accounts]);
+        } catch (\Exception $e) { return "Error in showAccounts: " . $e->getMessage(); }
     }
 
     public function showSites(Request $request)
     {
-        $sites = Site::with(['user', 'region'])->get();
-        return view('admin.sites', ['sites' => $sites]);
+        try {
+            $sites = Site::with(['user', 'region'])->get();
+            return view('admin.sites', ['sites' => $sites]);
+        } catch (\Exception $e) { return "Error in showSites: " . $e->getMessage(); }
     }
 
     public function showRegions(Request $request)
     {
-        $regions = Regions::all();
-        return view('admin.regions', ['regions' => $regions]);
+        try {
+            $regions = Regions::all();
+            return view('admin.regions', ['regions' => $regions]);
+        } catch (\Exception $e) { return "Error in showRegions: " . $e->getMessage(); }
     }
 
     public function showAccountType(Request $request)
     {
-        $account_type = AccountType::all();
-        return view('admin.account_type.account_type', ['account_type' => $account_type]);
+        try {
+            $account_type = AccountType::all();
+            return view('admin.account_type.account_type', ['account_type' => $account_type]);
+        } catch (\Exception $e) { return "Error in showAccountType: " . $e->getMessage(); }
     }
 
     public function showMeters(Request $request)
     {
-        $meters = Meter::with(['account', 'meterTypes'])->get();
-        return view('admin.meters', ['meters' => $meters]);
+        try {
+            $meters = Meter::with(['account', 'meterTypes'])->get();
+            return view('admin.meters', ['meters' => $meters]);
+        } catch (\Exception $e) { return "Error in showMeters: " . $e->getMessage(); }
     }
 
     public function showReadings(Request $request)
     {
-        $readings = MeterReadings::with('meter')->orderBy('id', 'desc')->get();
-        return view('admin.meter_readings', ['readings' => $readings]);
+        try {
+            $readings = MeterReadings::with('meter')->orderBy('id', 'desc')->get();
+            return view('admin.meter_readings', ['readings' => $readings]);
+        } catch (\Exception $e) { return "Error in showReadings: " . $e->getMessage(); }
     }
 
     public function showAlarms(Request $request)
@@ -110,28 +122,39 @@ class AdminController extends Controller
 
     public function addUserForm(Request $request)
     {
-        return view('admin.create_user');
+        try {
+            return view('admin.create_user');
+        } catch (\Exception $e) { return "Error in addUserForm: " . $e->getMessage(); }
     }
 
     public function addSiteForm(Request $request)
     {
-        $users = User::all();
-        $regions = Regions::all();
-        return view('admin.create_site', ['users' => $users, 'regions' => $regions]);
+        try {
+            $users = User::all();
+            $regions = Regions::all();
+            return view('admin.create_site', ['users' => $users, 'regions' => $regions]);
+        } catch (\Exception $e) { return "Error in addSiteForm: " . $e->getMessage(); }
     }
 
     public function addAccountForm(Request $request)
     {
-        $users = User::all();
-        $sites = Site::all(); 
-        // Only fetch costs marked as default to avoid crashing or showing irrelevant costs
-        $defaultCosts = FixedCost::where('is_default', 1)->get(); 
+        try {
+            $users = User::all();
+            $sites = Site::all(); 
+            
+            // DEBUG: If FixedCost fails, catch it specifically
+            try {
+                $defaultCosts = FixedCost::where('is_default', 1)->get(); 
+            } catch (\Exception $e) {
+                $defaultCosts = []; // Fallback
+            }
 
-        return view('admin.create_account', [
-            'users' => $users, 
-            'sites' => $sites,
-            'defaultCosts' => $defaultCosts
-        ]);
+            return view('admin.create_account', [
+                'users' => $users, 
+                'sites' => $sites,
+                'defaultCosts' => $defaultCosts
+            ]);
+        } catch (\Exception $e) { return "Error in addAccountForm: " . $e->getMessage(); }
     }
 
     public function addAccountTypeForm(Request $request)
@@ -141,31 +164,37 @@ class AdminController extends Controller
 
     public function addMeterForm(Request $request)
     {
-        $accounts = Account::all();
-        $meterTypes = MeterType::all();
-        $meterCats = MeterCategory::all();
-        return view('admin.create_meter', [
-            'accounts' => $accounts,
-            'meterTypes' => $meterTypes,
-            'meterCats' => $meterCats
-        ]);
+        try {
+            $accounts = Account::all();
+            $meterTypes = MeterType::all();
+            $meterCats = MeterCategory::all();
+            return view('admin.create_meter', [
+                'accounts' => $accounts,
+                'meterTypes' => $meterTypes,
+                'meterCats' => $meterCats
+            ]);
+        } catch (\Exception $e) { return "Error in addMeterForm: " . $e->getMessage(); }
     }
 
     public function addReadingForm(Request $request)
     {
-        $meters = Meter::with('account')->get();
-        return view('admin.create_meter_reading', ['meters' => $meters]);
+        try {
+            $meters = Meter::with('account')->get();
+            return view('admin.create_meter_reading', ['meters' => $meters]);
+        } catch (\Exception $e) { return "Error in addReadingForm: " . $e->getMessage(); }
     }
     
     public function addRegionForm(Request $request)
     {
-        $waterType = MeterType::where('title', 'water')->first();
-        $electType = MeterType::where('title', 'electricity')->first();
+        try {
+            $waterType = MeterType::where('title', 'water')->first();
+            $electType = MeterType::where('title', 'electricity')->first();
 
-        $data['water_id'] = $waterType ? $waterType->id : 0;
-        $data['elect_id'] = $electType ? $electType->id : 0;
+            $data['water_id'] = $waterType ? $waterType->id : 0;
+            $data['elect_id'] = $electType ? $electType->id : 0;
 
-        return view('admin.create_region', ['data' => $data]);
+            return view('admin.create_region', ['data' => $data]);
+        } catch (\Exception $e) { return "Error in addRegionForm: " . $e->getMessage(); }
     }
 
 
@@ -173,31 +202,33 @@ class AdminController extends Controller
 
     public function createUser(Request $request)
     {
-        $postData = $request->post();
-        $alreadyExists = User::where('email', $postData['email'])->get();
-        if (count($alreadyExists) > 0) {
-            Session::flash('alert-class', 'alert-danger');
-            Session::flash('alert-message', 'Oops, user with this email already exists.');
-            return redirect()->back()->withInput();
-        }
-        $userArr = array(
-            'name' => $postData['name'],
-            'email' => $postData['email'],
-            'contact_number' => $postData['contact_number'],
-            'password' => bcrypt($postData['password']),
-            'is_admin' => 0
-        );
+        try {
+            $postData = $request->post();
+            $alreadyExists = User::where('email', $postData['email'])->get();
+            if (count($alreadyExists) > 0) {
+                Session::flash('alert-class', 'alert-danger');
+                Session::flash('alert-message', 'Oops, user with this email already exists.');
+                return redirect()->back()->withInput();
+            }
+            $userArr = array(
+                'name' => $postData['name'],
+                'email' => $postData['email'],
+                'contact_number' => $postData['contact_number'],
+                'password' => bcrypt($postData['password']),
+                'is_admin' => 0
+            );
 
-        $result = User::create($userArr);
-        if ($result) {
-            Session::flash('alert-class', 'alert-success');
-            Session::flash('alert-message', 'User created successfully!');
-            return redirect(route('show-users'));
-        } else {
-            Session::flash('alert-class', 'alert-danger');
-            Session::flash('alert-message', 'Oops, something went wrong!');
-            return redirect()->back()->withInput();
-        }
+            $result = User::create($userArr);
+            if ($result) {
+                Session::flash('alert-class', 'alert-success');
+                Session::flash('alert-message', 'User created successfully!');
+                return redirect(route('show-users'));
+            } else {
+                Session::flash('alert-class', 'alert-danger');
+                Session::flash('alert-message', 'Oops, something went wrong!');
+                return redirect()->back()->withInput();
+            }
+        } catch (\Exception $e) { return "Error in createUser: " . $e->getMessage(); }
     }
 
     public function deleteUser($id)
@@ -263,33 +294,35 @@ class AdminController extends Controller
 
     public function createSite(Request $request)
     {
-        $postData = $request->post();
-        
-        $site = Site::create([
-            'user_id' => $postData['user_id'],
-            'title' => $postData['title'],
-            'lat' => $postData['lat'],
-            'lng' => $postData['lng'],
-            'address' => $postData['address'],
-            'email' => $postData['email'] ?? null,
-            'region_id' => $postData['region_id'],
-            'billing_type' => $postData['billing_type'] ?? 'monthly',
-            'site_username' => $postData['site_username'] ?? null
-        ]);
+        try {
+            $postData = $request->post();
+            
+            $site = Site::create([
+                'user_id' => $postData['user_id'],
+                'title' => $postData['title'],
+                'lat' => $postData['lat'],
+                'lng' => $postData['lng'],
+                'address' => $postData['address'],
+                'email' => $postData['email'] ?? null,
+                'region_id' => $postData['region_id'],
+                'billing_type' => $postData['billing_type'] ?? 'monthly',
+                'site_username' => $postData['site_username'] ?? null
+            ]);
 
-        if ($site) {
-            if (!empty($postData['site_password'])) {
-                $site->site_password = bcrypt($postData['site_password']);
-                $site->save();
+            if ($site) {
+                if (!empty($postData['site_password'])) {
+                    $site->site_password = bcrypt($postData['site_password']);
+                    $site->save();
+                }
+                Session::flash('alert-class', 'alert-success');
+                Session::flash('alert-message', 'Site created successfully!');
+                return redirect(route('show-sites'));
+            } else {
+                Session::flash('alert-class', 'alert-danger');
+                Session::flash('alert-message', 'Oops, something went wrong!');
+                return redirect()->back()->withInput();
             }
-            Session::flash('alert-class', 'alert-success');
-            Session::flash('alert-message', 'Site created successfully!');
-            return redirect(route('show-sites'));
-        } else {
-            Session::flash('alert-class', 'alert-danger');
-            Session::flash('alert-message', 'Oops, something went wrong!');
-            return redirect()->back()->withInput();
-        }
+        } catch (\Exception $e) { return "Error in createSite: " . $e->getMessage(); }
     }
 
     public function editSiteForm($id)
@@ -372,51 +405,53 @@ class AdminController extends Controller
 
     public function createAccount(Request $request)
     {
-        $postData = $request->post();
-        
-        $result = Account::create([
-            'site_id' => $postData['site_id'],
-            'account_name' => $postData['title'],
-            'account_number' => $postData['number'],
-            'billing_date' => $postData['billing_date'],
-            'optional_information' => $postData['optional_info']
-        ]);
+        try {
+            $postData = $request->post();
+            
+            $result = Account::create([
+                'site_id' => $postData['site_id'],
+                'account_name' => $postData['title'],
+                'account_number' => $postData['number'],
+                'billing_date' => $postData['billing_date'],
+                'optional_information' => $postData['optional_info']
+            ]);
 
-        if ($result) {
-            // Handle Default Costs
-            if (isset($postData['default_ids']) && count($postData['default_ids']) > 0) {
-                $accountDefaultCosts = [];
-                for ($i = 0; $i < count($postData['default_ids']); $i++) {
-                    $accountDefaultCosts[$i]['account_id'] = $result->id;
-                    $accountDefaultCosts[$i]['fixed_cost_id'] = $postData['default_ids'][$i];
-                    $accountDefaultCosts[$i]['value'] = $postData['default_cost_value'][$i];
-                    $accountDefaultCosts[$i]['created_at'] = date('Y-m-d H:i:s');
-                    $accountDefaultCosts[$i]['updated_at'] = date('Y-m-d H:i:s');
+            if ($result) {
+                // Handle Default Costs
+                if (isset($postData['default_ids']) && count($postData['default_ids']) > 0) {
+                    $accountDefaultCosts = [];
+                    for ($i = 0; $i < count($postData['default_ids']); $i++) {
+                        $accountDefaultCosts[$i]['account_id'] = $result->id;
+                        $accountDefaultCosts[$i]['fixed_cost_id'] = $postData['default_ids'][$i];
+                        $accountDefaultCosts[$i]['value'] = $postData['default_cost_value'][$i];
+                        $accountDefaultCosts[$i]['created_at'] = date('Y-m-d H:i:s');
+                        $accountDefaultCosts[$i]['updated_at'] = date('Y-m-d H:i:s');
+                    }
+                    AccountFixedCost::insert($accountDefaultCosts);
                 }
-                AccountFixedCost::insert($accountDefaultCosts);
-            }
 
-            // Handle Additional Costs
-            if (isset($postData['additional_cost_name']) && count($postData['additional_cost_name']) > 0) {
-                $fixedCostArr = [];
-                for ($i = 0; $i < count($postData['additional_cost_name']); $i++) {
-                    $fixedCostArr[$i]['account_id'] = $result->id;
-                    $fixedCostArr[$i]['title'] = $postData['additional_cost_name'][$i];
-                    $fixedCostArr[$i]['value'] = $postData['additional_cost_value'][$i];
-                    $fixedCostArr[$i]['created_at'] = date('Y-m-d H:i:s');
-                    $fixedCostArr[$i]['updated_at'] = date('Y-m-d H:i:s');
+                // Handle Additional Costs
+                if (isset($postData['additional_cost_name']) && count($postData['additional_cost_name']) > 0) {
+                    $fixedCostArr = [];
+                    for ($i = 0; $i < count($postData['additional_cost_name']); $i++) {
+                        $fixedCostArr[$i]['account_id'] = $result->id;
+                        $fixedCostArr[$i]['title'] = $postData['additional_cost_name'][$i];
+                        $fixedCostArr[$i]['value'] = $postData['additional_cost_value'][$i];
+                        $fixedCostArr[$i]['created_at'] = date('Y-m-d H:i:s');
+                        $fixedCostArr[$i]['updated_at'] = date('Y-m-d H:i:s');
+                    }
+                    FixedCost::insert($fixedCostArr);
                 }
-                FixedCost::insert($fixedCostArr);
-            }
 
-            Session::flash('alert-class', 'alert-success');
-            Session::flash('alert-message', 'Account created successfully!');
-            return redirect(route('account-list'));
-        } else {
-            Session::flash('alert-class', 'alert-danger');
-            Session::flash('alert-message', 'Oops, something went wrong!');
-            return redirect()->back()->withInput();
-        }
+                Session::flash('alert-class', 'alert-success');
+                Session::flash('alert-message', 'Account created successfully!');
+                return redirect(route('account-list'));
+            } else {
+                Session::flash('alert-class', 'alert-danger');
+                Session::flash('alert-message', 'Oops, something went wrong!');
+                return redirect()->back()->withInput();
+            }
+        } catch (\Exception $e) { return "Error in createAccount: " . $e->getMessage(); }
     }
 
     public function deleteAccount($id)
@@ -444,7 +479,6 @@ class AdminController extends Controller
     public function editAccount(Request $request)
     {
         $postData = $request->post();
-        // Simple redirect for now, assuming edit logic will be implemented if needed
         return redirect(route('account-list'));
     }
 
@@ -542,15 +576,17 @@ class AdminController extends Controller
     
     public function createMeter(Request $request)
     {
-        $postData = $request->post();
-        Meter::create([
-            'account_id' => $postData['account_id'],
-            'meter_category_id' => $postData['meter_cat_id'],
-            'meter_type_id' => $postData['meter_type_id'],
-            'meter_title' => $postData['title'],
-            'meter_number' => $postData['number']
-        ]);
-        Session::flash('alert-class', 'alert-success');
-        return redirect(route('meters-list'));
+        try {
+            $postData = $request->post();
+            Meter::create([
+                'account_id' => $postData['account_id'],
+                'meter_category_id' => $postData['meter_cat_id'],
+                'meter_type_id' => $postData['meter_type_id'],
+                'meter_title' => $postData['title'],
+                'meter_number' => $postData['number']
+            ]);
+            Session::flash('alert-class', 'alert-success');
+            return redirect(route('meters-list'));
+        } catch (\Exception $e) { return "Error in createMeter: " . $e->getMessage(); }
     }
 }
