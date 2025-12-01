@@ -60,6 +60,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('account/edit/{id}', [AdminController::class, 'editAccountForm']);
     Route::post('account/edit', [AdminController::class, 'editAccount'])->name('edit-account');
     Route::get('account/delete/{id}', [AdminController::class, 'deleteAccount']);
+    // NEW HELPER: Get accounts for site dropdown
+    Route::post('accounts/get-by-site', [AdminController::class, 'getAccountsBySite'])->name('get-accounts-by-site');
 
     // --- METERS ---
     Route::get('meters', [AdminController::class, 'showMeters'])->name('meters-list'); 
