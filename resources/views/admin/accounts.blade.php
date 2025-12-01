@@ -1,17 +1,18 @@
 @extends('admin.layouts.main')
-@section('title', 'Accounts')
+@section('title', 'User Accounts')
 
 @section('content')
     <!-- Begin Page Content -->
     <div class="container-fluid">
 
         <!-- Page Heading -->
-        <h1 class="h3 mb-2 custom-text-heading">Accounts</h1>
+        <h1 class="h3 mb-2 custom-text-heading">User Accounts</h1>
+        <p class="mb-4">List of utility accounts linked to sites.</p>
 
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold">List of accounts under sites added by users</h6>
+                <h6 class="m-0 font-weight-bold">All User Accounts</h6>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -54,7 +55,7 @@
                                     <a href="{{ url('admin/account/edit/'.$account->id) }}" class="btn btn-warning btn-circle">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="{{ url('admin/account/delete/'.$account->id) }}" onclick="return confirm('Are you sure you want to delete this account?')" class="btn btn-danger btn-circle">
+                                    <a href="{{ url('admin/account/delete/'.$account->id) }}" onclick="return confirm('Are you sure you want to delete this user account?')" class="btn btn-danger btn-circle">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>
