@@ -17,6 +17,9 @@
 
     <!-- Custom styles for this template-->
     <link href="{{ url('/css/main.css')  }}" rel="stylesheet">
+    <!-- NEW: Professional Theme Override -->
+    <link href="{{ url('/css/custom-admin.css')  }}" rel="stylesheet">
+    
     <link href="{{ url('vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
 </head>
 
@@ -51,12 +54,12 @@
             Interface
         </div>
 
-        <!-- Nav Item - Pages Collapse Menu -->
+        <!-- Nav Item - Users -->
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
                aria-expanded="true" aria-controls="collapseTwo">
                 <i class="fas fa-fw fa-cog"></i>
-                <span>Users Management</span>
+                <span>Users</span>
             </a>
             <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
@@ -67,97 +70,84 @@
             </div>
         </li>
 
-        <!-- Nav Item - Utilities Collapse Menu -->
-        
-
-        <!-- Nav Item - Utilities Collapse Menu -->
+        <!-- Nav Item - Sites -->
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSites"
                aria-expanded="true" aria-controls="collapseSites">
                 <i class="fas fa-fw fa-location-arrow"></i>
-                <span>Sites Management</span>
+                <span>Sites</span>
             </a>
             <div id="collapseSites" class="collapse" aria-labelledby="headingUtilities"
                  data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" href="{{ route('sites-list') }}">List</a>
-                    <a class="collapse-item" href="{{ route('add-site-form') }}">Add</a>
+                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('show-sites') }}">List</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('create-site-form') }}">Add</a>
                 </div>
             </div>
         </li>
-
-        <!-- Nav Item - Utilities Collapse Menu -->
+        
+        <!-- Nav Item - Accounts -->
         <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
-               aria-expanded="true" aria-controls="collapseUtilities">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAccounts"
+               aria-expanded="true" aria-controls="collapseAccounts">
                 <i class="fas fa-fw fa-wrench"></i>
-                <span>Accounts Management</span>
+                <span>Accounts</span>
             </a>
-            <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
+            <div id="collapseAccounts" class="collapse" aria-labelledby="headingUtilities"
                  data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" href="{{ route('account-list') }}">List</a>
-                    <a class="collapse-item" href="{{ route('add-account-form') }}">Add</a>
+                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('account-list') }}">List</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-account-form') }}">Add</a>
                 </div>
             </div>
         </li>
 
+        <!-- Nav Item - Meters -->
         <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMeter"
-               aria-expanded="true" aria-controls="collapseMeter">
-                <i class="fas fa-fw fa-meteor"></i>
-                <span>Meters Management</span>
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMeters"
+               aria-expanded="true" aria-controls="collapseMeters">
+                <i class="fas fa-fw fa-wrench"></i>
+                <span>Meters</span>
             </a>
-            <div id="collapseMeter" class="collapse" aria-labelledby="headingUtilities"
+            <div id="collapseMeters" class="collapse" aria-labelledby="headingUtilities"
                  data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" href="{{ route('meters-list') }}">List</a>
-                    <a class="collapse-item" href="{{ route('add-meter-form') }}">Add</a>
+                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('meters-list') }}">List</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-meter-form') }}">Add</a>
                 </div>
             </div>
         </li>
 
+        <!-- Nav Item - Readings -->
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReadings"
                aria-expanded="true" aria-controls="collapseReadings">
-                <i class="fas fa-fw fa-book-reader"></i>
-                <span>Meter Readings</span>
+                <i class="fas fa-fw fa-wrench"></i>
+                <span>Readings</span>
             </a>
             <div id="collapseReadings" class="collapse" aria-labelledby="headingUtilities"
                  data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" href="{{ route('readings-list') }}">List</a>
-                    <a class="collapse-item" href="{{ route('add-readings-form') }}">Add</a>
+                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('meter-reading-list') }}">List</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-meter-reading-form') }}">Add</a>
                 </div>
             </div>
         </li>
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAds"
-               aria-expanded="true" aria-controls="collapseAds">
-                <i class="fas fa-fw fa-book-reader"></i>
-                <span>Ads Management</span>
-            </a>
-            <div id="collapseAds" class="collapse" aria-labelledby="headingUtilities"
-                 data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" href="{{ route('category-list') }}">Categories</a>
-                    <a class="collapse-item" href="{{ route('ads-list') }}">Ads</a>
-                </div>
-            </div>
-        </li>
         <!-- Divider -->
         <hr class="sidebar-divider">
 
         <!-- Heading -->
         <div class="sidebar-heading">
-            formula Cost
+            Configuration
         </div>
+
+        <!-- Nav Item - Regions -->
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRegions"
                aria-expanded="true" aria-controls="collapseRegions">
                 <i class="fas fa-fw fa-location-arrow"></i>
-                <span>Regions Management</span>
+                <span>Regions</span>
             </a>
             <div id="collapseRegions" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
@@ -166,11 +156,13 @@
                 </div>
             </div>
         </li>
+        
+        <!-- Nav Item - Account Types -->
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAccountType"
                aria-expanded="true" aria-controls="collapseAccountType">
                 <i class="fas fa-fw fa-location-arrow"></i>
-                <span>AccountType</span>
+                <span>Account Types</span>
             </a>
             <div id="collapseAccountType" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
@@ -179,11 +171,13 @@
                 </div>
             </div>
         </li>
+
+        <!-- Nav Item - Region Costs -->
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRegionsCost"
                aria-expanded="true" aria-controls="collapseRegionsCost">
                 <i class="fas fa-fw fa-location-arrow"></i>
-                <span>Regions Cost</span>
+                <span>Region Costs</span>
             </a>
             <div id="collapseRegionsCost" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
@@ -195,18 +189,6 @@
 
         <!-- Divider -->
         <hr class="sidebar-divider">
-
-        <!-- Heading -->
-        <div class="sidebar-heading">
-            Addons
-        </div>
-
-        <li class="nav-item">
-            <a class="nav-link" href="{{ route('default-costs') }}">
-                <i class="fas fa-fw fa-money-check"></i>
-                <span>Default Costs</span></a>
-        </li>
-
         <li class="nav-item">
             <a class="nav-link" href="{{ route('alarms') }}">
                 <i class="fas fa-fw fa-clock"></i>
@@ -214,10 +196,11 @@
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" href="{{ route('tc') }}">
-                <i class="fas fa-fw fa-money-check"></i>
-                <span>Terms & Conditions</span></a>
+            <a class="nav-link" href="{{ route('admin.logout') }}">
+                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                <span>Logout</span></a>
         </li>
+
         <!-- Divider -->
         <hr class="sidebar-divider d-none d-md-block">
 
@@ -225,6 +208,7 @@
         <div class="text-center d-none d-md-inline">
             <button class="rounded-circle border-0" id="sidebarToggle"></button>
         </div>
+
     </ul>
     <!-- End of Sidebar -->
 
@@ -242,46 +226,8 @@
                     <i class="fa fa-bars"></i>
                 </button>
 
-                <!-- Topbar Search -->
-                {{--<form
-                    class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                    <div class="input-group">
-                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
-                               aria-label="Search" aria-describedby="basic-addon2">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="button">
-                                <i class="fas fa-search fa-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                </form>--}}
-
                 <!-- Topbar Navbar -->
                 <ul class="navbar-nav ml-auto">
-
-                    <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-                    <li class="nav-item dropdown no-arrow d-sm-none">
-                        <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
-                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-search fa-fw"></i>
-                        </a>
-                        <!-- Dropdown - Messages -->
-                        <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
-                             aria-labelledby="searchDropdown">
-                            <form class="form-inline mr-auto w-100 navbar-search">
-                                <div class="input-group">
-                                    <input type="text" class="form-control bg-light border-0 small"
-                                           placeholder="Search for..." aria-label="Search"
-                                           aria-describedby="basic-addon2">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-primary" type="button">
-                                            <i class="fas fa-search fa-sm"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </li>
 
                     <div class="topbar-divider d-none d-sm-block"></div>
 
@@ -289,19 +235,14 @@
                     <li class="nav-item dropdown no-arrow">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
+                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ isset(auth()->user()->name) ? auth()->user()->name : 'Admin' }}</span>
                             <img class="img-profile rounded-circle"
                                  src="{{ url('img/undraw_profile.svg') }}">
                         </a>
                         <!-- Dropdown - User Information -->
                         <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                              aria-labelledby="userDropdown">
-                            <a class="dropdown-item" href="#">
-                                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Profile
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                            <a class="dropdown-item" href="{{ route('admin.logout') }}" data-toggle="modal" data-target="#logoutModal">
                                 <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                 Logout
                             </a>
@@ -312,19 +253,24 @@
 
             </nav>
             <!-- End of Topbar -->
-            <div class="cust-alert-wrapper">
+
+            <!-- Begin Page Content -->
+            <div class="container-fluid">
                 @if(\Illuminate\Support\Facades\Session::has('alert-message'))
                     <p class="alert {{ \Illuminate\Support\Facades\Session::get('alert-class', 'alert-info') }}">{{ \Illuminate\Support\Facades\Session::get('alert-message') }}</p>
                 @endif
+                @yield('content')
             </div>
-            @yield('content')
+            <!-- /.container-fluid -->
+
         </div>
         <!-- End of Main Content -->
+
         <!-- Footer -->
         <footer class="sticky-footer bg-white">
             <div class="container my-auto">
                 <div class="copyright text-center my-auto">
-                    <span>Copyright &copy; Lights and Water 2022</span>
+                    <span>Copyright &copy; LightsAndWater 2021</span>
                 </div>
             </div>
         </footer>
@@ -355,7 +301,7 @@
             <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <a class="btn btn-primary" href="login.html">Logout</a>
+                <a class="btn btn-primary" href="{{ route('admin.logout') }}">Logout</a>
             </div>
         </div>
     </div>
@@ -372,18 +318,23 @@
 <script src="{{ url('js/sb-admin-2.min.js') }}"></script>
 
 <!-- Page level plugins -->
-{{--<script src="{{ url('vendor/chart.js/Chart.min.js') }}"></script>--}}
+<script src="{{ url('vendor/chart.js/Chart.min.js') }}"></script>
 
 <!-- Page level custom scripts -->
-{{--
 <script src="{{ url('js/demo/chart-area-demo.js') }}"></script>
 <script src="{{ url('js/demo/chart-pie-demo.js') }}"></script>
---}}
 <!-- Page level plugins -->
 <script src="{{ url('vendor/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ url('vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
 
-@yield('page-level-scripts')
+<!-- Page level custom scripts -->
+<script src="{{ url('js/demo/datatables-demo.js') }}"></script>
+<script>
+    $(".alert").delay(4000).slideUp(200, function() {
+        $(this).alert('close');
+    });
+</script>
+@yield('script')
 </body>
 
 </html>
