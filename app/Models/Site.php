@@ -10,30 +10,17 @@ class Site extends Model
     use HasFactory;
 
     protected $fillable = [
-        'region_id',
-        'user_id',
-        'title',
-        'lat',
-        'lng',
-        'address',
-        'email',
-        'billing_type',
+        'user_id', 
+        'title', 
+        'lat', 
+        'lng', 
+        'address', 
+        'email', 
+        'region_id', 
+        'billing_type', 
         'site_username'
+        // REMOVED: use_custom_costs, custom_electricity_cost, custom_water_cost
     ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'site_password',
-    ];
-
-    public function account()
-    {
-        return $this->hasMany(Account::class);
-    }
 
     public function user()
     {
@@ -44,13 +31,9 @@ class Site extends Model
     {
         return $this->belongsTo(Regions::class);
     }
-
-    protected static function booted()
+    
+    public function accounts()
     {
-        static::deleted(function ($site) {
-            foreach($site->account as $account) {
-                Account::where('id', $account->id)->first()->delete();
-            }
-        });
+        return $this->hasMany(Account::class);
     }
 }
