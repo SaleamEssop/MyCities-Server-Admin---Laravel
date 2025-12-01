@@ -104,7 +104,8 @@
                         <a href="#" id="add-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
                         <br>
                         <br>
-                        <input type="hidden" name="account_id" value="{{ $account->id }}" />
+                        <!-- FIX: Change name="account_id" to name="id" to match controller -->
+                        <input type="hidden" name="id" value="{{ $account->id }}" />
                         @csrf
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
@@ -156,23 +157,31 @@
 
             $(document).on("change", '#user-select', function () {
                 let user_id = $(this).val();
-                let token = $("[name='_token']").val();
-                // Get list of accounts added under this user
+                // FIX: Use the secure CSRF token
+                let token = $('meta[name="csrf-token"]').attr('content');
+                
+                // Get list of sites added under this user
                 $.ajax({
                     type: 'POST',
                     dataType: 'JSON',
                     headers: { 'X-CSRF-TOKEN': token },
-                    url: '/admin/accounts/get-user-sites',
-                    data: {user: user_id},
+                    // FIX: Correct URL
+                    url: '/admin/sites/get-by-user',
+                    // FIX: Correct parameter name
+                    data: {user_id: user_id},
                     success: function (result) {
                         $('#site-select').empty();
-                        $.each(result.details, function(key, value) {
+                        // FIX: Iterate over result.data
+                        $.each(result.data, function(key, value) {
                             $('#site-select').append($('<option>', {
                                 value: value.id,
                                 text: value.title
                             }));
                         });
                         $('#site-select').prop('disabled', false);
+                    },
+                    error: function(xhr) {
+                         console.log("Error loading sites: ", xhr);
                     }
                 });
             });
