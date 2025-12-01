@@ -1,0 +1,15 @@
+.custom-admin {
+  /* Custom Admin Styles */
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.custom-admin h1 {
+  color: #333;
+}
+
+.custom-admin p {
+  font-size: 14px;
+  color: #666;
+}
