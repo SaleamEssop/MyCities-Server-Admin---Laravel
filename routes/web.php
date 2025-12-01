@@ -60,8 +60,10 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('account/edit/{id}', [AdminController::class, 'editAccountForm']);
     Route::post('account/edit', [AdminController::class, 'editAccount'])->name('edit-account');
     Route::get('account/delete/{id}', [AdminController::class, 'deleteAccount']);
-    // NEW HELPER: Get accounts for site dropdown
+    
+    // AJAX Routes for Dropdowns & Details
     Route::post('accounts/get-by-site', [AdminController::class, 'getAccountsBySite'])->name('get-accounts-by-site');
+    Route::post('accounts/get-details', [AdminController::class, 'getAccountDetails'])->name('get-account-details');
 
     // --- METERS ---
     Route::get('meters', [AdminController::class, 'showMeters'])->name('meters-list'); 
@@ -73,7 +75,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('readings/add', [AdminController::class, 'addReadingForm'])->name('add-meter-reading-form');
     Route::post('readings/add', [AdminController::class, 'createReading'])->name('add-reading');
 
-    // --- PAYMENTS (NEW) ---
+    // --- PAYMENTS ---
     Route::get('payments', [AdminController::class, 'showPayments'])->name('payments-list');
     Route::get('payments/add', [AdminController::class, 'addPaymentForm'])->name('add-payment-form');
     Route::post('payments/add', [AdminController::class, 'createPayment'])->name('add-payment');
