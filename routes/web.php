@@ -51,7 +51,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('sites/edit/{id}', [AdminController::class, 'editSiteForm']);
     Route::post('sites/edit', [AdminController::class, 'editSite'])->name('edit-site');
     Route::get('sites/delete/{id}', [AdminController::class, 'deleteSite']);
-    Route::post('sites/get-by-user', [AdminController::class, 'getSitesByUser'])->name('get-sites-by-user');
+    // CHANGED: Switched to GET to bypass CSRF 419 issues on dropdown load
+    Route::get('sites/get-by-user', [AdminController::class, 'getSitesByUser'])->name('get-sites-by-user');
 
     // --- ACCOUNTS ---
     Route::get('accounts', [AdminController::class, 'showAccounts'])->name('account-list');
