@@ -1,105 +1,62 @@
 @extends('admin.layouts.main')
-@section('title', 'Regions')
+@section('title', 'Region Costs')
 
 @section('content')
-<!-- Begin Page Content -->
 <div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Region Cost Structure</h1>
+    <p class="mb-4">Manage sliding scale tariffs for each region and meter type.</p>
 
-    <!-- Page Heading -->
-    <div class="cust-page-head">
-        <h1 class="h3 mb-2 custom-text-heading">Regions Cost</h1>
-        <!-- <button type="button" class="btn btn-warning btn-circle" data-toggle="modal" data-target="#costModal">
-                <i class="fas fa-plus-square"></i>
-            </button> -->
-    </div>
+    @if(Session::has('alert-message'))
+        <div class="alert {{ Session::get('alert-class', 'alert-info') }} alert-dismissible fade show">
+            {{ Session::get('alert-message') }}
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+    @endif
 
-    <!-- DataTales Example -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold">List of Regions/AccountType Cost added by the admin</h6>
+            <a href="{{ route('region-cost-create') }}" class="btn btn-primary btn-sm float-right">Add New Tier</a>
+            <h6 class="m-0 font-weight-bold text-primary">Current Tariffs</h6>
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered" id="sites-dataTable" width="100%" cellspacing="0">
+                <table class="table table-bordered" width="100%" cellspacing="0">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Template Name</th>
                             <th>Region</th>
-                            <th>AccountType</th>
-                            <th>Created Date</th>
+                            <th>Meter Type</th>
+                            <th>Step Range</th>
+                            <th>Rate (R)</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tfoot>
-                        <tr>
-                            <th>#</th>
-                            <th>Template Name</th>
-                            <th>Region</th>
-                            <th>AccountType</th>
-
-                            <th>Created Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </tfoot>
                     <tbody>
-                        @foreach($regionsAccountTypeCost as $cost)
-                        <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            @if(isset($cost->template_name))
-                            <td>{{ $cost->template_name }}</td>
-                            @else
-                            <td></td>
-                            @endif
-                            @if(isset($cost->region))
-                            <td>{{ $cost->region->name }}</td>
-                            @else
-                            <td></td>
-                            @endif
-                            @if(isset($cost->accountType))
-                            <td>{{ $cost->accountType->type }}</td>
-                            @else
-                            <td></td>
-                            @endif
-
-                            <td>{{ $cost->created_at }}</td>
-                            <td>
-                                <a href="{{ url('admin/region_cost/edit/'.$cost->id) }}" class="btn btn-warning btn-circle">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="{{ url('admin/region_cost/delete/'.$cost->id) }}" onclick="return confirm('Are you sure you want to delete this region cost?')" class="btn btn-danger btn-circle">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        @endforeach
+                        @if(isset($costs) && $costs->count() > 0)
+                            @foreach($costs as $cost)
+                            <tr>
+                                <td>{{ $cost->region->name ?? 'Unknown' }}</td>
+                                <td>
+                                    {{ $cost->meterType->title ?? 'Unknown' }} 
+                                    <small class="text-muted">({{ $cost->meterType->unit ?? '' }})</small>
+                                </td>
+                                <td>
+                                    <span class="badge badge-info">
+                                        {{ $cost->min }} - {{ $cost->max }}
+                                    </span>
+                                </td>
+                                <td>R {{ number_format($cost->amount, 4) }}</td>
+                                <td>
+                                    <a href="{{ url('admin/region_cost/delete/'.$cost->id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this tier?')">Delete</a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        @else
+                            <tr><td colspan="5" class="text-center">No tariffs defined yet.</td></tr>
+                        @endif
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Modal -->
-<div class="modal fade" id="costModal" tabindex="-1" role="dialog" aria-labelledby="costModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="costModalLabel">Add New Region Cost</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-        </div>
-    </div>
-</div>
-@endsection
-
-@section('page-level-scripts')
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('#sites-dataTable').dataTable();
-    });
-</script>
 @endsection
