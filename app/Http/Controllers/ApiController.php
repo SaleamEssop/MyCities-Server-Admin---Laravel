@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\RegionsAccountTypeCost;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Hash;
 
 class ApiController extends Controller
 {
@@ -1650,5 +1651,26 @@ class ApiController extends Controller
         }
 
         return response()->json($acc);
+    }
+
+    public function siteLogin(Request $request)
+    {
+        $postData = $request->post();
+
+        if (empty($postData['site_username']) || empty($postData['site_password'])) {
+            return response()->json(['status' => false, 'code' => 400, 'msg' => 'site_username and site_password are required!'], 400);
+        }
+
+        $site = Site::where('site_username', $postData['site_username'])->first();
+
+        if (empty($site)) {
+            return response()->json(['status' => false, 'code' => 401, 'msg' => 'Invalid credentials!'], 401);
+        }
+
+        if (!Hash::check($postData['site_password'], $site->site_password)) {
+            return response()->json(['status' => false, 'code' => 401, 'msg' => 'Invalid credentials!'], 401);
+        }
+
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Login successful!', 'data' => $site]);
     }
 }
