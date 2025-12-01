@@ -1,236 +1,112 @@
 <?php
 
-namespace App\Http\Controllers;
-
-use App\Models\Account;
-use App\Models\AccountFixedCost;
-use App\Models\AccountType;
-use App\Models\FixedCost;
-use App\Models\Meter;
-use App\Models\MeterReadings;
-use App\Models\MeterType;
-use App\Models\MeterCategory;
-use App\Models\Regions;
-use App\Models\Site;
-use App\Models\User;
-use App\Models\Payment;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\RegionsCostController;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Session;
 
-class AdminController extends Controller
-{
-    // --- LOGIN ---
-    public function login(Request $request)
-    {
-        $postData = $request->post();
-        if (empty($postData['email']) || empty($postData['password']))
-            return redirect()->back();
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
-        $user = User::where('email', $postData['email'])->first();
-        if (empty($user) || !Hash::check($postData['password'], $user->password)) {
-            Session::flash('alert-class', 'alert-danger');
-            Session::flash('alert-message', 'Oops, wrong credentials provided!');
-            return redirect()->back();
-        }
-        if (!$user->is_admin) {
-            Session::flash('alert-class', 'alert-danger');
-            Session::flash('alert-message', 'Oops, you are not authorized to access admin panel!');
-            return redirect()->back();
-        }
-        Auth::login($user);
-        return redirect()->intended('admin/');
-    }
+Route::get('/', function () {
+    return view('landing_page');
+});
 
-    // --- VIEW RENDERERS (LISTS) ---
+Route::get('/app', function () {
+    return view('web_app_blade');
+});
 
-    public function showUsers() { return view('admin.users', ['users' => User::where('id', '!=', Auth::id())->get()]); }
-    public function showAccounts() { return view('admin.accounts', ['accounts' => Account::with('site')->get()]); }
-    public function showSites() { return view('admin.sites', ['sites' => Site::with(['user', 'region'])->get()]); }
-    public function showRegions() { return view('admin.regions', ['regions' => Regions::all()]); }
-    public function showAccountType() { return view('admin.account_type.account_type', ['account_type' => AccountType::all()]); }
-    public function showMeters() { return view('admin.meters', ['meters' => Meter::with(['account', 'meterTypes'])->get()]); }
-    public function showReadings() { return view('admin.meter_readings', ['readings' => MeterReadings::with('meter')->orderBy('id', 'desc')->get()]); }
-    public function showAlarms() { return view('admin.alarms', ['alarms' => []]); }
+Route::get('/admin/login', function() {
+    return view('admin.login');
+})->name('login');
+
+Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
+
+// Admin routes
+Route::middleware(['auth'])->prefix('admin')->group(function() {
+    Route::get('/', function () {
+        return view('admin.home');
+    });
+
+    Route::get('/logout', function() {
+        Auth::logout();
+        return redirect('/admin/login');
+    })->name('admin.logout');
+
+    // --- USERS ---
+    Route::get('users', [AdminController::class, 'showUsers'])->name('show-users');
+    Route::get('users/add', [AdminController::class, 'addUserForm'])->name('add-user-form');
+    Route::post('users/add', [AdminController::class, 'createUser'])->name('add-user'); 
+    Route::get('users/edit/{id}', [AdminController::class, 'editUserForm']);
+    Route::post('users/edit', [AdminController::class, 'editUser'])->name('edit-user');
+    Route::get('users/delete/{id}', [AdminController::class, 'deleteUser']);
+
+    // --- SITES ---
+    Route::get('sites', [AdminController::class, 'showSites'])->name('show-sites');
+    Route::get('sites/add', [AdminController::class, 'addSiteForm'])->name('create-site-form'); 
+    Route::post('sites/add', [AdminController::class, 'createSite'])->name('add-site'); 
+    Route::get('sites/edit/{id}', [AdminController::class, 'editSiteForm']);
+    Route::post('sites/edit', [AdminController::class, 'editSite'])->name('edit-site');
+    Route::get('sites/delete/{id}', [AdminController::class, 'deleteSite']);
+    Route::post('sites/get-by-user', [AdminController::class, 'getSitesByUser'])->name('get-sites-by-user');
+
+    // --- ACCOUNTS ---
+    Route::get('accounts', [AdminController::class, 'showAccounts'])->name('account-list');
+    Route::get('accounts/add', [AdminController::class, 'addAccountForm'])->name('add-account-form'); 
+    Route::post('accounts/add', [AdminController::class, 'createAccount'])->name('add-account');
+    Route::get('account/edit/{id}', [AdminController::class, 'editAccountForm']);
+    Route::post('account/edit', [AdminController::class, 'editAccount'])->name('edit-account');
+    Route::get('account/delete/{id}', [AdminController::class, 'deleteAccount']);
     
-    // NEW: Payments List
-    public function showPayments() { 
-        // Pointing to 'admin.payments' (admin/payments.blade.php)
-        return view('admin.payments', ['payments' => Payment::with('account')->orderBy('payment_date', 'desc')->get()]); 
-    }
+    // AJAX Routes for Dropdowns & Details
+    Route::post('accounts/get-by-site', [AdminController::class, 'getAccountsBySite'])->name('get-accounts-by-site');
+    Route::post('accounts/get-details', [AdminController::class, 'getAccountDetails'])->name('get-account-details');
 
-    // --- VIEW RENDERERS (ADD FORMS) ---
+    // --- METERS ---
+    Route::get('meters', [AdminController::class, 'showMeters'])->name('meters-list'); 
+    Route::get('meters/add', [AdminController::class, 'addMeterForm'])->name('add-meter-form');
+    Route::post('meters/add', [AdminController::class, 'createMeter'])->name('add-meter');
 
-    public function addUserForm() { return view('admin.create_user'); }
-    public function addAccountTypeForm() { return view('admin.account_type.create_account_type'); }
+    // --- READINGS ---
+    Route::get('readings', [AdminController::class, 'showReadings'])->name('meter-reading-list');
+    Route::get('readings/add', [AdminController::class, 'addReadingForm'])->name('add-meter-reading-form');
+    Route::post('readings/add', [AdminController::class, 'createReading'])->name('add-reading');
+
+    // --- PAYMENTS ---
+    Route::get('payments', [AdminController::class, 'showPayments'])->name('payments-list');
+    Route::get('payments/add', [AdminController::class, 'addPaymentForm'])->name('add-payment-form');
+    Route::post('payments/add', [AdminController::class, 'createPayment'])->name('add-payment');
+    Route::get('payments/delete/{id}', [AdminController::class, 'deletePayment']);
+
+    // --- REGION COSTS ---
+    Route::get('region_cost', [RegionsCostController::class, 'index'])->name('region-cost');
+    Route::get('region_cost/create', [RegionsCostController::class, 'create'])->name('region-cost-create');
+    Route::post('region_cost', [RegionsCostController::class, 'store'])->name('region-cost-store');
+    Route::get('/region_cost/edit/{id}', [RegionsCostController::class, 'edit'])->name('region-cost-edit');
+    Route::post('region_cost/update', [RegionsCostController::class, 'update'])->name('update-region-cost');
+    Route::get('/region_cost/delete/{id}', [RegionsCostController::class, 'delete']);
+    Route::post('region_cost/copy_record', [RegionsCostController::class, 'copyRecord'])->name('copy-region-cost');
     
-    public function addSiteForm() { 
-        return view('admin.create_site', ['users' => User::all(), 'regions' => Regions::all()]); 
-    }
+    // --- ACCOUNT TYPES ---
+    Route::get('account_type', [AdminController::class, 'showAccountType'])->name('account-type-list');
+    Route::post('/account_type/edit', [AdminController::class, 'editAccountType'])->name('edit-account-type');
+    Route::get('account_type/add', [AdminController::class, 'addAccountTypeForm'])->name('add-account-type-form');
+    Route::get('/account_type/edit/{id}', [AdminController::class, 'editAccountTypeForm']);
+    Route::post('account_type/add', [AdminController::class, 'createAccountType'])->name('add-account-type');
+    Route::get('/account_type/delete/{id}', [AdminController::class, 'deleteAccountType']);
 
-    public function addAccountForm() { 
-        try {
-            $defaultCosts = FixedCost::where('is_default', 1)->get(); 
-        } catch (\Exception $e) { $defaultCosts = []; }
-        return view('admin.create_account', ['users' => User::all(), 'sites' => Site::all(), 'defaultCosts' => $defaultCosts]);
-    }
+    // --- REGIONS ---
+    Route::get('regions', [AdminController::class, 'showRegions'])->name('regions-list');
+    Route::post('/region/edit', [AdminController::class, 'editRegion'])->name('edit-region');
+    Route::get('region/add', [AdminController::class, 'addRegionForm'])->name('add-region-form');
+    Route::get('/region/edit/{id}', [AdminController::class, 'editRegionForm']);
+    Route::post('regions/add', [AdminController::class, 'createRegion'])->name('add-region');
+    Route::get('/region/delete/{id}', [AdminController::class, 'deleteRegion']);
+    Route::get('/region/email/{id}', [AdminController::class, 'getEmailBasedRegion'])->name('get-email-region');
 
-    public function addMeterForm() {
-        return view('admin.create_meter', ['accounts' => Account::all(), 'meterTypes' => MeterType::all(), 'meterCats' => MeterCategory::all()]);
-    }
-
-    public function addReadingForm() {
-        return view('admin.create_meter_reading', ['meters' => Meter::with('account')->get()]);
-    }
-    
-    public function addRegionForm() {
-        $w = MeterType::where('title', 'water')->first();
-        $e = MeterType::where('title', 'electricity')->first();
-        return view('admin.create_region', ['data' => ['water_id' => $w->id??0, 'elect_id' => $e->id??0]]);
-    }
-
-    // NEW: Add Payment Form (With Site data for dropdown)
-    public function addPaymentForm() {
-        $sites = Site::all(); // Need sites to filter accounts
-        return view('admin.create_payment', ['sites' => $sites]);
-    }
-
-    // --- CRUD ACTIONS ---
-
-    // 1. USERS
-    public function createUser(Request $request) {
-        $postData = $request->post();
-        if(User::where('email', $postData['email'])->exists()) {
-            Session::flash('alert-class', 'alert-danger');
-            Session::flash('alert-message', 'Email exists');
-            return redirect()->back();
-        }
-        User::create(['name'=>$postData['name'], 'email'=>$postData['email'], 'contact_number'=>$postData['contact_number'], 'password'=>bcrypt($postData['password']), 'is_admin'=>0]);
-        return redirect(route('show-users'));
-    }
-
-    public function deleteUser($id) { User::destroy($id); return redirect()->back(); }
-    public function editUserForm($id) { return view('admin.edit_user', ['user'=>User::find($id)]); }
-    public function editUser(Request $request) { User::where('id', $request->id)->update(['name'=>$request->name, 'email'=>$request->email]); return redirect(route('show-users')); }
-
-    // 2. SITES
-    public function createSite(Request $request) {
-        $postData = $request->post();
-        Site::create([
-            'user_id'=>$postData['user_id'], 'title'=>$postData['title'], 'lat'=>$postData['lat'], 'lng'=>$postData['lng'], 
-            'address'=>$postData['address'], 'email'=>$postData['email']??null, 'region_id'=>$postData['region_id'], 
-            'billing_type'=>$postData['billing_type']??'monthly', 'site_username'=>$postData['site_username']??null
-        ]);
-        return redirect(route('show-sites'));
-    }
-    public function deleteSite($id) { Site::destroy($id); return redirect()->back(); }
-    public function editSiteForm($id) { return view('admin.edit_site', ['site'=>Site::find($id), 'users'=>User::all(), 'regions'=>Regions::all()]); }
-    public function editSite(Request $request) { Site::where('id', $request->id)->update(['title'=>$request->title]); return redirect(route('show-sites')); }
-
-    // 3. ACCOUNTS
-    public function createAccount(Request $request) {
-        $postData = $request->post();
-        $acc = Account::create([
-            'site_id'=>$postData['site_id'], 'account_name'=>$postData['title'], 'account_number'=>$postData['number'], 
-            'billing_date'=>$postData['billing_date'], 'optional_information'=>$postData['optional_info']
-        ]);
-        if(isset($postData['default_ids'])) {
-            foreach($postData['default_ids'] as $k => $v) {
-                AccountFixedCost::create(['account_id'=>$acc->id, 'fixed_cost_id'=>$v, 'value'=>$postData['default_cost_value'][$k]]);
-            }
-        }
-        return redirect(route('account-list'));
-    }
-    public function deleteAccount($id) { Account::destroy($id); return redirect()->back(); }
-    public function editAccountForm($id) { return view('admin.edit_account', ['account'=>Account::find($id), 'users'=>User::all(), 'sites'=>Site::all()]); }
-    public function editAccount(Request $request) { return redirect(route('account-list')); } // Placeholder
-    
-    // NEW HELPER: Get Accounts by Site ID
-    public function getAccountsBySite(Request $request) {
-        $accounts = Account::where('site_id', $request->site_id)->get();
-        return response()->json(['status' => 200, 'data' => $accounts]);
-    }
-
-    // 4. METERS
-    public function createMeter(Request $request) {
-        $postData = $request->post();
-        Meter::create([
-            'account_id'=>$postData['account_id'], 'meter_category_id'=>$postData['meter_cat_id'], 
-            'meter_type_id'=>$postData['meter_type_id'], 'meter_title'=>$postData['title'], 'meter_number'=>$postData['number']
-        ]);
-        return redirect(route('meters-list'));
-    }
-
-    // 5. READINGS (RESTORED)
-    public function createReading(Request $request)
-    {
-        $postData = $request->post();
-        $readingImg = null;
-        if ($request->hasFile('reading_image'))
-            $readingImg = $request->file('reading_image')->store('public/readings');
-
-        $res = MeterReadings::create([
-            'meter_id' => $postData['meter_id'],
-            'reading_date' => $postData['reading_date'],
-            'reading_value' => $postData['reading_value'],
-            'reading_image' => $readingImg
-        ]);
-
-        if ($res) {
-            Session::flash('alert-class', 'alert-success');
-            Session::flash('alert-message', 'Reading added successfully!');
-            return redirect(route('meter-reading-list'));
-        }
-        Session::flash('alert-class', 'alert-danger');
-        return redirect()->back();
-    }
-
-    // 6. PAYMENTS (NEW)
-    public function createPayment(Request $request)
-    {
-        $postData = $request->post();
-        $res = Payment::create([
-            'account_id' => $postData['account_id'],
-            'amount' => $postData['amount'],
-            'payment_date' => $postData['payment_date'],
-            'reference' => $postData['reference'] ?? '',
-            'notes' => $postData['notes'] ?? ''
-        ]);
-
-        if ($res) {
-            Session::flash('alert-class', 'alert-success');
-            Session::flash('alert-message', 'Payment added successfully!');
-            return redirect(route('payments-list'));
-        }
-        return redirect()->back();
-    }
-    
-    public function deletePayment($id) { Payment::destroy($id); return redirect()->back(); }
-    
-    // Helper
-    public function getSitesByUser(Request $request) {
-        echo json_encode(['status'=>200, 'data'=>Site::where('user_id', $request->user_id)->get()]);
-    }
-    
-    // --- REGION / TYPE Logic (Simplified calls) ---
-    public function createAccountType(Request $request) {
-         AccountType::create(['type' => $request->name]);
-         return redirect(route('account-type-list'));
-    }
-    public function deleteAccountType($id) { AccountType::destroy($id); return redirect()->back(); }
-    public function editAccountTypeForm($id) { return view('admin.account_type.edit_account_type', ['account_type' => AccountType::find($id)]); }
-    public function editAccountType(Request $request) { AccountType::where('id', $request->id)->update(['type'=>$request->name]); return redirect(route('account-type-list')); }
-
-    public function createRegion(Request $request) {
-        Regions::create(['name' => $request->region_name, 'water_email' => $request->water_email??'', 'electricity_email' => $request->electricity_email??'']);
-        return redirect(route('regions-list'));
-    }
-    public function deleteRegion($id) { Regions::destroy($id); return redirect()->back(); }
-    public function editRegionForm($id) { 
-        $d['water_id'] = MeterType::where('title','water')->first()->id??0; $d['elect_id'] = MeterType::where('title','electricity')->first()->id??0;
-        return view('admin.edit_region', ['region' => Regions::find($id), 'data'=>$d]); 
-    }
-    public function editRegion(Request $request) { return redirect(route('regions-list')); }
-    public function getEmailBasedRegion($id) { echo json_encode(['status'=>200, 'data'=>Regions::find($id)]); }
-}
+    // --- ALARMS ---
+    Route::get('alarms', [AdminController::class, 'showAlarms'])->name('alarms');
+});
