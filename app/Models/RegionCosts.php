@@ -5,13 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class RegionCosts extends Model
+class RegionCost extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['meter_type_id', 'start_date', 'end_date', 'region_id', 'min', 'max', 'amount'];
-    protected $dates = [
-        'start_date',
-        'end_date'
+    protected $table = 'region_costs'; 
+
+    protected $fillable = [
+        'meter_type_id', 
+        'region_id', 
+        'min', 
+        'max', 
+        'amount'
     ];
+
+    public function region()
+    {
+        return $this->belongsTo(Regions::class, 'region_id');
+    }
+
+    public function meterType()
+    {
+        return $this->belongsTo(MeterType::class, 'meter_type_id');
+    }
 }
