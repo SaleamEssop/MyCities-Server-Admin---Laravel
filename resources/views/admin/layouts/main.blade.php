@@ -65,7 +65,6 @@
                 <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
                     <a class="collapse-item cust-sidebar-sub" href="{{ route('show-users') }}">List</a>
                     <a class="collapse-item cust-sidebar-sub" href="{{ route('add-user-form') }}">Add</a>
-                    {{--<a class="collapse-item" href="cards.html">Cards</a>--}}
                 </div>
             </div>
         </li>
@@ -86,12 +85,12 @@
             </div>
         </li>
         
-        <!-- Nav Item - Accounts -->
+        <!-- Nav Item - User Accounts (Previously Accounts) -->
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAccounts"
                aria-expanded="true" aria-controls="collapseAccounts">
                 <i class="fas fa-fw fa-wrench"></i>
-                <span>Accounts</span>
+                <span>User Accounts</span>
             </a>
             <div id="collapseAccounts" class="collapse" aria-labelledby="headingUtilities"
                  data-parent="#accordionSidebar">
@@ -157,12 +156,12 @@
             </div>
         </li>
         
-        <!-- Nav Item - Account Types -->
+        <!-- Nav Item - Tariff Categories (Previously Account Types) -->
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAccountType"
                aria-expanded="true" aria-controls="collapseAccountType">
                 <i class="fas fa-fw fa-location-arrow"></i>
-                <span>Account Types</span>
+                <span>Tariff Categories</span>
             </a>
             <div id="collapseAccountType" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
