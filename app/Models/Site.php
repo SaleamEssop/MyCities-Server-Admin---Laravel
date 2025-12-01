@@ -18,7 +18,10 @@ class Site extends Model
         'address',
         'email',
         'billing_type',
-        'site_username'
+        'site_username',
+        'use_custom_costs',
+        'custom_electricity_cost',
+        'custom_water_cost'
     ];
 
     /**
