@@ -74,23 +74,6 @@
                         <hr>
                         <p>Fixed Costs</p>
                         <div class="fixed-cost-container"></div>
-                        {{--<div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <input class="form-control" type="text" placeholder="Enter title" name="additional_cost_name[]" required/>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <input class="form-control" type="text" placeholder="Enter value" name="additional_cost_value[]" required/>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <a href="#" class="btn btn-sm btn-circle btn-danger">
-                                    <i class="fa fa-trash"></i>
-                                </a>
-                            </div>
-                        </div>--}}
                         <a href="#" id="add-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
                         <br>
                         <br>
@@ -138,9 +121,10 @@
 
             $(document).on("change", '#user-select', function () {
                 let user_id = $(this).val();
-                let token = $('meta[name="csrf-token"]').attr('content');
                 
-                // Get list of sites added under this user
+                // CHANGED: Get token from the form input (like the working Edit page)
+                let token = $("[name='_token']").val();
+                
                 $.ajax({
                     type: 'POST',
                     dataType: 'JSON',
