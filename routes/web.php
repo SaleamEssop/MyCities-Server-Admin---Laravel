@@ -9,11 +9,6 @@ use Illuminate\Support\Facades\Auth;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
 */
 
 Route::get('/', function () {
@@ -44,7 +39,6 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     // --- USERS ---
     Route::get('users', [AdminController::class, 'showUsers'])->name('show-users');
     Route::get('users/add', [AdminController::class, 'addUserForm'])->name('add-user-form');
-    // FIXED: Name must be 'add-user' to match blade file
     Route::post('users/add', [AdminController::class, 'createUser'])->name('add-user'); 
     Route::get('users/edit/{id}', [AdminController::class, 'editUserForm']);
     Route::post('users/edit', [AdminController::class, 'editUser'])->name('edit-user');
@@ -53,17 +47,15 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     // --- SITES ---
     Route::get('sites', [AdminController::class, 'showSites'])->name('show-sites');
     Route::get('sites/add', [AdminController::class, 'addSiteForm'])->name('create-site-form'); 
-    // FIXED: Name must be 'add-site' to match blade file
     Route::post('sites/add', [AdminController::class, 'createSite'])->name('add-site'); 
     Route::get('sites/edit/{id}', [AdminController::class, 'editSiteForm']);
     Route::post('sites/edit', [AdminController::class, 'editSite'])->name('edit-site');
     Route::get('sites/delete/{id}', [AdminController::class, 'deleteSite']);
     Route::post('sites/get-by-user', [AdminController::class, 'getSitesByUser'])->name('get-sites-by-user');
 
-    // --- ACCOUNTS (User Accounts) ---
+    // --- ACCOUNTS ---
     Route::get('accounts', [AdminController::class, 'showAccounts'])->name('account-list');
     Route::get('accounts/add', [AdminController::class, 'addAccountForm'])->name('add-account-form'); 
-    // FIXED: Name must be 'add-account' to match blade file
     Route::post('accounts/add', [AdminController::class, 'createAccount'])->name('add-account');
     Route::get('account/edit/{id}', [AdminController::class, 'editAccountForm']);
     Route::post('account/edit', [AdminController::class, 'editAccount'])->name('edit-account');
@@ -72,12 +64,18 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     // --- METERS ---
     Route::get('meters', [AdminController::class, 'showMeters'])->name('meters-list'); 
     Route::get('meters/add', [AdminController::class, 'addMeterForm'])->name('add-meter-form');
-    // FIXED: Name must be 'add-meter' to match blade file (assumed)
     Route::post('meters/add', [AdminController::class, 'createMeter'])->name('add-meter');
 
     // --- READINGS ---
     Route::get('readings', [AdminController::class, 'showReadings'])->name('meter-reading-list');
     Route::get('readings/add', [AdminController::class, 'addReadingForm'])->name('add-meter-reading-form');
+    Route::post('readings/add', [AdminController::class, 'createReading'])->name('add-reading');
+
+    // --- PAYMENTS (NEW) ---
+    Route::get('payments', [AdminController::class, 'showPayments'])->name('payments-list');
+    Route::get('payments/add', [AdminController::class, 'addPaymentForm'])->name('add-payment-form');
+    Route::post('payments/add', [AdminController::class, 'createPayment'])->name('add-payment');
+    Route::get('payments/delete/{id}', [AdminController::class, 'deletePayment']);
 
     // --- REGION COSTS ---
     Route::get('region_cost', [RegionsCostController::class, 'index'])->name('region-cost');
@@ -88,7 +86,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/region_cost/delete/{id}', [RegionsCostController::class, 'delete']);
     Route::post('region_cost/copy_record', [RegionsCostController::class, 'copyRecord'])->name('copy-region-cost');
     
-    // --- ACCOUNT TYPES (Tariff Categories) ---
+    // --- ACCOUNT TYPES ---
     Route::get('account_type', [AdminController::class, 'showAccountType'])->name('account-type-list');
     Route::post('/account_type/edit', [AdminController::class, 'editAccountType'])->name('edit-account-type');
     Route::get('account_type/add', [AdminController::class, 'addAccountTypeForm'])->name('add-account-type-form');
