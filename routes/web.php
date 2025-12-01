@@ -44,23 +44,36 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     // --- USERS ---
     Route::get('users', [AdminController::class, 'showUsers'])->name('show-users');
     Route::get('users/add', [AdminController::class, 'addUserForm'])->name('add-user-form');
-    Route::post('users/add', [AdminController::class, 'createUser'])->name('create-user');
-    // Add edit/delete if controller methods exist, otherwise keep minimal to prevent 500 errors
+    // FIXED: Name must be 'add-user' to match blade file
+    Route::post('users/add', [AdminController::class, 'createUser'])->name('add-user'); 
+    Route::get('users/edit/{id}', [AdminController::class, 'editUserForm']);
+    Route::post('users/edit', [AdminController::class, 'editUser'])->name('edit-user');
+    Route::get('users/delete/{id}', [AdminController::class, 'deleteUser']);
 
     // --- SITES ---
     Route::get('sites', [AdminController::class, 'showSites'])->name('show-sites');
-    Route::get('sites/add', [AdminController::class, 'addSiteForm'])->name('create-site-form'); // Check if addSiteForm exists, assuming standard naming
-    Route::post('sites/add', [AdminController::class, 'createSite'])->name('create-site');
+    Route::get('sites/add', [AdminController::class, 'addSiteForm'])->name('create-site-form'); 
+    // FIXED: Name must be 'add-site' to match blade file
+    Route::post('sites/add', [AdminController::class, 'createSite'])->name('add-site'); 
+    Route::get('sites/edit/{id}', [AdminController::class, 'editSiteForm']);
+    Route::post('sites/edit', [AdminController::class, 'editSite'])->name('edit-site');
+    Route::get('sites/delete/{id}', [AdminController::class, 'deleteSite']);
+    Route::post('sites/get-by-user', [AdminController::class, 'getSitesByUser'])->name('get-sites-by-user');
 
-    // --- ACCOUNTS ---
+    // --- ACCOUNTS (User Accounts) ---
     Route::get('accounts', [AdminController::class, 'showAccounts'])->name('account-list');
-    Route::get('accounts/add', [AdminController::class, 'addAccountForm'])->name('add-account-form'); // Assuming method name
-    
+    Route::get('accounts/add', [AdminController::class, 'addAccountForm'])->name('add-account-form'); 
+    // FIXED: Name must be 'add-account' to match blade file
+    Route::post('accounts/add', [AdminController::class, 'createAccount'])->name('add-account');
+    Route::get('account/edit/{id}', [AdminController::class, 'editAccountForm']);
+    Route::post('account/edit', [AdminController::class, 'editAccount'])->name('edit-account');
+    Route::get('account/delete/{id}', [AdminController::class, 'deleteAccount']);
+
     // --- METERS ---
-    // Using AdminController or a dedicated MeterController if it exists. 
-    // For now mapping to AdminController methods if they likely exist or temporary placeholders.
     Route::get('meters', [AdminController::class, 'showMeters'])->name('meters-list'); 
     Route::get('meters/add', [AdminController::class, 'addMeterForm'])->name('add-meter-form');
+    // FIXED: Name must be 'add-meter' to match blade file (assumed)
+    Route::post('meters/add', [AdminController::class, 'createMeter'])->name('add-meter');
 
     // --- READINGS ---
     Route::get('readings', [AdminController::class, 'showReadings'])->name('meter-reading-list');
@@ -75,7 +88,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/region_cost/delete/{id}', [RegionsCostController::class, 'delete']);
     Route::post('region_cost/copy_record', [RegionsCostController::class, 'copyRecord'])->name('copy-region-cost');
     
-    // --- ACCOUNT TYPES ---
+    // --- ACCOUNT TYPES (Tariff Categories) ---
     Route::get('account_type', [AdminController::class, 'showAccountType'])->name('account-type-list');
     Route::post('/account_type/edit', [AdminController::class, 'editAccountType'])->name('edit-account-type');
     Route::get('account_type/add', [AdminController::class, 'addAccountTypeForm'])->name('add-account-type-form');
@@ -93,5 +106,5 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/region/email/{id}', [AdminController::class, 'getEmailBasedRegion'])->name('get-email-region');
 
     // --- ALARMS ---
-    Route::get('alarms', [AdminController::class, 'showAlarms'])->name('alarms'); // Assuming showAlarms exists
+    Route::get('alarms', [AdminController::class, 'showAlarms'])->name('alarms');
 });
