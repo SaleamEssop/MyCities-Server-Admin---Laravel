@@ -24,6 +24,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Mail;
 use App\Models\RegionsAccountTypeCost;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
 
@@ -1650,5 +1651,26 @@ class ApiController extends Controller
         }
 
         return response()->json($acc);
+    }
+
+    public function siteLogin(Request $request)
+    {
+        $postData = $request->post();
+        $requiredFields = ['site_username', 'site_password'];
+        $validated = validateData($requiredFields, $postData);
+        if (!$validated['status']) {
+            return response()->json(['status' => false, 'message' => 'Invalid credentials']);
+        }
+
+        $site = Site::where('site_username', $postData['site_username'])->first();
+        if (empty($site)) {
+            return response()->json(['status' => false, 'message' => 'Invalid credentials']);
+        }
+
+        if (!Hash::check($postData['site_password'], $site->site_password)) {
+            return response()->json(['status' => false, 'message' => 'Invalid credentials']);
+        }
+
+        return response()->json(['status' => true, 'message' => 'Login successful', 'site' => $site]);
     }
 }

@@ -31,6 +31,9 @@ Route::prefix('v1')->group(function() {
         Route::post('/login', [\App\Http\Controllers\UserController::class, 'login']);
     });
 
+    // Site login route
+    Route::post('/site/login', [\App\Http\Controllers\ApiController::class, 'siteLogin']);
+
     // Locations/Sites related routes
     Route::group(['middleware' => ['auth:sanctum'],'prefix' => 'sites'],function() {
         Route::post('/add', [\App\Http\Controllers\ApiController::class, 'addSite']);
