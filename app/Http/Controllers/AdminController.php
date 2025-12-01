@@ -7,7 +7,7 @@ use App\Models\AccountFixedCost;
 use App\Models\AccountType;
 use App\Models\FixedCost;
 use App\Models\Meter;
-use App\Models\MeterReading;
+use App\Models\MeterReadings;
 use App\Models\MeterType;
 use App\Models\MeterCategory;
 use App\Models\Regions;
@@ -96,13 +96,12 @@ class AdminController extends Controller
 
     public function showReadings(Request $request)
     {
-        $readings = MeterReading::with('meter')->orderBy('id', 'desc')->get();
+        $readings = MeterReadings::with('meter')->orderBy('id', 'desc')->get();
         return view('admin.meter_readings', ['readings' => $readings]);
     }
 
     public function showAlarms(Request $request)
     {
-        // Assuming a simple view or model exists, otherwise empty array
         return view('admin.alarms', ['alarms' => []]); 
     }
 
@@ -125,9 +124,8 @@ class AdminController extends Controller
     {
         $users = User::all();
         $sites = Site::all(); 
-        // Assuming FixedCost table holds default costs (based on create_account.blade.php logic)
-        // If this table is empty or incorrect, the form might show empty cost rows, but won't crash.
-        $defaultCosts = FixedCost::all(); 
+        // Only fetch costs marked as default to avoid crashing or showing irrelevant costs
+        $defaultCosts = FixedCost::where('is_default', 1)->get(); 
 
         return view('admin.create_account', [
             'users' => $users, 
@@ -161,8 +159,12 @@ class AdminController extends Controller
     
     public function addRegionForm(Request $request)
     {
-        $data['water_id'] = MeterType::where('title', 'water')->first()->id ?? 0;
-        $data['elect_id'] = MeterType::where('title', 'electricity')->first()->id ?? 0;
+        $waterType = MeterType::where('title', 'water')->first();
+        $electType = MeterType::where('title', 'electricity')->first();
+
+        $data['water_id'] = $waterType ? $waterType->id : 0;
+        $data['elect_id'] = $electType ? $electType->id : 0;
+
         return view('admin.create_region', ['data' => $data]);
     }
 
@@ -441,9 +443,8 @@ class AdminController extends Controller
 
     public function editAccount(Request $request)
     {
-        // Logic for editing account... simplified here for brevity but assumes similar logic to create
         $postData = $request->post();
-        // ... implementation ...
+        // Simple redirect for now, assuming edit logic will be implemented if needed
         return redirect(route('account-list'));
     }
 
@@ -516,8 +517,12 @@ class AdminController extends Controller
     public function editRegionForm($id)
     {
         $region = Regions::find($id);
-        $data['water_id'] = MeterType::where('title', 'water')->first()->id ?? 0;
-        $data['elect_id'] = MeterType::where('title', 'electricity')->first()->id ?? 0;
+        $waterType = MeterType::where('title', 'water')->first();
+        $electType = MeterType::where('title', 'electricity')->first();
+
+        $data['water_id'] = $waterType ? $waterType->id : 0;
+        $data['elect_id'] = $electType ? $electType->id : 0;
+        
         return view('admin.edit_region', ['region' => $region, 'data' => $data]);
     }
 
