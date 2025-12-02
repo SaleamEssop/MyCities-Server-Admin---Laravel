@@ -132,7 +132,7 @@
                         <div class="waterin-cost-container"></div>
                         
                         <div class="row mt-2">
-                            <div class="col-md-2 offset-md-9">
+                            <div class="col-md-2 offset-md-10">
                                 <label><strong>Water In Total :</strong></label>
                                 <input class="form-control" type="text" placeholder="Total" name="waterin_total" value="{{$region_cost->water_in_total ?? 0}}" required disabled />
                             </div>
@@ -176,7 +176,7 @@
                         <div class="waterin-additional-cost-container"></div>
                         
                          <div class="row mt-2">
-                            <div class="col-md-2 offset-md-9">
+                            <div class="col-md-2 offset-md-10">
                                 <label><strong>WaterIn related Total :</strong></label>
                                 <input class="form-control" type="text" placeholder="Total" name="waterin_total" value="{{$region_cost->water_in_related_total ?? 0}}" required disabled />
                             </div>
@@ -228,7 +228,7 @@
                         <div class="waterout-cost-container"></div>
                         
                         <div class="row mt-2">
-                            <div class="col-md-2 offset-md-9">
+                            <div class="col-md-2 offset-md-10">
                                 <label><strong>Water Out Total :</strong></label>
                                 <input class="form-control" type="text" placeholder="Total" name="waterout_total" value="{{$region_cost->water_out_total ?? 0}}" required disabled />
                             </div>
@@ -272,7 +272,7 @@
                         <div class="waterout-additional-cost-container"></div>
                         
                         <div class="row mt-2">
-                            <div class="col-md-2 offset-md-9">
+                            <div class="col-md-2 offset-md-10">
                                 <label><strong>Waterout related Total:</strong></label>
                                 <input class="form-control" type="text" placeholder="Total" name="waterout_total" value="{{$region_cost->water_out_related_total ?? 0}}" required disabled />
                             </div>
@@ -320,7 +320,7 @@
                         <div class="electricity-cost-container"></div>
                         
                         <div class="row mt-2">
-                            <div class="col-md-2 offset-md-9">
+                            <div class="col-md-2 offset-md-10">
                                 <label><strong>Electricity Total :</strong></label>
                                 <input class="form-control" type="text" placeholder="Total" name="electricity_total" value="{{$region_cost->electricity_total ?? 0}}" required disabled />
                             </div>
@@ -364,7 +364,7 @@
                         <div class="electricity-additional-cost-container"></div>
                         
                         <div class="row mt-2">
-                            <div class="col-md-2 offset-md-9">
+                            <div class="col-md-2 offset-md-10">
                                 <label><strong>Electricity related Total :</strong></label>
                                 <input class="form-control" type="text" placeholder="Total" name="electricity_total" value="{{$region_cost->electricity_related_total ?? 0}}" required disabled />
                             </div>
@@ -402,29 +402,31 @@
                     @endif
                     <div class="additional-cost-container"></div>
                     
-                    <div class="col-md-4" style="float:right;">
-                        <label><strong>Sub Total :</strong></label>
-                        <div class="form-group">
-                            <input class="form-control" type="text" placeholder="Sub Total" name="sub_total" value="{{$region_cost->sub_total ?? 0}}" required disabled />
+                    <div class="row">
+                        <div class="col-md-4 ml-auto">
+                            <label><strong>Sub Total :</strong></label>
+                            <div class="form-group">
+                                <input class="form-control" type="text" placeholder="Sub Total" name="sub_total" value="{{$region_cost->sub_total ?? 0}}" required disabled />
+                            </div>
+                            <label><strong>VAT</strong></label>
+                            <div class="form-group">
+                                <input class="form-control" type="text" placeholder="VAT Rate" name="vat_rate" value="{{$region_cost->sub_total_vat ?? 0}}" required disabled />
+                            </div>
+                            <label><strong>Rates :</strong></label>
+                            <div class="form-group">
+                                <input class="form-control allow_decimal" type="text" placeholder="VAT Rate" name="vat_rate" value="{{$region_cost->vat_rate ?? 0}}" required />
+                            </div>
+                            <label><strong>Rates Rebate :</strong></label>
+                            <div class="form-group">
+                                <input class="form-control allow_decimal" type="text" placeholder="Rates Rebate" name="rates_rebate" value="{{$region_cost->rates_rebate ?? 0}}" />
+                            </div>
+                            <label><strong>Final Total :</strong></label>
+                            <div class="form-group">
+                                <input class="form-control" type="text" placeholder="Final Total" name="final_total" value="{{$region_cost->final_total ?? 0}}" required disabled />
+                            </div>
+                            <input type="hidden" name="id" value="{{ $region_cost->id }}" />
+                            <button type="submit" class="btn btn-warning">Save / Update</button>
                         </div>
-                        <label><strong>VAT</strong></label>
-                        <div class="form-group">
-                            <input class="form-control" type="text" placeholder="VAT Rate" name="vat_rate" value="{{$region_cost->sub_total_vat ?? 0}}" required disabled />
-                        </div>
-                        <label><strong>Rates :</strong></label>
-                        <div class="form-group">
-                            <input class="form-control allow_decimal" type="text" placeholder="VAT Rate" name="vat_rate" value="{{$region_cost->vat_rate ?? 0}}" required />
-                        </div>
-                        <label><strong>Rates Rebate :</strong></label>
-                        <div class="form-group">
-                            <input class="form-control allow_decimal" type="text" placeholder="Rates Rebate" name="rates_rebate" value="{{$region_cost->rates_rebate ?? 0}}" />
-                        </div>
-                        <label><strong>Final Total :</strong></label>
-                        <div class="form-group">
-                            <input class="form-control" type="text" placeholder="Final Total" name="final_total" value="{{$region_cost->final_total ?? 0}}" required disabled />
-                        </div>
-                        <input type="hidden" name="id" value="{{ $region_cost->id }}" />
-                        <button type="submit" class="btn btn-warning">Save / Update</button>
                     </div>
                 </form>
             </div>
@@ -483,23 +485,33 @@
             var html = `
                 <div class="row mb-2">
                     <div class="col-md-3">
-                        <label>Min</label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterin[${i}][min]" required />
+                        <div class="form-group">
+                            <label><strong>Min :</strong></label>
+                            <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterin[${i}][min]" required />
+                        </div>
                     </div>
                     <div class="col-md-3">
-                        <label>Max</label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterin[${i}][max]" required />
+                        <div class="form-group">
+                            <label><strong>Max :</strong></label>
+                            <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterin[${i}][max]" required />
+                        </div>
                     </div>
                     <div class="col-md-3">
-                        <label>Cost</label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin[${i}][cost]" required />
+                        <div class="form-group">
+                            <label><strong>Cost :</strong></label>
+                            <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin[${i}][cost]" required />
+                        </div>
                     </div>
                     <div class="col-md-2">
-                        <label>Total</label>
-                        <input class="form-control" type="text" placeholder="Total" name="waterin[${i}][total]" disabled/>
+                        <div class="form-group">
+                            <label><strong>Total :</strong></label>
+                            <input class="form-control" type="text" placeholder="Total" name="waterin[${i}][total]" disabled/>
+                        </div>
                     </div>
                     <div class="col-md-1">
-                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        <div class="form-group">
+                            <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        </div>
                     </div>
                 </div>`;
             $(".waterin-cost-container").append(html);
@@ -510,23 +522,33 @@
             var html = `
                 <div class="row mb-2">
                     <div class="col-md-3">
-                        <label>Title</label>
-                        <input class="form-control" type="text" placeholder="Title" name="waterin_additional[${wa}][title]" required />
+                        <div class="form-group">
+                            <label><strong>Title :</strong></label>
+                            <input class="form-control" type="text" placeholder="Title" name="waterin_additional[${wa}][title]" required />
+                        </div>
                     </div>
                     <div class="col-md-3">
-                        <label>Percentage</label>
-                        <input class="form-control allow_decimal" type="text" step=any placeholder="%" name="waterin_additional[${wa}][percentage]" />
+                        <div class="form-group">
+                            <label><strong>Percentage :</strong></label>
+                            <input class="form-control allow_decimal" type="text" step=any placeholder="%" name="waterin_additional[${wa}][percentage]" />
+                        </div>
                     </div>
                     <div class="col-md-3">
-                        <label>Cost</label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin_additional[${wa}][cost]" required />
+                        <div class="form-group">
+                            <label><strong>Cost :</strong></label>
+                            <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin_additional[${wa}][cost]" required />
+                        </div>
                     </div>
                     <div class="col-md-2">
-                        <label>Total</label>
-                        <input class="form-control" type="text" placeholder="Total" name="waterin_additional[${wa}][total]" disabled/>
+                        <div class="form-group">
+                            <label><strong>Total :</strong></label>
+                            <input class="form-control" type="text" placeholder="Total" name="waterin_additional[${wa}][total]" disabled/>
+                        </div>
                     </div>
                     <div class="col-md-1">
-                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        <div class="form-group">
+                            <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        </div>
                     </div>
                 </div>`;
             $(".waterin-additional-cost-container").append(html);
@@ -538,27 +560,39 @@
             var html = `
                 <div class="row mb-2">
                     <div class="col-md-2">
-                        <label>Min</label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Min" name="waterout[${o}][min]" required />
+                        <div class="form-group">
+                            <label><strong>Min :</strong></label>
+                            <input class="form-control allow_decimal" type="text" placeholder="Min" name="waterout[${o}][min]" required />
+                        </div>
                     </div>
                     <div class="col-md-2">
-                        <label>Max</label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Max" name="waterout[${o}][max]" required />
+                        <div class="form-group">
+                            <label><strong>Max :</strong></label>
+                            <input class="form-control allow_decimal" type="text" placeholder="Max" name="waterout[${o}][max]" required />
+                        </div>
                     </div>
                     <div class="col-md-2">
-                        <label>%</label>
-                        <input class="form-control allow_decimal" type="text" placeholder="%" name="waterout[${o}][percentage]" required />
+                        <div class="form-group">
+                            <label><strong>% :</strong></label>
+                            <input class="form-control allow_decimal" type="text" placeholder="%" name="waterout[${o}][percentage]" required />
+                        </div>
                     </div>
                     <div class="col-md-3">
-                        <label>Cost</label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout[${o}][cost]" required />
+                        <div class="form-group">
+                            <label><strong>Cost :</strong></label>
+                            <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout[${o}][cost]" required />
+                        </div>
                     </div>
                     <div class="col-md-2">
-                        <label>Total</label>
-                        <input class="form-control" type="text" placeholder="Total" name="waterout[${o}][total]" disabled/>
+                        <div class="form-group">
+                            <label><strong>Total :</strong></label>
+                            <input class="form-control" type="text" placeholder="Total" name="waterout[${o}][total]" disabled/>
+                        </div>
                     </div>
                     <div class="col-md-1">
-                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        <div class="form-group">
+                            <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        </div>
                     </div>
                 </div>`;
             $(".waterout-cost-container").append(html);
@@ -569,23 +603,33 @@
             var html = `
                 <div class="row mb-2">
                     <div class="col-md-3">
-                        <label>Title</label>
-                        <input class="form-control" type="text" placeholder="Title" name="waterout_additional[${wo}][title]" required />
+                        <div class="form-group">
+                            <label><strong>Title :</strong></label>
+                            <input class="form-control" type="text" placeholder="Title" name="waterout_additional[${wo}][title]" required />
+                        </div>
                     </div>
                     <div class="col-md-3">
-                        <label>%</label>
-                        <input class="form-control allow_decimal" type="text" step=any placeholder="%" name="waterout_additional[${wo}][percentage]" />
+                        <div class="form-group">
+                            <label><strong>% :</strong></label>
+                            <input class="form-control allow_decimal" type="text" step=any placeholder="%" name="waterout_additional[${wo}][percentage]" />
+                        </div>
                     </div>
                     <div class="col-md-3">
-                        <label>Cost</label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout_additional[${wo}][cost]" required />
+                        <div class="form-group">
+                            <label><strong>Cost :</strong></label>
+                            <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout_additional[${wo}][cost]" required />
+                        </div>
                     </div>
                     <div class="col-md-2">
-                        <label>Total</label>
-                        <input class="form-control" type="text" placeholder="Total" name="waterout_additional[${wo}][total]" disabled/>
+                        <div class="form-group">
+                            <label><strong>Total :</strong></label>
+                            <input class="form-control" type="text" placeholder="Total" name="waterout_additional[${wo}][total]" disabled/>
+                        </div>
                     </div>
                     <div class="col-md-1">
-                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        <div class="form-group">
+                            <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        </div>
                     </div>
                 </div>`;
             $(".waterout-additional-cost-container").append(html);
@@ -597,23 +641,33 @@
             var html = `
                 <div class="row mb-2">
                     <div class="col-md-3">
-                        <label>Min</label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Min" name="electricity[${e}][min]" required />
+                        <div class="form-group">
+                            <label><strong>Min :</strong></label>
+                            <input class="form-control allow_decimal" type="text" placeholder="Min" name="electricity[${e}][min]" required />
+                        </div>
                     </div>
                     <div class="col-md-3">
-                        <label>Max</label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Max" name="electricity[${e}][max]" required />
+                        <div class="form-group">
+                            <label><strong>Max :</strong></label>
+                            <input class="form-control allow_decimal" type="text" placeholder="Max" name="electricity[${e}][max]" required />
+                        </div>
                     </div>
                     <div class="col-md-3">
-                        <label>Cost</label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity[${e}][cost]" required />
+                        <div class="form-group">
+                            <label><strong>Cost :</strong></label>
+                            <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity[${e}][cost]" required />
+                        </div>
                     </div>
                     <div class="col-md-2">
-                        <label>Total</label>
-                        <input class="form-control" type="text" placeholder="Total" name="electricity[${e}][total]" disabled/>
+                        <div class="form-group">
+                            <label><strong>Total :</strong></label>
+                            <input class="form-control" type="text" placeholder="Total" name="electricity[${e}][total]" disabled/>
+                        </div>
                     </div>
                     <div class="col-md-1">
-                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        <div class="form-group">
+                            <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        </div>
                     </div>
                 </div>`;
             $(".electricity-cost-container").append(html);
@@ -624,23 +678,33 @@
             var html = `
                 <div class="row mb-2">
                     <div class="col-md-3">
-                        <label>Title</label>
-                        <input class="form-control" type="text" placeholder="Title" name="electricity_additional[${eo}][title]" required />
+                        <div class="form-group">
+                            <label><strong>Title :</strong></label>
+                            <input class="form-control" type="text" placeholder="Title" name="electricity_additional[${eo}][title]" required />
+                        </div>
                     </div>
                     <div class="col-md-3">
-                        <label>%</label>
-                        <input class="form-control allow_decimal" type="text" step=any placeholder="%" name="electricity_additional[${eo}][percentage]" />
+                        <div class="form-group">
+                            <label><strong>% :</strong></label>
+                            <input class="form-control allow_decimal" type="text" step=any placeholder="%" name="electricity_additional[${eo}][percentage]" />
+                        </div>
                     </div>
                     <div class="col-md-3">
-                        <label>Cost</label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity_additional[${eo}][cost]" required />
+                        <div class="form-group">
+                            <label><strong>Cost :</strong></label>
+                            <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity_additional[${eo}][cost]" required />
+                        </div>
                     </div>
                     <div class="col-md-2">
-                        <label>Total</label>
-                        <input class="form-control" type="text" placeholder="Total" name="electricity_additional[${eo}][total]" disabled/>
+                        <div class="form-group">
+                            <label><strong>Total :</strong></label>
+                            <input class="form-control" type="text" placeholder="Total" name="electricity_additional[${eo}][total]" disabled/>
+                        </div>
                     </div>
                     <div class="col-md-1">
-                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        <div class="form-group">
+                            <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        </div>
                     </div>
                 </div>`;
             $(".electricity-additional-cost-container").append(html);
@@ -652,15 +716,21 @@
             var html = `
                 <div class="row mb-2">
                     <div class="col-md-5">
-                        <label>Name Of Cost</label>
-                        <input class="form-control" type="text" placeholder="Name" name="additional[${a}][name]" required />
+                        <div class="form-group">
+                            <label><strong>Name Of Cost :</strong></label>
+                            <input class="form-control" type="text" placeholder="Name" name="additional[${a}][name]" required />
+                        </div>
                     </div>
                     <div class="col-md-5">
-                        <label>Cost</label>
-                        <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="additional[${a}][cost]" required />
+                        <div class="form-group">
+                            <label><strong>Cost :</strong></label>
+                            <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="additional[${a}][cost]" required />
+                        </div>
                     </div>
                     <div class="col-md-2">
-                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        <div class="form-group">
+                            <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        </div>
                     </div>
                 </div>`;
             $(".additional-cost-container").append(html);
