@@ -757,83 +757,6 @@
         // ========== REAL-TIME CALCULATION FUNCTIONS ==========
 
         /**
-         * Calculate tiered cost for Water In/Out/Electricity brackets
-         * Matches backend logic in MeterService.php getTotalCostByBrackets()
-         */
-        function calculateTieredCost(usage, containerSelector, hasPercentage) {
-            var remainingUsage = usage;
-            var sectionTotal = 0;
-
-            $(containerSelector).find('.row.mb-2').each(function() {
-                var $row = $(this);
-                var min = parseFloat($row.find('input[name*="[min]"]').val()) || 0;
-                var max = parseFloat($row.find('input[name*="[max]"]').val()) || 0;
-                var cost = parseFloat($row.find('input[name*="[cost]"]').val()) || 0;
-                var percentage = hasPercentage ? (parseFloat($row.find('input[name*="[percentage]"]').val()) || 100) : 100;
-
-                var unitsInBracket = max - min;
-                var actualUnits = unitsInBracket;
-
-                // If remaining usage is less than units in bracket, use remaining
-                if (remainingUsage - unitsInBracket < 0) {
-                    actualUnits = remainingUsage;
-                }
-
-                // Subtract from remaining usage
-                remainingUsage -= unitsInBracket;
-                if (remainingUsage < 0) remainingUsage = 0;
-
-                // Apply percentage
-                actualUnits = (percentage / 100) * actualUnits;
-
-                // Calculate row total
-                var rowTotal = actualUnits * cost;
-                rowTotal = Math.round(rowTotal * 100) / 100;
-
-                // Update the Total field in this row
-                $row.find('input[name*="[total]"]').val(rowTotal.toFixed(2));
-
-                sectionTotal += rowTotal;
-            });
-
-            return Math.round(sectionTotal * 100) / 100;
-        }
-
-        /**
-         * Calculate related/additional costs
-         * Matches backend logic in MeterService.php getAdditionalCosts()
-         */
-        function calculateRelatedCost(usage, containerSelector) {
-            var sectionTotal = 0;
-
-            $(containerSelector).find('.row.mb-2').each(function() {
-                var $row = $(this);
-                var percentage = parseFloat($row.find('input[name*="[percentage]"]').val());
-                var cost = parseFloat($row.find('input[name*="[cost]"]').val()) || 0;
-
-                var effectiveUsage = usage;
-                
-                // If percentage is empty or null, usage becomes 1 (fixed cost)
-                if (isNaN(percentage) || percentage === '') {
-                    effectiveUsage = 1;
-                } else if (percentage !== 100) {
-                    // Adjust usage based on percentage
-                    effectiveUsage = usage - (usage * (percentage / 100));
-                }
-
-                var rowTotal = effectiveUsage * cost;
-                rowTotal = Math.round(rowTotal * 100) / 100;
-
-                // Update the Total field in this row
-                $row.find('input[name*="[total]"]').val(rowTotal.toFixed(2));
-
-                sectionTotal += rowTotal;
-            });
-
-            return Math.round(sectionTotal * 100) / 100;
-        }
-
-        /**
          * Master function to calculate all totals
          */
         function calculateAllTotals() {
@@ -865,7 +788,7 @@
                     waterInTotal += rowTotal;
                 }
             });
-            $('input[name="waterin_total"]').first().val(waterInTotal.toFixed(2));
+            $('input[name="waterin_total"]').val(waterInTotal.toFixed(2));
 
             // Water In Additional/Related
             var waterInRelatedTotal = 0;
@@ -911,7 +834,7 @@
                     waterOutTotal += rowTotal;
                 }
             });
-            $('input[name="waterout_total"]').first().val(waterOutTotal.toFixed(2));
+            $('input[name="waterout_total"]').val(waterOutTotal.toFixed(2));
 
             // Water Out Additional/Related
             var waterOutRelatedTotal = 0;
@@ -955,7 +878,7 @@
                     electricityTotal += rowTotal;
                 }
             });
-            $('input[name="electricity_total"]').first().val(electricityTotal.toFixed(2));
+            $('input[name="electricity_total"]').val(electricityTotal.toFixed(2));
 
             // Electricity Additional/Related
             var electricityRelatedTotal = 0;

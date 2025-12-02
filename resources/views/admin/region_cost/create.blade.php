@@ -777,83 +777,6 @@
         // ========== REAL-TIME CALCULATION FUNCTIONS ==========
 
         /**
-         * Calculate tiered cost for Water In/Out/Electricity brackets
-         * Matches backend logic in MeterService.php getTotalCostByBrackets()
-         */
-        function calculateTieredCost(usage, containerSelector, hasPercentage) {
-            var remainingUsage = usage;
-            var sectionTotal = 0;
-
-            $(containerSelector).find('.row.mb-2').each(function() {
-                var $row = $(this);
-                var min = parseFloat($row.find('input[name*="[min]"]').val()) || 0;
-                var max = parseFloat($row.find('input[name*="[max]"]').val()) || 0;
-                var cost = parseFloat($row.find('input[name*="[cost]"]').val()) || 0;
-                var percentage = hasPercentage ? (parseFloat($row.find('input[name*="[percentage]"]').val()) || 100) : 100;
-
-                var unitsInBracket = max - min;
-                var actualUnits = unitsInBracket;
-
-                // If remaining usage is less than units in bracket, use remaining
-                if (remainingUsage - unitsInBracket < 0) {
-                    actualUnits = remainingUsage;
-                }
-
-                // Subtract from remaining usage
-                remainingUsage -= unitsInBracket;
-                if (remainingUsage < 0) remainingUsage = 0;
-
-                // Apply percentage
-                actualUnits = (percentage / 100) * actualUnits;
-
-                // Calculate row total
-                var rowTotal = actualUnits * cost;
-                rowTotal = Math.round(rowTotal * 100) / 100;
-
-                // Update the Total field in this row
-                $row.find('input[name*="[total]"]').val(rowTotal.toFixed(2));
-
-                sectionTotal += rowTotal;
-            });
-
-            return Math.round(sectionTotal * 100) / 100;
-        }
-
-        /**
-         * Calculate related/additional costs
-         * Matches backend logic in MeterService.php getAdditionalCosts()
-         */
-        function calculateRelatedCost(usage, containerSelector) {
-            var sectionTotal = 0;
-
-            $(containerSelector).find('.row.mb-2').each(function() {
-                var $row = $(this);
-                var percentage = parseFloat($row.find('input[name*="[percentage]"]').val());
-                var cost = parseFloat($row.find('input[name*="[cost]"]').val()) || 0;
-
-                var effectiveUsage = usage;
-                
-                // If percentage is empty or null, usage becomes 1 (fixed cost)
-                if (isNaN(percentage) || percentage === '') {
-                    effectiveUsage = 1;
-                } else if (percentage !== 100) {
-                    // Adjust usage based on percentage
-                    effectiveUsage = usage - (usage * (percentage / 100));
-                }
-
-                var rowTotal = effectiveUsage * cost;
-                rowTotal = Math.round(rowTotal * 100) / 100;
-
-                // Update the Total field in this row
-                $row.find('input[name*="[total]"]').val(rowTotal.toFixed(2));
-
-                sectionTotal += rowTotal;
-            });
-
-            return Math.round(sectionTotal * 100) / 100;
-        }
-
-        /**
          * Master function to calculate all totals
          */
         function calculateAllTotals() {
@@ -862,18 +785,7 @@
             var vatPercentage = parseFloat($('input[name="vat_percentage"]').val()) || 0;
 
             // Water In (no percentage column)
-            var waterInTotal = calculateTieredCost(waterUsage, '.water_in_section .waterin-cost-container, .water_in_section > .row.mb-2:has(input[name^="waterin["])', false);
-            // Also check for default rows that are direct children
-            var waterInDefaultRows = $('.water_in_section').children('.row.mb-2').filter(function() {
-                return $(this).find('input[name^="waterin["]').length > 0 && $(this).find('input[name*="[percentage]"]').length === 0;
-            });
-            if (waterInDefaultRows.length > 0) {
-                waterInTotal = calculateTieredCostFromRows(waterUsage, waterInDefaultRows, false);
-                waterInTotal += calculateTieredCost(waterUsage, '.waterin-cost-container', false);
-            }
-            
-            // Recalculate properly using parent section
-            waterInTotal = 0;
+            var waterInTotal = 0;
             var waterInRemaining = waterUsage;
             $('.water_in_section').find('input[name^="waterin["][name$="[min]"]').each(function() {
                 var $row = $(this).closest('.row');
