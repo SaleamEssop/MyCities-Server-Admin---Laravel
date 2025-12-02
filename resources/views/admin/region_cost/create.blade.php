@@ -180,7 +180,7 @@
                         <div class="row mt-2">
                             <div class="col-md-2 offset-md-10">
                                 <label><strong>WaterIn related Total :</strong></label>
-                                <input class="form-control" type="text" placeholder="Total" value="0" disabled />
+                                <input class="form-control" type="text" placeholder="Total" name="waterin_related_total" value="0" disabled />
                             </div>
                         </div>
                     </div>
@@ -286,7 +286,7 @@
                         <div class="row mt-2">
                             <div class="col-md-2 offset-md-10">
                                 <label><strong>Waterout related Total:</strong></label>
-                                <input class="form-control" type="text" placeholder="Total" value="0" disabled />
+                                <input class="form-control" type="text" placeholder="Total" name="waterout_related_total" value="0" disabled />
                             </div>
                         </div>
                     </div>
@@ -386,7 +386,7 @@
                         <div class="row mt-2">
                             <div class="col-md-2 offset-md-10">
                                 <label><strong>Electricity related Total :</strong></label>
-                                <input class="form-control" type="text" placeholder="Total" value="0" disabled />
+                                <input class="form-control" type="text" placeholder="Total" name="electricity_related_total" value="0" disabled />
                             </div>
                         </div>
                     </div>
@@ -430,7 +430,7 @@
                             </div>
                             <label><strong>VAT</strong></label>
                             <div class="form-group">
-                                <input class="form-control" type="text" placeholder="VAT Rate" value="0" disabled />
+                                <input class="form-control" type="text" placeholder="VAT Amount" name="vat_amount" value="0" disabled />
                             </div>
                             <label><strong>Rates :</strong></label>
                             <div class="form-group">
@@ -753,6 +753,7 @@
         // Universal Remove Button
         $(document).on("click", '.remove-row', function() {
             $(this).closest('.row').remove();
+            calculateAllTotals();
         });
 
         // Email Fetch
@@ -772,6 +773,237 @@
                 }
             });
         });
+
+        // ========== REAL-TIME CALCULATION FUNCTIONS ==========
+
+        /**
+         * Master function to calculate all totals
+         */
+        function calculateAllTotals() {
+            var waterUsage = parseFloat($('input[name="water_used"]').val()) || 0;
+            var electricityUsage = parseFloat($('input[name="electricity_used"]').val()) || 0;
+            var vatPercentage = parseFloat($('input[name="vat_percentage"]').val()) || 0;
+
+            // Water In (no percentage column)
+            var waterInTotal = 0;
+            var waterInRemaining = waterUsage;
+            $('.water_in_section').find('input[name^="waterin["][name$="[min]"]').each(function() {
+                var $row = $(this).closest('.row');
+                if ($row.find('input[name*="additional"]').length === 0) {
+                    var min = parseFloat($row.find('input[name*="[min]"]').val()) || 0;
+                    var max = parseFloat($row.find('input[name*="[max]"]').val()) || 0;
+                    var cost = parseFloat($row.find('input[name*="[cost]"]').val()) || 0;
+
+                    var unitsInBracket = max - min;
+                    var actualUnits = unitsInBracket;
+                    if (waterInRemaining - unitsInBracket < 0) {
+                        actualUnits = Math.max(0, waterInRemaining);
+                    }
+                    waterInRemaining -= unitsInBracket;
+                    if (waterInRemaining < 0) waterInRemaining = 0;
+
+                    var rowTotal = actualUnits * cost;
+                    rowTotal = Math.round(rowTotal * 100) / 100;
+                    $row.find('input[name*="[total]"]').val(rowTotal.toFixed(2));
+                    waterInTotal += rowTotal;
+                }
+            });
+            $('input[name="waterin_total"]').val(waterInTotal.toFixed(2));
+
+            // Water In Additional/Related
+            var waterInRelatedTotal = 0;
+            $('.water_in_section').find('input[name^="waterin_additional["][name$="[title]"]').each(function() {
+                var $row = $(this).closest('.row');
+                var percentage = parseFloat($row.find('input[name*="[percentage]"]').val());
+                var cost = parseFloat($row.find('input[name*="[cost]"]').val()) || 0;
+                var effectiveUsage = waterUsage;
+                if (isNaN(percentage) || $row.find('input[name*="[percentage]"]').val() === '') {
+                    effectiveUsage = 1;
+                } else if (percentage !== 100) {
+                    effectiveUsage = waterUsage - (waterUsage * (percentage / 100));
+                }
+                var rowTotal = Math.round(effectiveUsage * cost * 100) / 100;
+                $row.find('input[name*="[total]"]').val(rowTotal.toFixed(2));
+                waterInRelatedTotal += rowTotal;
+            });
+            $('input[name="waterin_related_total"]').val(waterInRelatedTotal.toFixed(2));
+
+            // Water Out (has percentage column)
+            var waterOutTotal = 0;
+            var waterOutRemaining = waterUsage;
+            $('.water_out_section').find('input[name^="waterout["][name$="[min]"]').each(function() {
+                var $row = $(this).closest('.row');
+                if ($row.find('input[name*="additional"]').length === 0) {
+                    var min = parseFloat($row.find('input[name*="[min]"]').val()) || 0;
+                    var max = parseFloat($row.find('input[name*="[max]"]').val()) || 0;
+                    var percentage = parseFloat($row.find('input[name*="[percentage]"]').val()) || 100;
+                    var cost = parseFloat($row.find('input[name*="[cost]"]').val()) || 0;
+
+                    var unitsInBracket = max - min;
+                    var actualUnits = unitsInBracket;
+                    if (waterOutRemaining - unitsInBracket < 0) {
+                        actualUnits = Math.max(0, waterOutRemaining);
+                    }
+                    waterOutRemaining -= unitsInBracket;
+                    if (waterOutRemaining < 0) waterOutRemaining = 0;
+
+                    actualUnits = (percentage / 100) * actualUnits;
+                    var rowTotal = actualUnits * cost;
+                    rowTotal = Math.round(rowTotal * 100) / 100;
+                    $row.find('input[name*="[total]"]').val(rowTotal.toFixed(2));
+                    waterOutTotal += rowTotal;
+                }
+            });
+            $('input[name="waterout_total"]').val(waterOutTotal.toFixed(2));
+
+            // Water Out Additional/Related
+            var waterOutRelatedTotal = 0;
+            $('.water_out_section').find('input[name^="waterout_additional["][name$="[title]"]').each(function() {
+                var $row = $(this).closest('.row');
+                var percentage = parseFloat($row.find('input[name*="[percentage]"]').val());
+                var cost = parseFloat($row.find('input[name*="[cost]"]').val()) || 0;
+                var effectiveUsage = waterUsage;
+                if (isNaN(percentage) || $row.find('input[name*="[percentage]"]').val() === '') {
+                    effectiveUsage = 1;
+                } else if (percentage !== 100) {
+                    effectiveUsage = waterUsage - (waterUsage * (percentage / 100));
+                }
+                var rowTotal = Math.round(effectiveUsage * cost * 100) / 100;
+                $row.find('input[name*="[total]"]').val(rowTotal.toFixed(2));
+                waterOutRelatedTotal += rowTotal;
+            });
+            $('input[name="waterout_related_total"]').val(waterOutRelatedTotal.toFixed(2));
+
+            // Electricity (no percentage column)
+            var electricityTotal = 0;
+            var electricityRemaining = electricityUsage;
+            $('.ele_section').find('input[name^="electricity["][name$="[min]"]').each(function() {
+                var $row = $(this).closest('.row');
+                if ($row.find('input[name*="additional"]').length === 0) {
+                    var min = parseFloat($row.find('input[name*="[min]"]').val()) || 0;
+                    var max = parseFloat($row.find('input[name*="[max]"]').val()) || 0;
+                    var cost = parseFloat($row.find('input[name*="[cost]"]').val()) || 0;
+
+                    var unitsInBracket = max - min;
+                    var actualUnits = unitsInBracket;
+                    if (electricityRemaining - unitsInBracket < 0) {
+                        actualUnits = Math.max(0, electricityRemaining);
+                    }
+                    electricityRemaining -= unitsInBracket;
+                    if (electricityRemaining < 0) electricityRemaining = 0;
+
+                    var rowTotal = actualUnits * cost;
+                    rowTotal = Math.round(rowTotal * 100) / 100;
+                    $row.find('input[name*="[total]"]').val(rowTotal.toFixed(2));
+                    electricityTotal += rowTotal;
+                }
+            });
+            $('input[name="electricity_total"]').val(electricityTotal.toFixed(2));
+
+            // Electricity Additional/Related
+            var electricityRelatedTotal = 0;
+            $('.ele_section').find('input[name^="electricity_additional["][name$="[title]"]').each(function() {
+                var $row = $(this).closest('.row');
+                var percentage = parseFloat($row.find('input[name*="[percentage]"]').val());
+                var cost = parseFloat($row.find('input[name*="[cost]"]').val()) || 0;
+                var effectiveUsage = electricityUsage;
+                if (isNaN(percentage) || $row.find('input[name*="[percentage]"]').val() === '') {
+                    effectiveUsage = 1;
+                } else if (percentage !== 100) {
+                    effectiveUsage = electricityUsage - (electricityUsage * (percentage / 100));
+                }
+                var rowTotal = Math.round(effectiveUsage * cost * 100) / 100;
+                $row.find('input[name*="[total]"]').val(rowTotal.toFixed(2));
+                electricityRelatedTotal += rowTotal;
+            });
+            $('input[name="electricity_related_total"]').val(electricityRelatedTotal.toFixed(2));
+
+            // Additional Costs (fixed costs)
+            var additionalTotal = 0;
+            $('input[name^="additional["][name$="[cost]"]').each(function() {
+                additionalTotal += parseFloat($(this).val()) || 0;
+            });
+
+            // Calculate Sub Total
+            var subTotal = waterInTotal + waterInRelatedTotal + waterOutTotal + waterOutRelatedTotal + 
+                           electricityTotal + electricityRelatedTotal + additionalTotal;
+            subTotal = Math.round(subTotal * 100) / 100;
+            $('input[name="sub_total"]').val(subTotal.toFixed(2));
+
+            // Calculate VAT
+            var vatAmount = (vatPercentage / 100) * subTotal;
+            vatAmount = Math.round(vatAmount * 100) / 100;
+            $('input[name="vat_amount"]').val(vatAmount.toFixed(2));
+
+            // Get Rates and Rates Rebate
+            var rates = parseFloat($('input[name="vat_rate"]').val()) || 0;
+            var ratesRebate = parseFloat($('input[name="rates_rebate"]').val()) || 0;
+
+            // Calculate Final Total
+            var finalTotal = subTotal + vatAmount + rates - ratesRebate;
+            finalTotal = Math.round(finalTotal * 100) / 100;
+            $('input[name="final_total"]').val(finalTotal.toFixed(2));
+        }
+
+        // ========== EVENT LISTENERS FOR REAL-TIME CALCULATION ==========
+
+        // Listen to changes in usage fields
+        $(document).on('input', 'input[name="water_used"], input[name="electricity_used"]', function() {
+            calculateAllTotals();
+        });
+
+        // Listen to changes in VAT percentage
+        $(document).on('input', 'input[name="vat_percentage"]', function() {
+            calculateAllTotals();
+        });
+
+        // Listen to changes in rates and rebates
+        $(document).on('input', 'input[name="vat_rate"], input[name="rates_rebate"]', function() {
+            calculateAllTotals();
+        });
+
+        // Listen to changes in Water In rows (min, max, cost)
+        $(document).on('input', '.water_in_section input[name^="waterin["]', function() {
+            calculateAllTotals();
+        });
+
+        // Listen to changes in Water In Additional rows
+        $(document).on('input', '.water_in_section input[name^="waterin_additional["]', function() {
+            calculateAllTotals();
+        });
+
+        // Listen to changes in Water Out rows (min, max, percentage, cost)
+        $(document).on('input', '.water_out_section input[name^="waterout["]', function() {
+            calculateAllTotals();
+        });
+
+        // Listen to changes in Water Out Additional rows
+        $(document).on('input', '.water_out_section input[name^="waterout_additional["]', function() {
+            calculateAllTotals();
+        });
+
+        // Listen to changes in Electricity rows (min, max, cost)
+        $(document).on('input', '.ele_section input[name^="electricity["]', function() {
+            calculateAllTotals();
+        });
+
+        // Listen to changes in Electricity Additional rows
+        $(document).on('input', '.ele_section input[name^="electricity_additional["]', function() {
+            calculateAllTotals();
+        });
+
+        // Listen to changes in Additional Cost rows
+        $(document).on('input', '.additional-cost-container input[name^="additional["]', function() {
+            calculateAllTotals();
+        });
+
+        // Recalculate when checkboxes change
+        $('#waterchk, #electricitychk').change(function() {
+            calculateAllTotals();
+        });
+
+        // Initial calculation on page load
+        calculateAllTotals();
     });
 </script>
 </div>
