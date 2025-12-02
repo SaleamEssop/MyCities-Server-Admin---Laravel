@@ -920,7 +920,7 @@
 
             // Additional Costs (fixed costs)
             var additionalTotal = 0;
-            $('.additional-cost-container').find('input[name^="additional["][name$="[cost]"]').each(function() {
+            $('input[name^="additional["][name$="[cost]"]').each(function() {
                 additionalTotal += parseFloat($(this).val()) || 0;
             });
 
