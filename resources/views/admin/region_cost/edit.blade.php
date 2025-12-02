@@ -17,7 +17,6 @@
 
     <div class="cust-form-wrapper">
         <div class="row">
-
             <div class="col-md-12">
                 <form method="POST" action="{{ route('update-region-cost') }}">
                     @csrf
@@ -95,41 +94,35 @@
                     <!-- Water In Section -->
                     <div class="water_in_section">
                         <hr>
-                        <div class="d-flex align-items-center mb-3">
-                            <label class="mr-2 mb-0"><strong>Add Water In Cost : </strong></label>
-                            <a href="javascript:void(0)" id="add-waterin-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="mr-2"><strong>Add Water In Cost : </strong></label>
+                                <a href="javascript:void(0)" id="add-waterin-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
+                            </div>
                         </div>
 
                         <?php $waterIn = json_decode($region_cost->water_in); ?>
                         @if(is_array($waterIn))
                         @foreach($waterIn as $key => $value)
-                        <div class="row align-items-end mb-2">
+                        <div class="row mb-2">
                             <div class="col-md-3">
                                 <label><strong>Min :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterin[{{$key}}][min]" value="{{$value->min}}" required />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterin[{{$key}}][min]" value="{{$value->min}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Max :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterin[{{$key}}][max]" value="{{$value->max}}" required />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterin[{{$key}}][max]" value="{{$value->max}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Cost :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin[{{$key}}][cost]" value="{{$value->cost}}" required />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin[{{$key}}][cost]" value="{{$value->cost}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control" type="text" placeholder="Total" name="waterin[{{$key}}][total]" value="{{$value->total ?? 0}}" required disabled />
-                                </div>
+                                <input class="form-control" type="text" placeholder="Total" name="waterin[{{$key}}][total]" value="{{$value->total ?? 0}}" required disabled />
                             </div>
                             <div class="col-md-1">
-                                <a href="javascript:void(0)" class="btn btn-sm btn-circle btn-danger remove-row">
+                                <a href="javascript:void(0)" style="margin-top: 32px;" class="btn btn-sm btn-circle btn-danger remove-row">
                                     <i class="fa fa-trash"></i>
                                 </a>
                             </div>
@@ -145,41 +138,35 @@
                             </div>
                         </div>
 
-                        <div class="d-flex align-items-center mb-3 mt-4">
-                            <label class="mr-2 mb-0"><strong>Water in related Cost</strong></label>
-                            <a href="javascript:void(0)" id="add-waterin-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
+                        <div class="row mb-3 mt-4">
+                            <div class="col-md-12">
+                                <label class="mr-2"><strong>Water in related Cost : </strong></label>
+                                <a href="javascript:void(0)" id="add-waterin-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
+                            </div>
                         </div>
 
                         <?php $waterInAdd = json_decode($region_cost->waterin_additional); ?>
                         @if(is_array($waterInAdd))
                         @foreach($waterInAdd as $key => $value)
-                        <div class="row align-items-end mb-2">
+                        <div class="row mb-2">
                             <div class="col-md-3">
                                 <label><strong>Title :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control" type="text" placeholder="Title" name="waterin_additional[{{$key}}][title]" value="{{$value->title}}" required />
-                                </div>
+                                <input class="form-control" type="text" placeholder="Title" name="waterin_additional[{{$key}}][title]" value="{{$value->title}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Percentage :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterin_additional[{{$key}}][percentage]" value="{{$value->percentage}}" />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterin_additional[{{$key}}][percentage]" value="{{$value->percentage}}" />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Cost :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin_additional[{{$key}}][cost]" value="{{$value->cost}}" required />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin_additional[{{$key}}][cost]" value="{{$value->cost}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control" type="text" placeholder="Total" name="waterin_additional[0][total]" value="{{$value->total ?? 0}}" required disabled />
-                                </div>
+                                <input class="form-control" type="text" placeholder="Total" name="waterin_additional[0][total]" value="{{$value->total ?? 0}}" required disabled />
                             </div>
                             <div class="col-md-1">
-                                <a href="javascript:void(0)" class="btn btn-sm btn-circle btn-danger remove-row">
+                                <a href="javascript:void(0)" style="margin-top: 32px;" class="btn btn-sm btn-circle btn-danger remove-row">
                                     <i class="fa fa-trash"></i>
                                 </a>
                             </div>
@@ -199,47 +186,39 @@
                     <!-- Water Out Section -->
                     <div class="water_out_section">
                         <hr>
-                        <div class="d-flex align-items-center mb-3">
-                            <label class="mr-2 mb-0"><strong>Add Water Out Cost : </strong></label>
-                            <a href="javascript:void(0)" id="add-waterout-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="mr-2"><strong>Add Water Out Cost : </strong></label>
+                                <a href="javascript:void(0)" id="add-waterout-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
+                            </div>
                         </div>
 
                         <?php $waterOut = json_decode($region_cost->water_out); ?>
                         @if(is_array($waterOut))
                         @foreach($waterOut as $key => $value)
-                        <div class="row align-items-end mb-2">
+                        <div class="row mb-2">
                             <div class="col-md-2">
                                 <label><strong>Min :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterout[{{$key}}][min]" value="{{$value->min}}" required />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterout[{{$key}}][min]" value="{{$value->min}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Max :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterout[{{$key}}][max]" value="{{$value->max}}" required />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterout[{{$key}}][max]" value="{{$value->max}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Percentage :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterout[{{$key}}][percentage]" value="{{$value->percentage}}" required />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterout[{{$key}}][percentage]" value="{{$value->percentage}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Cost :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout[{{$key}}][cost]" value="{{$value->cost}}" required />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout[{{$key}}][cost]" value="{{$value->cost}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control" type="text" placeholder="Total" name="waterout[{{$key}}][total]" value="{{$value->total ?? 0}}" required disabled />
-                                </div>
+                                <input class="form-control" type="text" placeholder="Total" name="waterout[{{$key}}][total]" value="{{$value->total ?? 0}}" required disabled />
                             </div>
                             <div class="col-md-1">
-                                <a href="javascript:void(0)" class="btn btn-sm btn-circle btn-danger remove-row">
+                                <a href="javascript:void(0)" style="margin-top: 32px;" class="btn btn-sm btn-circle btn-danger remove-row">
                                     <i class="fa fa-trash"></i>
                                 </a>
                             </div>
@@ -255,41 +234,35 @@
                             </div>
                         </div>
 
-                        <div class="d-flex align-items-center mb-3 mt-4">
-                            <label class="mr-2 mb-0"><strong>Water out related Cost</strong></label>
-                            <a href="javascript:void(0)" id="add-waterout-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
+                        <div class="row mb-3 mt-4">
+                            <div class="col-md-12">
+                                <label class="mr-2"><strong>Water out related Cost : </strong></label>
+                                <a href="javascript:void(0)" id="add-waterout-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
+                            </div>
                         </div>
 
                         <?php $waterOutAdd = json_decode($region_cost->waterout_additional); ?>
                         @if(is_array($waterOutAdd))
                         @foreach($waterOutAdd as $key => $value)
-                        <div class="row align-items-end mb-2">
+                        <div class="row mb-2">
                             <div class="col-md-3">
                                 <label><strong>Title :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control" type="text" placeholder="Title" name="waterout_additional[{{$key}}][title]" value="{{$value->title}}" required />
-                                </div>
+                                <input class="form-control" type="text" placeholder="Title" name="waterout_additional[{{$key}}][title]" value="{{$value->title}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Percentage :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterout_additional[{{$key}}][percentage]" value="{{$value->percentage}}" />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterout_additional[{{$key}}][percentage]" value="{{$value->percentage}}" />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Cost :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout_additional[{{$key}}][cost]" value="{{$value->cost}}" required />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout_additional[{{$key}}][cost]" value="{{$value->cost}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control" type="text" placeholder="Total" name="waterout_additional[0][total]" value="{{$value->total ?? 0}}" required disabled />
-                                </div>
+                                <input class="form-control" type="text" placeholder="Total" name="waterout_additional[0][total]" value="{{$value->total ?? 0}}" required disabled />
                             </div>
                             <div class="col-md-1">
-                                <a href="javascript:void(0)" class="btn btn-sm btn-circle btn-danger remove-row">
+                                <a href="javascript:void(0)" style="margin-top: 32px;" class="btn btn-sm btn-circle btn-danger remove-row">
                                     <i class="fa fa-trash"></i>
                                 </a>
                             </div>
@@ -309,41 +282,35 @@
                     <!-- Electricity Section -->
                     <div class="ele_section">
                         <hr>
-                        <div class="d-flex align-items-center mb-3">
-                            <label class="mr-2 mb-0"><strong>Electricity : </strong></label>
-                            <a href="javascript:void(0)" id="add-electricity-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="mr-2"><strong>Electricity : </strong></label>
+                                <a href="javascript:void(0)" id="add-electricity-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
+                            </div>
                         </div>
 
                         <?php $elec = json_decode($region_cost->electricity); ?>
                         @if(is_array($elec))
                         @foreach($elec as $key => $value)
-                        <div class="row align-items-end mb-2">
+                        <div class="row mb-2">
                             <div class="col-md-3">
                                 <label><strong>Min :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Min" name="electricity[{{$key}}][min]" value="{{$value->min}}" required />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Min" name="electricity[{{$key}}][min]" value="{{$value->min}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Max :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Max" name="electricity[{{$key}}][max]" value="{{$value->max}}" required />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Max" name="electricity[{{$key}}][max]" value="{{$value->max}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Cost :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity[{{$key}}][cost]" value="{{$value->cost}}" required />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity[{{$key}}][cost]" value="{{$value->cost}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control" type="text" placeholder="Total" name="electricity[{{$key}}][total]" value="{{$value->total ?? 0}}" required disabled />
-                                </div>
+                                <input class="form-control" type="text" placeholder="Total" name="electricity[{{$key}}][total]" value="{{$value->total ?? 0}}" required disabled />
                             </div>
                             <div class="col-md-1">
-                                <a href="javascript:void(0)" class="btn btn-sm btn-circle btn-danger remove-row">
+                                <a href="javascript:void(0)" style="margin-top: 32px;" class="btn btn-sm btn-circle btn-danger remove-row">
                                     <i class="fa fa-trash"></i>
                                 </a>
                             </div>
@@ -359,41 +326,35 @@
                             </div>
                         </div>
 
-                        <div class="d-flex align-items-center mb-3 mt-4">
-                            <label class="mr-2 mb-0"><strong>Electricity related Cost</strong></label>
-                            <a href="javascript:void(0)" id="add-electricity-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
+                        <div class="row mb-3 mt-4">
+                            <div class="col-md-12">
+                                <label class="mr-2"><strong>Electricity related Cost : </strong></label>
+                                <a href="javascript:void(0)" id="add-electricity-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
+                            </div>
                         </div>
 
                         <?php $elecAdd = json_decode($region_cost->electricity_additional); ?>
                         @if(is_array($elecAdd))
                         @foreach($elecAdd as $key => $value)
-                        <div class="row align-items-end mb-2">
+                        <div class="row mb-2">
                             <div class="col-md-3">
                                 <label><strong>Title :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control" type="text" placeholder="Title" name="electricity_additional[{{$key}}][title]" value="{{$value->title}}" required />
-                                </div>
+                                <input class="form-control" type="text" placeholder="Title" name="electricity_additional[{{$key}}][title]" value="{{$value->title}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Percentage :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="electricity_additional[{{$key}}][percentage]" value="{{$value->percentage}}" />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="electricity_additional[{{$key}}][percentage]" value="{{$value->percentage}}" />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Cost :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity_additional[{{$key}}][cost]" value="{{$value->cost}}" required />
-                                </div>
+                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity_additional[{{$key}}][cost]" value="{{$value->cost}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
-                                <div class="form-group mb-0">
-                                    <input class="form-control" type="text" placeholder="Total" name="electricity_additional[0][total]" value="{{$value->total ?? 0}}" required disabled />
-                                </div>
+                                <input class="form-control" type="text" placeholder="Total" name="electricity_additional[0][total]" value="{{$value->total ?? 0}}" required disabled />
                             </div>
                             <div class="col-md-1">
-                                <a href="javascript:void(0)" class="btn btn-sm btn-circle btn-danger remove-row">
+                                <a href="javascript:void(0)" style="margin-top: 32px;" class="btn btn-sm btn-circle btn-danger remove-row">
                                     <i class="fa fa-trash"></i>
                                 </a>
                             </div>
@@ -412,29 +373,27 @@
 
                     <!-- Additional cost form -->
                     <hr>
-                    <div class="d-flex align-items-center mb-3">
-                        <label class="mr-2 mb-0"><strong>Additional Cost : </strong></label>
-                        <a href="javascript:void(0)" id="add-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="mr-2"><strong>Additional Cost : </strong></label>
+                            <a href="javascript:void(0)" id="add-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
+                        </div>
                     </div>
 
                     <?php $addCost = json_decode($region_cost->additional); ?>
                     @if(is_array($addCost))
                     @foreach($addCost as $key => $value)
-                    <div class="row align-items-end mb-2">
+                    <div class="row mb-2">
                         <div class="col-md-5">
                             <label><strong>Name Of Cost :</strong></label>
-                            <div class="form-group mb-0">
-                                <input class="form-control" type="text" placeholder="Name" name="additional[{{$key}}][name]" value="{{$value->name}}" required />
-                            </div>
+                            <input class="form-control" type="text" placeholder="Name" name="additional[{{$key}}][name]" value="{{$value->name}}" required />
                         </div>
                         <div class="col-md-5">
                             <label><strong>Cost :</strong></label>
-                            <div class="form-group mb-0">
-                                <input class="form-control " type="text" placeholder="Cost" name="additional[{{$key}}][cost]" value="{{$value->cost}}" required />
-                            </div>
+                            <input class="form-control " type="text" placeholder="Cost" name="additional[{{$key}}][cost]" value="{{$value->cost}}" required />
                         </div>
                         <div class="col-md-2">
-                            <a href="javascript:void(0)" class="btn btn-sm btn-circle btn-danger remove-row">
+                            <a href="javascript:void(0)" style="margin-top: 32px;" class="btn btn-sm btn-circle btn-danger remove-row">
                                 <i class="fa fa-trash"></i>
                             </a>
                         </div>
@@ -500,34 +459,13 @@
         $('#waterchk, #electricitychk').change(toggleSections);
 
         // Initialize counters based on PHP counts
-        var i = <?php
-                $wIn = json_decode($region_cost->water_in);
-                echo (is_array($wIn)) ? count($wIn) : 0;
-                ?>;
-        var o = <?php
-                $wOut = json_decode($region_cost->water_out);
-                echo (is_array($wOut)) ? count($wOut) : 0;
-                ?>;
-        var e = <?php
-                $elec = json_decode($region_cost->electricity);
-                echo (is_array($elec)) ? count($elec) : 0;
-                ?>;
-        var a = <?php
-                $add = json_decode($region_cost->additional);
-                echo (is_array($add)) ? count($add) : 0;
-                ?>;
-        var wa = <?php
-                    $waAdd = json_decode($region_cost->waterin_additional);
-                    echo (is_array($waAdd)) ? count($waAdd) : 0;
-                    ?>;
-        var wo = <?php
-                    $woAdd = json_decode($region_cost->waterout_additional);
-                    echo (is_array($woAdd)) ? count($woAdd) : 0;
-                    ?>;
-        var eo = <?php
-                    $eoAdd = json_decode($region_cost->electricity_additional);
-                    echo (is_array($eoAdd)) ? count($eoAdd) : 0;
-                    ?>;
+        var i = <?php $wIn = json_decode($region_cost->water_in); echo (is_array($wIn)) ? count($wIn) : 0; ?>;
+        var o = <?php $wOut = json_decode($region_cost->water_out); echo (is_array($wOut)) ? count($wOut) : 0; ?>;
+        var e = <?php $elec = json_decode($region_cost->electricity); echo (is_array($elec)) ? count($elec) : 0; ?>;
+        var a = <?php $add = json_decode($region_cost->additional); echo (is_array($add)) ? count($add) : 0; ?>;
+        var wa = <?php $waAdd = json_decode($region_cost->waterin_additional); echo (is_array($waAdd)) ? count($waAdd) : 0; ?>;
+        var wo = <?php $woAdd = json_decode($region_cost->waterout_additional); echo (is_array($woAdd)) ? count($woAdd) : 0; ?>;
+        var eo = <?php $eoAdd = json_decode($region_cost->electricity_additional); echo (is_array($eoAdd)) ? count($eoAdd) : 0; ?>;
 
         // Decimal validation
         $(document).on("input", ".allow_decimal", function(evt) {
@@ -543,7 +481,7 @@
         // WATER IN
         $("#add-waterin-cost").on("click", function() {
             var html = `
-                <div class="row align-items-end mb-2">
+                <div class="row mb-2">
                     <div class="col-md-3">
                         <label>Min</label>
                         <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterin[${i}][min]" required />
@@ -561,7 +499,7 @@
                         <input class="form-control" type="text" placeholder="Total" name="waterin[${i}][total]" disabled/>
                     </div>
                     <div class="col-md-1">
-                        <button type="button" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
                     </div>
                 </div>`;
             $(".waterin-cost-container").append(html);
@@ -570,7 +508,7 @@
 
         $("#add-waterin-additional-cost").on("click", function() {
             var html = `
-                <div class="row align-items-end mb-2">
+                <div class="row mb-2">
                     <div class="col-md-3">
                         <label>Title</label>
                         <input class="form-control" type="text" placeholder="Title" name="waterin_additional[${wa}][title]" required />
@@ -588,7 +526,7 @@
                         <input class="form-control" type="text" placeholder="Total" name="waterin_additional[${wa}][total]" disabled/>
                     </div>
                     <div class="col-md-1">
-                        <button type="button" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
                     </div>
                 </div>`;
             $(".waterin-additional-cost-container").append(html);
@@ -598,7 +536,7 @@
         // WATER OUT
         $("#add-waterout-cost").on("click", function() {
             var html = `
-                <div class="row align-items-end mb-2">
+                <div class="row mb-2">
                     <div class="col-md-2">
                         <label>Min</label>
                         <input class="form-control allow_decimal" type="text" placeholder="Min" name="waterout[${o}][min]" required />
@@ -620,7 +558,7 @@
                         <input class="form-control" type="text" placeholder="Total" name="waterout[${o}][total]" disabled/>
                     </div>
                     <div class="col-md-1">
-                        <button type="button" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
                     </div>
                 </div>`;
             $(".waterout-cost-container").append(html);
@@ -629,7 +567,7 @@
 
         $("#add-waterout-additional-cost").on("click", function() {
             var html = `
-                <div class="row align-items-end mb-2">
+                <div class="row mb-2">
                     <div class="col-md-3">
                         <label>Title</label>
                         <input class="form-control" type="text" placeholder="Title" name="waterout_additional[${wo}][title]" required />
@@ -647,7 +585,7 @@
                         <input class="form-control" type="text" placeholder="Total" name="waterout_additional[${wo}][total]" disabled/>
                     </div>
                     <div class="col-md-1">
-                        <button type="button" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
                     </div>
                 </div>`;
             $(".waterout-additional-cost-container").append(html);
@@ -657,7 +595,7 @@
         // ELECTRICITY
         $("#add-electricity-cost").on("click", function() {
             var html = `
-                <div class="row align-items-end mb-2">
+                <div class="row mb-2">
                     <div class="col-md-3">
                         <label>Min</label>
                         <input class="form-control allow_decimal" type="text" placeholder="Min" name="electricity[${e}][min]" required />
@@ -675,7 +613,7 @@
                         <input class="form-control" type="text" placeholder="Total" name="electricity[${e}][total]" disabled/>
                     </div>
                     <div class="col-md-1">
-                        <button type="button" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
                     </div>
                 </div>`;
             $(".electricity-cost-container").append(html);
@@ -684,7 +622,7 @@
 
         $("#add-electricity-additional-cost").on("click", function() {
             var html = `
-                <div class="row align-items-end mb-2">
+                <div class="row mb-2">
                     <div class="col-md-3">
                         <label>Title</label>
                         <input class="form-control" type="text" placeholder="Title" name="electricity_additional[${eo}][title]" required />
@@ -702,7 +640,7 @@
                         <input class="form-control" type="text" placeholder="Total" name="electricity_additional[${eo}][total]" disabled/>
                     </div>
                     <div class="col-md-1">
-                        <button type="button" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
                     </div>
                 </div>`;
             $(".electricity-additional-cost-container").append(html);
@@ -712,7 +650,7 @@
         // ADDITIONAL
         $("#add-additional-cost").on("click", function() {
             var html = `
-                <div class="row align-items-end mb-2">
+                <div class="row mb-2">
                     <div class="col-md-5">
                         <label>Name Of Cost</label>
                         <input class="form-control" type="text" placeholder="Name" name="additional[${a}][name]" required />
@@ -722,7 +660,7 @@
                         <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="additional[${a}][cost]" required />
                     </div>
                     <div class="col-md-2">
-                        <button type="button" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
                     </div>
                 </div>`;
             $(".additional-cost-container").append(html);
