@@ -367,7 +367,7 @@
                             </div>
 
                             <div class="col-md-1 d-flex align-items-end">
-                                <a href="javascript:void(0)" data-id="" class="btn btn-sm btn-circle btn-danger waterout-additional-cost-del-btn">
+                                <a href="javascript:void(0)" data-id="" class="btn btn-sm btn-circle btn-danger electricity-additional-cost-del-btn">
                                     <i class="fa fa-trash"></i>
                                 </a>
                             </div>
