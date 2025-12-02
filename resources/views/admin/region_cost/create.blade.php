@@ -234,33 +234,33 @@
         });
 
         $("#add-waterin-cost").on("click", function() {
-            var html = '<div class="row">' +
+            var html = '<div class="row align-items-end mb-2">' +
                 '<div class="col-md-2">' +
                 '<label><strong>Min :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterin[' + i + '][min]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Max :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterin[' + i + '][max]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin[' + i + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Total :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control" type="text" placeholder="Total" name="waterin[' + i + '][total]" disabled/>' +
                 '</div>' +
                 '</div>' +
-                '<div class="col-md-1">' +
-                '<a href="javascript:void(0)" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">' +
+                '<div class="col-md-1 d-flex align-items-end">' +
+                '<a href="javascript:void(0)" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">' +
                 '<i class="fa fa-trash"></i>' +
                 '</a>' +
                 '</div>' +
@@ -270,33 +270,33 @@
         });
 
         $("#add-waterin-additional-cost").on("click", function() {
-            var html1 = '<div class="row">' +
+            var html1 = '<div class="row align-items-end mb-2">' +
                 '<div class="col-md-2">' +
                 '<label><strong>Title :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control" type="text" placeholder="Title" name="waterin_additional[' + wa + '][title]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Percentage :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" step=any placeholder="Percentage" name="waterin_additional[' + wa + '][percentage]" />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin_additional[' + wa + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Total :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control" type="text" placeholder="Total" name="waterin_additional[' + wa + '][total]" disabled/>' +
                 '</div>' +
                 '</div>' +
-                '<div class="col-md-1">' +
-                '<a href="javascript:void(0)" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger waterin-additional-cost-del-btn">' +
+                '<div class="col-md-1 d-flex align-items-end">' +
+                '<a href="javascript:void(0)" class="btn btn-sm btn-circle btn-danger waterin-additional-cost-del-btn">' +
                 '<i class="fa fa-trash"></i>' +
                 '</a>' +
                 '</div>' +
@@ -306,39 +306,39 @@
         });
 
         $("#add-waterout-cost").on("click", function() {
-            var html = '<div class="row">' +
+            var html = '<div class="row align-items-end mb-2">' +
                 '<div class="col-md-2">' +
                 '<label><strong>Min :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterout[' + o + '][min]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Max :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterout[' + o + '][max]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Percentage :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" step=any placeholder="Percentage" name="waterout[' + o + '][percentage]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout[' + o + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Total :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control" type="text" placeholder="Total" name="waterout[' + o + '][total]" disabled/>' +
                 '</div>' +
                 '</div>' +
-                '<div class="col-md-1">' +
-                '<a href="javascript:void(0)" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-out-btn">' +
+                '<div class="col-md-1 d-flex align-items-end">' +
+                '<a href="javascript:void(0)" class="btn btn-sm btn-circle btn-danger additional-cost-del-out-btn">' +
                 '<i class="fa fa-trash"></i>' +
                 '</a>' +
                 '</div>' +
@@ -348,33 +348,33 @@
         });
 
         $("#add-waterout-additional-cost").on("click", function() {
-            var html1 = '<div class="row">' +
+            var html1 = '<div class="row align-items-end mb-2">' +
                 '<div class="col-md-2">' +
                 '<label><strong>Title :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control" type="text" placeholder="Title" name="waterout_additional[' + wo + '][title]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Percentage :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" step=any placeholder="Percentage" name="waterout_additional[' + wo + '][percentage]" />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout_additional[' + wo + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Total :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control" type="text" placeholder="Total" name="waterout_additional[' + wo + '][total]" disabled/>' +
                 '</div>' +
                 '</div>' +
-                '<div class="col-md-1">' +
-                '<a href="javascript:void(0)" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger waterout-additional-cost-del-btn">' +
+                '<div class="col-md-1 d-flex align-items-end">' +
+                '<a href="javascript:void(0)" class="btn btn-sm btn-circle btn-danger waterout-additional-cost-del-btn">' +
                 '<i class="fa fa-trash"></i>' +
                 '</a>' +
                 '</div>' +
@@ -385,33 +385,33 @@
 
         // Electricity
         $("#add-electricity-cost").on("click", function() {
-            var html = '<div class="row">' +
+            var html = '<div class="row align-items-end mb-2">' +
                 '<div class="col-md-2">' +
                 '<label><strong>Min :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" placeholder="Min" name="electricity[' + e + '][min]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Max :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" placeholder="Max" name="electricity[' + e + '][max]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity[' + e + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Total :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control" type="text" placeholder="Total" name="electricity[' + e + '][total]" disabled/>' +
                 '</div>' +
                 '</div>' +
-                '<div class="col-md-1">' +
-                '<a href="javascript:void(0)" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger additional-cost-del-ele-btn">' +
+                '<div class="col-md-1 d-flex align-items-end">' +
+                '<a href="javascript:void(0)" class="btn btn-sm btn-circle btn-danger additional-cost-del-ele-btn">' +
                 '<i class="fa fa-trash"></i>' +
                 '</a>' +
                 '</div>' +
@@ -421,33 +421,33 @@
         });
 
         $("#add-electricity-additional-cost").on("click", function() {
-            var html1 = '<div class="row">' +
+            var html1 = '<div class="row align-items-end mb-2">' +
                 '<div class="col-md-2">' +
                 '<label><strong>Title :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control" type="text" placeholder="Title" name="electricity_additional[' + eo + '][title]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Percentage :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" step=any placeholder="Percentage" name="electricity_additional[' + eo + '][percentage]"  />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity_additional[' + eo + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Total :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control" type="text" placeholder="Total" name="electricity_additional[' + eo + '][total]" disabled/>' +
                 '</div>' +
                 '</div>' +
-                '<div class="col-md-1">' +
-                '<a href="javascript:void(0)" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger electricity-additional-cost-del-btn">' +
+                '<div class="col-md-1 d-flex align-items-end">' +
+                '<a href="javascript:void(0)" class="btn btn-sm btn-circle btn-danger electricity-additional-cost-del-btn">' +
                 '<i class="fa fa-trash"></i>' +
                 '</a>' +
                 '</div>' +
@@ -458,21 +458,21 @@
 
         // Additional cost
         $("#add-additional-cost").on("click", function() {
-            var html = '<div class="row">' +
+            var html = '<div class="row align-items-end mb-2">' +
                 '<div class="col-md-2">' +
                 '<label><strong>Name Of Cost :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control" type="text" placeholder="Name" name="additional[' + a + '][name]" required />' +
                 '</div>' +
                 '</div>' +
                 '<div class="col-md-2">' +
                 '<label><strong>Cost :</strong></label>' +
-                '<div class="form-group">' +
+                '<div class="form-group mb-0">' +
                 '<input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="additional[' + a + '][cost]" required />' +
                 '</div>' +
                 '</div>' +
-                '<div class="col-md-1">' +
-                '<a href="javascript:void(0)" style="margin-top: 35px;margin-left: -13px;" class="btn btn-sm btn-circle btn-danger addi-cost-del-btn">' +
+                '<div class="col-md-1 d-flex align-items-end">' +
+                '<a href="javascript:void(0)" class="btn btn-sm btn-circle btn-danger addi-cost-del-btn">' +
                 '<i class="fa fa-trash"></i>' +
                 '</a>' +
                 '</div>' +
