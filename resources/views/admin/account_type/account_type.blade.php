@@ -1,5 +1,5 @@
 @extends('admin.layouts.main')
-@section('title', 'Tariff Categories')
+@section('title', 'Account Types')
 
 @section('content')
     <!-- Begin Page Content -->
@@ -7,13 +7,13 @@
 
         <!-- Page Heading -->
         <div class="cust-page-head">
-            <h1 class="h3 mb-2 custom-text-heading">Tariff Categories</h1>
+            <h1 class="h3 mb-2 custom-text-heading">Account Types</h1>
         </div>
 
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold">List of Tariff Categories added by the admin</h6>
+                <h6 class="m-0 font-weight-bold">List of Account Types</h6>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -44,7 +44,7 @@
                                     <a href="{{ url('admin/account_type/edit/'.$accounttype->id) }}" class="btn btn-warning btn-circle">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="{{ url('admin/account_type/delete/'.$accounttype->id) }}" onclick="return confirm('Are you sure you want to delete this tariff category?')" class="btn btn-danger btn-circle">
+                                    <a href="{{ url('admin/account_type/delete/'.$accounttype->id) }}" onclick="return confirm('Are you sure you want to delete this account type?')" class="btn btn-danger btn-circle">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>

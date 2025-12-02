@@ -173,12 +173,12 @@
             </div>
         </li>
         
-        <!-- Nav Item - Tariff Categories (Previously Account Types) -->
+        <!-- Nav Item - Account Types -->
         <li class="nav-item">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAccountType"
                aria-expanded="true" aria-controls="collapseAccountType">
                 <i class="fas fa-fw fa-location-arrow"></i>
-                <span>Tariff Categories</span>
+                <span>Account Types</span>
             </a>
             <div id="collapseAccountType" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
