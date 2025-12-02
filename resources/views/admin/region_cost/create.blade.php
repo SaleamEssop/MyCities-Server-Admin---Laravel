@@ -44,6 +44,14 @@
                         <label><strong>Applicable End Date :</strong></label>
                         <input class="form-control" type="date" placeholder="End Date" name="end_date" value="{{ old('end_date') }}" required />
                     </div>
+                    <div class="form-group" style="display:none;">
+                        <label><strong>Water Email :</strong></label>
+                        <input class="form-control water_email" type="email" placeholder="Water Email" name="water_email" value="{{ old('water_email') }}" />
+                    </div>
+                    <div class="form-group" style="display:none;">
+                        <label><strong>Electricity Email :</strong></label>
+                        <input class="form-control electricity_email" type="email" placeholder="Electricity Email" name="electricity_email" value="{{ old('electricity_email') }}" />
+                    </div>
                     <div class="form-group">
                         <label><strong>Vat In Percentage :</strong></label>
                         <input class="form-control allow_decimal" type="text" placeholder="VAT Percentage" name="vat_percentage" value="{{ old('vat_percentage', 0) }}" required />
@@ -240,6 +248,21 @@
         // Initial check and event listeners
         toggleSections();
         $('#waterchk, #electricitychk').change(toggleSections);
+
+        // Auto-add default rows when checkbox is enabled
+        $('#waterchk').change(function() {
+            if ($(this).is(':checked') && $('.waterin-cost-container .row').length === 0) {
+                $('#add-waterin-cost').trigger('click');
+                $('#add-waterin-cost').trigger('click');
+            }
+        });
+
+        $('#electricitychk').change(function() {
+            if ($(this).is(':checked') && $('.electricity-cost-container .row').length === 0) {
+                $('#add-electricity-cost').trigger('click');
+                $('#add-electricity-cost').trigger('click');
+            }
+        });
 
         var i = 0;
         var o = 0;
