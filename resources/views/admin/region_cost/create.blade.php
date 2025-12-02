@@ -94,7 +94,40 @@
                                 <a href="javascript:void(0)" id="add-waterin-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
                             </div>
                         </div>
-                        <div class="waterin-cost-container"></div>
+                        <div class="waterin-cost-container">
+                            <!-- Default empty row -->
+                            <div class="row mb-2">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Min</label>
+                                        <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterin[0][min]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Max</label>
+                                        <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterin[0][max]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Cost</label>
+                                        <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin[0][cost]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>Total</label>
+                                        <input class="form-control" type="text" placeholder="Total" name="waterin[0][total]" disabled/>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="form-group">
+                                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="row mt-2">
                             <div class="col-md-2 offset-md-10">
@@ -109,7 +142,40 @@
                                 <a href="javascript:void(0)" id="add-waterin-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
                             </div>
                         </div>
-                        <div class="waterin-additional-cost-container"></div>
+                        <div class="waterin-additional-cost-container">
+                            <!-- Default empty row -->
+                            <div class="row mb-2">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Title</label>
+                                        <input class="form-control" type="text" placeholder="Title" name="waterin_additional[0][title]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Percentage</label>
+                                        <input class="form-control allow_decimal" type="text" step=any placeholder="%" name="waterin_additional[0][percentage]" />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Cost</label>
+                                        <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin_additional[0][cost]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>Total</label>
+                                        <input class="form-control" type="text" placeholder="Total" name="waterin_additional[0][total]" disabled/>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="form-group">
+                                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="row mt-2">
                             <div class="col-md-2 offset-md-10">
@@ -128,7 +194,46 @@
                                 <a href="javascript:void(0)" id="add-waterout-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
                             </div>
                         </div>
-                        <div class="waterout-cost-container"></div>
+                        <div class="waterout-cost-container">
+                            <!-- Default empty row -->
+                            <div class="row mb-2">
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>Min</label>
+                                        <input class="form-control allow_decimal" type="text" placeholder="Min" name="waterout[0][min]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>Max</label>
+                                        <input class="form-control allow_decimal" type="text" placeholder="Max" name="waterout[0][max]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>%</label>
+                                        <input class="form-control allow_decimal" type="text" placeholder="%" name="waterout[0][percentage]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Cost</label>
+                                        <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout[0][cost]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>Total</label>
+                                        <input class="form-control" type="text" placeholder="Total" name="waterout[0][total]" disabled/>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="form-group">
+                                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="row mt-2">
                             <div class="col-md-2 offset-md-10">
@@ -143,7 +248,40 @@
                                 <a href="javascript:void(0)" id="add-waterout-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
                             </div>
                         </div>
-                        <div class="waterout-additional-cost-container"></div>
+                        <div class="waterout-additional-cost-container">
+                            <!-- Default empty row -->
+                            <div class="row mb-2">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Title</label>
+                                        <input class="form-control" type="text" placeholder="Title" name="waterout_additional[0][title]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>%</label>
+                                        <input class="form-control allow_decimal" type="text" step=any placeholder="%" name="waterout_additional[0][percentage]" />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Cost</label>
+                                        <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout_additional[0][cost]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>Total</label>
+                                        <input class="form-control" type="text" placeholder="Total" name="waterout_additional[0][total]" disabled/>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="form-group">
+                                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="row mt-2">
                             <div class="col-md-2 offset-md-10">
@@ -162,7 +300,40 @@
                                 <a href="javascript:void(0)" id="add-electricity-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
                             </div>
                         </div>
-                        <div class="electricity-cost-container"></div>
+                        <div class="electricity-cost-container">
+                            <!-- Default empty row -->
+                            <div class="row mb-2">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Min</label>
+                                        <input class="form-control allow_decimal" type="text" placeholder="Min" name="electricity[0][min]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Max</label>
+                                        <input class="form-control allow_decimal" type="text" placeholder="Max" name="electricity[0][max]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Cost</label>
+                                        <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity[0][cost]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>Total</label>
+                                        <input class="form-control" type="text" placeholder="Total" name="electricity[0][total]" disabled/>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="form-group">
+                                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="row mt-2">
                             <div class="col-md-2 offset-md-10">
@@ -177,7 +348,40 @@
                                 <a href="javascript:void(0)" id="add-electricity-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
                             </div>
                         </div>
-                        <div class="electricity-additional-cost-container"></div>
+                        <div class="electricity-additional-cost-container">
+                            <!-- Default empty row -->
+                            <div class="row mb-2">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Title</label>
+                                        <input class="form-control" type="text" placeholder="Title" name="electricity_additional[0][title]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>%</label>
+                                        <input class="form-control allow_decimal" type="text" step=any placeholder="%" name="electricity_additional[0][percentage]" />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Cost</label>
+                                        <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity_additional[0][cost]" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>Total</label>
+                                        <input class="form-control" type="text" placeholder="Total" name="electricity_additional[0][total]" disabled/>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="form-group">
+                                        <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="row mt-2">
                             <div class="col-md-2 offset-md-10">
@@ -195,7 +399,28 @@
                             <a href="javascript:void(0)" id="add-additional-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
                         </div>
                     </div>
-                    <div class="additional-cost-container"></div>
+                    <div class="additional-cost-container">
+                        <!-- Default empty row -->
+                        <div class="row mb-2">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label>Name Of Cost</label>
+                                    <input class="form-control" type="text" placeholder="Name" name="additional[0][name]" required />
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label>Cost</label>
+                                    <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="additional[0][cost]" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="row">
                         <div class="col-md-4 ml-auto">
@@ -249,28 +474,13 @@
         toggleSections();
         $('#waterchk, #electricitychk').change(toggleSections);
 
-        // Auto-add default rows when checkbox is enabled
-        $('#waterchk').change(function() {
-            if ($(this).is(':checked') && $('.waterin-cost-container .row').length === 0) {
-                $('#add-waterin-cost').trigger('click');
-                $('#add-waterin-cost').trigger('click');
-            }
-        });
-
-        $('#electricitychk').change(function() {
-            if ($(this).is(':checked') && $('.electricity-cost-container .row').length === 0) {
-                $('#add-electricity-cost').trigger('click');
-                $('#add-electricity-cost').trigger('click');
-            }
-        });
-
-        var i = 0;
-        var o = 0;
-        var e = 0;
-        var a = 0;
-        var wa = 0;
-        var wo = 0;
-        var eo = 0;
+        var i = 1;
+        var o = 1;
+        var e = 1;
+        var a = 1;
+        var wa = 1;
+        var wo = 1;
+        var eo = 1;
 
         // Decimal validation
         $(document).on("input", ".allow_decimal", function(evt) {

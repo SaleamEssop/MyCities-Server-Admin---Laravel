@@ -101,25 +101,24 @@
                             </div>
                         </div>
 
-                        <?php $waterIn = json_decode($region_cost->water_in); ?>
-                        @if(is_array($waterIn))
-                        @foreach($waterIn as $key => $value)
+                        @if(is_array($region_cost->water_in))
+                        @foreach($region_cost->water_in as $key => $value)
                         <div class="row mb-2">
                             <div class="col-md-3">
                                 <label><strong>Min :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterin[{{$key}}][min]" value="{{$value->min}}" required />
+                                <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterin[{{$key}}][min]" value="{{$value['min'] ?? ''}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Max :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterin[{{$key}}][max]" value="{{$value->max}}" required />
+                                <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterin[{{$key}}][max]" value="{{$value['max'] ?? ''}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Cost :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin[{{$key}}][cost]" value="{{$value['cost'] ?? ''}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
-                                <input class="form-control" type="text" placeholder="Total" name="waterin[{{$key}}][total]" value="{{$value->total ?? 0}}" required disabled />
+                                <input class="form-control" type="text" placeholder="Total" name="waterin[{{$key}}][total]" value="{{$value['total'] ?? 0}}" required disabled />
                             </div>
                             <div class="col-md-1">
                                 <a href="javascript:void(0)" style="margin-top: 32px;" class="btn btn-sm btn-circle btn-danger remove-row">
@@ -145,25 +144,24 @@
                             </div>
                         </div>
 
-                        <?php $waterInAdd = json_decode($region_cost->waterin_additional); ?>
-                        @if(is_array($waterInAdd))
-                        @foreach($waterInAdd as $key => $value)
+                        @if(is_array($region_cost->waterin_additional))
+                        @foreach($region_cost->waterin_additional as $key => $value)
                         <div class="row mb-2">
                             <div class="col-md-3">
                                 <label><strong>Title :</strong></label>
-                                <input class="form-control" type="text" placeholder="Title" name="waterin_additional[{{$key}}][title]" value="{{$value->title}}" required />
+                                <input class="form-control" type="text" placeholder="Title" name="waterin_additional[{{$key}}][title]" value="{{$value['title'] ?? ''}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Percentage :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterin_additional[{{$key}}][percentage]" value="{{$value->percentage}}" />
+                                <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterin_additional[{{$key}}][percentage]" value="{{$value['percentage'] ?? ''}}" />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Cost :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin_additional[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin_additional[{{$key}}][cost]" value="{{$value['cost'] ?? ''}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
-                                <input class="form-control" type="text" placeholder="Total" name="waterin_additional[0][total]" value="{{$value->total ?? 0}}" required disabled />
+                                <input class="form-control" type="text" placeholder="Total" name="waterin_additional[{{$key}}][total]" value="{{$value['total'] ?? 0}}" required disabled />
                             </div>
                             <div class="col-md-1">
                                 <a href="javascript:void(0)" style="margin-top: 32px;" class="btn btn-sm btn-circle btn-danger remove-row">
@@ -193,29 +191,28 @@
                             </div>
                         </div>
 
-                        <?php $waterOut = json_decode($region_cost->water_out); ?>
-                        @if(is_array($waterOut))
-                        @foreach($waterOut as $key => $value)
+                        @if(is_array($region_cost->water_out))
+                        @foreach($region_cost->water_out as $key => $value)
                         <div class="row mb-2">
                             <div class="col-md-2">
                                 <label><strong>Min :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterout[{{$key}}][min]" value="{{$value->min}}" required />
+                                <input class="form-control allow_decimal" type="text" placeholder="Min litres" name="waterout[{{$key}}][min]" value="{{$value['min'] ?? ''}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Max :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterout[{{$key}}][max]" value="{{$value->max}}" required />
+                                <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterout[{{$key}}][max]" value="{{$value['max'] ?? ''}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Percentage :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterout[{{$key}}][percentage]" value="{{$value->percentage}}" required />
+                                <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterout[{{$key}}][percentage]" value="{{$value['percentage'] ?? ''}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Cost :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout[{{$key}}][cost]" value="{{$value['cost'] ?? ''}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
-                                <input class="form-control" type="text" placeholder="Total" name="waterout[{{$key}}][total]" value="{{$value->total ?? 0}}" required disabled />
+                                <input class="form-control" type="text" placeholder="Total" name="waterout[{{$key}}][total]" value="{{$value['total'] ?? 0}}" required disabled />
                             </div>
                             <div class="col-md-1">
                                 <a href="javascript:void(0)" style="margin-top: 32px;" class="btn btn-sm btn-circle btn-danger remove-row">
@@ -241,25 +238,24 @@
                             </div>
                         </div>
 
-                        <?php $waterOutAdd = json_decode($region_cost->waterout_additional); ?>
-                        @if(is_array($waterOutAdd))
-                        @foreach($waterOutAdd as $key => $value)
+                        @if(is_array($region_cost->waterout_additional))
+                        @foreach($region_cost->waterout_additional as $key => $value)
                         <div class="row mb-2">
                             <div class="col-md-3">
                                 <label><strong>Title :</strong></label>
-                                <input class="form-control" type="text" placeholder="Title" name="waterout_additional[{{$key}}][title]" value="{{$value->title}}" required />
+                                <input class="form-control" type="text" placeholder="Title" name="waterout_additional[{{$key}}][title]" value="{{$value['title'] ?? ''}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Percentage :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterout_additional[{{$key}}][percentage]" value="{{$value->percentage}}" />
+                                <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="waterout_additional[{{$key}}][percentage]" value="{{$value['percentage'] ?? ''}}" />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Cost :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout_additional[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout_additional[{{$key}}][cost]" value="{{$value['cost'] ?? ''}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
-                                <input class="form-control" type="text" placeholder="Total" name="waterout_additional[0][total]" value="{{$value->total ?? 0}}" required disabled />
+                                <input class="form-control" type="text" placeholder="Total" name="waterout_additional[{{$key}}][total]" value="{{$value['total'] ?? 0}}" required disabled />
                             </div>
                             <div class="col-md-1">
                                 <a href="javascript:void(0)" style="margin-top: 32px;" class="btn btn-sm btn-circle btn-danger remove-row">
@@ -289,25 +285,24 @@
                             </div>
                         </div>
 
-                        <?php $elec = json_decode($region_cost->electricity); ?>
-                        @if(is_array($elec))
-                        @foreach($elec as $key => $value)
+                        @if(is_array($region_cost->electricity))
+                        @foreach($region_cost->electricity as $key => $value)
                         <div class="row mb-2">
                             <div class="col-md-3">
                                 <label><strong>Min :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Min" name="electricity[{{$key}}][min]" value="{{$value->min}}" required />
+                                <input class="form-control allow_decimal" type="text" placeholder="Min" name="electricity[{{$key}}][min]" value="{{$value['min'] ?? ''}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Max :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Max" name="electricity[{{$key}}][max]" value="{{$value->max}}" required />
+                                <input class="form-control allow_decimal" type="text" placeholder="Max" name="electricity[{{$key}}][max]" value="{{$value['max'] ?? ''}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Cost :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity[{{$key}}][cost]" value="{{$value['cost'] ?? ''}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
-                                <input class="form-control" type="text" placeholder="Total" name="electricity[{{$key}}][total]" value="{{$value->total ?? 0}}" required disabled />
+                                <input class="form-control" type="text" placeholder="Total" name="electricity[{{$key}}][total]" value="{{$value['total'] ?? 0}}" required disabled />
                             </div>
                             <div class="col-md-1">
                                 <a href="javascript:void(0)" style="margin-top: 32px;" class="btn btn-sm btn-circle btn-danger remove-row">
@@ -333,25 +328,24 @@
                             </div>
                         </div>
 
-                        <?php $elecAdd = json_decode($region_cost->electricity_additional); ?>
-                        @if(is_array($elecAdd))
-                        @foreach($elecAdd as $key => $value)
+                        @if(is_array($region_cost->electricity_additional))
+                        @foreach($region_cost->electricity_additional as $key => $value)
                         <div class="row mb-2">
                             <div class="col-md-3">
                                 <label><strong>Title :</strong></label>
-                                <input class="form-control" type="text" placeholder="Title" name="electricity_additional[{{$key}}][title]" value="{{$value->title}}" required />
+                                <input class="form-control" type="text" placeholder="Title" name="electricity_additional[{{$key}}][title]" value="{{$value['title'] ?? ''}}" required />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Percentage :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="electricity_additional[{{$key}}][percentage]" value="{{$value->percentage}}" />
+                                <input class="form-control allow_decimal" type="text" placeholder="Percentage" name="electricity_additional[{{$key}}][percentage]" value="{{$value['percentage'] ?? ''}}" />
                             </div>
                             <div class="col-md-3">
                                 <label><strong>Cost :</strong></label>
-                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity_additional[{{$key}}][cost]" value="{{$value->cost}}" required />
+                                <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity_additional[{{$key}}][cost]" value="{{$value['cost'] ?? ''}}" required />
                             </div>
                             <div class="col-md-2">
                                 <label><strong>Total :</strong></label>
-                                <input class="form-control" type="text" placeholder="Total" name="electricity_additional[0][total]" value="{{$value->total ?? 0}}" required disabled />
+                                <input class="form-control" type="text" placeholder="Total" name="electricity_additional[{{$key}}][total]" value="{{$value['total'] ?? 0}}" required disabled />
                             </div>
                             <div class="col-md-1">
                                 <a href="javascript:void(0)" style="margin-top: 32px;" class="btn btn-sm btn-circle btn-danger remove-row">
@@ -380,17 +374,16 @@
                         </div>
                     </div>
 
-                    <?php $addCost = json_decode($region_cost->additional); ?>
-                    @if(is_array($addCost))
-                    @foreach($addCost as $key => $value)
+                    @if(is_array($region_cost->additional))
+                    @foreach($region_cost->additional as $key => $value)
                     <div class="row mb-2">
                         <div class="col-md-5">
                             <label><strong>Name Of Cost :</strong></label>
-                            <input class="form-control" type="text" placeholder="Name" name="additional[{{$key}}][name]" value="{{$value->name}}" required />
+                            <input class="form-control" type="text" placeholder="Name" name="additional[{{$key}}][name]" value="{{$value['name'] ?? ''}}" required />
                         </div>
                         <div class="col-md-5">
                             <label><strong>Cost :</strong></label>
-                            <input class="form-control " type="text" placeholder="Cost" name="additional[{{$key}}][cost]" value="{{$value->cost}}" required />
+                            <input class="form-control " type="text" placeholder="Cost" name="additional[{{$key}}][cost]" value="{{$value['cost'] ?? ''}}" required />
                         </div>
                         <div class="col-md-2">
                             <a href="javascript:void(0)" style="margin-top: 32px;" class="btn btn-sm btn-circle btn-danger remove-row">
@@ -460,14 +453,14 @@
         toggleSections();
         $('#waterchk, #electricitychk').change(toggleSections);
 
-        // Initialize counters based on PHP counts
-        var i = <?php $wIn = json_decode($region_cost->water_in); echo (is_array($wIn)) ? count($wIn) : 0; ?>;
-        var o = <?php $wOut = json_decode($region_cost->water_out); echo (is_array($wOut)) ? count($wOut) : 0; ?>;
-        var e = <?php $elec = json_decode($region_cost->electricity); echo (is_array($elec)) ? count($elec) : 0; ?>;
-        var a = <?php $add = json_decode($region_cost->additional); echo (is_array($add)) ? count($add) : 0; ?>;
-        var wa = <?php $waAdd = json_decode($region_cost->waterin_additional); echo (is_array($waAdd)) ? count($waAdd) : 0; ?>;
-        var wo = <?php $woAdd = json_decode($region_cost->waterout_additional); echo (is_array($woAdd)) ? count($woAdd) : 0; ?>;
-        var eo = <?php $eoAdd = json_decode($region_cost->electricity_additional); echo (is_array($eoAdd)) ? count($eoAdd) : 0; ?>;
+        // Initialize counters based on existing data
+        var i = {{ is_array($region_cost->water_in) ? count($region_cost->water_in) : 0 }};
+        var o = {{ is_array($region_cost->water_out) ? count($region_cost->water_out) : 0 }};
+        var e = {{ is_array($region_cost->electricity) ? count($region_cost->electricity) : 0 }};
+        var a = {{ is_array($region_cost->additional) ? count($region_cost->additional) : 0 }};
+        var wa = {{ is_array($region_cost->waterin_additional) ? count($region_cost->waterin_additional) : 0 }};
+        var wo = {{ is_array($region_cost->waterout_additional) ? count($region_cost->waterout_additional) : 0 }};
+        var eo = {{ is_array($region_cost->electricity_additional) ? count($region_cost->electricity_additional) : 0 }};
 
         // Decimal validation
         $(document).on("input", ".allow_decimal", function(evt) {
