@@ -89,7 +89,7 @@
                         <div class="waterin-cost-container"></div>
                         
                         <div class="row mt-2">
-                            <div class="col-md-2 offset-md-9">
+                            <div class="col-md-2 offset-md-10">
                                 <label><strong>Water In Total :</strong></label>
                                 <input class="form-control" type="text" placeholder="Total" name="waterin_total" value="0" disabled />
                             </div>
@@ -104,7 +104,7 @@
                         <div class="waterin-additional-cost-container"></div>
                         
                         <div class="row mt-2">
-                            <div class="col-md-2 offset-md-9">
+                            <div class="col-md-2 offset-md-10">
                                 <label><strong>WaterIn related Total :</strong></label>
                                 <input class="form-control" type="text" placeholder="Total" value="0" disabled />
                             </div>
@@ -123,7 +123,7 @@
                         <div class="waterout-cost-container"></div>
                         
                         <div class="row mt-2">
-                            <div class="col-md-2 offset-md-9">
+                            <div class="col-md-2 offset-md-10">
                                 <label><strong>Water Out Total :</strong></label>
                                 <input class="form-control" type="text" placeholder="Total" name="waterout_total" value="0" disabled />
                             </div>
@@ -138,7 +138,7 @@
                         <div class="waterout-additional-cost-container"></div>
                         
                         <div class="row mt-2">
-                            <div class="col-md-2 offset-md-9">
+                            <div class="col-md-2 offset-md-10">
                                 <label><strong>Waterout related Total:</strong></label>
                                 <input class="form-control" type="text" placeholder="Total" value="0" disabled />
                             </div>
@@ -157,7 +157,7 @@
                         <div class="electricity-cost-container"></div>
                         
                         <div class="row mt-2">
-                            <div class="col-md-2 offset-md-9">
+                            <div class="col-md-2 offset-md-10">
                                 <label><strong>Electricity Total :</strong></label>
                                 <input class="form-control" type="text" placeholder="Total" name="electricity_total" value="0" disabled />
                             </div>
@@ -172,7 +172,7 @@
                         <div class="electricity-additional-cost-container"></div>
                         
                         <div class="row mt-2">
-                            <div class="col-md-2 offset-md-9">
+                            <div class="col-md-2 offset-md-10">
                                 <label><strong>Electricity related Total :</strong></label>
                                 <input class="form-control" type="text" placeholder="Total" value="0" disabled />
                             </div>
@@ -189,29 +189,31 @@
                     </div>
                     <div class="additional-cost-container"></div>
 
-                    <div class="col-md-4" style="float:right;">
-                        <label><strong>Sub Total :</strong></label>
-                        <div class="form-group">
-                            <input class="form-control" type="text" placeholder="Sub Total" name="sub_total" value="0" disabled />
+                    <div class="row">
+                        <div class="col-md-4 ml-auto">
+                            <label><strong>Sub Total :</strong></label>
+                            <div class="form-group">
+                                <input class="form-control" type="text" placeholder="Sub Total" name="sub_total" value="0" disabled />
+                            </div>
+                            <label><strong>VAT</strong></label>
+                            <div class="form-group">
+                                <input class="form-control" type="text" placeholder="VAT Rate" value="0" disabled />
+                            </div>
+                            <label><strong>Rates :</strong></label>
+                            <div class="form-group">
+                                <input class="form-control allow_decimal" type="text" placeholder="VAT Rate" name="vat_rate" value="{{ old('vat_rate', 0) }}" />
+                            </div>
+                            <label><strong>Rates Rebate :</strong></label>
+                            <div class="form-group">
+                                <input class="form-control allow_decimal" type="text" placeholder="Rates Rebate" name="rates_rebate" value="{{ old('rates_rebate', 0) }}" />
+                            </div>
+                            <label><strong>Final Total :</strong></label>
+                            <div class="form-group">
+                                <input class="form-control" type="text" placeholder="Final Total" name="final_total" value="0" disabled />
+                            </div>
+                            <button type="submit" class="btn btn-warning">Save Template</button>
+                            <a href="{{ route('region-cost') }}" class="btn btn-secondary">Cancel</a>
                         </div>
-                        <label><strong>VAT</strong></label>
-                        <div class="form-group">
-                            <input class="form-control" type="text" placeholder="VAT Rate" value="0" disabled />
-                        </div>
-                        <label><strong>Rates :</strong></label>
-                        <div class="form-group">
-                            <input class="form-control allow_decimal" type="text" placeholder="VAT Rate" name="vat_rate" value="{{ old('vat_rate', 0) }}" />
-                        </div>
-                        <label><strong>Rates Rebate :</strong></label>
-                        <div class="form-group">
-                            <input class="form-control allow_decimal" type="text" placeholder="Rates Rebate" name="rates_rebate" value="{{ old('rates_rebate', 0) }}" />
-                        </div>
-                        <label><strong>Final Total :</strong></label>
-                        <div class="form-group">
-                            <input class="form-control" type="text" placeholder="Final Total" name="final_total" value="0" disabled />
-                        </div>
-                        <button type="submit" class="btn btn-warning">Save Template</button>
-                        <a href="{{ route('region-cost') }}" class="btn btn-secondary">Cancel</a>
                     </div>
                 </form>
             </div>
