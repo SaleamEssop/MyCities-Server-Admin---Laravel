@@ -45,7 +45,6 @@ class AdminController extends Controller
     }
 
     public function addAccountForm() { 
-        // UPDATED: Fetch Account Types, removed old Default Costs
         return view('admin.create_account', [
             'users' => User::all(), 
             'sites' => Site::all(), 
@@ -90,8 +89,8 @@ class AdminController extends Controller
         Site::create([
             'user_id' => $postData['user_id'], 
             'title' => $postData['title'], 
-            'lat' => $postData['lat'] ?? 0.0,     // Default to 0 if not provided
-            'lng' => $postData['lng'] ?? 0.0,     // Default to 0 if not provided
+            'lat' => $postData['lat'] ?? 0.0,
+            'lng' => $postData['lng'] ?? 0.0,
             'address' => $postData['address'], 
             'email' => $postData['email'] ?? null, 
             'region_id' => $postData['region_id'], 
@@ -107,17 +106,15 @@ class AdminController extends Controller
 
     public function createAccount(Request $request) {
         $postData = $request->post();
-        // UPDATED: Added account_type_id
-        $acc = Account::create([
-            'site_id'=>$postData['site_id'], 
-            'account_name'=>$postData['title'], 
-            'account_number'=>$postData['number'], 
-            'billing_date'=>$postData['billing_date'], 
-            'optional_information'=>$postData['optional_info'],
-            'account_type_id'=>$postData['account_type_id'] ?? null
-        ]);
         
-        // Removed old Default Costs Logic
+        Account::create([
+            'site_id' => $postData['site_id'], 
+            'account_name' => $postData['title'], 
+            'account_number' => $postData['number'], 
+            'billing_date' => $postData['billing_date'],
+            'optional_information' => $postData['optional_info'],
+            'account_type_id' => $postData['account_type_id'] ?? null
+        ]);
         
         return redirect(route('account-list'));
     }
@@ -164,7 +161,6 @@ class AdminController extends Controller
     
     public function createReading(Request $request) {
         $postData = $request->post();
-        // Upload Image
         $imageName = time().'.'.$request->image->extension();  
         $request->image->move(public_path('images'), $imageName);
         
@@ -196,7 +192,8 @@ class AdminController extends Controller
 
     // Helper for AJAX Sites by User
     public function getSitesByUser(Request $request) {
-        $sites = Site::where('user_id', $request->user_id)->get();
+        // UPDATED: Eager load 'region' to support auto-fill
+        $sites = Site::with('region')->where('user_id', $request->user_id)->get();
         return response()->json(['status' => 200, 'data' => $sites]);
     }
 }
