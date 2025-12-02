@@ -217,10 +217,7 @@
             </div>
         </div>
     </div>
-</div>
-@endsection
 
-@section('page-level-scripts')
 <script type="text/javascript">
     $(document).ready(function() {
         // Toggle visibility based on checkboxes
@@ -272,25 +269,25 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Max</label>
                             <input class="form-control allow_decimal" type="text" placeholder="Max litres" name="waterin[${i}][max]" required />
                         </div>
                     </div>
                     <div class="col-md-3">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Cost</label>
                             <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin[${i}][cost]" required />
                         </div>
                     </div>
                     <div class="col-md-2">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Total</label>
                             <input class="form-control" type="text" placeholder="Total" name="waterin[${i}][total]" disabled/>
                         </div>
                     </div>
                     <div class="col-md-1">
-                         <div class="form-group">
+                        <div class="form-group">
                             <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
                         </div>
                     </div>
@@ -303,31 +300,31 @@
             var html = `
                 <div class="row mb-2">
                     <div class="col-md-3">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Title</label>
                             <input class="form-control" type="text" placeholder="Title" name="waterin_additional[${wa}][title]" required />
                         </div>
                     </div>
                     <div class="col-md-3">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Percentage</label>
                             <input class="form-control allow_decimal" type="text" step=any placeholder="%" name="waterin_additional[${wa}][percentage]" />
                         </div>
                     </div>
                     <div class="col-md-3">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Cost</label>
                             <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterin_additional[${wa}][cost]" required />
                         </div>
                     </div>
                     <div class="col-md-2">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Total</label>
                             <input class="form-control" type="text" placeholder="Total" name="waterin_additional[${wa}][total]" disabled/>
                         </div>
                     </div>
                     <div class="col-md-1">
-                         <div class="form-group">
+                        <div class="form-group">
                             <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
                         </div>
                     </div>
@@ -341,37 +338,37 @@
             var html = `
                 <div class="row mb-2">
                     <div class="col-md-2">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Min</label>
                             <input class="form-control allow_decimal" type="text" placeholder="Min" name="waterout[${o}][min]" required />
                         </div>
                     </div>
                     <div class="col-md-2">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Max</label>
                             <input class="form-control allow_decimal" type="text" placeholder="Max" name="waterout[${o}][max]" required />
                         </div>
                     </div>
                     <div class="col-md-2">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>%</label>
                             <input class="form-control allow_decimal" type="text" placeholder="%" name="waterout[${o}][percentage]" required />
                         </div>
                     </div>
                     <div class="col-md-3">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Cost</label>
                             <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout[${o}][cost]" required />
                         </div>
                     </div>
                     <div class="col-md-2">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Total</label>
                             <input class="form-control" type="text" placeholder="Total" name="waterout[${o}][total]" disabled/>
                         </div>
                     </div>
                     <div class="col-md-1">
-                         <div class="form-group">
+                        <div class="form-group">
                             <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
                         </div>
                     </div>
@@ -384,31 +381,31 @@
             var html = `
                 <div class="row mb-2">
                     <div class="col-md-3">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Title</label>
                             <input class="form-control" type="text" placeholder="Title" name="waterout_additional[${wo}][title]" required />
                         </div>
                     </div>
                     <div class="col-md-3">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>%</label>
                             <input class="form-control allow_decimal" type="text" step=any placeholder="%" name="waterout_additional[${wo}][percentage]" />
                         </div>
                     </div>
                     <div class="col-md-3">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Cost</label>
                             <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="waterout_additional[${wo}][cost]" required />
                         </div>
                     </div>
                     <div class="col-md-2">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Total</label>
                             <input class="form-control" type="text" placeholder="Total" name="waterout_additional[${wo}][total]" disabled/>
                         </div>
                     </div>
                     <div class="col-md-1">
-                         <div class="form-group">
+                        <div class="form-group">
                             <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
                         </div>
                     </div>
@@ -422,31 +419,31 @@
             var html = `
                 <div class="row mb-2">
                     <div class="col-md-3">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Min</label>
                             <input class="form-control allow_decimal" type="text" placeholder="Min" name="electricity[${e}][min]" required />
                         </div>
                     </div>
                     <div class="col-md-3">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Max</label>
                             <input class="form-control allow_decimal" type="text" placeholder="Max" name="electricity[${e}][max]" required />
                         </div>
                     </div>
                     <div class="col-md-3">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Cost</label>
                             <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity[${e}][cost]" required />
                         </div>
                     </div>
                     <div class="col-md-2">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Total</label>
                             <input class="form-control" type="text" placeholder="Total" name="electricity[${e}][total]" disabled/>
                         </div>
                     </div>
                     <div class="col-md-1">
-                         <div class="form-group">
+                        <div class="form-group">
                             <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
                         </div>
                     </div>
@@ -459,31 +456,31 @@
             var html = `
                 <div class="row mb-2">
                     <div class="col-md-3">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Title</label>
                             <input class="form-control" type="text" placeholder="Title" name="electricity_additional[${eo}][title]" required />
                         </div>
                     </div>
                     <div class="col-md-3">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>%</label>
                             <input class="form-control allow_decimal" type="text" step=any placeholder="%" name="electricity_additional[${eo}][percentage]" />
                         </div>
                     </div>
                     <div class="col-md-3">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Cost</label>
                             <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="electricity_additional[${eo}][cost]" required />
                         </div>
                     </div>
                     <div class="col-md-2">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Total</label>
                             <input class="form-control" type="text" placeholder="Total" name="electricity_additional[${eo}][total]" disabled/>
                         </div>
                     </div>
                     <div class="col-md-1">
-                         <div class="form-group">
+                        <div class="form-group">
                             <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
                         </div>
                     </div>
@@ -497,19 +494,19 @@
             var html = `
                 <div class="row mb-2">
                     <div class="col-md-5">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Name Of Cost</label>
                             <input class="form-control" type="text" placeholder="Name" name="additional[${a}][name]" required />
                         </div>
                     </div>
                     <div class="col-md-5">
-                         <div class="form-group">
+                        <div class="form-group">
                             <label>Cost</label>
                             <input class="form-control allow_decimal" type="text" placeholder="Cost" step=any name="additional[${a}][cost]" required />
                         </div>
                     </div>
                     <div class="col-md-2">
-                         <div class="form-group">
+                        <div class="form-group">
                             <button type="button" style="margin-top: 32px;" class="btn btn-danger btn-sm btn-circle remove-row"><i class="fa fa-trash"></i></button>
                         </div>
                     </div>
@@ -542,4 +539,5 @@
         });
     });
 </script>
+</div>
 @endsection
