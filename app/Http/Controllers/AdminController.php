@@ -63,10 +63,8 @@ class AdminController extends Controller
     }
 
     public function addAccountForm() { 
-        try {
-            $defaultCosts = FixedCost::where('is_default', 1)->get(); 
-        } catch (\Exception $e) { $defaultCosts = []; }
-        return view('admin.create_account', ['users' => User::all(), 'sites' => Site::all(), 'defaultCosts' => $defaultCosts]);
+        $accountTypes = AccountType::all();
+        return view('admin.create_account', ['users' => User::all(), 'sites' => Site::all(), 'accountTypes' => $accountTypes]);
     }
 
     public function addMeterForm() {

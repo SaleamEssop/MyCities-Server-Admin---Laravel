@@ -22,78 +22,36 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Site: </label>
+                            <label>Site Address: </label>
                             <select class="form-control" id="site-select" name="site_id" required disabled>
 
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Account Title: </label>
-                            <input type="text" class="form-control" placeholder="Enter account title" name="title" required>
+                            <label>Account Type: </label>
+                            <select class="form-control" id="account-type-select" name="account_type_id" required>
+                                <option disabled selected value="">--Select Account Type--</option>
+                                @foreach($accountTypes as $accountType)
+                                    <option value="{{ $accountType->id }}">{{ $accountType->type }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label>Account Number: </label>
+                            <label>Account Name (As per bill): </label>
+                            <input type="text" class="form-control" placeholder="Enter account name" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Account Number (As per bill): </label>
                             <input type="text" class="form-control" placeholder="Enter account number" name="number" required>
                         </div>
                         <div class="form-group">
-                            <label>Billing Date: </label>
-                            <input type="number" min="1" max="31" class="form-control" placeholder="Enter billing date" name="billing_date" required>
+                            <label>Bill Day: </label>
+                            <input type="number" min="1" max="31" class="form-control" placeholder="Enter bill day" name="billing_date" required>
                         </div>
                         <div class="form-group">
-                            <label>Optional Information: </label>
-                            <input type="text" name="optional_info" class="form-control" placeholder="Enter optional information">
+                            <label>Account Description: </label>
+                            <input type="text" name="optional_info" class="form-control" placeholder="Enter account description">
                         </div>
-                        <hr>
-                        <p><u>Default Costs</u></p>
-                        <div class="row">
-                            <div class="col-md-4"><b>Title</b></div>
-                            <div class="col-md-4"><b>Default Value</b></div>
-                            <div class="col-md-4"><b>Your Value</b></div>
-                        </div>
-                        <br>
-                        @foreach($defaultCosts as $defaultCost)
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>{{ $defaultCost->title }}</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <input class="form-control" type="text" value="{{ $defaultCost->value }}" readonly/>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <input class="form-control" type="number" name="default_cost_value[]" />
-                                    </div>
-                                </div>
-                                <input type="hidden" name="default_ids[]" value="{{$defaultCost->id}}" />
-                            </div>
-                        @endforeach
-                        <hr>
-                        <p>Fixed Costs</p>
-                        <div class="fixed-cost-container"></div>
-                        {{--<div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <input class="form-control" type="text" placeholder="Enter title" name="additional_cost_name[]" required/>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <input class="form-control" type="text" placeholder="Enter value" name="additional_cost_value[]" required/>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <a href="#" class="btn btn-sm btn-circle btn-danger">
-                                    <i class="fa fa-trash"></i>
-                                </a>
-                            </div>
-                        </div>--}}
-                        <a href="#" id="add-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
-                        <br>
-                        <br>
                         @csrf
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
@@ -107,39 +65,10 @@
 @section('script')
     <script type="text/javascript">
         $(document).ready(function() {
-            $('#user-dataTable').dataTable();
-
-            $("#add-cost").on("click", function () {
-
-                var html = '<div class="row">\n' +
-                    '                            <div class="col-md-4">\n' +
-                    '                                <div class="form-group">\n' +
-                    '                                    <input class="form-control" type="text" placeholder="Enter title" name="additional_cost_name[]" required/>\n' +
-                    '                                </div>\n' +
-                    '                            </div>\n' +
-                    '                            <div class="col-md-4">\n' +
-                    '                                <div class="form-group">\n' +
-                    '                                    <input class="form-control" type="text" placeholder="Enter value" name="additional_cost_value[]" required/>\n' +
-                    '                                </div>\n' +
-                    '                            </div>\n' +
-                    '                            <div class="col-md-4">\n' +
-                    '                                <a href="#" style="margin-top: 6px" class="btn btn-sm btn-circle btn-danger additional-cost-del-btn">\n' +
-                    '                                    <i class="fa fa-trash"></i>\n' +
-                    '                                </a>\n' +
-                    '                            </div>\n' +
-                    '                        </div>'
-
-                $(".fixed-cost-container").append(html);
-            });
-
-            $(document).on("click", '.additional-cost-del-btn', function () {
-                $(this).parent().parent().remove();
-            });
-
             $(document).on("change", '#user-select', function () {
                 let user_id = $(this).val();
                 let token = $('meta[name="csrf-token"]').attr('content');
-                // Get list of accounts added under this user
+                // Get list of sites added under this user
                 $.ajax({
                     type: 'POST',
                     dataType: 'JSON',
@@ -151,7 +80,7 @@
                         $.each(result.data, function(key, value) {
                             $('#site-select').append($('<option>', {
                                 value: value.id,
-                                text: value.title
+                                text: value.address
                             }));
                         });
                         $('#site-select').prop('disabled', false);
