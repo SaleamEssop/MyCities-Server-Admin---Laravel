@@ -74,6 +74,23 @@
                         <hr>
                         <p>Fixed Costs</p>
                         <div class="fixed-cost-container"></div>
+                        {{--<div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input class="form-control" type="text" placeholder="Enter title" name="additional_cost_name[]" required/>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <input class="form-control" type="text" placeholder="Enter value" name="additional_cost_value[]" required/>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <a href="#" class="btn btn-sm btn-circle btn-danger">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>--}}
                         <a href="#" id="add-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
                         <br>
                         <br>
@@ -87,7 +104,7 @@
     <!-- /.container-fluid -->
 @endsection
 
-@section('page-level-scripts')
+@section('script')
     <script type="text/javascript">
         $(document).ready(function() {
             $('#user-dataTable').dataTable();
@@ -121,13 +138,13 @@
 
             $(document).on("change", '#user-select', function () {
                 let user_id = $(this).val();
-                
+                let token = $('meta[name="csrf-token"]').attr('content');
+                // Get list of accounts added under this user
                 $.ajax({
-                    // CHANGED: Use GET to avoid CSRF 419 error
-                    type: 'GET',
+                    type: 'POST',
                     dataType: 'JSON',
-                    // URL uses route helper for accuracy
-                    url: '{{ route("get-sites-by-user") }}',
+                    headers: { 'X-CSRF-TOKEN': token },
+                    url: '/admin/sites/get-by-user',
                     data: {user_id: user_id},
                     success: function (result) {
                         $('#site-select').empty();
@@ -138,9 +155,6 @@
                             }));
                         });
                         $('#site-select').prop('disabled', false);
-                    },
-                    error: function(xhr) {
-                        console.log("Error loading sites:", xhr);
                     }
                 });
             });

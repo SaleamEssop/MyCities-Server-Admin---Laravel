@@ -104,8 +104,7 @@
                         <a href="#" id="add-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
                         <br>
                         <br>
-                        <!-- FIX: Change name="account_id" to name="id" to match controller -->
-                        <input type="hidden" name="id" value="{{ $account->id }}" />
+                        <input type="hidden" name="account_id" value="{{ $account->id }}" />
                         @csrf
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
@@ -157,25 +156,23 @@
 
             $(document).on("change", '#user-select', function () {
                 let user_id = $(this).val();
-                
+                let token = $("[name='_token']").val();
+                // Get list of accounts added under this user
                 $.ajax({
-                    // CHANGED: Use GET
-                    type: 'GET',
+                    type: 'POST',
                     dataType: 'JSON',
-                    url: '{{ route("get-sites-by-user") }}',
-                    data: {user_id: user_id},
+                    headers: { 'X-CSRF-TOKEN': token },
+                    url: '/admin/accounts/get-user-sites',
+                    data: {user: user_id},
                     success: function (result) {
                         $('#site-select').empty();
-                        $.each(result.data, function(key, value) {
+                        $.each(result.details, function(key, value) {
                             $('#site-select').append($('<option>', {
                                 value: value.id,
                                 text: value.title
                             }));
                         });
                         $('#site-select').prop('disabled', false);
-                    },
-                    error: function(xhr) {
-                         console.log("Error loading sites: ", xhr);
                     }
                 });
             });

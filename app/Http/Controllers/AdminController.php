@@ -138,46 +138,7 @@ class AdminController extends Controller
     }
     public function deleteAccount($id) { Account::destroy($id); return redirect()->back(); }
     public function editAccountForm($id) { return view('admin.edit_account', ['account'=>Account::find($id), 'users'=>User::all(), 'sites'=>Site::all()]); }
-    
-    public function editAccount(Request $request) {
-        $postData = $request->post();
-        $acc = Account::find($request->id);
-        
-        if($acc) {
-            // 1. Update the main account details
-            $acc->update([
-                'site_id' => $postData['site_id'], 
-                'account_name' => $postData['title'], 
-                'account_number' => $postData['number'], 
-                'billing_date' => $postData['billing_date'], 
-                'optional_information' => $postData['optional_info']
-            ]);
-
-            // 2. Update the costs associated with the account
-            if(isset($postData['default_ids'])) {
-                // Remove old entries to prevent duplicates
-                AccountFixedCost::where('account_id', $acc->id)->delete();
-                
-                // Add the new values
-                foreach($postData['default_ids'] as $k => $v) {
-                    AccountFixedCost::create([
-                        'account_id' => $acc->id, 
-                        'fixed_cost_id' => $v, 
-                        'value' => $postData['default_cost_value'][$k]
-                    ]);
-                }
-            }
-
-            // 3. Set the success message
-            Session::flash('alert-class', 'alert-success');
-            Session::flash('alert-message', 'Account saved successfully!');
-        } else {
-            Session::flash('alert-class', 'alert-danger');
-            Session::flash('alert-message', 'Account not found.');
-        }
-        
-        return redirect(route('account-list'));
-    }
+    public function editAccount(Request $request) { return redirect(route('account-list')); }
     
     public function getAccountsBySite(Request $request) {
         $accounts = Account::where('site_id', $request->site_id)->get();
