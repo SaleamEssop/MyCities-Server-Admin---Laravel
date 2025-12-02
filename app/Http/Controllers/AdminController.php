@@ -186,7 +186,15 @@ class AdminController extends Controller
         return redirect(route('account-type-list'));
     }
 
-    public function editAccountTypeForm($id) { return view('admin.account_type.edit_account_type', ['accountType'=>AccountType::find($id)]); }
+    public function editAccountTypeForm($id) {
+        $accountType = AccountType::find($id);
+        if (!$accountType) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Account type not found');
+            return redirect()->route('account-type-list');
+        }
+        return view('admin.account_type.edit_account_type', ['accountType' => $accountType]);
+    }
     public function editAccountType(Request $request) { AccountType::where('id', $request->id)->update(['type'=>$request->type]); return redirect(route('account-type-list')); }
     public function deleteAccountType($id) { AccountType::destroy($id); return redirect()->back(); }
 
