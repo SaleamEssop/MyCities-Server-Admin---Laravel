@@ -14,9 +14,3 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
-/tests/Browser/screenshots/*
-!/tests/Browser/screenshots/.gitkeep
-/tests/Browser/console/*
-!/tests/Browser/console/.gitkeep
-/tests/Browser/source/*
-!/tests/Browser/source/.gitkeep
