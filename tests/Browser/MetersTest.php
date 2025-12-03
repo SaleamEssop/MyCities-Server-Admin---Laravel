@@ -3,11 +3,11 @@
 namespace Tests\Browser;
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Facades\DB;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 use Tests\Browser\Traits\AdminAuthentication;
 use App\Models\Meter;
-use App\Models\MeterType;
 
 /**
  * Tests for admin meters management functionality.
@@ -64,8 +64,6 @@ class MetersTest extends DuskTestCase
     public function test_can_create_new_water_meter()
     {
         $this->browse(function (Browser $browser) {
-            $waterType = MeterType::where('title', 'Water')->first();
-            
             $this->loginAsAdmin($browser)
                 ->visit('/admin/meters/add')
                 ->type('meter_title', 'New Water Meter')
@@ -84,8 +82,6 @@ class MetersTest extends DuskTestCase
     public function test_can_create_new_electricity_meter()
     {
         $this->browse(function (Browser $browser) {
-            $electricityType = MeterType::where('title', 'Electricity')->first();
-            
             $this->loginAsAdmin($browser)
                 ->visit('/admin/meters/add')
                 ->type('meter_title', 'New Electricity Meter')

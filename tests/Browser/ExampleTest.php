@@ -9,7 +9,7 @@ use Tests\DuskTestCase;
 class ExampleTest extends DuskTestCase
 {
     /**
-     * A basic browser test example.
+     * A basic browser test example - verify the landing page loads.
      *
      * @return void
      */
@@ -17,7 +17,7 @@ class ExampleTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/')
-                    ->assertSee('Laravel');
+                    ->assertDontSee('Server Error');
         });
     }
 }

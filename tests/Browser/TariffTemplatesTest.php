@@ -3,12 +3,12 @@
 namespace Tests\Browser;
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Facades\DB;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 use Tests\Browser\Traits\AdminAuthentication;
 use App\Models\TariffTemplate;
 use App\Models\Regions;
-use App\Models\MeterType;
 
 /**
  * Tests for admin tariff templates management functionality.
@@ -87,7 +87,7 @@ class TariffTemplatesTest extends DuskTestCase
     {
         // Create a tariff template first
         $region = Regions::where('name', 'Test Region')->first();
-        $meterType = MeterType::where('title', 'Water')->first();
+        $meterType = DB::table('meter_types')->where('title', 'Water')->first();
         
         if ($region && $meterType) {
             $tariffTemplate = TariffTemplate::create([
@@ -117,7 +117,7 @@ class TariffTemplatesTest extends DuskTestCase
     {
         // Create a tariff template first
         $region = Regions::where('name', 'Test Region')->first();
-        $meterType = MeterType::where('title', 'Water')->first();
+        $meterType = DB::table('meter_types')->where('title', 'Water')->first();
         
         if ($region && $meterType) {
             $tariffTemplate = TariffTemplate::create([

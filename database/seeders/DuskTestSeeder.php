@@ -11,8 +11,6 @@ use App\Models\AccountType;
 use App\Models\Site;
 use App\Models\Account;
 use App\Models\Meter;
-use App\Models\MeterType;
-use App\Models\MeterCategory;
 
 /**
  * Seeder for Dusk browser tests.
@@ -71,21 +69,39 @@ class DuskTestSeeder extends Seeder
         );
 
         // Create meter types if they don't exist
-        $waterMeterType = MeterType::firstOrCreate(
-            ['title' => 'Water'],
-            ['title' => 'Water']
-        );
+        $waterMeterType = DB::table('meter_types')->where('title', 'Water')->first();
+        if (!$waterMeterType) {
+            $waterMeterTypeId = DB::table('meter_types')->insertGetId([
+                'title' => 'Water',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        } else {
+            $waterMeterTypeId = $waterMeterType->id;
+        }
         
-        $electricityMeterType = MeterType::firstOrCreate(
-            ['title' => 'Electricity'],
-            ['title' => 'Electricity']
-        );
+        $electricityMeterType = DB::table('meter_types')->where('title', 'Electricity')->first();
+        if (!$electricityMeterType) {
+            $electricityMeterTypeId = DB::table('meter_types')->insertGetId([
+                'title' => 'Electricity',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        } else {
+            $electricityMeterTypeId = $electricityMeterType->id;
+        }
 
         // Create meter categories if they don't exist
-        $meterCategory = MeterCategory::firstOrCreate(
-            ['title' => 'Standard'],
-            ['title' => 'Standard']
-        );
+        $meterCategory = DB::table('meter_categories')->where('name', 'Standard')->first();
+        if (!$meterCategory) {
+            $meterCategoryId = DB::table('meter_categories')->insertGetId([
+                'name' => 'Standard',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        } else {
+            $meterCategoryId = $meterCategory->id;
+        }
 
         // Create test site
         $site = Site::firstOrCreate(
@@ -115,24 +131,26 @@ class DuskTestSeeder extends Seeder
         );
 
         // Create test meters
-        Meter::firstOrCreate(
-            ['meter_number' => 'WM-001'],
-            [
+        $waterMeter = Meter::where('meter_number', 'WM-001')->first();
+        if (!$waterMeter) {
+            Meter::create([
                 'account_id' => $account->id,
-                'meter_category_id' => $meterCategory->id,
-                'meter_type_id' => $waterMeterType->id,
+                'meter_category_id' => $meterCategoryId,
+                'meter_type_id' => $waterMeterTypeId,
                 'meter_title' => 'Water Meter 1',
-            ]
-        );
+                'meter_number' => 'WM-001',
+            ]);
+        }
 
-        Meter::firstOrCreate(
-            ['meter_number' => 'EM-001'],
-            [
+        $electricityMeter = Meter::where('meter_number', 'EM-001')->first();
+        if (!$electricityMeter) {
+            Meter::create([
                 'account_id' => $account->id,
-                'meter_category_id' => $meterCategory->id,
-                'meter_type_id' => $electricityMeterType->id,
+                'meter_category_id' => $meterCategoryId,
+                'meter_type_id' => $electricityMeterTypeId,
                 'meter_title' => 'Electricity Meter 1',
-            ]
-        );
+                'meter_number' => 'EM-001',
+            ]);
+        }
     }
 }
