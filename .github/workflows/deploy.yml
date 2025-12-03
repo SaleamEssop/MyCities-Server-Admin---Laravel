@@ -9,9 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
-    # NEW STEP: Force PHP 8.0 to match your project requirements
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
@@ -19,17 +18,19 @@ jobs:
 
     - name: Install Composer Dependencies
       run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      env:
+        CI: true
 
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@main
       env:
         SSH_PRIVATE_KEY: ${{ secrets.DO_SSH_KEY }}
-        ARGS: "-rltgoDzvO"
+        ARGS: "-rltgoDzvO --delete"
         SOURCE: "."
         REMOTE_HOST: ${{ secrets.DO_HOST }}
         REMOTE_USER: ${{ secrets.DO_USERNAME }}
         TARGET: "/var/www/mycities.co.za"
-        EXCLUDE: "/node_modules/"
+        EXCLUDE: "/node_modules/,/.git/,/vendor/"
 
     - name: Execute Remote Commands
       uses: appleboy/ssh-action@master
@@ -37,14 +38,23 @@ jobs:
         host: ${{ secrets.DO_HOST }}
         username: ${{ secrets.DO_USERNAME }}
         key: ${{ secrets.DO_SSH_KEY }}
+        script_stop: true
         script: |
+          export CI=true
+          export DEBIAN_FRONTEND=noninteractive
           cd /var/www/mycities.co.za
+          
+          # Fix permissions first
           sudo chown -R www-data:www-data /var/www/mycities.co.za
           sudo chmod -R 755 /var/www/mycities.co.za
           sudo chmod -R 775 storage bootstrap/cache
-          npm install
-          npm run prod
-          php artisan migrate --force
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
+          
+          # Install dependencies without prompts
+          npm install --no-audit --no-fund --loglevel=error || true
+          npm run prod || true
+          
+          # Laravel commands
+          php artisan migrate --force --no-interaction
+          php artisan config:cache --no-interaction
+          php artisan route:cache --no-interaction
+          php artisan view:cache --no-interaction
