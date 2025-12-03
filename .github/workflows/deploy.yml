@@ -39,6 +39,9 @@ jobs:
         key: ${{ secrets.DO_SSH_KEY }}
         script: |
           cd /var/www/mycities.co.za
+          sudo chown -R www-data:www-data /var/www/mycities.co.za
+          sudo chmod -R 755 /var/www/mycities.co.za
+          sudo chmod -R 775 storage bootstrap/cache
           php artisan migrate --force
           php artisan config:cache
           php artisan route:cache
