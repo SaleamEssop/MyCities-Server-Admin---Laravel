@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\RegionsCostController;
+use App\Http\Controllers\TariffTemplateController;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -81,7 +82,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::post('payments/add', [AdminController::class, 'createPayment'])->name('add-payment');
     Route::get('payments/delete/{id}', [AdminController::class, 'deletePayment']);
 
-    // --- REGION COSTS ---
+    // --- REGION COSTS (Legacy routes - kept for backward compatibility) ---
     Route::get('region_cost', [RegionsCostController::class, 'index'])->name('region-cost');
     Route::get('region_cost/create', [RegionsCostController::class, 'create'])->name('region-cost-create');
     Route::post('region_cost', [RegionsCostController::class, 'store'])->name('region-cost-store');
@@ -89,6 +90,15 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::post('region_cost/update', [RegionsCostController::class, 'update'])->name('update-region-cost');
     Route::get('/region_cost/delete/{id}', [RegionsCostController::class, 'delete']);
     Route::post('region_cost/copy_record', [RegionsCostController::class, 'copyRecord'])->name('copy-region-cost');
+    
+    // --- TARIFF TEMPLATES (New routes) ---
+    Route::get('tariff_template', [TariffTemplateController::class, 'index'])->name('tariff-template');
+    Route::get('tariff_template/create', [TariffTemplateController::class, 'create'])->name('tariff-template-create');
+    Route::post('tariff_template', [TariffTemplateController::class, 'store'])->name('tariff-template-store');
+    Route::get('/tariff_template/edit/{id}', [TariffTemplateController::class, 'edit'])->name('tariff-template-edit');
+    Route::post('tariff_template/update', [TariffTemplateController::class, 'update'])->name('update-tariff-template');
+    Route::get('/tariff_template/delete/{id}', [TariffTemplateController::class, 'delete']);
+    Route::post('tariff_template/copy_record', [TariffTemplateController::class, 'copyRecord'])->name('copy-tariff-template');
     
     // --- ACCOUNT TYPES ---
     Route::get('account_type', [AdminController::class, 'showAccountType'])->name('account-type-list');

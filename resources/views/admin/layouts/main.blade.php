@@ -188,17 +188,17 @@
             </div>
         </li>
 
-        <!-- Nav Item - Region Costs -->
+        <!-- Nav Item - Tariff Templates -->
         <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseRegionsCost"
-               aria-expanded="true" aria-controls="collapseRegionsCost">
-                <i class="fas fa-fw fa-location-arrow"></i>
-                <span>Region Costs</span>
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTariffTemplate"
+               aria-expanded="true" aria-controls="collapseTariffTemplate">
+                <i class="fas fa-fw fa-file-invoice-dollar"></i>
+                <span>Tariff Templates</span>
             </a>
-            <div id="collapseRegionsCost" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div id="collapseTariffTemplate" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('region-cost') }}">List</a>
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('region-cost-create') }}">Add</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('tariff-template') }}">List</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('tariff-template-create') }}">Add</a>
                 </div>
             </div>
         </li>

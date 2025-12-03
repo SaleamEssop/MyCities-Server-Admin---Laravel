@@ -19,6 +19,8 @@ class RegionsAccountTypeCost extends Model
         'waterin_additional' => 'array',
         'waterout_additional' => 'array',
         'electricity_additional' => 'array',
+        'fixed_costs' => 'array',
+        'customer_costs' => 'array',
     ];
 
     protected $fillable = [
@@ -46,7 +48,9 @@ class RegionsAccountTypeCost extends Model
         'waterout_additional',
         'electricity_additional',
         'water_email',
-        'electricity_email'
+        'electricity_email',
+        'fixed_costs',
+        'customer_costs'
     ];
 
     public function region()
