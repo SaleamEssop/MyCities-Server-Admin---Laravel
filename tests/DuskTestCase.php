@@ -21,7 +21,8 @@ abstract class DuskTestCase extends BaseTestCase
     {
         // In CI environments (GitHub Actions), ChromeDriver is managed externally
         // Only start ChromeDriver locally when not in CI or Sail
-        if (! static::runningInSail() && ! env('CI')) {
+        $isCI = isset($_ENV['CI']) && $_ENV['CI'];
+        if (! static::runningInSail() && ! $isCI) {
             static::startChromeDriver();
         }
     }

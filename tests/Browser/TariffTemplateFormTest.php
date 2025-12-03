@@ -292,6 +292,7 @@ class TariffTemplateFormTest extends DuskTestCase
      * Test that clicking + adds a new Fixed Costs row.
      * 
      * Verifies that the Add button creates additional Fixed Costs input rows.
+     * Uses JavaScript to click the button since it's embedded in a dynamic Vue component.
      */
     public function test_add_fixed_cost_button_adds_new_row(): void
     {
@@ -303,11 +304,17 @@ class TariffTemplateFormTest extends DuskTestCase
                     // Verify only first row exists
                     ->assertPresent('input[name="fixed_costs[0][name]"]')
                     ->assertMissing('input[name="fixed_costs[1][name]"]')
-                    // Find and click the Fixed Costs add button
-                    // Look for the button after "Fixed Costs" label
+                    // Scroll to ensure the section is visible
                     ->scrollTo('input[name="fixed_costs[0][name]"]')
-                    ->pause(300)
-                    ->script("document.querySelector('input[name=\"fixed_costs[0][name]\"]').closest('.row.mb-2').previousElementSibling.querySelector('button.btn-circle').click()");
+                    ->pause(300);
+            
+            // Click the Fixed Costs add button using a text-based selector
+            // Find the button near the "Fixed Costs" label text
+            $browser->script("
+                Array.from(document.querySelectorAll('label strong')).find(el => 
+                    el.textContent.includes('Fixed Costs (Customer Cannot Edit)')
+                ).closest('.row').querySelector('button.btn-circle').click()
+            ");
                     
             $browser->pause(500)
                     // Verify second row was added
@@ -340,6 +347,7 @@ class TariffTemplateFormTest extends DuskTestCase
      * Test that clicking + adds a new Customer Editable Costs row.
      * 
      * Verifies that the Add button creates additional Customer Costs input rows.
+     * Uses JavaScript to click the button since it's embedded in a dynamic Vue component.
      */
     public function test_add_customer_cost_button_adds_new_row(): void
     {
@@ -351,10 +359,17 @@ class TariffTemplateFormTest extends DuskTestCase
                     // Verify only first row exists
                     ->assertPresent('input[name="customer_costs[0][name]"]')
                     ->assertMissing('input[name="customer_costs[1][name]"]')
-                    // Find and click the Customer Costs add button
+                    // Scroll to ensure the section is visible
                     ->scrollTo('input[name="customer_costs[0][name]"]')
-                    ->pause(300)
-                    ->script("document.querySelector('input[name=\"customer_costs[0][name]\"]').closest('.row.mb-2').previousElementSibling.querySelector('button.btn-circle').click()");
+                    ->pause(300);
+            
+            // Click the Customer Costs add button using a text-based selector
+            // Find the button near the "Customer Editable Costs" label text
+            $browser->script("
+                Array.from(document.querySelectorAll('label strong')).find(el => 
+                    el.textContent.includes('Customer Editable Costs')
+                ).closest('.row').querySelector('button.btn-circle').click()
+            ");
                     
             $browser->pause(500)
                     // Verify second row was added
