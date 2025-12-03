@@ -79,29 +79,35 @@
                         <hr>
                         <div class="row mb-3">
                             <div class="col-md-12">
-                                <label class="mr-2"><strong>Add Water In Cost : </strong></label>
+                                <label class="mr-2"><strong>Add Water In Cost (Tiers in Litres, Cost per KL) : </strong></label>
                                 <button type="button" class="btn btn-sm btn-outline-secondary btn-circle" @click="addWaterInRow">
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
                         </div>
                         <div v-for="(row, index) in waterIn" :key="'waterin-' + index" class="row mb-2">
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <div class="form-group">
-                                    <label>Min</label>
+                                    <label>Min (L)</label>
                                     <input class="form-control" type="text" placeholder="Min litres" :name="'waterin[' + index + '][min]'" v-model="row.min" @input="filterDecimal($event)" required />
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <div class="form-group">
-                                    <label>Max</label>
+                                    <label>Max (L)</label>
                                     <input class="form-control" type="text" placeholder="Max litres" :name="'waterin[' + index + '][max]'" v-model="row.max" @input="filterDecimal($event)" required />
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <div class="form-group">
-                                    <label>Cost</label>
-                                    <input class="form-control" type="text" placeholder="Cost" :name="'waterin[' + index + '][cost]'" v-model="row.cost" @input="filterDecimal($event)" required />
+                                    <label>Cost/KL</label>
+                                    <input class="form-control" type="text" placeholder="R per KL" :name="'waterin[' + index + '][cost]'" v-model="row.cost" @input="filterDecimal($event)" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>KL Used</label>
+                                    <input class="form-control" type="text" placeholder="KL" :value="calculateWaterInKL(index)" disabled />
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -110,7 +116,7 @@
                                     <input class="form-control" type="text" placeholder="Total" :value="calculateWaterInRowTotal(index)" disabled />
                                 </div>
                             </div>
-                            <div class="col-md-1">
+                            <div class="col-md-2">
                                 <div class="form-group">
                                     <button type="button" style="margin-top: 32px;" class="btn btn-outline-secondary btn-sm btn-circle" @click="removeWaterInRow(index)">
                                         <i class="fa fa-trash"></i>
@@ -298,19 +304,19 @@
                         <div v-for="(row, index) in electricity" :key="'electricity-' + index" class="row mb-2">
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label>Min</label>
+                                    <label>Min (KWH)</label>
                                     <input class="form-control" type="text" placeholder="Min" :name="'electricity[' + index + '][min]'" v-model="row.min" @input="filterDecimal($event)" required />
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label>Max</label>
+                                    <label>Max (KWH)</label>
                                     <input class="form-control" type="text" placeholder="Max" :name="'electricity[' + index + '][max]'" v-model="row.max" @input="filterDecimal($event)" required />
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label>Cost</label>
+                                    <label>Cost/KWH</label>
                                     <input class="form-control" type="text" placeholder="Cost" :name="'electricity[' + index + '][cost]'" v-model="row.cost" @input="filterDecimal($event)" required />
                                 </div>
                             </div>
@@ -386,63 +392,253 @@
                         </div>
                     </div>
 
-                    <!-- Additional Cost Section -->
+                    <!-- Fixed Costs Section (Customer Cannot Edit) -->
                     <hr>
                     <div class="row mb-3">
                         <div class="col-md-12">
-                            <label class="mr-2"><strong>Additional Cost : </strong></label>
-                            <button type="button" class="btn btn-sm btn-outline-secondary btn-circle" @click="addAdditionalRow">
+                            <label class="mr-2"><strong>Fixed Costs (Customer Cannot Edit) : </strong></label>
+                            <button type="button" class="btn btn-sm btn-outline-secondary btn-circle" @click="addFixedCostRow">
                                 <i class="fa fa-plus"></i>
                             </button>
                         </div>
                     </div>
-                    <div v-for="(row, index) in additional" :key="'additional-' + index" class="row mb-2">
+                    <div v-for="(row, index) in fixedCosts" :key="'fixed-' + index" class="row mb-2">
                         <div class="col-md-5">
                             <div class="form-group">
-                                <label>Name Of Cost</label>
-                                <input class="form-control" type="text" placeholder="Name" :name="'additional[' + index + '][name]'" v-model="row.name" required />
+                                <label>Cost Name</label>
+                                <input class="form-control" type="text" placeholder="Cost Name" :name="'fixed_costs[' + index + '][name]'" v-model="row.name" required />
                             </div>
                         </div>
                         <div class="col-md-5">
                             <div class="form-group">
-                                <label>Cost</label>
-                                <input class="form-control" type="text" placeholder="Cost" :name="'additional[' + index + '][cost]'" v-model="row.cost" @input="filterDecimal($event)" required />
+                                <label>Value (negative for rebates)</label>
+                                <input class="form-control" type="text" placeholder="Value (negative for rebates)" :name="'fixed_costs[' + index + '][value]'" v-model="row.value" @input="filterDecimal($event)" required />
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <button type="button" style="margin-top: 32px;" class="btn btn-outline-secondary btn-sm btn-circle" @click="removeAdditionalRow(index)">
+                                <button type="button" style="margin-top: 32px;" class="btn btn-outline-secondary btn-sm btn-circle" @click="removeFixedCostRow(index)">
                                     <i class="fa fa-trash"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Customer Editable Costs Section -->
+                    <hr>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="mr-2"><strong>Customer Editable Costs (Customer Can Modify in App) : </strong></label>
+                            <button type="button" class="btn btn-sm btn-outline-secondary btn-circle" @click="addCustomerCostRow">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div v-for="(row, index) in customerCosts" :key="'customer-' + index" class="row mb-2">
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label>Cost Name</label>
+                                <input class="form-control" type="text" placeholder="Cost Name" :name="'customer_costs[' + index + '][name]'" v-model="row.name" required />
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label>Default Value (can be empty)</label>
+                                <input class="form-control" type="text" placeholder="Default Value (can be empty)" :name="'customer_costs[' + index + '][value]'" v-model="row.value" @input="filterDecimal($event)" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <button type="button" style="margin-top: 32px;" class="btn btn-outline-secondary btn-sm btn-circle" @click="removeCustomerCostRow(index)">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rates Section -->
+                    <hr>
                     <div class="row">
-                        <div class="col-md-4 ml-auto">
-                            <label><strong>Sub Total :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="text" placeholder="Sub Total" :value="subTotal.toFixed(2)" disabled />
-                            </div>
-                            <label><strong>VAT</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="text" placeholder="VAT Amount" :value="vatAmount.toFixed(2)" disabled />
-                            </div>
+                        <div class="col-md-6">
                             <label><strong>Rates :</strong></label>
                             <div class="form-group">
-                                <input class="form-control" type="text" placeholder="VAT Rate" name="vat_rate" v-model="formData.vat_rate" @input="filterDecimal($event)" />
+                                <input class="form-control" type="text" placeholder="Rates" name="vat_rate" v-model="formData.vat_rate" @input="filterDecimal($event)" />
                             </div>
+                        </div>
+                        <div class="col-md-6">
                             <label><strong>Rates Rebate :</strong></label>
                             <div class="form-group">
                                 <input class="form-control" type="text" placeholder="Rates Rebate" name="rates_rebate" v-model="formData.rates_rebate" @input="filterDecimal($event)" />
                             </div>
-                            <label><strong>Final Total :</strong></label>
-                            <div class="form-group">
-                                <input class="form-control" type="text" placeholder="Final Total" :value="finalTotal.toFixed(2)" disabled />
-                            </div>
-                            <button type="submit" class="btn btn-warning">{{ formData.id ? 'Save / Update' : 'Save Template' }}</button>
-                            <a :href="cancelUrl" class="btn btn-secondary">Cancel</a>
                         </div>
+                    </div>
+
+                    <!-- Professional Bill Preview Section -->
+                    <hr class="my-5">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white text-center">
+                            <h4 class="mb-0">BILL PREVIEW</h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- Water Charges -->
+                            <div v-if="formData.is_water">
+                                <h5 class="border-bottom pb-2">WATER CHARGES</h5>
+                                
+                                <h6>Water In</h6>
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <tr v-for="(row, index) in waterIn" :key="'preview-wi-' + index">
+                                            <td>Tier {{ index + 1 }} ({{ row.min || 0 }} - {{ row.max || 0 }} L)</td>
+                                            <td class="text-right">{{ calculateWaterInKL(index) }} KL × R{{ row.cost || 0 }}</td>
+                                            <td class="text-right">R{{ calculateWaterInRowTotal(index) }}</td>
+                                        </tr>
+                                        <tr class="font-weight-bold">
+                                            <td colspan="2">Water In Subtotal</td>
+                                            <td class="text-right">R{{ waterInTotal.toFixed(2) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <h6 v-if="waterInAdditional.length > 0 && waterInAdditional[0].title">Water In Related Costs</h6>
+                                <table class="table table-sm" v-if="waterInAdditional.length > 0 && waterInAdditional[0].title">
+                                    <tbody>
+                                        <tr v-for="(row, index) in waterInAdditional" :key="'preview-wia-' + index" v-if="row.title">
+                                            <td>{{ row.title }}</td>
+                                            <td class="text-right">R{{ calculateAdditionalRowTotal(row, formData.water_used) }}</td>
+                                        </tr>
+                                        <tr class="font-weight-bold">
+                                            <td>Water In Related Subtotal</td>
+                                            <td class="text-right">R{{ waterInRelatedTotal.toFixed(2) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <h6>Water Out</h6>
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <tr v-for="(row, index) in waterOut" :key="'preview-wo-' + index">
+                                            <td>Tier {{ index + 1 }} ({{ row.min || 0 }} - {{ row.max || 0 }}) @ {{ row.percentage || 0 }}%</td>
+                                            <td class="text-right">R{{ calculateWaterOutRowTotal(index) }}</td>
+                                        </tr>
+                                        <tr class="font-weight-bold">
+                                            <td>Water Out Subtotal</td>
+                                            <td class="text-right">R{{ waterOutTotal.toFixed(2) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <h6 v-if="waterOutAdditional.length > 0 && waterOutAdditional[0].title">Water Out Related Costs</h6>
+                                <table class="table table-sm" v-if="waterOutAdditional.length > 0 && waterOutAdditional[0].title">
+                                    <tbody>
+                                        <tr v-for="(row, index) in waterOutAdditional" :key="'preview-woa-' + index" v-if="row.title">
+                                            <td>{{ row.title }}</td>
+                                            <td class="text-right">R{{ calculateAdditionalRowTotal(row, formData.water_used) }}</td>
+                                        </tr>
+                                        <tr class="font-weight-bold">
+                                            <td>Water Out Related Subtotal</td>
+                                            <td class="text-right">R{{ waterOutRelatedTotal.toFixed(2) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Electricity Charges -->
+                            <div v-if="formData.is_electricity">
+                                <h5 class="border-bottom pb-2 mt-4">ELECTRICITY CHARGES</h5>
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <tr v-for="(row, index) in electricity" :key="'preview-el-' + index">
+                                            <td>Tier {{ index + 1 }} ({{ row.min || 0 }} - {{ row.max || 0 }} KWH)</td>
+                                            <td class="text-right">R{{ calculateElectricityRowTotal(index) }}</td>
+                                        </tr>
+                                        <tr class="font-weight-bold">
+                                            <td>Electricity Subtotal</td>
+                                            <td class="text-right">R{{ electricityTotal.toFixed(2) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <h6 v-if="electricityAdditional.length > 0 && electricityAdditional[0].title">Electricity Related Costs</h6>
+                                <table class="table table-sm" v-if="electricityAdditional.length > 0 && electricityAdditional[0].title">
+                                    <tbody>
+                                        <tr v-for="(row, index) in electricityAdditional" :key="'preview-ela-' + index" v-if="row.title">
+                                            <td>{{ row.title }}</td>
+                                            <td class="text-right">R{{ calculateAdditionalRowTotal(row, formData.electricity_used) }}</td>
+                                        </tr>
+                                        <tr class="font-weight-bold">
+                                            <td>Electricity Related Subtotal</td>
+                                            <td class="text-right">R{{ electricityRelatedTotal.toFixed(2) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Fixed Costs -->
+                            <h5 class="border-bottom pb-2 mt-4">FIXED COSTS</h5>
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr v-for="(row, index) in fixedCosts" :key="'preview-fc-' + index" v-if="row.name">
+                                        <td>{{ row.name }}</td>
+                                        <td class="text-right" :class="{ 'text-danger': parseFloat(row.value) < 0 }">
+                                            R{{ parseFloat(row.value || 0).toFixed(2) }}
+                                        </td>
+                                    </tr>
+                                    <tr class="font-weight-bold">
+                                        <td>Fixed Costs Subtotal</td>
+                                        <td class="text-right">R{{ fixedCostsTotal.toFixed(2) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <!-- Customer Editable Costs -->
+                            <h5 class="border-bottom pb-2 mt-4">CUSTOMER INPUT COSTS</h5>
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr v-for="(row, index) in customerCosts" :key="'preview-cc-' + index" v-if="row.name">
+                                        <td>{{ row.name }}</td>
+                                        <td class="text-right text-muted">
+                                            <span v-if="row.value">R{{ parseFloat(row.value).toFixed(2) }} *</span>
+                                            <span v-else>[User Input]</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <small class="text-muted">* Default value - customer can modify in app</small>
+                            
+                            <!-- Summary -->
+                            <div class="bg-light p-3 mt-4">
+                                <table class="table table-sm mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <td>Subtotal</td>
+                                            <td class="text-right">R{{ subTotal.toFixed(2) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>VAT ({{ formData.vat_percentage }}%)</td>
+                                            <td class="text-right">R{{ vatAmount.toFixed(2) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Rates</td>
+                                            <td class="text-right">R{{ parseFloat(formData.vat_rate || 0).toFixed(2) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Rates Rebate</td>
+                                            <td class="text-right text-danger">-R{{ parseFloat(formData.rates_rebate || 0).toFixed(2) }}</td>
+                                        </tr>
+                                        <tr class="font-weight-bold h5">
+                                            <td>TOTAL</td>
+                                            <td class="text-right">R{{ finalTotal.toFixed(2) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit buttons below the bill preview -->
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-warning btn-lg">{{ formData.id ? 'Save / Update' : 'Save Template' }}</button>
+                        <a :href="cancelUrl" class="btn btn-secondary btn-lg ml-2">Cancel</a>
                     </div>
                 </form>
             </div>
@@ -510,10 +706,13 @@ const formData = reactive({
 const waterIn = ref([{ min: '', max: '', cost: '' }]);
 const waterOut = ref([{ min: '', max: '', percentage: '', cost: '' }]);
 const electricity = ref([{ min: '', max: '', cost: '' }]);
-const additional = ref([{ name: '', cost: '' }]);
 const waterInAdditional = ref([{ title: '', percentage: '', cost: '' }]);
 const waterOutAdditional = ref([{ title: '', percentage: '', cost: '' }]);
 const electricityAdditional = ref([{ title: '', percentage: '', cost: '' }]);
+
+// New cost arrays
+const fixedCosts = ref([{ name: '', value: '' }]);
+const customerCosts = ref([{ name: '', value: '' }]);
 
 // Initialize from existing data if editing
 onMounted(() => {
@@ -561,12 +760,6 @@ onMounted(() => {
                 cost: item.cost ?? ''
             }));
         }
-        if (Array.isArray(data.additional) && data.additional.length > 0) {
-            additional.value = data.additional.map(item => ({
-                name: item.name ?? '',
-                cost: item.cost ?? ''
-            }));
-        }
         if (Array.isArray(data.waterin_additional) && data.waterin_additional.length > 0) {
             waterInAdditional.value = data.waterin_additional.map(item => ({
                 title: item.title ?? '',
@@ -588,10 +781,23 @@ onMounted(() => {
                 cost: item.cost ?? ''
             }));
         }
+        // Load new cost arrays
+        if (Array.isArray(data.fixed_costs) && data.fixed_costs.length > 0) {
+            fixedCosts.value = data.fixed_costs.map(item => ({
+                name: item.name ?? '',
+                value: item.value ?? ''
+            }));
+        }
+        if (Array.isArray(data.customer_costs) && data.customer_costs.length > 0) {
+            customerCosts.value = data.customer_costs.map(item => ({
+                name: item.name ?? '',
+                value: item.value ?? ''
+            }));
+        }
     }
 });
 
-// Filter input to allow only decimals and negative sign
+// Filter input to allow decimals AND negative sign (for rebates)
 function filterDecimal(event) {
     const value = event.target.value.replace(/[^0-9.-]/g, '');
     event.target.value = value;
@@ -641,15 +847,6 @@ function removeElectricityRow(index) {
     }
 }
 
-function addAdditionalRow() {
-    additional.value.push({ name: '', cost: '' });
-}
-function removeAdditionalRow(index) {
-    if (additional.value.length > 1) {
-        additional.value.splice(index, 1);
-    }
-}
-
 function addWaterInAdditionalRow() {
     waterInAdditional.value.push({ title: '', percentage: '', cost: '' });
 }
@@ -677,7 +874,52 @@ function removeElectricityAdditionalRow(index) {
     }
 }
 
-// Calculate row totals for tiered pricing (Water In - KL to Litres conversion)
+// New cost row functions
+function addFixedCostRow() {
+    fixedCosts.value.push({ name: '', value: '' });
+}
+function removeFixedCostRow(index) {
+    if (fixedCosts.value.length > 1) {
+        fixedCosts.value.splice(index, 1);
+    }
+}
+
+function addCustomerCostRow() {
+    customerCosts.value.push({ name: '', value: '' });
+}
+function removeCustomerCostRow(index) {
+    if (customerCosts.value.length > 1) {
+        customerCosts.value.splice(index, 1);
+    }
+}
+
+// Calculate KL used in a water tier (for display)
+function calculateWaterInKL(index) {
+    // Convert usage from KL to litres
+    const usageLitres = parseFloat(formData.water_used) * 1000;
+    
+    // Calculate how many litres have been consumed by previous tiers
+    let consumedLitres = 0;
+    for (let i = 0; i < index; i++) {
+        const tierMin = parseFloat(waterIn.value[i].min) || 0;
+        const tierMax = parseFloat(waterIn.value[i].max) || 0;
+        consumedLitres += (tierMax - tierMin);
+    }
+    
+    const row = waterIn.value[index];
+    const tierMin = parseFloat(row.min) || 0;
+    const tierMax = parseFloat(row.max) || 0;
+    
+    const tierCapacity = tierMax - tierMin;
+    const remainingUsage = usageLitres - consumedLitres;
+    const litresInThisTier = Math.max(0, Math.min(tierCapacity, remainingUsage));
+    
+    // Convert litres to KL for display
+    const klInThisTier = litresInThisTier / 1000;
+    return klInThisTier.toFixed(2);
+}
+
+// FIXED: Calculate row totals for tiered pricing (Water In - KL to Litres conversion)
 function calculateWaterInRowTotal(index) {
     // Convert usage from KL to litres
     const usageLitres = parseFloat(formData.water_used) * 1000;
@@ -706,7 +948,7 @@ function calculateWaterInRowTotal(index) {
     return total.toFixed(2);
 }
 
-// Calculate row totals for Water Out (with percentage) - KL to Litres conversion
+// Calculate row totals for Water Out (with percentage) - same logic as water in but with percentage
 function calculateWaterOutRowTotal(index) {
     // Convert usage from KL to litres
     const usageLitres = parseFloat(formData.water_used) * 1000;
@@ -739,7 +981,7 @@ function calculateWaterOutRowTotal(index) {
     return total.toFixed(2);
 }
 
-// Calculate row totals for Electricity (no percentage)
+// Calculate row totals for Electricity (no conversion needed - KWH to KWH)
 function calculateElectricityRowTotal(index) {
     const electricityUsage = parseFloat(formData.electricity_used) || 0;
     let remaining = electricityUsage;
@@ -833,10 +1075,20 @@ const electricityRelatedTotal = computed(() => {
     return total;
 });
 
-const additionalTotal = computed(() => {
+// Fixed costs total (includes negative values for rebates)
+const fixedCostsTotal = computed(() => {
     let total = 0;
-    for (const row of additional.value) {
-        total += parseFloat(row.cost) || 0;
+    for (const row of fixedCosts.value) {
+        total += parseFloat(row.value) || 0;
+    }
+    return total;
+});
+
+// Customer costs total (only for items with default values)
+const customerCostsTotal = computed(() => {
+    let total = 0;
+    for (const row of customerCosts.value) {
+        total += parseFloat(row.value) || 0;
     }
     return total;
 });
@@ -845,7 +1097,7 @@ const subTotal = computed(() => {
     return waterInTotal.value + waterInRelatedTotal.value + 
            waterOutTotal.value + waterOutRelatedTotal.value + 
            electricityTotal.value + electricityRelatedTotal.value + 
-           additionalTotal.value;
+           fixedCostsTotal.value + customerCostsTotal.value;
 });
 
 const vatAmount = computed(() => {
