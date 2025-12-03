@@ -1,8 +1,14 @@
 name: Dusk Tests
 
+# DISABLED: Re-enable when ready to use Dusk tests
+# Was triggered on pull_request, now manual only
 on:
-  pull_request:
-    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      run_tests:
+        description: 'Run Dusk browser tests'
+        required: true
+        default: 'true'
 
 # Limit permissions for security
 permissions:
