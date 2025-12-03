@@ -18,6 +18,13 @@ use Illuminate\Support\Facades\Session;
 
 class UserManagementController extends Controller
 {
+    // Meter type title constants - these match database values
+    private const METER_TYPE_WATER = 'water';
+    private const METER_TYPE_ELECTRICITY = 'electricity';
+    
+    // Default meter category ID
+    private const DEFAULT_METER_CATEGORY_ID = 1;
+
     /**
      * Display the user management page
      */
@@ -194,8 +201,8 @@ class UserManagementController extends Controller
             // Get first region and account type
             $region = Regions::first();
             $accountType = AccountType::first();
-            $waterMeterType = MeterType::where('title', 'water')->first();
-            $electricityMeterType = MeterType::where('title', 'electricity')->first();
+            $waterMeterType = MeterType::where('title', self::METER_TYPE_WATER)->first();
+            $electricityMeterType = MeterType::where('title', self::METER_TYPE_ELECTRICITY)->first();
             
             if (!$region) {
                 throw new \Exception('No regions found. Please create a region first.');
@@ -231,7 +238,7 @@ class UserManagementController extends Controller
                 $waterMeter = Meter::create([
                     'account_id' => $account->id,
                     'meter_type_id' => $waterMeterType->id,
-                    'meter_category_id' => 1,
+                    'meter_category_id' => self::DEFAULT_METER_CATEGORY_ID,
                     'meter_title' => 'Water Meter',
                     'meter_number' => 'WM-' . $timestamp,
                 ]);
@@ -255,7 +262,7 @@ class UserManagementController extends Controller
                 $electricityMeter = Meter::create([
                     'account_id' => $account->id,
                     'meter_type_id' => $electricityMeterType->id,
-                    'meter_category_id' => 1,
+                    'meter_category_id' => self::DEFAULT_METER_CATEGORY_ID,
                     'meter_title' => 'Electricity Meter',
                     'meter_number' => 'EM-' . $timestamp,
                 ]);
@@ -567,7 +574,7 @@ class UserManagementController extends Controller
             $meterFields = [
                 'account_id' => $accountId,
                 'meter_type_id' => $meterData['meter_type_id'] ?? null,
-                'meter_category_id' => $meterData['meter_category_id'] ?? 1,
+                'meter_category_id' => $meterData['meter_category_id'] ?? self::DEFAULT_METER_CATEGORY_ID,
                 'meter_title' => $meterData['meter_title'] ?? '',
                 'meter_number' => $meterData['meter_number'] ?? '',
             ];

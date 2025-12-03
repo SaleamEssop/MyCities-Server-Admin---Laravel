@@ -472,12 +472,37 @@ const formData = reactive({
 
 // Computed
 const filteredUsers = computed(() => {
-    return usersList.value;
+    let result = usersList.value;
+    
+    // Apply local filtering for immediate UI response
+    // (Server-side search also runs via searchUsers() for complete results)
+    if (filters.name) {
+        const searchName = filters.name.toLowerCase();
+        result = result.filter(user => user.name && user.name.toLowerCase().includes(searchName));
+    }
+    
+    if (filters.phone) {
+        const searchPhone = filters.phone.toLowerCase();
+        result = result.filter(user => user.contact_number && user.contact_number.toLowerCase().includes(searchPhone));
+    }
+    
+    if (filters.user_type === 'test') {
+        result = result.filter(user => isTestUser(user.email));
+    } else if (filters.user_type === 'real') {
+        result = result.filter(user => !isTestUser(user.email));
+    }
+    
+    return result;
 });
 
 // Methods
 function isTestUser(email) {
     return email && email.toLowerCase().endsWith('@test.com');
+}
+
+// Helper to replace __ID__ placeholder in URLs
+function buildUrl(urlTemplate, id) {
+    return urlTemplate.replace('__ID__', id);
 }
 
 function showNotification(message, type = 'success') {
@@ -544,7 +569,7 @@ async function editUser(userId) {
     loading.value = true;
     
     try {
-        const response = await fetch(`${props.apiUrls.getUserData}/${userId}`, {
+        const response = await fetch(buildUrl(props.apiUrls.getUserData, userId), {
             headers: {
                 'Accept': 'application/json',
                 'X-CSRF-TOKEN': props.csrfToken
@@ -679,7 +704,7 @@ async function saveUser() {
     
     try {
         const url = editingUserId.value 
-            ? `${props.apiUrls.update}/${editingUserId.value}`
+            ? buildUrl(props.apiUrls.update, editingUserId.value)
             : props.apiUrls.store;
         
         const method = editingUserId.value ? 'PUT' : 'POST';
@@ -721,7 +746,7 @@ async function deleteUser(userId) {
     loading.value = true;
     
     try {
-        const response = await fetch(`${props.apiUrls.delete}/${userId}`, {
+        const response = await fetch(buildUrl(props.apiUrls.delete, userId), {
             method: 'DELETE',
             headers: {
                 'Accept': 'application/json',
@@ -812,7 +837,7 @@ async function cloneUser(userId) {
     loading.value = true;
     
     try {
-        const response = await fetch(`${props.apiUrls.cloneUser}/${userId}`, {
+        const response = await fetch(buildUrl(props.apiUrls.cloneUser, userId), {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

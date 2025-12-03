@@ -16,12 +16,12 @@
             'apiUrls' => [
                 'search' => route('user-management.search'),
                 'store' => route('user-management.store'),
-                'update' => url('admin/user-management'),
-                'delete' => url('admin/user-management'),
-                'getUserData' => url('admin/user-management'),
+                'update' => route('user-management.update', ['id' => '__ID__']),
+                'delete' => route('user-management.destroy', ['id' => '__ID__']),
+                'getUserData' => route('user-management.show', ['id' => '__ID__']),
                 'generateTestUser' => route('user-management.generate-test'),
                 'deleteTestUsers' => route('user-management.delete-test'),
-                'cloneUser' => url('admin/user-management/clone'),
+                'cloneUser' => route('user-management.clone', ['id' => '__ID__']),
             ]
         ]) }}">
         </div>
