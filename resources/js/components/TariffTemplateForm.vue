@@ -499,10 +499,10 @@
                                     </tbody>
                                 </table>
 
-                                <h6 v-if="waterInAdditional.length > 0 && waterInAdditional[0].title">Water In Related Costs</h6>
-                                <table class="table table-sm" v-if="waterInAdditional.length > 0 && waterInAdditional[0].title">
+                                <h6 v-if="waterInAdditional.length > 0 && waterInAdditional[0] && waterInAdditional[0].title">Water In Related Costs</h6>
+                                <table class="table table-sm" v-if="waterInAdditional.length > 0 && waterInAdditional[0] && waterInAdditional[0].title">
                                     <tbody>
-                                        <tr v-for="(row, index) in waterInAdditional" :key="'preview-wia-' + index" v-if="row.title">
+                                        <tr v-for="(row, index) in waterInAdditional" :key="'preview-wia-' + index" v-if="row && row.title">
                                             <td>{{ row.title }}</td>
                                             <td class="text-right">R{{ calculateAdditionalRowTotal(row, formData.water_used) }}</td>
                                         </tr>
@@ -527,10 +527,10 @@
                                     </tbody>
                                 </table>
 
-                                <h6 v-if="waterOutAdditional.length > 0 && waterOutAdditional[0].title">Water Out Related Costs</h6>
-                                <table class="table table-sm" v-if="waterOutAdditional.length > 0 && waterOutAdditional[0].title">
+                                <h6 v-if="waterOutAdditional.length > 0 && waterOutAdditional[0] && waterOutAdditional[0].title">Water Out Related Costs</h6>
+                                <table class="table table-sm" v-if="waterOutAdditional.length > 0 && waterOutAdditional[0] && waterOutAdditional[0].title">
                                     <tbody>
-                                        <tr v-for="(row, index) in waterOutAdditional" :key="'preview-woa-' + index" v-if="row.title">
+                                        <tr v-for="(row, index) in waterOutAdditional" :key="'preview-woa-' + index" v-if="row && row.title">
                                             <td>{{ row.title }}</td>
                                             <td class="text-right">R{{ calculateAdditionalRowTotal(row, formData.water_used) }}</td>
                                         </tr>
@@ -558,10 +558,10 @@
                                     </tbody>
                                 </table>
 
-                                <h6 v-if="electricityAdditional.length > 0 && electricityAdditional[0].title">Electricity Related Costs</h6>
-                                <table class="table table-sm" v-if="electricityAdditional.length > 0 && electricityAdditional[0].title">
+                                <h6 v-if="electricityAdditional.length > 0 && electricityAdditional[0] && electricityAdditional[0].title">Electricity Related Costs</h6>
+                                <table class="table table-sm" v-if="electricityAdditional.length > 0 && electricityAdditional[0] && electricityAdditional[0].title">
                                     <tbody>
-                                        <tr v-for="(row, index) in electricityAdditional" :key="'preview-ela-' + index" v-if="row.title">
+                                        <tr v-for="(row, index) in electricityAdditional" :key="'preview-ela-' + index" v-if="row && row.title">
                                             <td>{{ row.title }}</td>
                                             <td class="text-right">R{{ calculateAdditionalRowTotal(row, formData.electricity_used) }}</td>
                                         </tr>
@@ -577,7 +577,7 @@
                             <h5 class="border-bottom pb-2 mt-4">FIXED COSTS</h5>
                             <table class="table table-sm">
                                 <tbody>
-                                    <tr v-for="(row, index) in fixedCosts" :key="'preview-fc-' + index" v-if="row.name">
+                                    <tr v-for="(row, index) in fixedCosts" :key="'preview-fc-' + index" v-if="row && row.name">
                                         <td>{{ row.name }}</td>
                                         <td class="text-right" :class="{ 'text-danger': parseFloat(row.value) < 0 }">
                                             R{{ parseFloat(row.value || 0).toFixed(2) }}
@@ -594,7 +594,7 @@
                             <h5 class="border-bottom pb-2 mt-4">CUSTOMER INPUT COSTS</h5>
                             <table class="table table-sm">
                                 <tbody>
-                                    <tr v-for="(row, index) in customerCosts" :key="'preview-cc-' + index" v-if="row.name">
+                                    <tr v-for="(row, index) in customerCosts" :key="'preview-cc-' + index" v-if="row && row.name">
                                         <td>{{ row.name }}</td>
                                         <td class="text-right text-muted">
                                             <span v-if="row.value">R{{ parseFloat(row.value).toFixed(2) }} *</span>
@@ -1079,7 +1079,9 @@ const electricityRelatedTotal = computed(() => {
 const fixedCostsTotal = computed(() => {
     let total = 0;
     for (const row of fixedCosts.value) {
-        total += parseFloat(row.value) || 0;
+        if (row) {
+            total += parseFloat(row.value) || 0;
+        }
     }
     return total;
 });
@@ -1088,7 +1090,9 @@ const fixedCostsTotal = computed(() => {
 const customerCostsTotal = computed(() => {
     let total = 0;
     for (const row of customerCosts.value) {
-        total += parseFloat(row.value) || 0;
+        if (row) {
+            total += parseFloat(row.value) || 0;
+        }
     }
     return total;
 });
