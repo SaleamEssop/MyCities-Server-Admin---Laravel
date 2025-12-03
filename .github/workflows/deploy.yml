@@ -5,11 +5,33 @@ on:
     branches: [ main ]
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install npm dependencies
+      run: npm ci
+
+    - name: Build assets
+      run: npm run prod
+
+    - name: Commit built assets
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add public/js public/css public/mix-manifest.json -f
+        git diff --staged --quiet || git commit -m "Build assets [skip ci]"
+        git push
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -38,22 +60,20 @@ jobs:
         host: ${{ secrets.DO_HOST }}
         username: ${{ secrets.DO_USERNAME }}
         key: ${{ secrets.DO_SSH_KEY }}
-        script_stop: true
+        command_timeout: 30m
         script: |
           export CI=true
           export DEBIAN_FRONTEND=noninteractive
           cd /var/www/mycities.co.za
           
-          # Fix permissions first
+          # Fix permissions
           sudo chown -R www-data:www-data /var/www/mycities.co.za
           sudo chmod -R 755 /var/www/mycities.co.za
           sudo chmod -R 775 storage bootstrap/cache
           
-          # Install dependencies without prompts
-          npm install --no-audit --no-fund --loglevel=error || true
-          npm run prod || true
+          # NO npm install or npm run prod needed! Assets are pre-built.
           
-          # Laravel commands
+          # Laravel commands only
           php artisan migrate --force --no-interaction
           php artisan config:cache --no-interaction
           php artisan route:cache --no-interaction
