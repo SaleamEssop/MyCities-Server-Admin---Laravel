@@ -64,8 +64,9 @@
             </a>
             <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('show-users') }}">List</a>
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-user-form') }}">Add</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('user-management.index') }}">User Management</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('show-users') }}">Legacy List</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-user-form') }}">Add (Legacy)</a>
                 </div>
             </div>
         </li>
