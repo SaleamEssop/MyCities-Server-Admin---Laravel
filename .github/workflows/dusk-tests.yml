@@ -1,0 +1,134 @@
+name: Dusk Browser Tests
+
+on:
+  pull_request:
+    branches: [ main, staging ]
+
+jobs:
+  dusk:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: laravel
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.0'
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, pdo_mysql
+        coverage: none
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install composer dependencies
+      run: composer install --no-interaction --prefer-dist
+
+    - name: Install npm dependencies
+      run: npm ci
+
+    - name: Build assets
+      run: npm run prod
+
+    - name: Copy .env
+      run: cp .env.example .env
+
+    - name: Generate application key
+      run: php artisan key:generate
+
+    - name: Configure database
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: laravel
+        DB_USERNAME: root
+        DB_PASSWORD: password
+      run: |
+        echo "DB_CONNECTION=mysql" >> .env
+        echo "DB_HOST=127.0.0.1" >> .env
+        echo "DB_PORT=3306" >> .env
+        echo "DB_DATABASE=laravel" >> .env
+        echo "DB_USERNAME=root" >> .env
+        echo "DB_PASSWORD=password" >> .env
+
+    - name: Run database migrations
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: laravel
+        DB_USERNAME: root
+        DB_PASSWORD: password
+      run: php artisan migrate --force
+
+    - name: Set up Chrome Driver
+      run: php artisan dusk:chrome-driver --detect
+
+    - name: Start Chrome Driver
+      run: ./vendor/laravel/dusk/bin/chromedriver-linux &
+
+    - name: Start Laravel Server
+      env:
+        APP_URL: http://127.0.0.1:8000
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: laravel
+        DB_USERNAME: root
+        DB_PASSWORD: password
+      run: php artisan serve --no-reload &
+
+    - name: Wait for server to start
+      run: sleep 5
+
+    - name: Run Dusk Tests
+      env:
+        APP_URL: http://127.0.0.1:8000
+        DUSK_DRIVER_URL: http://localhost:9515
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: laravel
+        DB_USERNAME: root
+        DB_PASSWORD: password
+        CI: true
+      run: php artisan dusk
+
+    - name: Upload Screenshots on Failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: dusk-screenshots
+        path: tests/Browser/screenshots
+        if-no-files-found: ignore
+
+    - name: Upload Console Logs on Failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: dusk-console
+        path: tests/Browser/console
+        if-no-files-found: ignore
+
+    - name: Upload Laravel Logs on Failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: laravel-logs
+        path: storage/logs
+        if-no-files-found: ignore
