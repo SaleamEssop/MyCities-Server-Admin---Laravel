@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\RegionsCostController;
 use App\Http\Controllers\TariffTemplateController;
+use App\Http\Controllers\Admin\UserManagementController;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -37,7 +38,18 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
         return redirect('/admin/login');
     })->name('admin.logout');
 
-    // --- USERS ---
+    // --- ENHANCED USER MANAGEMENT (replaces legacy user routes for main listing) ---
+    Route::get('user-management', [UserManagementController::class, 'index'])->name('user-management.index');
+    Route::get('user-management/search', [UserManagementController::class, 'search'])->name('user-management.search');
+    Route::post('user-management', [UserManagementController::class, 'store'])->name('user-management.store');
+    Route::get('user-management/{id}', [UserManagementController::class, 'getUserData'])->name('user-management.show');
+    Route::put('user-management/{id}', [UserManagementController::class, 'update'])->name('user-management.update');
+    Route::delete('user-management/{id}', [UserManagementController::class, 'destroy'])->name('user-management.destroy');
+    Route::post('user-management/generate-test', [UserManagementController::class, 'generateTestUser'])->name('user-management.generate-test');
+    Route::delete('user-management/delete-test', [UserManagementController::class, 'deleteTestUsers'])->name('user-management.delete-test');
+    Route::post('user-management/clone/{id}', [UserManagementController::class, 'cloneUser'])->name('user-management.clone');
+
+    // --- USERS (Legacy routes - kept for backward compatibility) ---
     Route::get('users', [AdminController::class, 'showUsers'])->name('show-users');
     Route::get('users/add', [AdminController::class, 'addUserForm'])->name('add-user-form');
     Route::post('users/add', [AdminController::class, 'createUser'])->name('add-user'); 
