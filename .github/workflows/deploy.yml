@@ -12,6 +12,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -30,7 +31,7 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add public/js public/css public/mix-manifest.json -f
-        git diff --staged --quiet || (git commit -m "Build assets [skip ci]" && git push)
+        git diff --staged --quiet || (git commit -m "Build assets [skip ci]" && git pull --rebase origin main && git push)
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
