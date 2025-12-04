@@ -2,79 +2,91 @@ name: Deploy to Digital Ocean
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
 
-    - name: Install npm dependencies
-      run: npm ci
+      - name: Install npm dependencies
+        run: npm ci
 
-    - name: Build assets
-      run: npm run prod
+      - name: Build assets
+        run: npm run prod
 
-    - name: Commit built assets
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git add public/js public/css public/mix-manifest.json -f
-        git diff --staged --quiet || (git commit -m "Build assets [skip ci]" && git pull --rebase origin main && git push)
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.0'
+      - name: Install Composer dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
-    - name: Install Composer Dependencies
-      run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-      env:
-        CI: true
+      - name: Deploy to server via rsync
+        uses: easingthemes/ssh-deploy@v5
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.SSH_HOST }}
+          REMOTE_USER: root
+          TARGET: /var/www/mycities.co.za
+          EXCLUDE: >-
+            /.git/
+            /.github/
+            /node_modules/
+            /.env
+            /storage/logs/
+            /storage/framework/cache/
+            /storage/framework/sessions/
+            /storage/framework/views/
+            /tests/
+            /.phpunit.result.cache
+            /phpunit.xml
 
-    - name: Deploy to Server
-      uses: easingthemes/ssh-deploy@main
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.DO_SSH_KEY }}
-        ARGS: "-rltgoDzvO --delete"
-        SOURCE: "."
-        REMOTE_HOST: ${{ secrets.DO_HOST }}
-        REMOTE_USER: ${{ secrets.DO_USERNAME }}
-        TARGET: "/var/www/mycities.co.za"
-        EXCLUDE: "/node_modules/,/.git/,/vendor/"
-
-    - name: Execute Remote Commands
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.DO_HOST }}
-        username: ${{ secrets.DO_USERNAME }}
-        key: ${{ secrets.DO_SSH_KEY }}
-        command_timeout: 30m
-        script: |
-          export CI=true
-          export DEBIAN_FRONTEND=noninteractive
-          cd /var/www/mycities.co.za
-          
-          # Fix permissions
-          sudo chown -R www-data:www-data /var/www/mycities.co.za
-          sudo chmod -R 755 /var/www/mycities.co.za
-          sudo chmod -R 775 storage bootstrap/cache
-          
-          # NO npm install or npm run prod needed! Assets are pre-built.
-          
-          # Laravel commands only
-          php artisan migrate --force --no-interaction
-          php artisan config:cache --no-interaction
-          php artisan route:cache --no-interaction
-          php artisan view:cache --no-interaction
+      - name: Run post-deploy commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: root
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /var/www/mycities.co.za
+            
+            # Verify .env symlink
+            if [ ! -L ".env" ]; then
+              echo "❌ ERROR: .env symlink is missing!"
+              echo "Run: ln -s /etc/mycities/.env /var/www/mycities.co.za/.env"
+              exit 1
+            fi
+            
+            if [ ! -f "/etc/mycities/.env" ]; then
+              echo "❌ ERROR: /etc/mycities/.env does not exist!"
+              exit 1
+            fi
+            
+            echo "✅ .env symlink verified"
+            
+            # Install composer dependencies on server (in case of platform differences)
+            composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+            
+            # Fix permissions
+            chown -R www-data:www-data /var/www/mycities.co.za
+            chmod -R 755 /var/www/mycities.co.za
+            chmod -R 775 storage bootstrap/cache
+            
+            # Laravel optimization
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            
+            echo "✅ Deployment complete"
