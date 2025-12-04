@@ -21,6 +21,7 @@
                 'generateTestUser' => route('user-management.generate-test'),
                 'deleteTestUsers' => route('user-management.delete-test'),
                 'cloneUser' => route('user-management.clone', ['id' => '__ID__']),
+                'getTariffTemplates' => route('get-tariff-templates-by-region', ['regionId' => '__REGION_ID__']),
             ]
         ]) }}">
         </div>
