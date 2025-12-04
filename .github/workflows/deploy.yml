@@ -39,7 +39,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.DO_HOST }}
           REMOTE_USER: ${{ secrets.DO_USERNAME }}
           TARGET: /var/www/mycities.co.za
-          EXCLUDE: >-
+          EXCLUDE: |
             /.git/
             /.github/
             /node_modules/
