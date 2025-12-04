@@ -19,13 +19,6 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label><strong>Select Account Type :</strong></label>
-                        <select class="form-control" name="account_type_id" v-model="formData.account_type_id" required>
-                            <option value="">Please select Account Type</option>
-                            <option v-for="type in accountTypes" :key="type.id" :value="type.id">{{ type.type }}</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
                         <label><strong>Applicable Start Date :</strong></label>
                         <input class="form-control" type="date" placeholder="Start Date" name="start_date" v-model="formData.start_date" required />
                     </div>
@@ -654,10 +647,6 @@ const props = defineProps({
         type: Array,
         required: true
     },
-    accountTypes: {
-        type: Array,
-        required: true
-    },
     csrfToken: {
         type: String,
         required: true
@@ -685,7 +674,6 @@ const formData = reactive({
     id: '',
     template_name: '',
     region_id: '',
-    account_type_id: '',
     start_date: '',
     end_date: '',
     water_email: '',
@@ -721,7 +709,6 @@ onMounted(() => {
         formData.id = data.id || '';
         formData.template_name = data.template_name || '';
         formData.region_id = data.region_id || '';
-        formData.account_type_id = data.account_type_id || '';
         formData.start_date = data.start_date || '';
         formData.end_date = data.end_date || '';
         formData.water_email = data.water_email || '';

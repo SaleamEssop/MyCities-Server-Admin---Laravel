@@ -173,21 +173,6 @@
                 </div>
             </div>
         </li>
-        
-        <!-- Nav Item - Account Types -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAccountType"
-               aria-expanded="true" aria-controls="collapseAccountType">
-                <i class="fas fa-fw fa-location-arrow"></i>
-                <span>Account Types</span>
-            </a>
-            <div id="collapseAccountType" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('account-type-list') }}">List</a>
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-account-type-form') }}">Add</a>
-                </div>
-            </div>
-        </li>
 
         <!-- Nav Item - Tariff Templates -->
         <li class="nav-item">

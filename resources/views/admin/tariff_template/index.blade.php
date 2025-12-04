@@ -4,7 +4,7 @@
 @section('content')
 <div class="container-fluid">
     <h1 class="h3 mb-2 text-gray-800">Tariff Templates</h1>
-    <p class="mb-4">Manage billing templates for each region and account type.</p>
+    <p class="mb-4">Manage billing templates for each region.</p>
 
     @if(Session::has('alert-message'))
         <div class="alert {{ Session::get('alert-class', 'alert-info') }} alert-dismissible fade show">
@@ -25,7 +25,8 @@
                         <tr>
                             <th>Template Name</th>
                             <th>Region</th>
-                            <th>Account Type</th>
+                            <th>Date Range</th>
+                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -35,7 +36,14 @@
                             <tr>
                                 <td>{{ $cost->template_name ?? 'N/A' }}</td>
                                 <td>{{ $cost->region->name ?? 'Unknown' }}</td>
-                                <td>{{ $cost->accountType->type ?? 'Unknown' }}</td>
+                                <td>{{ $cost->start_date ?? 'N/A' }} - {{ $cost->end_date ?? 'N/A' }}</td>
+                                <td>
+                                    @if($cost->is_active)
+                                        <span class="badge badge-success">Active</span>
+                                    @else
+                                        <span class="badge badge-secondary">Inactive</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <a href="{{ route('tariff-template-edit', ['id' => $cost->id]) }}" class="btn btn-info btn-sm">Edit</a>
                                     <a href="{{ url('admin/tariff_template/delete/'.$cost->id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this template?')">Delete</a>
@@ -43,7 +51,7 @@
                             </tr>
                             @endforeach
                         @else
-                            <tr><td colspan="4" class="text-center">No templates defined yet.</td></tr>
+                            <tr><td colspan="5" class="text-center">No templates defined yet.</td></tr>
                         @endif
                     </tbody>
                 </table>
