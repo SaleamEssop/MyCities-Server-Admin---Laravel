@@ -124,7 +124,7 @@ class DuskTestSeeder extends Seeder
             [
                 'site_id' => $site->id,
                 'account_name' => 'Test Account',
-                'billing_date' => now()->format('Y-m-d'),
+                'billing_date' => 15,
                 'region_id' => $region->id,
                 'account_type_id' => $accountType->id,
             ]
