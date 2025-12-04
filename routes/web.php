@@ -112,13 +112,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::get('/tariff_template/delete/{id}', [TariffTemplateController::class, 'delete']);
     Route::post('tariff_template/copy_record', [TariffTemplateController::class, 'copyRecord'])->name('copy-tariff-template');
     
-    // --- ACCOUNT TYPES ---
-    Route::get('account_type', [AdminController::class, 'showAccountType'])->name('account-type-list');
-    Route::post('/account_type/edit', [AdminController::class, 'editAccountType'])->name('edit-account-type');
-    Route::get('account_type/add', [AdminController::class, 'addAccountTypeForm'])->name('add-account-type-form');
-    Route::get('/account_type/edit/{id}', [AdminController::class, 'editAccountTypeForm']);
-    Route::post('account_type/add', [AdminController::class, 'createAccountType'])->name('add-account-type');
-    Route::get('/account_type/delete/{id}', [AdminController::class, 'deleteAccountType']);
+    // --- TARIFF TEMPLATES BY REGION (AJAX endpoint) ---
+    Route::get('tariff-templates/by-region/{regionId}', [AdminController::class, 'getTariffTemplatesByRegion'])->name('get-tariff-templates-by-region');
 
     // --- REGIONS ---
     Route::get('regions', [AdminController::class, 'showRegions'])->name('regions-list');

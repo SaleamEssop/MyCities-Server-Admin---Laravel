@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Account;
-use App\Models\AccountType;
 use App\Models\Meter;
 use App\Models\MeterReadings;
 use App\Models\MeterType;
 use App\Models\Regions;
+use App\Models\RegionsAccountTypeCost;
 use App\Models\Site;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -32,13 +32,11 @@ class UserManagementController extends Controller
     {
         $users = User::withCount('sites')->get();
         $regions = Regions::all();
-        $accountTypes = AccountType::all();
         $meterTypes = MeterType::all();
         
         return view('admin.user_management.index', [
             'users' => $users,
             'regions' => $regions,
-            'accountTypes' => $accountTypes,
             'meterTypes' => $meterTypes,
         ]);
     }
@@ -198,9 +196,9 @@ class UserManagementController extends Controller
                 'is_admin' => 0,
             ]);
             
-            // Get first region and account type
+            // Get first region and tariff template
             $region = Regions::first();
-            $accountType = AccountType::first();
+            $tariffTemplate = RegionsAccountTypeCost::where('is_active', 1)->first();
             $waterMeterType = MeterType::where('title', self::METER_TYPE_WATER)->first();
             $electricityMeterType = MeterType::where('title', self::METER_TYPE_ELECTRICITY)->first();
             
@@ -227,8 +225,7 @@ class UserManagementController extends Controller
                 'account_name' => 'Test Account',
                 'account_number' => 'ACC-' . $timestamp,
                 'billing_date' => 15,
-                'region_id' => $region->id,
-                'account_type_id' => $accountType ? $accountType->id : null,
+                'tariff_template_id' => $tariffTemplate ? $tariffTemplate->id : null,
                 'bill_day' => 15,
                 'read_day' => 1,
             ]);
@@ -374,8 +371,7 @@ class UserManagementController extends Controller
                         'account_name' => $account->account_name,
                         'account_number' => $account->account_number . '-CLONE',
                         'billing_date' => $account->billing_date,
-                        'region_id' => $account->region_id,
-                        'account_type_id' => $account->account_type_id,
+                        'tariff_template_id' => $account->tariff_template_id,
                         'bill_day' => $account->bill_day,
                         'read_day' => $account->read_day,
                     ]);
@@ -523,8 +519,7 @@ class UserManagementController extends Controller
                 'account_name' => $accountData['account_name'] ?? '',
                 'account_number' => $accountData['account_number'] ?? '',
                 'billing_date' => isset($accountData['billing_date']) && $accountData['billing_date'] !== '' ? (int) $accountData['billing_date'] : null,
-                'region_id' => $accountData['region_id'] ?? null,
-                'account_type_id' => $accountData['account_type_id'] ?? null,
+                'tariff_template_id' => $accountData['tariff_template_id'] ?? null,
                 'bill_day' => $accountData['bill_day'] ?? null,
                 'read_day' => $accountData['read_day'] ?? null,
             ];

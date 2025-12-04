@@ -11,12 +11,11 @@ class Account extends Model
 
     protected $fillable = [
         'site_id',
+        'tariff_template_id',
         'account_name',
         'account_number',
         'billing_date',
         'optional_information',
-        'region_id',
-        'account_type_id',
         'water_email',
         'electricity_email',
         'bill_day',
@@ -28,6 +27,32 @@ class Account extends Model
     public function site()
     {
         return $this->belongsTo(Site::class);
+    }
+
+    /**
+     * Get the tariff template associated with this account.
+     * This replaces the old region_id + account_type_id lookup.
+     */
+    public function tariffTemplate()
+    {
+        return $this->belongsTo(RegionsAccountTypeCost::class, 'tariff_template_id');
+    }
+
+    /**
+     * Helper method to get the region via the tariff template.
+     * Account gets region via TariffTemplate in the new architecture.
+     */
+    public function getRegion()
+    {
+        return $this->tariffTemplate ? $this->tariffTemplate->region : null;
+    }
+
+    /**
+     * Helper method to get the region_id via the tariff template.
+     */
+    public function getRegionIdAttribute()
+    {
+        return $this->tariffTemplate ? $this->tariffTemplate->region_id : null;
     }
 
     public function fixedCosts()
@@ -43,6 +68,11 @@ class Account extends Model
     public function meters()
     {
         return $this->hasMany(Meter::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 
     protected static function booted()
