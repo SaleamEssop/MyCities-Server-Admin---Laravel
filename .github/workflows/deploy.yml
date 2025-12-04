@@ -35,9 +35,9 @@ jobs:
       - name: Deploy to server via rsync
         uses: easingthemes/ssh-deploy@main
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.SSH_HOST }}
-          REMOTE_USER: root
+          SSH_PRIVATE_KEY: ${{ secrets.DO_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.DO_HOST }}
+          REMOTE_USER: ${{ secrets.DO_USERNAME }}
           TARGET: /var/www/mycities.co.za
           EXCLUDE: >-
             /.git/
@@ -55,9 +55,9 @@ jobs:
       - name: Run post-deploy commands
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: root
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd /var/www/mycities.co.za
             
