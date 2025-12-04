@@ -871,18 +871,19 @@ function updateMeterReading(meter) {
     if (!meter.reading_digits) return;
     
     if (meterTypeName === 'electricity') {
-        // Format: 5 digits + 1 decimal = XXXXX.X
+        // Format: 5 digits + 1 decimal = XXXXX.X kWh
         const whole = meter.reading_digits.slice(0, 5).join('');
         const decimal = meter.reading_digits[5] || '0';
-        meter.initial_reading = `${whole}.${decimal}`;
+        meter.initial_reading = `${parseInt(whole || '0')}.${decimal}`;
     } else if (meterTypeName === 'water') {
-        // Format: 7 digits + 1 decimal = XXXXXXX.X (stored as kL)
-        // First 4 = kL, next 3 = litres, last 1 = 1/10 litre
-        const kl = meter.reading_digits.slice(0, 4).join('');
-        const litres = meter.reading_digits.slice(4, 7).join('');
-        const tenthLitre = meter.reading_digits[7] || '0';
-        // Convert to kL with decimal
-        const totalLitres = parseInt(kl) * 1000 + parseInt(litres) + parseInt(tenthLitre) / 10;
+        // Format: 4 kL digits + 3 litre digits + 1 tenth-litre decimal = XXXX XXX .X
+        // First 4 = kL (kilolitres), next 3 = litres (0-999), last 1 = 1/10 litre
+        const kl = parseInt(meter.reading_digits.slice(0, 4).join('') || '0');
+        const litres = parseInt(meter.reading_digits.slice(4, 7).join('') || '0');
+        const tenthLitre = parseInt(meter.reading_digits[7] || '0');
+        // Total in litres = kL*1000 + litres + tenthLitre/10
+        const totalLitres = kl * 1000 + litres + tenthLitre / 10;
+        // Store as kL with 4 decimal places
         meter.initial_reading = (totalLitres / 1000).toFixed(4);
     }
 }
@@ -895,12 +896,12 @@ function getReadingValue(meter) {
     if (meterTypeName === 'electricity') {
         const whole = meter.reading_digits.slice(0, 5).join('');
         const decimal = meter.reading_digits[5] || '0';
-        return `${parseInt(whole)}.${decimal}`;
+        return `${parseInt(whole || '0')}.${decimal}`;
     } else if (meterTypeName === 'water') {
-        const kl = meter.reading_digits.slice(0, 4).join('');
-        const litres = meter.reading_digits.slice(4, 7).join('');
-        const tenthLitre = meter.reading_digits[7] || '0';
-        const totalLitres = parseInt(kl) * 1000 + parseInt(litres) + parseInt(tenthLitre) / 10;
+        const kl = parseInt(meter.reading_digits.slice(0, 4).join('') || '0');
+        const litres = parseInt(meter.reading_digits.slice(4, 7).join('') || '0');
+        const tenthLitre = parseInt(meter.reading_digits[7] || '0');
+        const totalLitres = kl * 1000 + litres + tenthLitre / 10;
         return (totalLitres / 1000).toFixed(4);
     }
     return '0';
