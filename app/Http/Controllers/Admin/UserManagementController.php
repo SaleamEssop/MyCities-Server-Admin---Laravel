@@ -593,12 +593,25 @@ class UserManagementController extends Controller
             
             $processedMeterIds[] = $meterId;
             
-            // Process sample reading if provided
+            // Process sample reading if provided (legacy support)
             if (isset($meterData['sample_reading']) && !empty($meterData['sample_reading'])) {
                 MeterReadings::create([
                     'meter_id' => $meterId,
                     'reading_date' => now()->format('Y-m-d'),
                     'reading_value' => $meterData['sample_reading'],
+                ]);
+            }
+            
+            // Process initial reading with date if provided (new pigeonhole input)
+            if (isset($meterData['initial_reading']) && $meterData['initial_reading'] !== '' && $meterData['initial_reading'] !== null) {
+                $readingDate = isset($meterData['initial_reading_date']) && !empty($meterData['initial_reading_date']) 
+                    ? $meterData['initial_reading_date'] 
+                    : now()->format('Y-m-d');
+                    
+                MeterReadings::create([
+                    'meter_id' => $meterId,
+                    'reading_date' => $readingDate,
+                    'reading_value' => $meterData['initial_reading'],
                 ]);
             }
         }

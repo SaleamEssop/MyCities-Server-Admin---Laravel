@@ -124,10 +124,10 @@
                         </button>
                     </div>
                     <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
-                        <!-- User Details Section -->
+                        <!-- Section 1: User Details -->
                         <div class="card mb-3">
                             <div class="card-header">
-                                <h6 class="m-0 font-weight-bold"><i class="fas fa-user mr-2"></i>User Details</h6>
+                                <h6 class="m-0 font-weight-bold"><i class="fas fa-user mr-2"></i>Section 1: User Details</h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -145,7 +145,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Phone <span class="text-danger">*</span></label>
+                                            <label>Contact Number <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" v-model="formData.contact_number" required>
                                         </div>
                                     </div>
@@ -156,13 +156,60 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                                <!-- Quick Setup Options -->
+                                <div class="border-top pt-3 mt-3">
+                                    <h6 class="text-muted mb-3"><i class="fas fa-bolt mr-2"></i>Quick Setup Options</h6>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Region Selection</label>
+                                                <select class="form-control" v-model="formData.default_region_id" @change="onDefaultRegionChange">
+                                                    <option value="">Select Region</option>
+                                                    <option v-for="region in regions" :key="region.id" :value="region.id">{{ region.name }}</option>
+                                                </select>
+                                                <small class="text-muted">Applied to new sites</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Tariff Template</label>
+                                                <select class="form-control" v-model="formData.default_tariff_template_id" :disabled="!formData.default_region_id || tariffTemplatesLoading">
+                                                    <option value="">Select Tariff Template</option>
+                                                    <option v-for="template in tariffTemplates" :key="template.id" :value="template.id">{{ template.template_name }}</option>
+                                                </select>
+                                                <small class="text-muted">
+                                                    <span v-if="tariffTemplatesLoading">Loading...</span>
+                                                    <span v-else-if="!formData.default_region_id">Select region first</span>
+                                                    <span v-else>Applied to new accounts</span>
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Billing Mode</label>
+                                                <div class="billing-mode-toggle">
+                                                    <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+                                                        <label class="btn btn-outline-primary" :class="{ active: formData.default_billing_type === 'monthly' }">
+                                                            <input type="radio" v-model="formData.default_billing_type" value="monthly"> Monthly
+                                                        </label>
+                                                        <label class="btn btn-outline-primary" :class="{ active: formData.default_billing_type === 'date-to-date' }">
+                                                            <input type="radio" v-model="formData.default_billing_type" value="date-to-date"> Date-to-Date
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <small class="text-muted">Applied to new sites</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Sites Section -->
+                        <!-- Section 2: Sites, Accounts & Meters -->
                         <div class="card mb-3">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <h6 class="m-0 font-weight-bold"><i class="fas fa-home mr-2"></i>Sites</h6>
+                                <h6 class="m-0 font-weight-bold"><i class="fas fa-home mr-2"></i>Section 2: Account & Meter Allocation</h6>
                                 <button type="button" class="btn btn-success btn-sm" @click="addSite">
                                     <i class="fas fa-plus"></i> Add Site
                                 </button>
@@ -266,6 +313,16 @@
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="form-group">
+                                                                <label>Tariff Template</label>
+                                                                <select class="form-control form-control-sm" v-model="account.tariff_template_id">
+                                                                    <option value="">Select Tariff Template</option>
+                                                                    <option v-for="template in tariffTemplates" :key="template.id" :value="template.id">{{ template.template_name }}</option>
+                                                                </select>
+                                                                <small v-if="!formData.default_region_id" class="text-muted">Select region first</small>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
                                                                 <label>Billing Date</label>
                                                                 <input type="date" class="form-control form-control-sm" v-model="account.billing_date">
                                                             </div>
@@ -293,7 +350,7 @@
                                                             </button>
                                                         </div>
                                                         
-                                                        <div v-for="(meter, meterIndex) in account.meters" :key="'meter-' + siteIndex + '-' + accountIndex + '-' + meterIndex" class="border-left border-info pl-2 mb-2">
+                                                        <div v-for="(meter, meterIndex) in account.meters" :key="'meter-' + siteIndex + '-' + accountIndex + '-' + meterIndex" class="meter-card border-left border-info pl-2 mb-3">
                                                             <div class="d-flex justify-content-between align-items-center mb-1">
                                                                 <small class="text-muted">
                                                                     <i class="fas fa-tachometer-alt mr-1"></i>
@@ -304,31 +361,141 @@
                                                                 </button>
                                                             </div>
                                                             <div class="row">
-                                                                <div class="col-md-3">
+                                                                <div class="col-md-4">
                                                                     <div class="form-group mb-1">
                                                                         <label class="small">Meter Title</label>
-                                                                        <input type="text" class="form-control form-control-sm" v-model="meter.meter_title" placeholder="Title">
+                                                                        <input type="text" class="form-control form-control-sm" v-model="meter.meter_title" placeholder="e.g. Main Electricity Meter">
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-md-3">
+                                                                <div class="col-md-4">
                                                                     <div class="form-group mb-1">
                                                                         <label class="small">Meter Number</label>
-                                                                        <input type="text" class="form-control form-control-sm" v-model="meter.meter_number" placeholder="Number">
+                                                                        <input type="text" class="form-control form-control-sm" v-model="meter.meter_number" placeholder="Physical meter number">
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-md-3">
+                                                                <div class="col-md-4">
                                                                     <div class="form-group mb-1">
-                                                                        <label class="small">Type</label>
-                                                                        <select class="form-control form-control-sm" v-model="meter.meter_type_id">
+                                                                        <label class="small">Meter Type</label>
+                                                                        <select class="form-control form-control-sm" v-model="meter.meter_type_id" @change="onMeterTypeChange(meter)">
                                                                             <option value="">Select Type</option>
                                                                             <option v-for="type in meterTypes" :key="type.id" :value="type.id">{{ type.title }}</option>
                                                                         </select>
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-md-3">
-                                                                    <div class="form-group mb-1">
-                                                                        <label class="small">Sample Reading</label>
-                                                                        <input type="number" class="form-control form-control-sm" v-model="meter.sample_reading" placeholder="Optional">
+                                                            </div>
+                                                            
+                                                            <!-- Section 3: Initial Reading Capture (Pigeonhole Inputs) -->
+                                                            <div v-if="meter.meter_type_id" class="initial-reading-section mt-2 p-2 bg-light rounded">
+                                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                    <small class="font-weight-bold text-primary">
+                                                                        <i class="fas fa-edit mr-1"></i>Initial Reading (Quasar-Style)
+                                                                    </small>
+                                                                    <div class="form-group mb-0">
+                                                                        <input type="date" class="form-control form-control-sm" v-model="meter.initial_reading_date" style="width: 150px;">
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <!-- Electricity Meter: 5 black + 1 red decimal (6 boxes) -->
+                                                                <div v-if="getMeterTypeName(meter.meter_type_id) === 'electricity'" class="pigeonhole-container">
+                                                                    <div class="d-flex align-items-center justify-content-center">
+                                                                        <div class="pigeonhole-group">
+                                                                            <input 
+                                                                                v-for="(digit, digitIndex) in 5" 
+                                                                                :key="'elec-' + digitIndex"
+                                                                                type="text" 
+                                                                                maxlength="1" 
+                                                                                class="pigeonhole-input pigeonhole-black"
+                                                                                :value="meter.reading_digits ? meter.reading_digits[digitIndex] : '0'"
+                                                                                @input="onDigitInput($event, meter, digitIndex, 5)"
+                                                                                @keydown="onDigitKeydown($event, meter, digitIndex, 5)"
+                                                                                :ref="el => setDigitRef(el, siteIndex, accountIndex, meterIndex, digitIndex)"
+                                                                                inputmode="numeric"
+                                                                                pattern="[0-9]"
+                                                                            >
+                                                                        </div>
+                                                                        <span class="pigeonhole-decimal">.</span>
+                                                                        <div class="pigeonhole-group">
+                                                                            <input 
+                                                                                type="text" 
+                                                                                maxlength="1" 
+                                                                                class="pigeonhole-input pigeonhole-red"
+                                                                                :value="meter.reading_digits ? meter.reading_digits[5] : '0'"
+                                                                                @input="onDigitInput($event, meter, 5, 5)"
+                                                                                @keydown="onDigitKeydown($event, meter, 5, 5)"
+                                                                                :ref="el => setDigitRef(el, siteIndex, accountIndex, meterIndex, 5)"
+                                                                                inputmode="numeric"
+                                                                                pattern="[0-9]"
+                                                                            >
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="text-center mt-1">
+                                                                        <small class="text-muted">kWh (5 digits + 1 decimal)</small>
+                                                                    </div>
+                                                                    <div class="text-center mt-1">
+                                                                        <span class="badge badge-secondary">Reading: {{ getReadingValue(meter) }} kWh</span>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <!-- Water Meter: 7 black + 1 red decimal (8 boxes) -->
+                                                                <div v-else-if="getMeterTypeName(meter.meter_type_id) === 'water'" class="pigeonhole-container">
+                                                                    <div class="d-flex align-items-center justify-content-center flex-wrap">
+                                                                        <!-- First 4 digits (kL) -->
+                                                                        <div class="pigeonhole-group">
+                                                                            <input 
+                                                                                v-for="(digit, digitIndex) in 4" 
+                                                                                :key="'water-kl-' + digitIndex"
+                                                                                type="text" 
+                                                                                maxlength="1" 
+                                                                                class="pigeonhole-input pigeonhole-black"
+                                                                                :value="meter.reading_digits ? meter.reading_digits[digitIndex] : '0'"
+                                                                                @input="onDigitInput($event, meter, digitIndex, 7)"
+                                                                                @keydown="onDigitKeydown($event, meter, digitIndex, 7)"
+                                                                                :ref="el => setDigitRef(el, siteIndex, accountIndex, meterIndex, digitIndex)"
+                                                                                inputmode="numeric"
+                                                                                pattern="[0-9]"
+                                                                            >
+                                                                        </div>
+                                                                        <!-- Next 3 digits (litres) -->
+                                                                        <div class="pigeonhole-group ml-1">
+                                                                            <input 
+                                                                                v-for="(digit, digitIndex) in 3" 
+                                                                                :key="'water-l-' + digitIndex"
+                                                                                type="text" 
+                                                                                maxlength="1" 
+                                                                                class="pigeonhole-input pigeonhole-black"
+                                                                                :value="meter.reading_digits ? meter.reading_digits[digitIndex + 4] : '0'"
+                                                                                @input="onDigitInput($event, meter, digitIndex + 4, 7)"
+                                                                                @keydown="onDigitKeydown($event, meter, digitIndex + 4, 7)"
+                                                                                :ref="el => setDigitRef(el, siteIndex, accountIndex, meterIndex, digitIndex + 4)"
+                                                                                inputmode="numeric"
+                                                                                pattern="[0-9]"
+                                                                            >
+                                                                        </div>
+                                                                        <span class="pigeonhole-decimal">.</span>
+                                                                        <!-- Last digit (red - 1/10 L) -->
+                                                                        <div class="pigeonhole-group">
+                                                                            <input 
+                                                                                type="text" 
+                                                                                maxlength="1" 
+                                                                                class="pigeonhole-input pigeonhole-red"
+                                                                                :value="meter.reading_digits ? meter.reading_digits[7] : '0'"
+                                                                                @input="onDigitInput($event, meter, 7, 7)"
+                                                                                @keydown="onDigitKeydown($event, meter, 7, 7)"
+                                                                                :ref="el => setDigitRef(el, siteIndex, accountIndex, meterIndex, 7)"
+                                                                                inputmode="numeric"
+                                                                                pattern="[0-9]"
+                                                                            >
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="text-center mt-1">
+                                                                        <small class="text-muted">
+                                                                            <span class="mr-2">kL (4 digits)</span>
+                                                                            <span class="mr-2">Litres (3 digits)</span>
+                                                                            <span>1/10 L</span>
+                                                                        </small>
+                                                                    </div>
+                                                                    <div class="text-center mt-1">
+                                                                        <span class="badge badge-secondary">Reading: {{ getReadingValue(meter) }} kL</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -433,6 +600,13 @@ const deleteMessage = ref('');
 const deleteAction = ref(null);
 const searchTimeout = ref(null);
 
+// Tariff templates state
+const tariffTemplates = ref([]);
+const tariffTemplatesLoading = ref(false);
+
+// Digit input refs for pigeonhole inputs
+const digitRefs = ref({});
+
 // Notification state
 const notification = reactive({
     show: false,
@@ -454,6 +628,9 @@ const formData = reactive({
     email: '',
     contact_number: '',
     password: '',
+    default_region_id: '',
+    default_tariff_template_id: '',
+    default_billing_type: 'monthly',
     sites: []
 });
 
@@ -541,8 +718,192 @@ function resetForm() {
     formData.email = '';
     formData.contact_number = '';
     formData.password = '';
+    formData.default_region_id = '';
+    formData.default_tariff_template_id = '';
+    formData.default_billing_type = 'monthly';
     formData.sites = [];
+    tariffTemplates.value = [];
+    digitRefs.value = {};
     editingUserId.value = null;
+}
+
+// Helper to build URL for tariff templates endpoint
+function buildTariffUrl(regionId) {
+    return props.apiUrls.getTariffTemplates.replace('__REGION_ID__', regionId);
+}
+
+// Fetch tariff templates when region changes
+async function onDefaultRegionChange() {
+    formData.default_tariff_template_id = '';
+    tariffTemplates.value = [];
+    
+    if (!formData.default_region_id) {
+        return;
+    }
+    
+    tariffTemplatesLoading.value = true;
+    try {
+        const response = await fetch(buildTariffUrl(formData.default_region_id), {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': props.csrfToken
+            }
+        });
+        const data = await response.json();
+        if (data.status === 200) {
+            tariffTemplates.value = data.data;
+        }
+    } catch (error) {
+        console.error('Error fetching tariff templates:', error);
+    } finally {
+        tariffTemplatesLoading.value = false;
+    }
+}
+
+// Get meter type name from ID
+function getMeterTypeName(meterTypeId) {
+    const meterType = props.meterTypes.find(t => t.id === meterTypeId || t.id === parseInt(meterTypeId));
+    return meterType ? meterType.title.toLowerCase() : '';
+}
+
+// Handle meter type change - initialize reading digits
+function onMeterTypeChange(meter) {
+    const meterTypeName = getMeterTypeName(meter.meter_type_id);
+    if (meterTypeName === 'electricity') {
+        meter.reading_digits = ['0', '0', '0', '0', '0', '0'];
+    } else if (meterTypeName === 'water') {
+        meter.reading_digits = ['0', '0', '0', '0', '0', '0', '0', '0'];
+    } else {
+        meter.reading_digits = [];
+    }
+    // Set default date to today
+    if (!meter.initial_reading_date) {
+        meter.initial_reading_date = new Date().toISOString().split('T')[0];
+    }
+}
+
+// Set reference for digit input
+function setDigitRef(el, siteIndex, accountIndex, meterIndex, digitIndex) {
+    const key = `${siteIndex}-${accountIndex}-${meterIndex}-${digitIndex}`;
+    if (el) {
+        digitRefs.value[key] = el;
+    }
+}
+
+// Get digit input reference
+function getDigitRef(siteIndex, accountIndex, meterIndex, digitIndex) {
+    const key = `${siteIndex}-${accountIndex}-${meterIndex}-${digitIndex}`;
+    return digitRefs.value[key];
+}
+
+// Handle digit input - auto-advance to next box
+function onDigitInput(event, meter, digitIndex, maxIndex) {
+    const value = event.target.value;
+    // Only allow digits
+    if (value && !/^[0-9]$/.test(value)) {
+        event.target.value = meter.reading_digits[digitIndex] || '0';
+        return;
+    }
+    
+    // Update the digit
+    if (!meter.reading_digits) {
+        meter.reading_digits = getMeterTypeName(meter.meter_type_id) === 'electricity' 
+            ? ['0', '0', '0', '0', '0', '0'] 
+            : ['0', '0', '0', '0', '0', '0', '0', '0'];
+    }
+    meter.reading_digits[digitIndex] = value || '0';
+    
+    // Auto-advance to next input
+    if (value && digitIndex < maxIndex) {
+        // Find and focus next input in same meter
+        const parent = event.target.closest('.pigeonhole-container');
+        if (parent) {
+            const inputs = parent.querySelectorAll('.pigeonhole-input');
+            if (inputs[digitIndex + 1]) {
+                inputs[digitIndex + 1].focus();
+                inputs[digitIndex + 1].select();
+            }
+        }
+    }
+    
+    // Update the initial_reading value
+    updateMeterReading(meter);
+}
+
+// Handle keydown for navigation between pigeonhole inputs
+function onDigitKeydown(event, meter, digitIndex, maxIndex) {
+    const parent = event.target.closest('.pigeonhole-container');
+    if (!parent) return;
+    
+    const inputs = parent.querySelectorAll('.pigeonhole-input');
+    
+    switch(event.key) {
+        case 'ArrowLeft':
+            if (digitIndex > 0 && inputs[digitIndex - 1]) {
+                event.preventDefault();
+                inputs[digitIndex - 1].focus();
+                inputs[digitIndex - 1].select();
+            }
+            break;
+        case 'ArrowRight':
+            if (digitIndex < maxIndex && inputs[digitIndex + 1]) {
+                event.preventDefault();
+                inputs[digitIndex + 1].focus();
+                inputs[digitIndex + 1].select();
+            }
+            break;
+        case 'Backspace':
+            if (!event.target.value && digitIndex > 0 && inputs[digitIndex - 1]) {
+                event.preventDefault();
+                inputs[digitIndex - 1].focus();
+                inputs[digitIndex - 1].select();
+            }
+            break;
+        case 'Tab':
+            // Allow default tab behavior
+            break;
+    }
+}
+
+// Update meter reading value from digits
+function updateMeterReading(meter) {
+    const meterTypeName = getMeterTypeName(meter.meter_type_id);
+    if (!meter.reading_digits) return;
+    
+    if (meterTypeName === 'electricity') {
+        // Format: 5 digits + 1 decimal = XXXXX.X
+        const whole = meter.reading_digits.slice(0, 5).join('');
+        const decimal = meter.reading_digits[5] || '0';
+        meter.initial_reading = `${whole}.${decimal}`;
+    } else if (meterTypeName === 'water') {
+        // Format: 7 digits + 1 decimal = XXXXXXX.X (stored as kL)
+        // First 4 = kL, next 3 = litres, last 1 = 1/10 litre
+        const kl = meter.reading_digits.slice(0, 4).join('');
+        const litres = meter.reading_digits.slice(4, 7).join('');
+        const tenthLitre = meter.reading_digits[7] || '0';
+        // Convert to kL with decimal
+        const totalLitres = parseInt(kl) * 1000 + parseInt(litres) + parseInt(tenthLitre) / 10;
+        meter.initial_reading = (totalLitres / 1000).toFixed(4);
+    }
+}
+
+// Get the formatted reading value for display
+function getReadingValue(meter) {
+    const meterTypeName = getMeterTypeName(meter.meter_type_id);
+    if (!meter.reading_digits) return '0';
+    
+    if (meterTypeName === 'electricity') {
+        const whole = meter.reading_digits.slice(0, 5).join('');
+        const decimal = meter.reading_digits[5] || '0';
+        return `${parseInt(whole)}.${decimal}`;
+    } else if (meterTypeName === 'water') {
+        const kl = meter.reading_digits.slice(0, 4).join('');
+        const litres = meter.reading_digits.slice(4, 7).join('');
+        const tenthLitre = meter.reading_digits[7] || '0';
+        const totalLitres = parseInt(kl) * 1000 + parseInt(litres) + parseInt(tenthLitre) / 10;
+        return (totalLitres / 1000).toFixed(4);
+    }
+    return '0';
 }
 
 function openCreateModal() {
@@ -595,7 +956,10 @@ async function editUser(userId) {
                         meter_title: meter.meter_title || '',
                         meter_number: meter.meter_number || '',
                         meter_type_id: meter.meter_type_id || '',
-                        sample_reading: ''
+                        sample_reading: '',
+                        initial_reading: '',
+                        initial_reading_date: new Date().toISOString().split('T')[0],
+                        reading_digits: []
                     }))
                 }))
             }));
@@ -623,8 +987,8 @@ function addSite() {
         address: '',
         lat: 0,
         lng: 0,
-        region_id: '',
-        billing_type: 'monthly',
+        region_id: formData.default_region_id || '',
+        billing_type: formData.default_billing_type || 'monthly',
         expanded: true,
         accounts: []
     });
@@ -643,7 +1007,7 @@ function addAccount(siteIndex) {
     formData.sites[siteIndex].accounts.push({
         account_name: '',
         account_number: '',
-        tariff_template_id: '',
+        tariff_template_id: formData.default_tariff_template_id || '',
         billing_date: '',
         bill_day: '',
         read_day: '',
@@ -666,7 +1030,10 @@ function addMeter(siteIndex, accountIndex) {
         meter_title: '',
         meter_number: '',
         meter_type_id: '',
-        sample_reading: ''
+        sample_reading: '',
+        initial_reading: '',
+        initial_reading_date: new Date().toISOString().split('T')[0],
+        reading_digits: []
     });
 }
 
@@ -912,6 +1279,120 @@ onMounted(() => {
     to {
         transform: translateX(0);
         opacity: 1;
+    }
+}
+
+/* Billing Mode Toggle */
+.billing-mode-toggle .btn-group-toggle {
+    display: flex;
+}
+
+.billing-mode-toggle .btn-group-toggle .btn {
+    flex: 1;
+}
+
+.billing-mode-toggle .btn-group-toggle input[type="radio"] {
+    display: none;
+}
+
+/* Pigeonhole Meter Reading Inputs - Quasar Style */
+.initial-reading-section {
+    border: 1px solid #dee2e6;
+}
+
+.pigeonhole-container {
+    padding: 10px 0;
+}
+
+.pigeonhole-group {
+    display: inline-flex;
+    gap: 3px;
+}
+
+.pigeonhole-input {
+    width: 42px;
+    height: 52px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border: 2px solid #333;
+    border-radius: 4px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.pigeonhole-input:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.25);
+}
+
+/* Black boxes for whole number digits */
+.pigeonhole-black {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border-color: #333;
+}
+
+.pigeonhole-black:focus {
+    background-color: #2d2d2d;
+    border-color: #4e73df;
+}
+
+/* Red box for decimal digit */
+.pigeonhole-red {
+    background-color: #dc3545;
+    color: #ffffff;
+    border-color: #c82333;
+}
+
+.pigeonhole-red:focus {
+    background-color: #e74c5c;
+    border-color: #4e73df;
+}
+
+/* Decimal separator */
+.pigeonhole-decimal {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    padding: 0 5px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Meter card styling */
+.meter-card {
+    background-color: #fafafa;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .pigeonhole-input {
+        width: 36px;
+        height: 44px;
+        font-size: 1.2rem;
+    }
+    
+    .pigeonhole-decimal {
+        font-size: 1.5rem;
+        padding: 0 3px;
+    }
+    
+    .pigeonhole-group {
+        gap: 2px;
+    }
+}
+
+/* Large screen touch-friendly targets */
+@media (min-width: 769px) {
+    .pigeonhole-input {
+        cursor: text;
+    }
+    
+    .pigeonhole-input:hover {
+        border-color: #4e73df;
     }
 }
 </style>
