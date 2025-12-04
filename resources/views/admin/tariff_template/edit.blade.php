@@ -18,7 +18,6 @@
     <div id="tariff-template-app" 
          data-props="{{ json_encode([
              'regions' => $regions,
-             'accountTypes' => $account_type,
              'csrfToken' => csrf_token(),
              'submitUrl' => route('update-tariff-template'),
              'cancelUrl' => route('tariff-template'),

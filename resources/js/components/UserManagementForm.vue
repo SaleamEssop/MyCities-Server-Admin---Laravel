@@ -266,15 +266,6 @@
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="form-group">
-                                                                <label>Account Type</label>
-                                                                <select class="form-control form-control-sm" v-model="account.account_type_id">
-                                                                    <option value="">Select Type</option>
-                                                                    <option v-for="type in accountTypes" :key="type.id" :value="type.id">{{ type.type }}</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <div class="form-group">
                                                                 <label>Billing Date</label>
                                                                 <input type="date" class="form-control form-control-sm" v-model="account.billing_date">
                                                             </div>
@@ -418,10 +409,6 @@ const props = defineProps({
         required: true
     },
     regions: {
-        type: Array,
-        required: true
-    },
-    accountTypes: {
         type: Array,
         required: true
     },
@@ -598,7 +585,7 @@ async function editUser(userId) {
                     id: account.id,
                     account_name: account.account_name || '',
                     account_number: account.account_number || '',
-                    account_type_id: account.account_type_id || '',
+                    tariff_template_id: account.tariff_template_id || '',
                     billing_date: account.billing_date || '',
                     bill_day: account.bill_day || '',
                     read_day: account.read_day || '',
@@ -656,7 +643,7 @@ function addAccount(siteIndex) {
     formData.sites[siteIndex].accounts.push({
         account_name: '',
         account_number: '',
-        account_type_id: '',
+        tariff_template_id: '',
         billing_date: '',
         bill_day: '',
         read_day: '',

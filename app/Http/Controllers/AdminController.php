@@ -12,9 +12,9 @@ use App\Models\MeterReadings;
 use App\Models\MeterType;
 use App\Models\Payment;
 use App\Models\Regions;
+use App\Models\RegionsAccountTypeCost;
 use App\Models\Site;
 use App\Models\User;
-use App\Models\AccountType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -47,7 +47,6 @@ class AdminController extends Controller
     public function showAccounts() { return view('admin.accounts', ['accounts' => Account::with('site')->get()]); }
     public function showSites() { return view('admin.sites', ['sites' => Site::with(['user', 'region'])->get()]); }
     public function showRegions() { return view('admin.regions', ['regions' => Regions::all()]); }
-    public function showAccountType() { return view('admin.account_type.account_type', ['account_type' => AccountType::all()]); }
     public function showMeters() { return view('admin.meters', ['meters' => Meter::with(['account', 'meterTypes'])->get()]); }
     public function showReadings() { return view('admin.meter_readings', ['readings' => MeterReadings::with('meter')->orderBy('id', 'desc')->get()]); }
     public function showAlarms() { return view('admin.alarms', ['alarms' => []]); }
@@ -57,7 +56,6 @@ class AdminController extends Controller
     }
 
     public function addUserForm() { return view('admin.create_user'); }
-    public function addAccountTypeForm() { return view('admin.account_type.create_account_type'); }
     
     public function addSiteForm() { 
         return view('admin.create_site', ['users' => User::all(), 'regions' => Regions::all()]); 
@@ -67,7 +65,7 @@ class AdminController extends Controller
         return view('admin.create_account', [
             'users' => User::all(), 
             'sites' => Site::all(), 
-            'accountTypes' => AccountType::all()
+            'regions' => Regions::all()
         ]);
     }
 
@@ -132,14 +130,21 @@ class AdminController extends Controller
             'account_number' => $postData['number'], 
             'billing_date' => $postData['billing_date'],
             'optional_information' => $postData['optional_info'],
-            'account_type_id' => $postData['account_type_id'] ?? null
+            'tariff_template_id' => $postData['tariff_template_id'] ?? null
         ]);
         
         return redirect(route('account-list'));
     }
     
     public function deleteAccount($id) { Account::destroy($id); return redirect()->back(); }
-    public function editAccountForm($id) { return view('admin.edit_account', ['account'=>Account::find($id), 'users'=>User::all(), 'sites'=>Site::all()]); }
+    public function editAccountForm($id) { 
+        return view('admin.edit_account', [
+            'account' => Account::with('tariffTemplate')->find($id), 
+            'users' => User::all(), 
+            'sites' => Site::all(),
+            'regions' => Regions::all()
+        ]); 
+    }
     public function editAccount(Request $request) { return redirect(route('account-list')); }
     
     public function getAccountsBySite(Request $request) {
@@ -165,6 +170,22 @@ class AdminController extends Controller
         ];
 
         return response()->json(['status' => 200, 'data' => $data]);
+    }
+
+    /**
+     * Get tariff templates by region ID for AJAX dropdown population.
+     * New endpoint for simplified billing architecture.
+     */
+    public function getTariffTemplatesByRegion($regionId) {
+        $tariffTemplates = RegionsAccountTypeCost::where('region_id', $regionId)
+            ->where('is_active', 1)
+            ->select('id', 'template_name', 'start_date', 'end_date')
+            ->get();
+        
+        return response()->json([
+            'status' => 200, 
+            'data' => $tariffTemplates
+        ]);
     }
 
     public function createMeter(Request $request) {
@@ -198,24 +219,6 @@ class AdminController extends Controller
     }
     
     public function deletePayment($id) { Payment::destroy($id); return redirect()->back(); }
-    
-    public function createAccountType(Request $request) {
-        $postData = $request->post();
-        AccountType::create(['type'=>$postData['type']]);
-        return redirect(route('account-type-list'));
-    }
-
-    public function editAccountTypeForm($id) { 
-        $accountType = AccountType::find($id);
-        if (!$accountType) {
-            Session::flash('alert-class', 'alert-danger');
-            Session::flash('alert-message', 'Account Type not found');
-            return redirect(route('account-type-list'));
-        }
-        return view('admin.account_type.edit_account_type', ['accountType'=>$accountType]); 
-    }
-    public function editAccountType(Request $request) { AccountType::where('id', $request->id)->update(['type'=>$request->type]); return redirect(route('account-type-list')); }
-    public function deleteAccountType($id) { AccountType::destroy($id); return redirect()->back(); }
 
     // Helper for AJAX Sites by User
     public function getSitesByUser(Request $request) {

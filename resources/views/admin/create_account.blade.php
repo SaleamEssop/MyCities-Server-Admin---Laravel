@@ -28,21 +28,24 @@
                             </select>
                         </div>
 
-                        <!-- 3. Region (Auto-Detected) -->
+                        <!-- 3. Region Selection -->
                         <div class="form-group">
-                            <label>Region (Auto-Detected): </label>
-                            <input type="text" id="region-display" class="form-control" placeholder="Select Location first..." readonly>
-                        </div>
-
-                        <!-- 4. Account Type -->
-                        <div class="form-group">
-                            <label>Account Type: </label>
-                            <select class="form-control" name="account_type_id" required>
-                                <option disabled selected value="">--Select Account Type--</option>
-                                @foreach($accountTypes as $type)
-                                    <option value="{{ $type->id }}">{{ $type->type }}</option>
+                            <label>Region: </label>
+                            <select class="form-control" id="region-select" name="region_id" required>
+                                <option disabled selected value="">--Select Region--</option>
+                                @foreach($regions as $region)
+                                    <option value="{{ $region->id }}">{{ $region->name }}</option>
                                 @endforeach
                             </select>
+                        </div>
+
+                        <!-- 4. Tariff Template (populated via AJAX based on Region) -->
+                        <div class="form-group">
+                            <label>Tariff Template: </label>
+                            <select class="form-control" id="tariff-template-select" name="tariff_template_id" required disabled>
+                                <option disabled selected value="">--Select Region First--</option>
+                            </select>
+                            <small class="form-text text-muted">Select a region first to see available tariff templates.</small>
                         </div>
 
                         <!-- 5. Emails (Auto-Fetched from Region) -->
@@ -131,19 +134,43 @@
                 });
             });
 
-            // 2. Auto-Fill Region/Emails
+            // 2. Auto-Fill Emails when site changes
             $(document).on("change", '#site-select', function () {
                 let siteId = $(this).val();
                 let site = window.siteData[siteId];
                 if(site && site.region) {
-                    $('#region-display').val(site.region.title);
-                    // Try to fetch emails if available in Region object
                     $('#water-email').val(site.region.water_email || 'N/A');
                     $('#elec-email').val(site.region.electricity_email || 'N/A');
                 }
             });
 
-            // 3. Auto-Calc Read Day
+            // 3. Load Tariff Templates when Region changes
+            $(document).on("change", '#region-select', function () {
+                let region_id = $(this).val();
+                if(region_id) {
+                    $.ajax({
+                        type: 'GET',
+                        dataType: 'JSON',
+                        url: '/admin/tariff-templates/by-region/' + region_id,
+                        success: function (result) {
+                            $('#tariff-template-select').empty();
+                            $('#tariff-template-select').append('<option disabled selected value="">--Select Tariff Template--</option>');
+                            
+                            if(result.data && result.data.length > 0) {
+                                $.each(result.data, function(key, value) {
+                                    let displayText = value.template_name + ' (' + value.start_date + ' to ' + value.end_date + ')';
+                                    $('#tariff-template-select').append($('<option>', { value: value.id, text: displayText }));
+                                });
+                                $('#tariff-template-select').prop('disabled', false);
+                            } else {
+                                $('#tariff-template-select').append('<option disabled value="">No tariff templates available for this region</option>');
+                            }
+                        }
+                    });
+                }
+            });
+
+            // 4. Auto-Calc Read Day
             $(document).on("keyup change", '#bill-day', function() {
                 let billDay = parseInt($(this).val());
                 if(billDay) {

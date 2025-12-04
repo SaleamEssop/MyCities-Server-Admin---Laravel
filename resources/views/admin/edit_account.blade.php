@@ -11,7 +11,7 @@
         <div class="cust-form-wrapper">
             <div class="row">
                 <div class="col-md-6">
-                    <form method="POST" action="{{ route('edit-account') }}">
+                    <form method="POST" action="{{ route('edit-account') }}" id="edit-account-form">
                         <div class="form-group">
                             <div class="form-group">
                                 <label>User: </label>
@@ -30,6 +30,30 @@
                                 @endforeach
                             </select>
                         </div>
+                        
+                        <!-- Region Selection -->
+                        <div class="form-group">
+                            <label><strong>Region :</strong></label>
+                            <select class="form-control" id="region-select" name="region_id" required>
+                                <option disabled value="">--Select Region--</option>
+                                @foreach($regions as $region)
+                                    <option value="{{ $region->id }}" {{ ($account->tariffTemplate && $region->id == $account->tariffTemplate->region_id) ? 'selected' : '' }}>{{ $region->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Tariff Template Selection (populated via AJAX) -->
+                        <div class="form-group">
+                            <label><strong>Tariff Template :</strong></label>
+                            <select class="form-control" id="tariff-template-select" name="tariff_template_id" required>
+                                <option disabled value="">--Select Region First--</option>
+                                @if($account->tariffTemplate)
+                                    <option value="{{ $account->tariff_template_id }}" selected>{{ $account->tariffTemplate->template_name }}</option>
+                                @endif
+                            </select>
+                            <small class="form-text text-muted">Changing this may affect billing calculations.</small>
+                        </div>
+
                         <div class="form-group">
                             <label><strong>Account Name :</strong></label>
                             <input type="text" value="{{ $account->account_name }}" class="form-control" placeholder="Enter account title" name="title" required>
@@ -99,6 +123,7 @@
 
                         @endforeach
                         <input type="hidden" name="deleted" id="deletedCosts" value="" />
+                        <input type="hidden" name="original_tariff_template_id" id="original_tariff_template_id" value="{{ $account->tariff_template_id }}" />
                         <div class="fixed-cost-container"></div>
 
                         <a href="#" id="add-cost" class="btn btn-sm btn-primary btn-circle"><i class="fa fa-plus"></i></a>
@@ -113,12 +138,99 @@
         </div>
     </div>
     <!-- /.container-fluid -->
+
+    <!-- Warning Modal for Tariff Template Change -->
+    <div class="modal fade" id="tariffChangeWarningModal" tabindex="-1" role="dialog" aria-labelledby="tariffChangeWarningLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="tariffChangeWarningLabel"><i class="fas fa-exclamation-triangle"></i> Warning</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>This account has existing meter readings. Changing the tariff template will affect future billing calculations.</p>
+                    <p><strong>Are you sure you want to continue?</strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" id="cancel-tariff-change">Cancel</button>
+                    <button type="button" class="btn btn-warning" id="confirm-tariff-change">Yes, Change Tariff</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('page-level-scripts')
     <script type="text/javascript">
         $(document).ready(function() {
             $('#user-dataTable').dataTable();
+            
+            // Store whether account has meter readings (using efficient query)
+            var hasMeterReadings = {{ $account->meters()->whereHas('readings')->exists() ? 'true' : 'false' }};
+            var originalTariffTemplateId = $('#original_tariff_template_id').val();
+
+            // Load tariff templates on page load if region is selected
+            var selectedRegionId = $('#region-select').val();
+            if(selectedRegionId) {
+                loadTariffTemplates(selectedRegionId, '{{ $account->tariff_template_id }}');
+            }
+
+            // Load Tariff Templates when Region changes
+            $(document).on("change", '#region-select', function () {
+                let region_id = $(this).val();
+                if(region_id) {
+                    loadTariffTemplates(region_id);
+                }
+            });
+
+            function loadTariffTemplates(regionId, selectedId) {
+                $.ajax({
+                    type: 'GET',
+                    dataType: 'JSON',
+                    url: '/admin/tariff-templates/by-region/' + regionId,
+                    success: function (result) {
+                        $('#tariff-template-select').empty();
+                        $('#tariff-template-select').append('<option disabled selected value="">--Select Tariff Template--</option>');
+                        
+                        if(result.data && result.data.length > 0) {
+                            $.each(result.data, function(key, value) {
+                                let displayText = value.template_name + ' (' + value.start_date + ' to ' + value.end_date + ')';
+                                let isSelected = selectedId && value.id == selectedId ? 'selected' : '';
+                                $('#tariff-template-select').append($('<option>', { value: value.id, text: displayText, selected: isSelected }));
+                            });
+                            $('#tariff-template-select').prop('disabled', false);
+                        } else {
+                            $('#tariff-template-select').append('<option disabled value="">No tariff templates available for this region</option>');
+                        }
+                    }
+                });
+            }
+
+            // Form submit handler with warning for tariff change
+            $('#edit-account-form').on('submit', function(e) {
+                var newTariffTemplateId = $('#tariff-template-select').val();
+                
+                if(hasMeterReadings && originalTariffTemplateId && newTariffTemplateId != originalTariffTemplateId) {
+                    e.preventDefault();
+                    $('#tariffChangeWarningModal').modal('show');
+                    return false;
+                }
+            });
+
+            // Confirm tariff change
+            $('#confirm-tariff-change').on('click', function() {
+                $('#tariffChangeWarningModal').modal('hide');
+                // Submit the form without the warning check
+                hasMeterReadings = false;
+                $('#edit-account-form').submit();
+            });
+
+            // Cancel tariff change - revert to original
+            $('#cancel-tariff-change').on('click', function() {
+                $('#tariff-template-select').val(originalTariffTemplateId);
+            });
 
             $("#add-cost").on("click", function () {
 

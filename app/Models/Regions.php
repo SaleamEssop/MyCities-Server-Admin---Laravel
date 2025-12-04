@@ -21,4 +21,13 @@ class Regions extends Model
         return $this->hasMany(RegionAlarms::class, 'region_id');
     }
 
+    /**
+     * Get all tariff templates for this region.
+     * New relationship in the simplified architecture.
+     */
+    public function tariffTemplates()
+    {
+        return $this->hasMany(RegionsAccountTypeCost::class, 'region_id');
+    }
+
 }

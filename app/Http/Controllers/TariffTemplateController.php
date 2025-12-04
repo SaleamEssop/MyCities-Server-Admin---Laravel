@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\RegionsAccountTypeCost;
 use App\Models\Regions;
-use App\Models\AccountType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -12,10 +11,9 @@ class TariffTemplateController extends Controller
 {
     public function index()
     {
-        // Get costs with their related Region and Account Type
-        $costs = RegionsAccountTypeCost::with(['region', 'accountType'])
+        // Get costs with their related Region
+        $costs = RegionsAccountTypeCost::with(['region'])
                     ->orderBy('region_id')
-                    ->orderBy('account_type_id')
                     ->get();
 
         return view('admin.tariff_template.index', ['costs' => $costs]);
@@ -24,8 +22,7 @@ class TariffTemplateController extends Controller
     public function create()
     {
         return view('admin.tariff_template.create', [
-            'regions' => Regions::all(),
-            'account_types' => AccountType::all()
+            'regions' => Regions::all()
         ]);
     }
 
@@ -34,7 +31,6 @@ class TariffTemplateController extends Controller
         $request->validate([
             'template_name' => 'required|string|max:255',
             'region_id' => 'required|exists:regions,id',
-            'account_type_id' => 'required|exists:account_type,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
         ]);
@@ -50,7 +46,6 @@ class TariffTemplateController extends Controller
         $cost->fill($request->only([
             'template_name',
             'region_id',
-            'account_type_id',
             'start_date',
             'end_date',
             'is_water',
@@ -99,8 +94,7 @@ class TariffTemplateController extends Controller
 
         return view('admin.tariff_template.edit', [
             'tariff_template' => $tariff_template,
-            'regions' => Regions::all(),
-            'account_type' => AccountType::all()
+            'regions' => Regions::all()
         ]);
     }
 

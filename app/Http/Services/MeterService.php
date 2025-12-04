@@ -394,12 +394,15 @@ class MeterService
             }
         }
 
-        $regionAccountTypeCost = RegionsAccountTypeCost::query()
-            ->where('region_id', $account['region_id'])
-            ->where('account_type_id', $account['account_type_id'])
-            ->where('start_date', '<=', $cycleDates['start_date'])
-            ->where('end_date', '>=', $cycleDates['end_date'])
-            ->first();
+        // New simplified architecture: get tariff template directly from account
+        $regionAccountTypeCost = null;
+        if (isset($account['tariff_template_id'])) {
+            $regionAccountTypeCost = RegionsAccountTypeCost::query()
+                ->where('id', $account['tariff_template_id'])
+                ->where('start_date', '<=', $cycleDates['start_date'])
+                ->where('end_date', '>=', $cycleDates['end_date'])
+                ->first();
+        }
         if (!$regionAccountTypeCost) {
             return [
                 'status' => false,
@@ -411,7 +414,7 @@ class MeterService
                 'month' => $cycleMonth,
                 'account' => $account,
                 'meter_details' => $meter,
-                'message' => "No active cost module found. Please contact administrator!",
+                'message' => "No active tariff template found. Please contact administrator!",
                 'status_code' => 404
             ];
         }
@@ -482,19 +485,22 @@ class MeterService
         $cycleDates = getMonthCycle($account['read_day'], (int)$month); // get cycle date from and too of current or previous months
         $cycleMonth = Carbon::parse($cycleDates['end_date'])->format('M Y');
         $cycle = Carbon::parse($cycleDates['start_date'])->format('M d Y') . ' to ' . Carbon::parse($cycleDates['end_date'])->format('M d Y');
-        $regionAccountTypeCost = RegionsAccountTypeCost::query()
-            ->where('region_id', $account['region_id'])
-            ->where('account_type_id', $account['account_type_id'])
-            ->where('start_date', '<=', $cycleDates['start_date'])
-            ->where('end_date', '>=', $cycleDates['end_date'])
-            ->first();
+        // New simplified architecture: get tariff template directly from account
+        $regionAccountTypeCost = null;
+        if (isset($account['tariff_template_id'])) {
+            $regionAccountTypeCost = RegionsAccountTypeCost::query()
+                ->where('id', $account['tariff_template_id'])
+                ->where('start_date', '<=', $cycleDates['start_date'])
+                ->where('end_date', '>=', $cycleDates['end_date'])
+                ->first();
+        }
         if (!$regionAccountTypeCost) {
             return [
                 'status' => false,
                 'current_date' => $currentDate,
                 'cycle' => $cycle,
                 'month' => $cycleMonth,
-                'message' => "No active cost module found. Please contact administrator!",
+                'message' => "No active tariff template found. Please contact administrator!",
                 'status_code' => 404
             ];
         }

@@ -7,12 +7,11 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800 custom-text-heading">Add Tariff Template</h1>
     </div>
-    <p class="mb-4">Create a new billing template for a region and account type.</p>
+    <p class="mb-4">Create a new billing template for a region.</p>
     
     <div id="tariff-template-app" 
          data-props="{{ json_encode([
              'regions' => $regions,
-             'accountTypes' => $account_types,
              'csrfToken' => csrf_token(),
              'submitUrl' => route('tariff-template-store'),
              'cancelUrl' => route('tariff-template'),

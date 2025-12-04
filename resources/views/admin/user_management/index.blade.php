@@ -11,7 +11,6 @@
             'csrfToken' => csrf_token(),
             'users' => $users,
             'regions' => $regions,
-            'accountTypes' => $accountTypes,
             'meterTypes' => $meterTypes,
             'apiUrls' => [
                 'search' => route('user-management.search'),

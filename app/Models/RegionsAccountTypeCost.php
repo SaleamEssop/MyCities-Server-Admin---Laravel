@@ -26,7 +26,6 @@ class RegionsAccountTypeCost extends Model
     protected $fillable = [
         'template_name',
         'region_id',
-        'account_type_id',
         'start_date',
         'end_date',
         'is_water',
@@ -57,12 +56,18 @@ class RegionsAccountTypeCost extends Model
     {
         return $this->belongsTo(Regions::class);
     }
+
     public function meterType()
     {
         return $this->belongsTo(MeterType::class);
     }
-    public function accountType()
+
+    /**
+     * Get all accounts using this tariff template.
+     * New relationship in the simplified architecture.
+     */
+    public function accounts()
     {
-        return $this->belongsTo(AccountType::class);
+        return $this->hasMany(Account::class, 'tariff_template_id');
     }
 }

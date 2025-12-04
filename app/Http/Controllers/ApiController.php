@@ -12,7 +12,6 @@ use App\Models\Regions;
 use App\Models\Settings;
 use App\Models\FixedCost;
 use App\Models\MeterType;
-use App\Models\AccountType;
 use App\Models\AdsCategory;
 use App\Models\RegionAlarms;
 use Illuminate\Http\Request;
@@ -171,8 +170,8 @@ class ApiController extends Controller
             return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, account with same information already exists!']);
         }
 
-        $accArr['region_id'] = $postData['region_id'] ?? null;
-        $accArr['account_type_id'] = $postData['account_type_id'] ?? null;
+        // New simplified architecture: use tariff_template_id instead of region_id + account_type_id
+        $accArr['tariff_template_id'] = $postData['tariff_template_id'] ?? null;
         $accArr['water_email'] = $postData['water_email'] ?? null;
         $accArr['electricity_email'] = $postData['electricity_email'] ?? null;
         $accArr['billing_date'] = $postData['billing_date'] ?? null;
@@ -199,9 +198,10 @@ class ApiController extends Controller
             //     }
             //     FixedCost::insert($fixedCostArr);
             // }
-            $regions_data = RegionsAccountTypeCost::where('region_id',$postData['region_id'])->where('account_type_id',$postData['account_type_id'])->first();
-            if(isset($regions_data->additional) && !empty($regions_data->additional)){
-                $addtional = json_decode($regions_data->additional);
+            // Get additional costs from tariff template if exists
+            $tariff_template = $res->tariffTemplate;
+            if(isset($tariff_template->additional) && !empty($tariff_template->additional)){
+                $addtional = json_decode($tariff_template->additional);
                 $fixedCostArr = [];
                 $n = 0;
                 foreach ($addtional as $fixedCost) {
@@ -306,8 +306,8 @@ class ApiController extends Controller
         $account->account_name = $postData['account_name'];
         $account->account_number = $postData['account_number'];
         $account->optional_information = $postData['optional_information'];
-        $account->region_id = $postData['region_id'] ?? null;
-        $account->account_type_id = $postData['account_type_id'] ?? null;
+        // New simplified architecture: use tariff_template_id instead of region_id + account_type_id
+        $account->tariff_template_id = $postData['tariff_template_id'] ?? null;
         $account->water_email = $postData['water_email'] ?? null;
         $account->electricity_email = $postData['electricity_email'] ?? null;
         $account->bill_day = $postData['bill_day'] ?? null;
@@ -899,10 +899,18 @@ class ApiController extends Controller
         $regions = Regions::select('id', 'name')->get();
         return response()->json(['status' => true, 'code' => 200, 'msg' => 'Regions retrieved  successfully!', 'data' => $regions]);
     }
-    public function getAccountTypes()
+
+    /**
+     * Get tariff templates by region.
+     * New simplified architecture endpoint.
+     */
+    public function getTariffTemplatesByRegion($regionId)
     {
-        $accountType = AccountType::select('id', 'type')->get();
-        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Account Type retrieved  successfully!', 'data' => $accountType]);
+        $tariffTemplates = RegionsAccountTypeCost::where('region_id', $regionId)
+            ->where('is_active', 1)
+            ->select('id', 'template_name', 'start_date', 'end_date')
+            ->get();
+        return response()->json(['status' => true, 'code' => 200, 'msg' => 'Tariff Templates retrieved successfully!', 'data' => $tariffTemplates]);
     }
     public function getRegionEmails($id)
     {
@@ -961,15 +969,16 @@ class ApiController extends Controller
         // if (!isset($postData['meter_id']) && empty($postData['meter_id'])) {
         //     return response()->json(['status' => false, 'code' => 400, 'msg' => 'Oops, meter_id is required!']);
         // }
-        $account = Account::where('id', $postData['account_id'])->first();
-        $region_cost_full_bill = RegionsAccountTypeCost::where('region_id', $account->region_id)->where('account_type_id', $account->account_type_id)->first();
+        $account = Account::with('tariffTemplate')->where('id', $postData['account_id'])->first();
+        // New simplified architecture: get tariff template directly from account
+        $region_cost_full_bill = $account->tariffTemplate;
 
         if (empty($region_cost_full_bill)) {
 
             $response = [
                 'status' => false,
                 'code' => 400,
-                'msg' => 'In Account Please select region and account type',
+                'msg' => 'Please select a tariff template for this account',
                 'data' => []
             ];
             return $response;
@@ -990,9 +999,10 @@ class ApiController extends Controller
             }
             if ($postData['type'] == "fullbill") {
                 if (isset($response) && !empty($response)) {
-                    $account = Account::where('id', $postData['account_id'])->first();
+                    $account = Account::with('tariffTemplate')->where('id', $postData['account_id'])->first();
 
-                    $region_cost_full_bill = RegionsAccountTypeCost::where('region_id', $account->region_id)->where('account_type_id', $account->account_type_id)->first();
+                    // New simplified architecture: get tariff template directly from account
+                    $region_cost_full_bill = $account->tariffTemplate;
                     $ele_total  = 0;
                     $water_total  = 0;
                     $additional_total  = 0;
@@ -1213,9 +1223,10 @@ class ApiController extends Controller
         $meter_id = $meters->id;
         $meter_number = $meters->meter_number;
         $meter_title = $meters->meter_title;
-        $account = Account::where('id', $accountID)->first();
+        $account = Account::with('tariffTemplate')->where('id', $accountID)->first();
 
-        $region_cost = RegionsAccountTypeCost::where('region_id', $account->region_id)->where('account_type_id', $account->account_type_id)->first();
+        // New simplified architecture: get tariff template directly from account
+        $region_cost = $account->tariffTemplate;
 
         if (isset($region_cost) && !empty($region_cost)) {
             $water_in_total  = 0;
