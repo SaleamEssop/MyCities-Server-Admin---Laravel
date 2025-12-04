@@ -49,8 +49,9 @@ class Account extends Model
 
     /**
      * Helper method to get the region_id via the tariff template.
+     * Named explicitly to avoid confusion with the old region_id column.
      */
-    public function getRegionIdAttribute()
+    public function getRegionIdFromTemplateAttribute()
     {
         return $this->tariffTemplate ? $this->tariffTemplate->region_id : null;
     }

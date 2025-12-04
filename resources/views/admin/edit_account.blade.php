@@ -167,8 +167,8 @@
         $(document).ready(function() {
             $('#user-dataTable').dataTable();
             
-            // Store whether account has meter readings
-            var hasMeterReadings = {{ $account->meters->sum(function($m) { return $m->readings->count(); }) > 0 ? 'true' : 'false' }};
+            // Store whether account has meter readings (using efficient query)
+            var hasMeterReadings = {{ $account->meters()->whereHas('readings')->exists() ? 'true' : 'false' }};
             var originalTariffTemplateId = $('#original_tariff_template_id').val();
 
             // Load tariff templates on page load if region is selected

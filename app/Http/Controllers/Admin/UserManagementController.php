@@ -196,15 +196,19 @@ class UserManagementController extends Controller
                 'is_admin' => 0,
             ]);
             
-            // Get first region and tariff template
+            // Get first region
             $region = Regions::first();
-            $tariffTemplate = RegionsAccountTypeCost::where('is_active', 1)->first();
             $waterMeterType = MeterType::where('title', self::METER_TYPE_WATER)->first();
             $electricityMeterType = MeterType::where('title', self::METER_TYPE_ELECTRICITY)->first();
             
             if (!$region) {
                 throw new \Exception('No regions found. Please create a region first.');
             }
+            
+            // Get a tariff template for this specific region
+            $tariffTemplate = RegionsAccountTypeCost::where('region_id', $region->id)
+                ->where('is_active', 1)
+                ->first();
             
             // Create test site
             $site = Site::create([

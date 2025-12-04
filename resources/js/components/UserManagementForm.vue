@@ -266,16 +266,6 @@
                                                         </div>
                                                         <div class="col-md-4">
                                                             <div class="form-group">
-                                                                <label>Tariff Template</label>
-                                                                <select class="form-control form-control-sm" v-model="account.tariff_template_id">
-                                                                    <option value="">Select Template</option>
-                                                                    <!-- Tariff templates would be loaded dynamically based on region -->
-                                                                </select>
-                                                                <small class="form-text text-muted">Set via account edit page</small>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <div class="form-group">
                                                                 <label>Billing Date</label>
                                                                 <input type="date" class="form-control form-control-sm" v-model="account.billing_date">
                                                             </div>

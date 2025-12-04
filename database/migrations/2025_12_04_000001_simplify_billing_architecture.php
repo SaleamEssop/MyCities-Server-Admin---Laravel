@@ -20,9 +20,13 @@ class SimplifyBillingArchitecture extends Migration
      */
     public function up()
     {
-        // Step 1: Add tariff_template_id to accounts table
+        // Step 1: Add tariff_template_id to accounts table with foreign key constraint
         Schema::table('accounts', function (Blueprint $table) {
             $table->unsignedBigInteger('tariff_template_id')->nullable()->after('site_id');
+            $table->foreign('tariff_template_id')
+                  ->references('id')
+                  ->on('regions_account_type_cost')
+                  ->onDelete('set null');
         });
 
         // Step 2: Remove account_type_id and region_id from accounts table
@@ -65,8 +69,9 @@ class SimplifyBillingArchitecture extends Migration
             $table->integer('account_type_id')->nullable()->after('region_id');
         });
 
-        // Remove tariff_template_id
+        // Remove tariff_template_id with its foreign key
         Schema::table('accounts', function (Blueprint $table) {
+            $table->dropForeign(['tariff_template_id']);
             $table->dropColumn('tariff_template_id');
         });
     }
