@@ -5,6 +5,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\RegionsCostController;
 use App\Http\Controllers\TariffTemplateController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\UserAccountSetupController;
+use App\Http\Controllers\Admin\UserAccountManagerController;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -37,6 +39,25 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
         Auth::logout();
         return redirect('/admin/login');
     })->name('admin.logout');
+
+    // --- USER ACCOUNTS - SETUP (Wizard Flow) ---
+    Route::get('user-accounts/setup', [UserAccountSetupController::class, 'index'])->name('user-accounts.setup');
+    Route::post('user-accounts/setup', [UserAccountSetupController::class, 'store'])->name('user-accounts.setup.store');
+    Route::get('user-accounts/setup/tariffs/{regionId}', [UserAccountSetupController::class, 'getTariffTemplatesByRegion'])->name('user-accounts.setup.tariffs');
+
+    // --- USER ACCOUNTS - MANAGER (Dashboard) ---
+    Route::get('user-accounts/manager', [UserAccountManagerController::class, 'index'])->name('user-accounts.manager');
+    Route::get('user-accounts/manager/search', [UserAccountManagerController::class, 'search'])->name('user-accounts.manager.search');
+    Route::get('user-accounts/manager/user/{id}', [UserAccountManagerController::class, 'getUserData'])->name('user-accounts.manager.user');
+    Route::put('user-accounts/manager/user/{id}', [UserAccountManagerController::class, 'updateUser'])->name('user-accounts.manager.update-user');
+    Route::delete('user-accounts/manager/user/{id}', [UserAccountManagerController::class, 'deleteUser'])->name('user-accounts.manager.delete-user');
+    Route::put('user-accounts/manager/account/{id}', [UserAccountManagerController::class, 'updateAccount'])->name('user-accounts.manager.update-account');
+    Route::post('user-accounts/manager/meter', [UserAccountManagerController::class, 'addMeter'])->name('user-accounts.manager.add-meter');
+    Route::put('user-accounts/manager/meter/{id}', [UserAccountManagerController::class, 'updateMeter'])->name('user-accounts.manager.update-meter');
+    Route::delete('user-accounts/manager/meter/{id}', [UserAccountManagerController::class, 'deleteMeter'])->name('user-accounts.manager.delete-meter');
+    Route::post('user-accounts/manager/reading', [UserAccountManagerController::class, 'addReading'])->name('user-accounts.manager.add-reading');
+    Route::get('user-accounts/manager/readings/{meterId}', [UserAccountManagerController::class, 'getReadings'])->name('user-accounts.manager.readings');
+    Route::get('user-accounts/manager/tariffs/{regionId}', [UserAccountManagerController::class, 'getTariffTemplatesByRegion'])->name('user-accounts.manager.tariffs');
 
     // --- ENHANCED USER MANAGEMENT (replaces legacy user routes for main listing) ---
     Route::get('user-management', [UserManagementController::class, 'index'])->name('user-management.index');
