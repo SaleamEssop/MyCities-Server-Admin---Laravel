@@ -88,6 +88,16 @@ class BillingEngine
     const DEFAULT_READ_DAYS_BEFORE = 5;
 
     /**
+     * Default billing day of the month (20th).
+     */
+    const DEFAULT_BILLING_DAY = 20;
+
+    /**
+     * Conversion factor from liters to kiloliters.
+     */
+    const LITERS_TO_KILOLITERS = 1000;
+
+    /**
      * Main entry point - routes to correct billing mode.
      *
      * @param Account $account
@@ -234,9 +244,13 @@ class BillingEngine
 
     /**
      * Apply tiered/block rates to consumption.
+     * 
+     * Tiers are cumulative - each tier covers a range of consumption.
+     * For example, with tiers 0-6000, 6000-15000, 15000+:
+     * - A consumption of 12500 uses 6000 units from tier 1 and 6500 from tier 2
      *
      * @param RegionsAccountTypeCost $tariff
-     * @param float $consumption Consumption in liters or kWh
+     * @param float $consumption Consumption in liters (for water) or kWh (for electricity)
      * @return array ['total' => float, 'breakdown' => array]
      */
     public function applyTieredRates(RegionsAccountTypeCost $tariff, float $consumption): array
@@ -248,25 +262,37 @@ class BillingEngine
             return $this->applyLegacyRates($tariff, $consumption);
         }
 
-        $remaining = $consumption;
+        $consumedSoFar = 0;
         $totalCharge = 0;
         $breakdown = [];
 
         foreach ($tiers as $tier) {
-            if ($remaining <= 0) {
+            if ($consumedSoFar >= $consumption) {
                 break;
             }
 
             $tierMin = (float) $tier->min_units;
-            $tierMax = $tier->max_units ? (float) $tier->max_units : PHP_FLOAT_MAX;
-            $tierRange = $tierMax - $tierMin;
+            $tierMax = $tier->max_units !== null ? (float) $tier->max_units : PHP_FLOAT_MAX;
             
-            $unitsInTier = min($remaining, $tierRange);
+            // Calculate how many units fall within this tier
+            // The effective start is the max of (tier min, already consumed)
+            $effectiveStart = max($tierMin, $consumedSoFar);
+            // The effective end is the min of (tier max, total consumption)
+            $effectiveEnd = min($tierMax, $consumption);
+            
+            // Units in this tier
+            $unitsInTier = max(0, $effectiveEnd - $effectiveStart);
+            
+            if ($unitsInTier <= 0) {
+                continue;
+            }
             
             // For water, rates are typically per kL (1000 liters)
-            // Convert consumption to kL if needed
-            $kL = $unitsInTier / 1000;
-            $tierCharge = $kL * (float) $tier->rate_per_unit;
+            // For electricity, rates might be per kWh (no conversion needed)
+            // The rate_per_unit in the database should be configured appropriately
+            // We apply the conversion factor for water meters
+            $convertedUnits = $this->convertUnitsForRateCalculation($tariff, $unitsInTier);
+            $tierCharge = $convertedUnits * (float) $tier->rate_per_unit;
             
             $totalCharge += $tierCharge;
             $breakdown[] = [
@@ -275,16 +301,36 @@ class BillingEngine
                 'max_units' => $tierMax === PHP_FLOAT_MAX ? null : $tierMax,
                 'units_in_tier' => $unitsInTier,
                 'rate_per_unit' => (float) $tier->rate_per_unit,
-                'charge' => $tierCharge,
+                'charge' => round($tierCharge, 2),
             ];
 
-            $remaining -= $unitsInTier;
+            $consumedSoFar = $effectiveEnd;
         }
 
         return [
             'total' => round($totalCharge, 2),
             'breakdown' => $breakdown,
         ];
+    }
+
+    /**
+     * Convert units for rate calculation based on tariff type.
+     * For water tariffs, converts liters to kiloliters.
+     * For electricity tariffs, no conversion is needed (already in kWh).
+     *
+     * @param RegionsAccountTypeCost $tariff
+     * @param float $units
+     * @return float
+     */
+    protected function convertUnitsForRateCalculation(RegionsAccountTypeCost $tariff, float $units): float
+    {
+        // If this is a water tariff, convert liters to kiloliters
+        if ($tariff->is_water) {
+            return $units / self::LITERS_TO_KILOLITERS;
+        }
+        
+        // For electricity or other utilities, use units directly
+        return $units;
     }
 
     /**
@@ -593,7 +639,7 @@ class BillingEngine
      */
     public function getReadDate(Account $account): Carbon
     {
-        $billingDay = $account->bill_day ?? $account->tariffTemplate?->billing_day ?? 20;
+        $billingDay = $account->bill_day ?? $account->tariffTemplate?->billing_day ?? self::DEFAULT_BILLING_DAY;
         $readDaysBefore = $account->read_day ?? $account->tariffTemplate?->read_day ?? self::DEFAULT_READ_DAYS_BEFORE;
 
         $billingDate = Carbon::now()->startOfMonth()->addDays($billingDay - 1);
@@ -614,7 +660,7 @@ class BillingEngine
      */
     public function getBillingDate(Account $account): Carbon
     {
-        $billingDay = $account->bill_day ?? $account->tariffTemplate?->billing_day ?? 20;
+        $billingDay = $account->bill_day ?? $account->tariffTemplate?->billing_day ?? self::DEFAULT_BILLING_DAY;
         
         $billingDate = Carbon::now()->startOfMonth()->addDays($billingDay - 1);
         

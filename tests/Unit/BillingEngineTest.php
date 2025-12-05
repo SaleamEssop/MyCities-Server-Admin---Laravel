@@ -138,6 +138,8 @@ class BillingEngineTest extends TestCase
     {
         $this->assertEquals(15.0, BillingEngine::DEFAULT_VAT_RATE);
         $this->assertEquals(5, BillingEngine::DEFAULT_READ_DAYS_BEFORE);
+        $this->assertEquals(20, BillingEngine::DEFAULT_BILLING_DAY);
+        $this->assertEquals(1000, BillingEngine::LITERS_TO_KILOLITERS);
     }
 
     /**
