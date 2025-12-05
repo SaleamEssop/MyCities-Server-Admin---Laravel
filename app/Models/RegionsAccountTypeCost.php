@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class RegionsAccountTypeCost extends Model
 {
@@ -21,6 +22,8 @@ class RegionsAccountTypeCost extends Model
         'electricity_additional' => 'array',
         'fixed_costs' => 'array',
         'customer_costs' => 'array',
+        'effective_from' => 'date',
+        'effective_to' => 'date',
     ];
 
     protected $fillable = [
@@ -49,7 +52,11 @@ class RegionsAccountTypeCost extends Model
         'water_email',
         'electricity_email',
         'fixed_costs',
-        'customer_costs'
+        'customer_costs',
+        'billing_type',
+        'effective_from',
+        'effective_to',
+        'replaced_by_id'
     ];
 
     public function region()
@@ -69,5 +76,83 @@ class RegionsAccountTypeCost extends Model
     public function accounts()
     {
         return $this->hasMany(Account::class, 'tariff_template_id');
+    }
+
+    /**
+     * Get all tariff tiers for this template.
+     */
+    public function tiers()
+    {
+        return $this->hasMany(TariffTier::class, 'tariff_template_id')->orderBy('tier_number');
+    }
+
+    /**
+     * Get all tariff fixed costs for this template.
+     */
+    public function tariffFixedCosts()
+    {
+        return $this->hasMany(TariffFixedCost::class, 'tariff_template_id');
+    }
+
+    /**
+     * Get all billing cycles for accounts using this template.
+     */
+    public function billingCycles()
+    {
+        return $this->hasManyThrough(BillingCycle::class, Account::class, 'tariff_template_id', 'account_id');
+    }
+
+    /**
+     * Get the replacement tariff template.
+     */
+    public function replacedBy()
+    {
+        return $this->belongsTo(self::class, 'replaced_by_id');
+    }
+
+    /**
+     * Get the tariff template that this one replaced.
+     */
+    public function replaces()
+    {
+        return $this->hasOne(self::class, 'replaced_by_id');
+    }
+
+    /**
+     * Check if this tariff is effective for a given date.
+     */
+    public function isEffectiveFor(Carbon $date): bool
+    {
+        if ($this->effective_from && $date->lt($this->effective_from)) {
+            return false;
+        }
+        if ($this->effective_to && $date->gt($this->effective_to)) {
+            return false;
+        }
+        return $this->is_active;
+    }
+
+    /**
+     * Check if this is a monthly billing type template.
+     */
+    public function isMonthlyBilling(): bool
+    {
+        return ($this->billing_type ?? 'MONTHLY') === 'MONTHLY';
+    }
+
+    /**
+     * Check if this is a date-to-date billing type template.
+     */
+    public function isDateToDateBilling(): bool
+    {
+        return ($this->billing_type ?? 'MONTHLY') === 'DATE_TO_DATE';
+    }
+
+    /**
+     * Get the VAT rate (default 15%).
+     */
+    public function getVatRate(): float
+    {
+        return $this->vat_percentage ?? 15.0;
     }
 }
