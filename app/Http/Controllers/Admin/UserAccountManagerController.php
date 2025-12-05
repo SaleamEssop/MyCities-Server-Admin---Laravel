@@ -17,10 +17,6 @@ use Illuminate\Support\Facades\Hash;
 
 class UserAccountManagerController extends Controller
 {
-    // Meter type title constants - these match database values
-    private const METER_TYPE_WATER = 'water';
-    private const METER_TYPE_ELECTRICITY = 'electricity';
-    
     // Default meter category ID
     private const DEFAULT_METER_CATEGORY_ID = 1;
 

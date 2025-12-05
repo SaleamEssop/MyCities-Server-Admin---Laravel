@@ -577,8 +577,17 @@ const newReading = reactive({
 });
 
 // Helper functions
-function buildUrl(urlTemplate, id) {
-    return urlTemplate.replace('__ID__', id).replace('__METER_ID__', id).replace('__REGION_ID__', id);
+function buildUrl(urlTemplate, replacements) {
+    let url = urlTemplate;
+    if (typeof replacements === 'object') {
+        for (const [placeholder, value] of Object.entries(replacements)) {
+            url = url.replace(placeholder, value);
+        }
+    } else {
+        // Backward compatible: single ID replaces all placeholders
+        url = url.replace('__ID__', replacements).replace('__METER_ID__', replacements).replace('__REGION_ID__', replacements);
+    }
+    return url;
 }
 
 function showNotification(message, type = 'success') {
