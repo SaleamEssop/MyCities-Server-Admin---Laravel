@@ -237,8 +237,8 @@
                                                     inputmode="numeric">
                                             </div>
                                             <small class="text-muted d-block mt-1">
-                                                <span v-if="isMeterWater(meter.meter_type_id)">Water: 6 digits + 2 decimals</span>
-                                                <span v-else-if="isMeterElectricity(meter.meter_type_id)">Electricity: 5 digits + 1 decimal</span>
+                                                <span v-if="isMeterWater(meter.meter_type_id)">Water: 6 digits + 2 decimal places</span>
+                                                <span v-else-if="isMeterElectricity(meter.meter_type_id)">Electricity: 5 digits + 1 decimal place</span>
                                                 <span v-else>Select meter type for format</span>
                                             </small>
                                         </div>
@@ -355,9 +355,9 @@ const selectedTemplate = computed(() => {
     return tariffTemplates.value.find(t => t.id === formData.tariff_template_id);
 });
 
-// Check if all meters in Step 5 have required fields
+// Check if all meters in Step 5 have required fields (meters are optional, but if added must be complete)
 const isStep5Valid = computed(() => {
-    if (formData.meters.length === 0) return true; // No meters is valid (optional)
+    if (formData.meters.length === 0) return true; // No meters is valid - meters are optional
     return formData.meters.every(meter => 
         meter.meter_type_id && 
         meter.meter_number && 
@@ -460,9 +460,20 @@ function addMeter() {
 
 function removeMeter(index) {
     formData.meters.splice(index, 1);
-    // Clean up refs
-    delete meterInputRefs.value[`${index}_whole`];
-    delete meterInputRefs.value[`${index}_decimal`];
+    // Rebuild refs object with correct indices after removal
+    // This ensures keyboard navigation works correctly after meter removal
+    const newRefs = {};
+    formData.meters.forEach((_, i) => {
+        // Transfer refs from old indices to new indices
+        const oldIndex = i >= index ? i + 1 : i;
+        if (meterInputRefs.value[`${oldIndex}_whole`]) {
+            newRefs[`${i}_whole`] = meterInputRefs.value[`${oldIndex}_whole`];
+        }
+        if (meterInputRefs.value[`${oldIndex}_decimal`]) {
+            newRefs[`${i}_decimal`] = meterInputRefs.value[`${oldIndex}_decimal`];
+        }
+    });
+    meterInputRefs.value = newRefs;
 }
 
 function isMeterWater(meterTypeId) {
@@ -585,45 +596,35 @@ function handleMeterKeyDown(event, meter, fieldType, meterIndex) {
     }
 }
 
-function updateMeterReading(meter) {
-    // Combine whole and decimal parts
-    if (meter.initial_reading_whole || meter.initial_reading_decimal) {
-        const maxWholeDigits = getMaxWholeDigits(meter.meter_type_id);
-        const maxDecimalDigits = getMaxDecimalDigits(meter.meter_type_id);
-        
-        // Pad whole part with leading zeros
-        const whole = (meter.initial_reading_whole || '0').padStart(maxWholeDigits, '0');
-        // Pad decimal part with trailing zeros
-        const decimal = (meter.initial_reading_decimal || '0').padEnd(maxDecimalDigits, '0');
-        
-        meter.initial_reading = `${whole}.${decimal}`;
-    } else {
-        meter.initial_reading = '';
+// Shared function to format meter reading value with proper padding
+function formatMeterReading(meter) {
+    if (!meter.initial_reading_whole && !meter.initial_reading_decimal) {
+        return '';
     }
+    const maxWholeDigits = getMaxWholeDigits(meter.meter_type_id);
+    const maxDecimalDigits = getMaxDecimalDigits(meter.meter_type_id);
+    
+    // Pad whole part with leading zeros, decimal part with trailing zeros
+    const whole = (meter.initial_reading_whole || '0').padStart(maxWholeDigits, '0');
+    const decimal = (meter.initial_reading_decimal || '0').padEnd(maxDecimalDigits, '0');
+    
+    return `${whole}.${decimal}`;
+}
+
+function updateMeterReading(meter) {
+    // Combine whole and decimal parts using shared formatting function
+    meter.initial_reading = formatMeterReading(meter);
 }
 
 // Prepare meter data before submission - ensure proper formatting
 function prepareMeterData() {
-    return formData.meters.map(meter => {
-        const maxWholeDigits = getMaxWholeDigits(meter.meter_type_id);
-        const maxDecimalDigits = getMaxDecimalDigits(meter.meter_type_id);
-        
-        // Pad values appropriately
-        let initialReading = meter.initial_reading;
-        if (meter.initial_reading_whole || meter.initial_reading_decimal) {
-            const whole = (meter.initial_reading_whole || '0').padStart(maxWholeDigits, '0');
-            const decimal = (meter.initial_reading_decimal || '0').padEnd(maxDecimalDigits, '0');
-            initialReading = `${whole}.${decimal}`;
-        }
-        
-        return {
-            meter_type_id: meter.meter_type_id,
-            meter_title: meter.meter_title,
-            meter_number: meter.meter_number,
-            initial_reading: initialReading,
-            initial_reading_date: meter.initial_reading_date
-        };
-    });
+    return formData.meters.map(meter => ({
+        meter_type_id: meter.meter_type_id,
+        meter_title: meter.meter_title,
+        meter_number: meter.meter_number,
+        initial_reading: formatMeterReading(meter),
+        initial_reading_date: meter.initial_reading_date
+    }));
 }
 
 async function submitForm() {

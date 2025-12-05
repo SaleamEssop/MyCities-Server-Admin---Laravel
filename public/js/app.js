@@ -24482,9 +24482,9 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
       });
     });
 
-    // Check if all meters in Step 5 have required fields
+    // Check if all meters in Step 5 have required fields (meters are optional, but if added must be complete)
     var isStep5Valid = (0,vue__WEBPACK_IMPORTED_MODULE_0__.computed)(function () {
-      if (formData.meters.length === 0) return true; // No meters is valid (optional)
+      if (formData.meters.length === 0) return true; // No meters is valid - meters are optional
       return formData.meters.every(function (meter) {
         return meter.meter_type_id && meter.meter_number && meter.initial_reading_date;
       });
@@ -24605,9 +24605,20 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
     }
     function removeMeter(index) {
       formData.meters.splice(index, 1);
-      // Clean up refs
-      delete meterInputRefs.value["".concat(index, "_whole")];
-      delete meterInputRefs.value["".concat(index, "_decimal")];
+      // Rebuild refs object with correct indices after removal
+      // This ensures keyboard navigation works correctly after meter removal
+      var newRefs = {};
+      formData.meters.forEach(function (_, i) {
+        // Transfer refs from old indices to new indices
+        var oldIndex = i >= index ? i + 1 : i;
+        if (meterInputRefs.value["".concat(oldIndex, "_whole")]) {
+          newRefs["".concat(i, "_whole")] = meterInputRefs.value["".concat(oldIndex, "_whole")];
+        }
+        if (meterInputRefs.value["".concat(oldIndex, "_decimal")]) {
+          newRefs["".concat(i, "_decimal")] = meterInputRefs.value["".concat(oldIndex, "_decimal")];
+        }
+      });
+      meterInputRefs.value = newRefs;
     }
     function isMeterWater(meterTypeId) {
       if (!meterTypeId) return false;
@@ -24728,40 +24739,33 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
         }
       }
     }
-    function updateMeterReading(meter) {
-      // Combine whole and decimal parts
-      if (meter.initial_reading_whole || meter.initial_reading_decimal) {
-        var maxWholeDigits = getMaxWholeDigits(meter.meter_type_id);
-        var maxDecimalDigits = getMaxDecimalDigits(meter.meter_type_id);
 
-        // Pad whole part with leading zeros
-        var whole = (meter.initial_reading_whole || '0').padStart(maxWholeDigits, '0');
-        // Pad decimal part with trailing zeros
-        var decimal = (meter.initial_reading_decimal || '0').padEnd(maxDecimalDigits, '0');
-        meter.initial_reading = "".concat(whole, ".").concat(decimal);
-      } else {
-        meter.initial_reading = '';
+    // Shared function to format meter reading value with proper padding
+    function formatMeterReading(meter) {
+      if (!meter.initial_reading_whole && !meter.initial_reading_decimal) {
+        return '';
       }
+      var maxWholeDigits = getMaxWholeDigits(meter.meter_type_id);
+      var maxDecimalDigits = getMaxDecimalDigits(meter.meter_type_id);
+
+      // Pad whole part with leading zeros, decimal part with trailing zeros
+      var whole = (meter.initial_reading_whole || '0').padStart(maxWholeDigits, '0');
+      var decimal = (meter.initial_reading_decimal || '0').padEnd(maxDecimalDigits, '0');
+      return "".concat(whole, ".").concat(decimal);
+    }
+    function updateMeterReading(meter) {
+      // Combine whole and decimal parts using shared formatting function
+      meter.initial_reading = formatMeterReading(meter);
     }
 
     // Prepare meter data before submission - ensure proper formatting
     function prepareMeterData() {
       return formData.meters.map(function (meter) {
-        var maxWholeDigits = getMaxWholeDigits(meter.meter_type_id);
-        var maxDecimalDigits = getMaxDecimalDigits(meter.meter_type_id);
-
-        // Pad values appropriately
-        var initialReading = meter.initial_reading;
-        if (meter.initial_reading_whole || meter.initial_reading_decimal) {
-          var whole = (meter.initial_reading_whole || '0').padStart(maxWholeDigits, '0');
-          var decimal = (meter.initial_reading_decimal || '0').padEnd(maxDecimalDigits, '0');
-          initialReading = "".concat(whole, ".").concat(decimal);
-        }
         return {
           meter_type_id: meter.meter_type_id,
           meter_title: meter.meter_title,
           meter_number: meter.meter_number,
-          initial_reading: initialReading,
+          initial_reading: formatMeterReading(meter),
           initial_reading_date: meter.initial_reading_date
         };
       });
@@ -24865,6 +24869,7 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
       formatMeterWholeInput: formatMeterWholeInput,
       formatMeterDecimalInput: formatMeterDecimalInput,
       handleMeterKeyDown: handleMeterKeyDown,
+      formatMeterReading: formatMeterReading,
       updateMeterReading: updateMeterReading,
       prepareMeterData: prepareMeterData,
       submitForm: submitForm,
@@ -29496,7 +29501,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       placeholder: $setup.getDecimalPlaceholder(meter.meter_type_id),
       inputmode: "numeric"
-    }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_79), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.initial_reading_decimal]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("small", _hoisted_80, [$setup.isMeterWater(meter.meter_type_id) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_81, "Water: 6 digits + 2 decimals")) : $setup.isMeterElectricity(meter.meter_type_id) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_82, "Electricity: 5 digits + 1 decimal")) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_83, "Select meter type for format"))])])])])])])]);
+    }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_79), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.initial_reading_decimal]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("small", _hoisted_80, [$setup.isMeterWater(meter.meter_type_id) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_81, "Water: 6 digits + 2 decimal places")) : $setup.isMeterElectricity(meter.meter_type_id) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_82, "Electricity: 5 digits + 1 decimal place")) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_83, "Select meter type for format"))])])])])])])]);
   }), 128 /* KEYED_FRAGMENT */)), $setup.formData.meters.length === 0 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_84, _toConsumableArray(_cache[47] || (_cache[47] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "alert alert-info"
   }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
