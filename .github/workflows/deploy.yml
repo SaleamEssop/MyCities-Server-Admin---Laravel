@@ -39,18 +39,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.DO_HOST }}
           REMOTE_USER: ${{ secrets.DO_USERNAME }}
           TARGET: /var/www/mycities.co.za
-          EXCLUDE: |
-            /.git/
-            /.github/
-            /node_modules/
-            /.env
-            /storage/logs/
-            /storage/framework/cache/
-            /storage/framework/sessions/
-            /storage/framework/views/
-            /tests/
-            /.phpunit.result.cache
-            /phpunit.xml
+          EXCLUDE: ".git/, .github/, node_modules/, .env, storage/logs/, storage/framework/cache/, storage/framework/sessions/, storage/framework/views/, tests/, .phpunit.result.cache, phpunit.xml"
 
       - name: Run post-deploy commands
         uses: appleboy/ssh-action@v1.0.3
