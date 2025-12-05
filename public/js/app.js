@@ -24391,6 +24391,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
 function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
@@ -24402,9 +24408,13 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 
-var WATER_METER_DIGITS = 6;
-var ELECTRICITY_METER_DIGITS = 5;
-var DECIMAL_DIGITS = 1;
+var WATER_WHOLE_DIGITS = 6;
+var WATER_DECIMAL_DIGITS = 2;
+var ELECTRICITY_WHOLE_DIGITS = 5;
+var ELECTRICITY_DECIMAL_DIGITS = 1;
+
+// Methods
+
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __name: 'UserAccountSetupForm',
   props: {
@@ -24429,11 +24439,14 @@ var DECIMAL_DIGITS = 1;
     var __expose = _ref.expose;
     __expose();
     var props = __props;
-    var steps = ['User Details', 'Assign Region', 'Select Tariff', 'Create Account'];
+    var steps = ['User Details', 'Assign Region', 'Select Tariff', 'Create Account', 'Add Meters'];
     var currentStep = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)(1);
     var saving = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)(false);
     var loadingTemplates = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)(false);
     var tariffTemplates = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
+
+    // Refs for meter inputs - stored by index
+    var meterInputRefs = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)({});
     var notification = (0,vue__WEBPACK_IMPORTED_MODULE_0__.reactive)({
       show: false,
       type: 'success',
@@ -24457,6 +24470,7 @@ var DECIMAL_DIGITS = 1;
       bill_day: '',
       read_day: '',
       billing_type: 'monthly',
+      // Step 5
       meters: []
     });
 
@@ -24465,6 +24479,14 @@ var DECIMAL_DIGITS = 1;
       if (!formData.tariff_template_id) return null;
       return tariffTemplates.value.find(function (t) {
         return t.id === formData.tariff_template_id;
+      });
+    });
+
+    // Check if all meters in Step 5 have required fields (meters are optional, but if added must be complete)
+    var isStep5Valid = (0,vue__WEBPACK_IMPORTED_MODULE_0__.computed)(function () {
+      if (formData.meters.length === 0) return true; // No meters is valid - meters are optional
+      return formData.meters.every(function (meter) {
+        return meter.meter_type_id && meter.meter_number && meter.initial_reading_date;
       });
     });
     var canProceed = (0,vue__WEBPACK_IMPORTED_MODULE_0__.computed)(function () {
@@ -24477,12 +24499,14 @@ var DECIMAL_DIGITS = 1;
           return formData.tariff_template_id;
         case 4:
           return formData.account_name && formData.account_number;
+        case 5:
+          return isStep5Valid.value;
         default:
           return false;
       }
     });
 
-    // Methods
+    // Constants for meter digit counts
     function showNotification(message) {
       var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'success';
       notification.message = message;
@@ -24564,7 +24588,7 @@ var DECIMAL_DIGITS = 1;
       }
     }
     function nextStep() {
-      if (currentStep.value < 4 && canProceed.value) {
+      if (currentStep.value < 5 && canProceed.value) {
         currentStep.value++;
       }
     }
@@ -24581,6 +24605,20 @@ var DECIMAL_DIGITS = 1;
     }
     function removeMeter(index) {
       formData.meters.splice(index, 1);
+      // Rebuild refs object with correct indices after removal
+      // This ensures keyboard navigation works correctly after meter removal
+      var newRefs = {};
+      formData.meters.forEach(function (_, i) {
+        // Transfer refs from old indices to new indices
+        var oldIndex = i >= index ? i + 1 : i;
+        if (meterInputRefs.value["".concat(oldIndex, "_whole")]) {
+          newRefs["".concat(i, "_whole")] = meterInputRefs.value["".concat(oldIndex, "_whole")];
+        }
+        if (meterInputRefs.value["".concat(oldIndex, "_decimal")]) {
+          newRefs["".concat(i, "_decimal")] = meterInputRefs.value["".concat(oldIndex, "_decimal")];
+        }
+      });
+      meterInputRefs.value = newRefs;
     }
     function isMeterWater(meterTypeId) {
       if (!meterTypeId) return false;
@@ -24589,34 +24627,155 @@ var DECIMAL_DIGITS = 1;
       });
       return type && type.title && type.title.toLowerCase() === 'water';
     }
+    function isMeterElectricity(meterTypeId) {
+      if (!meterTypeId) return false;
+      var type = props.meterTypes.find(function (t) {
+        return t.id === meterTypeId;
+      });
+      return type && type.title && type.title.toLowerCase() === 'electricity';
+    }
 
-    // Constants for meter digit counts
-    function formatWholeDigits(meter) {
-      // Only allow digits, preserve leading zeros (water meter: 6 digits)
-      meter.initial_reading_whole = meter.initial_reading_whole.replace(/[^0-9]/g, '').slice(0, WATER_METER_DIGITS);
+    // Get max digits based on meter type
+    function getMaxWholeDigits(meterTypeId) {
+      if (isMeterWater(meterTypeId)) return WATER_WHOLE_DIGITS;
+      if (isMeterElectricity(meterTypeId)) return ELECTRICITY_WHOLE_DIGITS;
+      return WATER_WHOLE_DIGITS; // Default to water
+    }
+    function getMaxDecimalDigits(meterTypeId) {
+      if (isMeterWater(meterTypeId)) return WATER_DECIMAL_DIGITS;
+      if (isMeterElectricity(meterTypeId)) return ELECTRICITY_DECIMAL_DIGITS;
+      return WATER_DECIMAL_DIGITS; // Default to water
+    }
+    function getWholePlaceholder(meterTypeId) {
+      if (isMeterWater(meterTypeId)) return '000000';
+      if (isMeterElectricity(meterTypeId)) return '00000';
+      return '000000';
+    }
+    function getDecimalPlaceholder(meterTypeId) {
+      if (isMeterWater(meterTypeId)) return '00';
+      if (isMeterElectricity(meterTypeId)) return '0';
+      return '00';
+    }
+
+    // Store meter input refs
+    function setMeterRef(el, index, type) {
+      if (el) {
+        meterInputRefs.value["".concat(index, "_").concat(type)] = el;
+      }
+    }
+
+    // Handle meter type change - reset and adjust digits
+    function onMeterTypeChange(meter) {
+      // Reset the reading values when meter type changes
+      meter.initial_reading_whole = '';
+      meter.initial_reading_decimal = '';
+      meter.initial_reading = '';
+    }
+
+    // Format whole part of meter reading
+    function formatMeterWholeInput(meter) {
+      var maxDigits = getMaxWholeDigits(meter.meter_type_id);
+      // Only allow numeric input
+      meter.initial_reading_whole = meter.initial_reading_whole.replace(/[^0-9]/g, '').slice(0, maxDigits);
       updateMeterReading(meter);
     }
-    function formatDecimalDigit(meter) {
-      // Only allow single digit
-      meter.initial_reading_decimal = meter.initial_reading_decimal.replace(/[^0-9]/g, '').slice(0, 1);
+
+    // Format decimal part of meter reading
+    function formatMeterDecimalInput(meter) {
+      var maxDigits = getMaxDecimalDigits(meter.meter_type_id);
+      // Only allow numeric input
+      meter.initial_reading_decimal = meter.initial_reading_decimal.replace(/[^0-9]/g, '').slice(0, maxDigits);
       updateMeterReading(meter);
+    }
+
+    // Handle keyboard navigation between meter input fields
+    function handleMeterKeyDown(event, meter, fieldType, meterIndex) {
+      var key = event.key;
+
+      // Tab or Enter moves from whole to decimal
+      if ((key === 'Tab' || key === 'Enter') && fieldType === 'whole' && !event.shiftKey) {
+        event.preventDefault();
+        var decimalRef = meterInputRefs.value["".concat(meterIndex, "_decimal")];
+        if (decimalRef) {
+          decimalRef.focus();
+          decimalRef.select();
+        }
+      }
+
+      // Shift+Tab moves from decimal to whole
+      if (key === 'Tab' && fieldType === 'decimal' && event.shiftKey) {
+        event.preventDefault();
+        var wholeRef = meterInputRefs.value["".concat(meterIndex, "_whole")];
+        if (wholeRef) {
+          wholeRef.focus();
+          wholeRef.select();
+        }
+      }
+
+      // Arrow right at end of whole field moves to decimal
+      if (key === 'ArrowRight' && fieldType === 'whole') {
+        var input = event.target;
+        if (input.selectionStart === input.value.length) {
+          event.preventDefault();
+          var _decimalRef = meterInputRefs.value["".concat(meterIndex, "_decimal")];
+          if (_decimalRef) {
+            _decimalRef.focus();
+            _decimalRef.setSelectionRange(0, 0);
+          }
+        }
+      }
+
+      // Arrow left at start of decimal field moves to whole
+      if (key === 'ArrowLeft' && fieldType === 'decimal') {
+        var _input = event.target;
+        if (_input.selectionStart === 0) {
+          event.preventDefault();
+          var _wholeRef = meterInputRefs.value["".concat(meterIndex, "_whole")];
+          if (_wholeRef) {
+            _wholeRef.focus();
+            var len = _wholeRef.value.length;
+            _wholeRef.setSelectionRange(len, len);
+          }
+        }
+      }
+    }
+
+    // Shared function to format meter reading value with proper padding
+    function formatMeterReading(meter) {
+      if (!meter.initial_reading_whole && !meter.initial_reading_decimal) {
+        return '';
+      }
+      var maxWholeDigits = getMaxWholeDigits(meter.meter_type_id);
+      var maxDecimalDigits = getMaxDecimalDigits(meter.meter_type_id);
+
+      // Pad whole part with leading zeros, decimal part with trailing zeros
+      var whole = (meter.initial_reading_whole || '0').padStart(maxWholeDigits, '0');
+      var decimal = (meter.initial_reading_decimal || '0').padEnd(maxDecimalDigits, '0');
+      return "".concat(whole, ".").concat(decimal);
     }
     function updateMeterReading(meter) {
-      // Combine whole and decimal parts for water meters
-      if (meter.initial_reading_whole || meter.initial_reading_decimal) {
-        var whole = meter.initial_reading_whole || '0';
-        var decimal = meter.initial_reading_decimal || '0';
-        meter.initial_reading = "".concat(whole, ".").concat(decimal);
-      } else {
-        meter.initial_reading = '';
-      }
+      // Combine whole and decimal parts using shared formatting function
+      meter.initial_reading = formatMeterReading(meter);
+    }
+
+    // Prepare meter data before submission - ensure proper formatting
+    function prepareMeterData() {
+      return formData.meters.map(function (meter) {
+        return {
+          meter_type_id: meter.meter_type_id,
+          meter_title: meter.meter_title,
+          meter_number: meter.meter_number,
+          initial_reading: formatMeterReading(meter),
+          initial_reading_date: meter.initial_reading_date
+        };
+      });
     }
     function submitForm() {
       return _submitForm.apply(this, arguments);
     }
     function _submitForm() {
       _submitForm = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
-        var response, data, _t2;
+        var submitData, response, data, _t2;
         return _regenerator().w(function (_context2) {
           while (1) switch (_context2.p = _context2.n) {
             case 0:
@@ -24629,6 +24788,10 @@ var DECIMAL_DIGITS = 1;
             case 1:
               saving.value = true;
               _context2.p = 2;
+              // Prepare data with properly formatted meter readings
+              submitData = _objectSpread(_objectSpread({}, formData), {}, {
+                meters: prepareMeterData()
+              });
               _context2.n = 3;
               return fetch(props.apiUrls.store, {
                 method: 'POST',
@@ -24637,7 +24800,7 @@ var DECIMAL_DIGITS = 1;
                   'Accept': 'application/json',
                   'X-CSRF-TOKEN': props.csrfToken
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(submitData)
               });
             case 3:
               response = _context2.v;
@@ -24678,10 +24841,16 @@ var DECIMAL_DIGITS = 1;
       saving: saving,
       loadingTemplates: loadingTemplates,
       tariffTemplates: tariffTemplates,
+      meterInputRefs: meterInputRefs,
       notification: notification,
       formData: formData,
       selectedTemplate: selectedTemplate,
+      isStep5Valid: isStep5Valid,
       canProceed: canProceed,
+      WATER_WHOLE_DIGITS: WATER_WHOLE_DIGITS,
+      WATER_DECIMAL_DIGITS: WATER_DECIMAL_DIGITS,
+      ELECTRICITY_WHOLE_DIGITS: ELECTRICITY_WHOLE_DIGITS,
+      ELECTRICITY_DECIMAL_DIGITS: ELECTRICITY_DECIMAL_DIGITS,
       showNotification: showNotification,
       buildUrl: buildUrl,
       onRegionChange: onRegionChange,
@@ -24690,12 +24859,19 @@ var DECIMAL_DIGITS = 1;
       addMeter: addMeter,
       removeMeter: removeMeter,
       isMeterWater: isMeterWater,
-      WATER_METER_DIGITS: WATER_METER_DIGITS,
-      ELECTRICITY_METER_DIGITS: ELECTRICITY_METER_DIGITS,
-      DECIMAL_DIGITS: DECIMAL_DIGITS,
-      formatWholeDigits: formatWholeDigits,
-      formatDecimalDigit: formatDecimalDigit,
+      isMeterElectricity: isMeterElectricity,
+      getMaxWholeDigits: getMaxWholeDigits,
+      getMaxDecimalDigits: getMaxDecimalDigits,
+      getWholePlaceholder: getWholePlaceholder,
+      getDecimalPlaceholder: getDecimalPlaceholder,
+      setMeterRef: setMeterRef,
+      onMeterTypeChange: onMeterTypeChange,
+      formatMeterWholeInput: formatMeterWholeInput,
+      formatMeterDecimalInput: formatMeterDecimalInput,
+      handleMeterKeyDown: handleMeterKeyDown,
+      formatMeterReading: formatMeterReading,
       updateMeterReading: updateMeterReading,
+      prepareMeterData: prepareMeterData,
       submitForm: submitForm,
       ref: vue__WEBPACK_IMPORTED_MODULE_0__.ref,
       reactive: vue__WEBPACK_IMPORTED_MODULE_0__.reactive,
@@ -28980,73 +29156,88 @@ var _hoisted_57 = {
   "class": "card-body"
 };
 var _hoisted_58 = {
-  "class": "d-flex justify-content-between align-items-center mb-2"
+  "class": "d-flex justify-content-between align-items-center mb-3"
 };
 var _hoisted_59 = ["onClick"];
 var _hoisted_60 = {
   "class": "row"
 };
 var _hoisted_61 = {
-  "class": "col-md-3"
+  "class": "col-md-6"
 };
 var _hoisted_62 = {
-  "class": "form-group mb-2"
+  "class": "form-group"
 };
-var _hoisted_63 = ["onUpdate:modelValue"];
+var _hoisted_63 = ["onUpdate:modelValue", "onChange"];
 var _hoisted_64 = ["value"];
 var _hoisted_65 = {
-  "class": "col-md-3"
+  "class": "col-md-6"
 };
 var _hoisted_66 = {
-  "class": "form-group mb-2"
+  "class": "form-group"
 };
 var _hoisted_67 = ["onUpdate:modelValue"];
 var _hoisted_68 = {
-  "class": "col-md-3"
+  "class": "col-md-6"
 };
 var _hoisted_69 = {
-  "class": "form-group mb-2"
+  "class": "form-group"
 };
 var _hoisted_70 = ["onUpdate:modelValue"];
 var _hoisted_71 = {
-  "class": "col-md-3"
+  "class": "col-md-6"
 };
 var _hoisted_72 = {
-  "class": "form-group mb-2"
+  "class": "form-group"
 };
-var _hoisted_73 = {
-  key: 0,
-  "class": "meter-input-wrapper"
-};
+var _hoisted_73 = ["onUpdate:modelValue"];
 var _hoisted_74 = {
-  "class": "water-meter-input"
+  "class": "col-md-12"
 };
 var _hoisted_75 = {
-  "class": "meter-digits white-section"
+  "class": "form-group"
 };
-var _hoisted_76 = ["onUpdate:modelValue", "onInput"];
+var _hoisted_76 = {
+  "class": "meter-reading-input-wrapper"
+};
 var _hoisted_77 = {
-  "class": "meter-digits red-section"
+  "class": "meter-reading-dual-input"
 };
-var _hoisted_78 = ["onUpdate:modelValue", "onInput"];
-var _hoisted_79 = ["onUpdate:modelValue"];
+var _hoisted_78 = ["maxlength", "onUpdate:modelValue", "onInput", "onKeydown", "placeholder"];
+var _hoisted_79 = ["maxlength", "onUpdate:modelValue", "onInput", "onKeydown", "placeholder"];
 var _hoisted_80 = {
-  key: 0,
-  "class": "text-center text-muted py-3"
+  "class": "text-muted d-block mt-1"
 };
 var _hoisted_81 = {
-  "class": "card-footer d-flex justify-content-between"
-};
-var _hoisted_82 = ["disabled"];
-var _hoisted_83 = ["disabled"];
-var _hoisted_84 = ["disabled"];
-var _hoisted_85 = {
   key: 0
 };
-var _hoisted_86 = {
+var _hoisted_82 = {
   key: 1
 };
-var _hoisted_87 = {
+var _hoisted_83 = {
+  key: 2
+};
+var _hoisted_84 = {
+  key: 0,
+  "class": "text-center py-4"
+};
+var _hoisted_85 = {
+  key: 1,
+  "class": "alert alert-warning mt-3"
+};
+var _hoisted_86 = {
+  "class": "card-footer d-flex justify-content-between"
+};
+var _hoisted_87 = ["disabled"];
+var _hoisted_88 = ["disabled"];
+var _hoisted_89 = ["disabled"];
+var _hoisted_90 = {
+  key: 0
+};
+var _hoisted_91 = {
+  key: 1
+};
+var _hoisted_92 = {
   "class": "position-fixed",
   style: {
     "top": "20px",
@@ -29156,7 +29347,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)((0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(template.template_name) + " ", 1 /* TEXT */), template.is_water ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_36, "(Water)")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), template.is_electricity ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_37, "(Electricity)")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 8 /* PROPS */, _hoisted_35);
   }), 128 /* KEYED_FRAGMENT */))], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.formData.tariff_template_id]])])]), $setup.selectedTemplate ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_38, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_39, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_40, [_cache[29] || (_cache[29] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h6", {
     "class": "font-weight-bold"
-  }, "Selected Template Details:", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_41, [_cache[26] || (_cache[26] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Name:", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.selectedTemplate.template_name), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_42, [_cache[27] || (_cache[27] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Services:", -1 /* CACHED */)), $setup.selectedTemplate.is_water ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_43, "Water")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.selectedTemplate.is_electricity ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_44, "Electricity")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), $setup.selectedTemplate.start_date ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("p", _hoisted_45, [_cache[28] || (_cache[28] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Validity:", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.selectedTemplate.start_date) + " to " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.selectedTemplate.end_date || 'Ongoing'), 1 /* TEXT */)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]))], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vShow, $setup.currentStep === 3]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Step 4: Account Details & Meters "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_46, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_47, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_48, [_cache[30] || (_cache[30] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Account Name "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+  }, "Selected Template Details:", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_41, [_cache[26] || (_cache[26] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Name:", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.selectedTemplate.template_name), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_42, [_cache[27] || (_cache[27] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Services:", -1 /* CACHED */)), $setup.selectedTemplate.is_water ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_43, "Water")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.selectedTemplate.is_electricity ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_44, "Electricity")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), $setup.selectedTemplate.start_date ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("p", _hoisted_45, [_cache[28] || (_cache[28] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Validity:", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.selectedTemplate.start_date) + " to " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.selectedTemplate.end_date || 'Ongoing'), 1 /* TEXT */)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]))], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vShow, $setup.currentStep === 3]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Step 4: Account Details (Create Account) "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_46, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_47, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_48, [_cache[30] || (_cache[30] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Account Name "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
     "class": "text-danger"
   }, "*")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     type: "text",
@@ -29203,126 +29394,146 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     value: "bi-monthly"
   }, "Bi-Monthly", -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
     value: "quarterly"
-  }, "Quarterly", -1 /* CACHED */)])), 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.formData.billing_type]])])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Meters Section "), _cache[46] || (_cache[46] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("hr", null, null, -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+  }, "Quarterly", -1 /* CACHED */)])), 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.formData.billing_type]])])])])], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vShow, $setup.currentStep === 4]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Step 5: Add Meters "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "d-flex justify-content-between align-items-center mb-3"
   }, [_cache[37] || (_cache[37] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h6", {
     "class": "font-weight-bold mb-0"
   }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
     "class": "fas fa-tachometer-alt mr-2"
-  }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Meters (Optional)")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+  }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Meters")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
     type: "button",
     "class": "btn btn-outline-primary btn-sm",
     onClick: $setup.addMeter
   }, _toConsumableArray(_cache[36] || (_cache[36] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
     "class": "fas fa-plus"
-  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Add Meter ", -1 /* CACHED */)])))]), ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.formData.meters, function (meter, index) {
+  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Add Another Meter ", -1 /* CACHED */)])))]), ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.formData.meters, function (meter, index) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
       key: index,
       "class": "card bg-light mb-3"
-    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_57, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_58, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Meter " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(index + 1), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_57, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_58, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, [_cache[38] || (_cache[38] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+      "class": "fas fa-tachometer-alt mr-2"
+    }, null, -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Meter " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(index + 1), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
       type: "button",
       "class": "btn btn-outline-danger btn-sm",
       onClick: function onClick($event) {
         return $setup.removeMeter(index);
       }
-    }, _toConsumableArray(_cache[38] || (_cache[38] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    }, _toConsumableArray(_cache[39] || (_cache[39] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
       "class": "fas fa-trash"
-    }, null, -1 /* CACHED */)])), 8 /* PROPS */, _hoisted_59)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_60, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_61, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_62, [_cache[40] || (_cache[40] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
-      "class": "small"
-    }, "Type", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
-      "class": "form-control form-control-sm",
+    }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Remove ", -1 /* CACHED */)])), 8 /* PROPS */, _hoisted_59)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_60, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_61, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_62, [_cache[41] || (_cache[41] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Meter Type "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+      "class": "text-danger"
+    }, "*")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+      "class": "form-control",
       "onUpdate:modelValue": function onUpdateModelValue($event) {
         return meter.meter_type_id = $event;
+      },
+      onChange: function onChange($event) {
+        return $setup.onMeterTypeChange(meter);
       }
-    }, [_cache[39] || (_cache[39] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
+    }, [_cache[40] || (_cache[40] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
       value: ""
     }, "Select Type", -1 /* CACHED */)), ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($props.meterTypes, function (type) {
       return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
         key: type.id,
         value: type.id
       }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(type.title), 9 /* TEXT, PROPS */, _hoisted_64);
-    }), 128 /* KEYED_FRAGMENT */))], 8 /* PROPS */, _hoisted_63), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, meter.meter_type_id]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_65, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_66, [_cache[41] || (_cache[41] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
-      "class": "small"
-    }, "Meter Title", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+    }), 128 /* KEYED_FRAGMENT */))], 40 /* PROPS, NEED_HYDRATION */, _hoisted_63), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, meter.meter_type_id]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_65, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_66, [_cache[42] || (_cache[42] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Meter Name", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       type: "text",
-      "class": "form-control form-control-sm",
+      "class": "form-control",
       "onUpdate:modelValue": function onUpdateModelValue($event) {
         return meter.meter_title = $event;
       },
-      placeholder: "Title"
-    }, null, 8 /* PROPS */, _hoisted_67), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.meter_title]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_68, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_69, [_cache[42] || (_cache[42] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
-      "class": "small"
-    }, "Meter Number", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      placeholder: "Enter meter name"
+    }, null, 8 /* PROPS */, _hoisted_67), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.meter_title]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_68, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_69, [_cache[43] || (_cache[43] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Meter Number "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+      "class": "text-danger"
+    }, "*")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       type: "text",
-      "class": "form-control form-control-sm",
+      "class": "form-control",
       "onUpdate:modelValue": function onUpdateModelValue($event) {
         return meter.meter_number = $event;
       },
-      placeholder: "Number"
-    }, null, 8 /* PROPS */, _hoisted_70), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.meter_number]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_71, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_72, [_cache[45] || (_cache[45] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
-      "class": "small"
-    }, "Initial Reading", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Water Meter Input with Pigeonhole Style "), $setup.isMeterWater(meter.meter_type_id) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_73, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_74, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_75, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      placeholder: "Enter meter number"
+    }, null, 8 /* PROPS */, _hoisted_70), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.meter_number]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_71, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_72, [_cache[44] || (_cache[44] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Reading Date "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+      "class": "text-danger"
+    }, "*")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      type: "date",
+      "class": "form-control",
+      "onUpdate:modelValue": function onUpdateModelValue($event) {
+        return meter.initial_reading_date = $event;
+      }
+    }, null, 8 /* PROPS */, _hoisted_73), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.initial_reading_date]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_74, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_75, [_cache[46] || (_cache[46] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Start Reading", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Dual Input Field Design for Meter Reading "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_76, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_77, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       type: "text",
-      maxlength: "6",
-      "class": "meter-digit-input",
+      "class": "meter-main-input",
+      maxlength: $setup.getMaxWholeDigits(meter.meter_type_id),
       "onUpdate:modelValue": function onUpdateModelValue($event) {
         return meter.initial_reading_whole = $event;
       },
       onInput: function onInput($event) {
-        return $setup.formatWholeDigits(meter);
+        return $setup.formatMeterWholeInput(meter);
       },
-      placeholder: "000000"
-    }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_76), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.initial_reading_whole]])]), _cache[43] || (_cache[43] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
-      "class": "meter-decimal"
-    }, ".", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_77, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      onKeydown: function onKeydown($event) {
+        return $setup.handleMeterKeyDown($event, meter, 'whole', index);
+      },
+      ref_for: true,
+      ref: function ref(el) {
+        return $setup.setMeterRef(el, index, 'whole');
+      },
+      placeholder: $setup.getWholePlaceholder(meter.meter_type_id),
+      inputmode: "numeric"
+    }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_78), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.initial_reading_whole]]), _cache[45] || (_cache[45] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+      "class": "meter-decimal-separator"
+    }, ".", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       type: "text",
-      maxlength: "1",
-      "class": "meter-digit-input",
+      "class": "meter-decimal-input",
+      maxlength: $setup.getMaxDecimalDigits(meter.meter_type_id),
       "onUpdate:modelValue": function onUpdateModelValue($event) {
         return meter.initial_reading_decimal = $event;
       },
       onInput: function onInput($event) {
-        return $setup.formatDecimalDigit(meter);
+        return $setup.formatMeterDecimalInput(meter);
       },
-      placeholder: "0"
-    }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_78), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.initial_reading_decimal]])])]), _cache[44] || (_cache[44] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("small", {
-      "class": "text-muted"
-    }, "Water: 6 digits + 1 decimal", -1 /* CACHED */))])) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
-      key: 1
-    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Standard Input for Electricity "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
-      type: "number",
-      "class": "form-control form-control-sm",
-      "onUpdate:modelValue": function onUpdateModelValue($event) {
-        return meter.initial_reading = $event;
+      onKeydown: function onKeydown($event) {
+        return $setup.handleMeterKeyDown($event, meter, 'decimal', index);
       },
-      placeholder: "Initial value"
-    }, null, 8 /* PROPS */, _hoisted_79), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.initial_reading]])], 2112 /* STABLE_FRAGMENT, DEV_ROOT_FRAGMENT */))])])])])]);
-  }), 128 /* KEYED_FRAGMENT */)), $setup.formData.meters.length === 0 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_80, " No meters added. Click \"Add Meter\" to add one. ")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vShow, $setup.currentStep === 4]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Navigation Buttons "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_81, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+      ref_for: true,
+      ref: function ref(el) {
+        return $setup.setMeterRef(el, index, 'decimal');
+      },
+      placeholder: $setup.getDecimalPlaceholder(meter.meter_type_id),
+      inputmode: "numeric"
+    }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_79), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.initial_reading_decimal]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("small", _hoisted_80, [$setup.isMeterWater(meter.meter_type_id) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_81, "Water: 6 digits + 2 decimal places")) : $setup.isMeterElectricity(meter.meter_type_id) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_82, "Electricity: 5 digits + 1 decimal place")) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_83, "Select meter type for format"))])])])])])])]);
+  }), 128 /* KEYED_FRAGMENT */)), $setup.formData.meters.length === 0 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_84, _toConsumableArray(_cache[47] || (_cache[47] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+    "class": "alert alert-info"
+  }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-info-circle mr-2"
+  }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" No meters added yet. Click \"Add Another Meter\" to add meters to this account. ")], -1 /* CACHED */)])))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Validation Messages for Step 5 "), $setup.formData.meters.length > 0 && !$setup.isStep5Valid ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_85, _toConsumableArray(_cache[48] || (_cache[48] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-exclamation-triangle mr-2"
+  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Please fill in all required fields for each meter (Meter Type, Meter Number, Reading Date). ", -1 /* CACHED */)])))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vShow, $setup.currentStep === 5]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Navigation Buttons "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_86, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
     type: "button",
     "class": "btn btn-secondary",
     onClick: $setup.prevStep,
     disabled: $setup.currentStep === 1
-  }, _toConsumableArray(_cache[47] || (_cache[47] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+  }, _toConsumableArray(_cache[49] || (_cache[49] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
     "class": "fas fa-arrow-left mr-1"
-  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Previous ", -1 /* CACHED */)])), 8 /* PROPS */, _hoisted_82), $setup.currentStep < 4 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
+  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Previous ", -1 /* CACHED */)])), 8 /* PROPS */, _hoisted_87), $setup.currentStep < 5 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
     key: 0,
     type: "button",
     "class": "btn btn-primary",
     onClick: $setup.nextStep,
     disabled: !$setup.canProceed
-  }, _toConsumableArray(_cache[48] || (_cache[48] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Next ", -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+  }, _toConsumableArray(_cache[50] || (_cache[50] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Next ", -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
     "class": "fas fa-arrow-right ml-1"
-  }, null, -1 /* CACHED */)])), 8 /* PROPS */, _hoisted_83)) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
+  }, null, -1 /* CACHED */)])), 8 /* PROPS */, _hoisted_88)) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
     key: 1,
     type: "button",
     "class": "btn btn-success",
     onClick: $setup.submitForm,
     disabled: $setup.saving || !$setup.canProceed
-  }, [$setup.saving ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_85, _toConsumableArray(_cache[49] || (_cache[49] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+  }, [$setup.saving ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_90, _toConsumableArray(_cache[51] || (_cache[51] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
     "class": "fas fa-spinner fa-spin"
-  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Creating...", -1 /* CACHED */)])))) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_86, _toConsumableArray(_cache[50] || (_cache[50] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Creating...", -1 /* CACHED */)])))) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_91, _toConsumableArray(_cache[52] || (_cache[52] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
     "class": "fas fa-check mr-1"
-  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Create Account", -1 /* CACHED */)]))))], 8 /* PROPS */, _hoisted_84))])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Notification Toast "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_87, [$setup.notification.show ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
+  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Create Account", -1 /* CACHED */)]))))], 8 /* PROPS */, _hoisted_89))])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Notification Toast "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_92, [$setup.notification.show ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
     key: 0,
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(['alert', 'alert-' + $setup.notification.type, 'alert-dismissible', 'fade', 'show']),
     role: "alert"
@@ -29332,7 +29543,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     onClick: _cache[13] || (_cache[13] = function ($event) {
       return $setup.notification.show = false;
     })
-  }, _toConsumableArray(_cache[51] || (_cache[51] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "×", -1 /* CACHED */)])))], 2 /* CLASS */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]);
+  }, _toConsumableArray(_cache[53] || (_cache[53] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "×", -1 /* CACHED */)])))], 2 /* CLASS */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]);
 }
 
 /***/ }),
@@ -30180,7 +30391,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.user-account-setup-wrapper[data-v-f65e1eec] {\n    max-width: 900px;\n    margin: 0 auto;\n}\n.step-indicator[data-v-f65e1eec] {\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    flex: 1;\n    position: relative;\n}\n.step-indicator[data-v-f65e1eec]:not(:last-child)::after {\n    content: '';\n    position: absolute;\n    top: 15px;\n    left: calc(50% + 20px);\n    width: calc(100% - 40px);\n    height: 2px;\n    background: #e9ecef;\n}\n.step-indicator.completed[data-v-f65e1eec]:not(:last-child)::after {\n    background: #1cc88a;\n}\n.step-number[data-v-f65e1eec] {\n    width: 30px;\n    height: 30px;\n    border-radius: 50%;\n    background: #e9ecef;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    font-weight: bold;\n    margin-bottom: 5px;\n    position: relative;\n    z-index: 1;\n}\n.step-indicator.active .step-number[data-v-f65e1eec] {\n    background: #4e73df;\n    color: white;\n}\n.step-indicator.completed .step-number[data-v-f65e1eec] {\n    background: #1cc88a;\n    color: white;\n}\n.step-label[data-v-f65e1eec] {\n    font-size: 0.85rem;\n    color: #858796;\n}\n.step-indicator.active .step-label[data-v-f65e1eec] {\n    color: #4e73df;\n    font-weight: bold;\n}\n\n/* Water Meter Input Styles */\n.water-meter-input[data-v-f65e1eec] {\n    display: flex;\n    align-items: center;\n    gap: 2px;\n}\n.meter-digits[data-v-f65e1eec] {\n    display: flex;\n}\n.meter-digits.white-section .meter-digit-input[data-v-f65e1eec] {\n    background: #fff;\n    color: #000;\n    border: 1px solid #ced4da;\n}\n.meter-digits.red-section .meter-digit-input[data-v-f65e1eec] {\n    background: #b30101;\n    color: #fff;\n    border: 1px solid #b30101;\n}\n.meter-digit-input[data-v-f65e1eec] {\n    width: 80px;\n    height: 32px;\n    text-align: center;\n    font-family: 'Courier New', monospace;\n    font-weight: bold;\n    font-size: 14px;\n    border-radius: 4px;\n    padding: 2px;\n}\n.meter-digits.red-section .meter-digit-input[data-v-f65e1eec] {\n    width: 24px;\n}\n.meter-decimal[data-v-f65e1eec] {\n    font-weight: bold;\n    font-size: 18px;\n    margin: 0 2px;\n}\n.alert[data-v-f65e1eec] {\n    animation: slideIn-f65e1eec 0.3s ease;\n}\n@keyframes slideIn-f65e1eec {\nfrom {\n        transform: translateX(100%);\n        opacity: 0;\n}\nto {\n        transform: translateX(0);\n        opacity: 1;\n}\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.user-account-setup-wrapper[data-v-f65e1eec] {\n    max-width: 900px;\n    margin: 0 auto;\n}\n.step-indicator[data-v-f65e1eec] {\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    flex: 1;\n    position: relative;\n}\n.step-indicator[data-v-f65e1eec]:not(:last-child)::after {\n    content: '';\n    position: absolute;\n    top: 15px;\n    left: calc(50% + 20px);\n    width: calc(100% - 40px);\n    height: 2px;\n    background: #e9ecef;\n}\n.step-indicator.completed[data-v-f65e1eec]:not(:last-child)::after {\n    background: #1cc88a;\n}\n.step-number[data-v-f65e1eec] {\n    width: 30px;\n    height: 30px;\n    border-radius: 50%;\n    background: #e9ecef;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    font-weight: bold;\n    margin-bottom: 5px;\n    position: relative;\n    z-index: 1;\n}\n.step-indicator.active .step-number[data-v-f65e1eec] {\n    background: #4e73df;\n    color: white;\n}\n.step-indicator.completed .step-number[data-v-f65e1eec] {\n    background: #1cc88a;\n    color: white;\n}\n.step-label[data-v-f65e1eec] {\n    font-size: 0.75rem;\n    color: #858796;\n    text-align: center;\n}\n.step-indicator.active .step-label[data-v-f65e1eec] {\n    color: #4e73df;\n    font-weight: bold;\n}\n\n/* Meter Reading Dual Input Design */\n.meter-reading-input-wrapper[data-v-f65e1eec] {\n    margin: 5px 0;\n}\n.meter-reading-dual-input[data-v-f65e1eec] {\n    display: flex;\n    align-items: center;\n    gap: 4px;\n}\n.meter-main-input[data-v-f65e1eec] {\n    flex: 1;\n    max-width: 180px;\n    height: 48px;\n    padding: 8px 12px;\n    font-family: 'Courier New', monospace;\n    font-weight: bold;\n    font-size: 20px;\n    text-align: center;\n    letter-spacing: 2px;\n    background: #ffffff;\n    color: #000000;\n    border: 2px solid #333;\n    border-radius: 6px;\n}\n.meter-main-input[data-v-f65e1eec]:focus {\n    outline: none;\n    border-color: #4e73df;\n    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.25);\n}\n.meter-decimal-separator[data-v-f65e1eec] {\n    font-size: 28px;\n    font-weight: bold;\n    color: #333;\n    margin: 0 2px;\n}\n.meter-decimal-input[data-v-f65e1eec] {\n    width: 70px;\n    height: 48px;\n    padding: 8px 12px;\n    font-family: 'Courier New', monospace;\n    font-weight: bold;\n    font-size: 20px;\n    text-align: center;\n    letter-spacing: 2px;\n    background: #b30101;\n    color: #ffffff;\n    border: 2px solid #b30101;\n    border-radius: 6px;\n}\n.meter-decimal-input[data-v-f65e1eec]:focus {\n    outline: none;\n    border-color: #8a0000;\n    box-shadow: 0 0 0 3px rgba(179, 1, 1, 0.25);\n}\n.meter-decimal-input[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-decimal-input[data-v-f65e1eec]::placeholder {\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-main-input[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(0, 0, 0, 0.3);\n}\n.meter-main-input[data-v-f65e1eec]::placeholder {\n    color: rgba(0, 0, 0, 0.3);\n}\n.alert[data-v-f65e1eec] {\n    animation: slideIn-f65e1eec 0.3s ease;\n}\n@keyframes slideIn-f65e1eec {\nfrom {\n        transform: translateX(100%);\n        opacity: 0;\n}\nto {\n        transform: translateX(0);\n        opacity: 1;\n}\n}\n\n/* Responsive adjustments for meter inputs */\n@media (max-width: 576px) {\n.meter-main-input[data-v-f65e1eec] {\n        max-width: 140px;\n        font-size: 16px;\n        height: 42px;\n}\n.meter-decimal-input[data-v-f65e1eec] {\n        width: 50px;\n        font-size: 16px;\n        height: 42px;\n}\n.meter-decimal-separator[data-v-f65e1eec] {\n        font-size: 22px;\n}\n}\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
