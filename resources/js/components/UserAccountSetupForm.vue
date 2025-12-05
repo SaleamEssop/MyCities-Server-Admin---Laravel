@@ -123,7 +123,7 @@
                     </div>
                 </div>
 
-                <!-- Step 4: Account Details & Meters -->
+                <!-- Step 4: Account Details (Create Account) -->
                 <div v-show="currentStep === 4">
                     <div class="row">
                         <div class="col-md-6">
@@ -161,80 +161,104 @@
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Meters Section -->
-                    <hr>
+                <!-- Step 5: Add Meters -->
+                <div v-show="currentStep === 5">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="font-weight-bold mb-0"><i class="fas fa-tachometer-alt mr-2"></i>Meters (Optional)</h6>
+                        <h6 class="font-weight-bold mb-0"><i class="fas fa-tachometer-alt mr-2"></i>Meters</h6>
                         <button type="button" class="btn btn-outline-primary btn-sm" @click="addMeter">
-                            <i class="fas fa-plus"></i> Add Meter
+                            <i class="fas fa-plus"></i> Add Another Meter
                         </button>
                     </div>
+                    
                     <div v-for="(meter, index) in formData.meters" :key="index" class="card bg-light mb-3">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <strong>Meter {{ index + 1 }}</strong>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <strong><i class="fas fa-tachometer-alt mr-2"></i>Meter {{ index + 1 }}</strong>
                                 <button type="button" class="btn btn-outline-danger btn-sm" @click="removeMeter(index)">
-                                    <i class="fas fa-trash"></i>
+                                    <i class="fas fa-trash"></i> Remove
                                 </button>
                             </div>
                             <div class="row">
-                                <div class="col-md-3">
-                                    <div class="form-group mb-2">
-                                        <label class="small">Type</label>
-                                        <select class="form-control form-control-sm" v-model="meter.meter_type_id">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Meter Type <span class="text-danger">*</span></label>
+                                        <select class="form-control" v-model="meter.meter_type_id" @change="onMeterTypeChange(meter)">
                                             <option value="">Select Type</option>
                                             <option v-for="type in meterTypes" :key="type.id" :value="type.id">{{ type.title }}</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="form-group mb-2">
-                                        <label class="small">Meter Title</label>
-                                        <input type="text" class="form-control form-control-sm" v-model="meter.meter_title" placeholder="Title">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Meter Name</label>
+                                        <input type="text" class="form-control" v-model="meter.meter_title" placeholder="Enter meter name">
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="form-group mb-2">
-                                        <label class="small">Meter Number</label>
-                                        <input type="text" class="form-control form-control-sm" v-model="meter.meter_number" placeholder="Number">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Meter Number <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" v-model="meter.meter_number" placeholder="Enter meter number">
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="form-group mb-2">
-                                        <label class="small">Initial Reading</label>
-                                        <!-- Water Meter Input with Pigeonhole Style -->
-                                        <div v-if="isMeterWater(meter.meter_type_id)" class="meter-input-wrapper">
-                                            <div class="water-meter-input">
-                                                <div class="meter-digits white-section">
-                                                    <input type="text" 
-                                                           maxlength="6" 
-                                                           class="meter-digit-input"
-                                                           v-model="meter.initial_reading_whole"
-                                                           @input="formatWholeDigits(meter)"
-                                                           placeholder="000000">
-                                                </div>
-                                                <span class="meter-decimal">.</span>
-                                                <div class="meter-digits red-section">
-                                                    <input type="text" 
-                                                           maxlength="1" 
-                                                           class="meter-digit-input"
-                                                           v-model="meter.initial_reading_decimal"
-                                                           @input="formatDecimalDigit(meter)"
-                                                           placeholder="0">
-                                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Reading Date <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" v-model="meter.initial_reading_date">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Start Reading</label>
+                                        <!-- Dual Input Field Design for Meter Reading -->
+                                        <div class="meter-reading-input-wrapper">
+                                            <div class="meter-reading-dual-input">
+                                                <input 
+                                                    type="text" 
+                                                    class="meter-main-input"
+                                                    :maxlength="getMaxWholeDigits(meter.meter_type_id)"
+                                                    v-model="meter.initial_reading_whole"
+                                                    @input="formatMeterWholeInput(meter)"
+                                                    @keydown="handleMeterKeyDown($event, meter, 'whole', index)"
+                                                    :ref="el => setMeterRef(el, index, 'whole')"
+                                                    :placeholder="getWholePlaceholder(meter.meter_type_id)"
+                                                    inputmode="numeric">
+                                                <span class="meter-decimal-separator">.</span>
+                                                <input 
+                                                    type="text" 
+                                                    class="meter-decimal-input"
+                                                    :maxlength="getMaxDecimalDigits(meter.meter_type_id)"
+                                                    v-model="meter.initial_reading_decimal"
+                                                    @input="formatMeterDecimalInput(meter)"
+                                                    @keydown="handleMeterKeyDown($event, meter, 'decimal', index)"
+                                                    :ref="el => setMeterRef(el, index, 'decimal')"
+                                                    :placeholder="getDecimalPlaceholder(meter.meter_type_id)"
+                                                    inputmode="numeric">
                                             </div>
-                                            <small class="text-muted">Water: 6 digits + 1 decimal</small>
+                                            <small class="text-muted d-block mt-1">
+                                                <span v-if="isMeterWater(meter.meter_type_id)">Water: 6 digits + 2 decimals</span>
+                                                <span v-else-if="isMeterElectricity(meter.meter_type_id)">Electricity: 5 digits + 1 decimal</span>
+                                                <span v-else>Select meter type for format</span>
+                                            </small>
                                         </div>
-                                        <!-- Standard Input for Electricity -->
-                                        <input v-else type="number" class="form-control form-control-sm" v-model="meter.initial_reading" placeholder="Initial value">
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div v-if="formData.meters.length === 0" class="text-center text-muted py-3">
-                        No meters added. Click "Add Meter" to add one.
+                    
+                    <div v-if="formData.meters.length === 0" class="text-center py-4">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            No meters added yet. Click "Add Another Meter" to add meters to this account.
+                        </div>
+                    </div>
+
+                    <!-- Validation Messages for Step 5 -->
+                    <div v-if="formData.meters.length > 0 && !isStep5Valid" class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Please fill in all required fields for each meter (Meter Type, Meter Number, Reading Date).
                     </div>
                 </div>
             </div>
@@ -244,7 +268,7 @@
                 <button type="button" class="btn btn-secondary" @click="prevStep" :disabled="currentStep === 1">
                     <i class="fas fa-arrow-left mr-1"></i> Previous
                 </button>
-                <button v-if="currentStep < 4" type="button" class="btn btn-primary" @click="nextStep" :disabled="!canProceed">
+                <button v-if="currentStep < 5" type="button" class="btn btn-primary" @click="nextStep" :disabled="!canProceed">
                     Next <i class="fas fa-arrow-right ml-1"></i>
                 </button>
                 <button v-else type="button" class="btn btn-success" @click="submitForm" :disabled="saving || !canProceed">
@@ -288,11 +312,14 @@ const props = defineProps({
     }
 });
 
-const steps = ['User Details', 'Assign Region', 'Select Tariff', 'Create Account'];
+const steps = ['User Details', 'Assign Region', 'Select Tariff', 'Create Account', 'Add Meters'];
 const currentStep = ref(1);
 const saving = ref(false);
 const loadingTemplates = ref(false);
 const tariffTemplates = ref([]);
+
+// Refs for meter inputs - stored by index
+const meterInputRefs = ref({});
 
 const notification = reactive({
     show: false,
@@ -318,6 +345,7 @@ const formData = reactive({
     bill_day: '',
     read_day: '',
     billing_type: 'monthly',
+    // Step 5
     meters: []
 });
 
@@ -325,6 +353,16 @@ const formData = reactive({
 const selectedTemplate = computed(() => {
     if (!formData.tariff_template_id) return null;
     return tariffTemplates.value.find(t => t.id === formData.tariff_template_id);
+});
+
+// Check if all meters in Step 5 have required fields
+const isStep5Valid = computed(() => {
+    if (formData.meters.length === 0) return true; // No meters is valid (optional)
+    return formData.meters.every(meter => 
+        meter.meter_type_id && 
+        meter.meter_number && 
+        meter.initial_reading_date
+    );
 });
 
 const canProceed = computed(() => {
@@ -337,10 +375,18 @@ const canProceed = computed(() => {
             return formData.tariff_template_id;
         case 4:
             return formData.account_name && formData.account_number;
+        case 5:
+            return isStep5Valid.value;
         default:
             return false;
     }
 });
+
+// Constants for meter digit counts
+const WATER_WHOLE_DIGITS = 6;
+const WATER_DECIMAL_DIGITS = 2;
+const ELECTRICITY_WHOLE_DIGITS = 5;
+const ELECTRICITY_DECIMAL_DIGITS = 1;
 
 // Methods
 function showNotification(message, type = 'success') {
@@ -395,7 +441,7 @@ function prevStep() {
 }
 
 function nextStep() {
-    if (currentStep.value < 4 && canProceed.value) {
+    if (currentStep.value < 5 && canProceed.value) {
         currentStep.value++;
     }
 }
@@ -414,6 +460,9 @@ function addMeter() {
 
 function removeMeter(index) {
     formData.meters.splice(index, 1);
+    // Clean up refs
+    delete meterInputRefs.value[`${index}_whole`];
+    delete meterInputRefs.value[`${index}_decimal`];
 }
 
 function isMeterWater(meterTypeId) {
@@ -422,32 +471,159 @@ function isMeterWater(meterTypeId) {
     return type && type.title && type.title.toLowerCase() === 'water';
 }
 
-// Constants for meter digit counts
-const WATER_METER_DIGITS = 6;
-const ELECTRICITY_METER_DIGITS = 5;
-const DECIMAL_DIGITS = 1;
+function isMeterElectricity(meterTypeId) {
+    if (!meterTypeId) return false;
+    const type = props.meterTypes.find(t => t.id === meterTypeId);
+    return type && type.title && type.title.toLowerCase() === 'electricity';
+}
 
-function formatWholeDigits(meter) {
-    // Only allow digits, preserve leading zeros (water meter: 6 digits)
-    meter.initial_reading_whole = meter.initial_reading_whole.replace(/[^0-9]/g, '').slice(0, WATER_METER_DIGITS);
+// Get max digits based on meter type
+function getMaxWholeDigits(meterTypeId) {
+    if (isMeterWater(meterTypeId)) return WATER_WHOLE_DIGITS;
+    if (isMeterElectricity(meterTypeId)) return ELECTRICITY_WHOLE_DIGITS;
+    return WATER_WHOLE_DIGITS; // Default to water
+}
+
+function getMaxDecimalDigits(meterTypeId) {
+    if (isMeterWater(meterTypeId)) return WATER_DECIMAL_DIGITS;
+    if (isMeterElectricity(meterTypeId)) return ELECTRICITY_DECIMAL_DIGITS;
+    return WATER_DECIMAL_DIGITS; // Default to water
+}
+
+function getWholePlaceholder(meterTypeId) {
+    if (isMeterWater(meterTypeId)) return '000000';
+    if (isMeterElectricity(meterTypeId)) return '00000';
+    return '000000';
+}
+
+function getDecimalPlaceholder(meterTypeId) {
+    if (isMeterWater(meterTypeId)) return '00';
+    if (isMeterElectricity(meterTypeId)) return '0';
+    return '00';
+}
+
+// Store meter input refs
+function setMeterRef(el, index, type) {
+    if (el) {
+        meterInputRefs.value[`${index}_${type}`] = el;
+    }
+}
+
+// Handle meter type change - reset and adjust digits
+function onMeterTypeChange(meter) {
+    // Reset the reading values when meter type changes
+    meter.initial_reading_whole = '';
+    meter.initial_reading_decimal = '';
+    meter.initial_reading = '';
+}
+
+// Format whole part of meter reading
+function formatMeterWholeInput(meter) {
+    const maxDigits = getMaxWholeDigits(meter.meter_type_id);
+    // Only allow numeric input
+    meter.initial_reading_whole = meter.initial_reading_whole.replace(/[^0-9]/g, '').slice(0, maxDigits);
     updateMeterReading(meter);
 }
 
-function formatDecimalDigit(meter) {
-    // Only allow single digit
-    meter.initial_reading_decimal = meter.initial_reading_decimal.replace(/[^0-9]/g, '').slice(0, 1);
+// Format decimal part of meter reading
+function formatMeterDecimalInput(meter) {
+    const maxDigits = getMaxDecimalDigits(meter.meter_type_id);
+    // Only allow numeric input
+    meter.initial_reading_decimal = meter.initial_reading_decimal.replace(/[^0-9]/g, '').slice(0, maxDigits);
     updateMeterReading(meter);
+}
+
+// Handle keyboard navigation between meter input fields
+function handleMeterKeyDown(event, meter, fieldType, meterIndex) {
+    const key = event.key;
+    
+    // Tab or Enter moves from whole to decimal
+    if ((key === 'Tab' || key === 'Enter') && fieldType === 'whole' && !event.shiftKey) {
+        event.preventDefault();
+        const decimalRef = meterInputRefs.value[`${meterIndex}_decimal`];
+        if (decimalRef) {
+            decimalRef.focus();
+            decimalRef.select();
+        }
+    }
+    
+    // Shift+Tab moves from decimal to whole
+    if (key === 'Tab' && fieldType === 'decimal' && event.shiftKey) {
+        event.preventDefault();
+        const wholeRef = meterInputRefs.value[`${meterIndex}_whole`];
+        if (wholeRef) {
+            wholeRef.focus();
+            wholeRef.select();
+        }
+    }
+    
+    // Arrow right at end of whole field moves to decimal
+    if (key === 'ArrowRight' && fieldType === 'whole') {
+        const input = event.target;
+        if (input.selectionStart === input.value.length) {
+            event.preventDefault();
+            const decimalRef = meterInputRefs.value[`${meterIndex}_decimal`];
+            if (decimalRef) {
+                decimalRef.focus();
+                decimalRef.setSelectionRange(0, 0);
+            }
+        }
+    }
+    
+    // Arrow left at start of decimal field moves to whole
+    if (key === 'ArrowLeft' && fieldType === 'decimal') {
+        const input = event.target;
+        if (input.selectionStart === 0) {
+            event.preventDefault();
+            const wholeRef = meterInputRefs.value[`${meterIndex}_whole`];
+            if (wholeRef) {
+                wholeRef.focus();
+                const len = wholeRef.value.length;
+                wholeRef.setSelectionRange(len, len);
+            }
+        }
+    }
 }
 
 function updateMeterReading(meter) {
-    // Combine whole and decimal parts for water meters
+    // Combine whole and decimal parts
     if (meter.initial_reading_whole || meter.initial_reading_decimal) {
-        const whole = meter.initial_reading_whole || '0';
-        const decimal = meter.initial_reading_decimal || '0';
+        const maxWholeDigits = getMaxWholeDigits(meter.meter_type_id);
+        const maxDecimalDigits = getMaxDecimalDigits(meter.meter_type_id);
+        
+        // Pad whole part with leading zeros
+        const whole = (meter.initial_reading_whole || '0').padStart(maxWholeDigits, '0');
+        // Pad decimal part with trailing zeros
+        const decimal = (meter.initial_reading_decimal || '0').padEnd(maxDecimalDigits, '0');
+        
         meter.initial_reading = `${whole}.${decimal}`;
     } else {
         meter.initial_reading = '';
     }
+}
+
+// Prepare meter data before submission - ensure proper formatting
+function prepareMeterData() {
+    return formData.meters.map(meter => {
+        const maxWholeDigits = getMaxWholeDigits(meter.meter_type_id);
+        const maxDecimalDigits = getMaxDecimalDigits(meter.meter_type_id);
+        
+        // Pad values appropriately
+        let initialReading = meter.initial_reading;
+        if (meter.initial_reading_whole || meter.initial_reading_decimal) {
+            const whole = (meter.initial_reading_whole || '0').padStart(maxWholeDigits, '0');
+            const decimal = (meter.initial_reading_decimal || '0').padEnd(maxDecimalDigits, '0');
+            initialReading = `${whole}.${decimal}`;
+        }
+        
+        return {
+            meter_type_id: meter.meter_type_id,
+            meter_title: meter.meter_title,
+            meter_number: meter.meter_number,
+            initial_reading: initialReading,
+            initial_reading_date: meter.initial_reading_date
+        };
+    });
 }
 
 async function submitForm() {
@@ -459,6 +635,12 @@ async function submitForm() {
     saving.value = true;
     
     try {
+        // Prepare data with properly formatted meter readings
+        const submitData = {
+            ...formData,
+            meters: prepareMeterData()
+        };
+        
         const response = await fetch(props.apiUrls.store, {
             method: 'POST',
             headers: {
@@ -466,7 +648,7 @@ async function submitForm() {
                 'Accept': 'application/json',
                 'X-CSRF-TOKEN': props.csrfToken
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(submitData)
         });
         
         const data = await response.json();
@@ -541,8 +723,9 @@ async function submitForm() {
 }
 
 .step-label {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     color: #858796;
+    text-align: center;
 }
 
 .step-indicator.active .step-label {
@@ -550,48 +733,73 @@ async function submitForm() {
     font-weight: bold;
 }
 
-/* Water Meter Input Styles */
-.water-meter-input {
+/* Meter Reading Dual Input Design */
+.meter-reading-input-wrapper {
+    margin: 5px 0;
+}
+
+.meter-reading-dual-input {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
 }
 
-.meter-digits {
-    display: flex;
-}
-
-.meter-digits.white-section .meter-digit-input {
-    background: #fff;
-    color: #000;
-    border: 1px solid #ced4da;
-}
-
-.meter-digits.red-section .meter-digit-input {
-    background: #b30101;
-    color: #fff;
-    border: 1px solid #b30101;
-}
-
-.meter-digit-input {
-    width: 80px;
-    height: 32px;
-    text-align: center;
+.meter-main-input {
+    flex: 1;
+    max-width: 180px;
+    height: 48px;
+    padding: 8px 12px;
     font-family: 'Courier New', monospace;
     font-weight: bold;
-    font-size: 14px;
-    border-radius: 4px;
-    padding: 2px;
+    font-size: 20px;
+    text-align: center;
+    letter-spacing: 2px;
+    background: #ffffff;
+    color: #000000;
+    border: 2px solid #333;
+    border-radius: 6px;
 }
 
-.meter-digits.red-section .meter-digit-input {
-    width: 24px;
+.meter-main-input:focus {
+    outline: none;
+    border-color: #4e73df;
+    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.25);
 }
 
-.meter-decimal {
+.meter-decimal-separator {
+    font-size: 28px;
     font-weight: bold;
-    font-size: 18px;
+    color: #333;
     margin: 0 2px;
+}
+
+.meter-decimal-input {
+    width: 70px;
+    height: 48px;
+    padding: 8px 12px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+    letter-spacing: 2px;
+    background: #b30101;
+    color: #ffffff;
+    border: 2px solid #b30101;
+    border-radius: 6px;
+}
+
+.meter-decimal-input:focus {
+    outline: none;
+    border-color: #8a0000;
+    box-shadow: 0 0 0 3px rgba(179, 1, 1, 0.25);
+}
+
+.meter-decimal-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.meter-main-input::placeholder {
+    color: rgba(0, 0, 0, 0.3);
 }
 
 .alert {
@@ -606,6 +814,25 @@ async function submitForm() {
     to {
         transform: translateX(0);
         opacity: 1;
+    }
+}
+
+/* Responsive adjustments for meter inputs */
+@media (max-width: 576px) {
+    .meter-main-input {
+        max-width: 140px;
+        font-size: 16px;
+        height: 42px;
+    }
+    
+    .meter-decimal-input {
+        width: 50px;
+        font-size: 16px;
+        height: 42px;
+    }
+    
+    .meter-decimal-separator {
+        font-size: 22px;
     }
 }
 </style>
