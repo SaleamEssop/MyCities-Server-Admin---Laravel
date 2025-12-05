@@ -21,6 +21,10 @@ class UserAccountSetupController extends Controller
     // Default meter category ID
     private const DEFAULT_METER_CATEGORY_ID = 1;
     
+    // Test user credentials
+    private const TEST_USER_EMAIL = 'testuser123@test.com';
+    private const TEST_USER_PASSWORD = 'testuser333';
+    
     // Test user meter reading simulation constants
     private const MIN_MONTHLY_WATER_USAGE_LITERS = 15000;
     private const MAX_MONTHLY_WATER_USAGE_LITERS = 25000;
@@ -237,7 +241,7 @@ class UserAccountSetupController extends Controller
         $phone = '084' . $phoneSuffix;
         
         // Check if test user already exists
-        $existingUser = User::where('email', 'testuser123@test.com')->first();
+        $existingUser = User::where('email', self::TEST_USER_EMAIL)->first();
         if ($existingUser) {
             return redirect()->back()->with('error', 'Test user already exists. Delete it first to create a new one.');
         }
@@ -256,8 +260,8 @@ class UserAccountSetupController extends Controller
             // Create user
             $user = User::create([
                 'name' => 'Test User',
-                'email' => 'testuser123@test.com',
-                'password' => Hash::make('testuser333'),
+                'email' => self::TEST_USER_EMAIL,
+                'password' => Hash::make(self::TEST_USER_PASSWORD),
                 'contact_number' => $phone,
             ]);
             
@@ -334,7 +338,7 @@ class UserAccountSetupController extends Controller
             
             DB::commit();
             
-            return redirect()->back()->with('success', 'Test user created! Email: testuser123@test.com | Phone: ' . $phone);
+            return redirect()->back()->with('success', 'Test user created! Email: ' . self::TEST_USER_EMAIL . ' | Phone: ' . $phone);
             
         } catch (\Exception $e) {
             DB::rollBack();
