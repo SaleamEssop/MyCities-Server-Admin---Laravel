@@ -36,4 +36,14 @@ class Site extends Model
     {
         return $this->hasMany(Account::class);
     }
+
+    protected static function booted()
+    {
+        static::deleting(function ($site) {
+            // Delete all accounts for this site (which will cascade to meters and readings)
+            foreach ($site->accounts as $account) {
+                $account->delete();
+            }
+        });
+    }
 }

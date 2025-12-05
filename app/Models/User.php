@@ -50,9 +50,10 @@ class User extends Authenticatable
 
     protected static function booted()
     {
-        static::deleted(function ($user) {
-            foreach($user->sites as $site) {
-                Site::where('id', $site->id)->first()->delete();
+        static::deleting(function ($user) {
+            // Delete all sites for this user (which will cascade to accounts, meters, and readings)
+            foreach ($user->sites as $site) {
+                $site->delete();
             }
         });
     }

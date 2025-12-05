@@ -220,4 +220,119 @@ class UserAccountSetupController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Create a test user with full demo data
+     */
+    public function createTestUser(Request $request)
+    {
+        // Generate random phone suffix
+        $phoneSuffix = str_pad(rand(0, 9999999), 7, '0', STR_PAD_LEFT);
+        $phone = '084' . $phoneSuffix;
+        
+        // Check if test user already exists
+        $existingUser = User::where('email', 'testuser123@test.com')->first();
+        if ($existingUser) {
+            return redirect()->back()->with('error', 'Test user already exists. Delete it first to create a new one.');
+        }
+        
+        // Get first region and tariff template
+        $region = Regions::first();
+        $tariffTemplate = RegionsAccountTypeCost::first();
+        
+        if (!$region) {
+            return redirect()->back()->with('error', 'Please create a Region first');
+        }
+        
+        DB::beginTransaction();
+        
+        try {
+            // Create user
+            $user = User::create([
+                'name' => 'Test User',
+                'email' => 'testuser123@test.com',
+                'password' => Hash::make('testuser333'),
+                'contact_number' => $phone,
+            ]);
+            
+            // Create site
+            $site = Site::create([
+                'user_id' => $user->id,
+                'title' => 'Test Site',
+                'address' => '123 Test Street, Durban, 4001',
+                'lat' => -29.8587,
+                'lng' => 31.0218,
+                'email' => 'testsite@test.com',
+                'region_id' => $region->id,
+            ]);
+            
+            // Create account data
+            $accountData = [
+                'site_id' => $site->id,
+                'account_name' => 'Test Account',
+                'account_number' => 'ACC' . rand(100000, 999999),
+            ];
+            
+            // Only include tariff_template_id if the column exists and we have a template
+            if ($tariffTemplate && Schema::hasColumn('accounts', 'tariff_template_id')) {
+                $accountData['tariff_template_id'] = $tariffTemplate->id;
+            }
+            
+            $account = Account::create($accountData);
+            
+            // Get meter types
+            $waterMeterType = MeterType::where('title', 'water')->first();
+            $elecMeterType = MeterType::where('title', 'electricity')->first();
+            
+            // Create water meter
+            $waterMeter = Meter::create([
+                'account_id' => $account->id,
+                'meter_number' => 'WM' . rand(10000, 99999),
+                'meter_title' => 'Water Meter',
+                'meter_type_id' => $waterMeterType->id ?? 2,
+                'meter_category_id' => self::DEFAULT_METER_CATEGORY_ID,
+            ]);
+            
+            // Create electricity meter
+            $elecMeter = Meter::create([
+                'account_id' => $account->id,
+                'meter_number' => 'EM' . rand(10000, 99999),
+                'meter_title' => 'Electricity Meter',
+                'meter_type_id' => $elecMeterType->id ?? 1,
+                'meter_category_id' => self::DEFAULT_METER_CATEGORY_ID,
+            ]);
+            
+            // Create sample readings for last 3 months
+            $waterReading = 1000;
+            $elecReading = 50000;
+            
+            for ($i = 3; $i >= 0; $i--) {
+                $date = now()->subMonths($i);
+                
+                // Water reading (increases by 15-25 kL per month - stored as liters)
+                MeterReadings::create([
+                    'meter_id' => $waterMeter->id,
+                    'reading_value' => $waterReading,
+                    'reading_date' => $date,
+                ]);
+                $waterReading += rand(15000, 25000);
+                
+                // Electricity reading (increases by 300-500 kWh per month)
+                MeterReadings::create([
+                    'meter_id' => $elecMeter->id,
+                    'reading_value' => $elecReading,
+                    'reading_date' => $date,
+                ]);
+                $elecReading += rand(300, 500);
+            }
+            
+            DB::commit();
+            
+            return redirect()->back()->with('success', 'Test user created! Email: testuser123@test.com | Password: testuser333 | Phone: ' . $phone);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Error creating test user: ' . $e->getMessage());
+        }
+    }
 }
