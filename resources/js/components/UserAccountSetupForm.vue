@@ -494,7 +494,7 @@ async function generateTestData() {
     generatingTestData.value = true;
     
     try {
-        const response = await fetch(props.apiUrls.generateTestData || '/admin/user-accounts/setup/generate-test-data', {
+        const response = await fetch(props.apiUrls.generateTestData, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

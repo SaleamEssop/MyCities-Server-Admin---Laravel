@@ -12,6 +12,7 @@ use App\Models\RegionsAccountTypeCost;
 use App\Models\Site;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
@@ -227,9 +228,8 @@ class UserAccountSetupController extends Controller
     public function generateTestData(Request $request)
     {
         try {
-            // Run the DuskTestSeeder
-            $seeder = new \Database\Seeders\DuskTestSeeder();
-            $seeder->run();
+            // Run the DuskTestSeeder using Artisan for proper Laravel integration
+            Artisan::call('db:seed', ['--class' => 'Database\\Seeders\\DuskTestSeeder']);
             
             // Count what was created for feedback
             $testUser = User::where('email', 'testuser@example.com')->first();
