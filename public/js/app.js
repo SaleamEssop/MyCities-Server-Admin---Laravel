@@ -24409,7 +24409,7 @@ function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" !=
 function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 
 var WATER_WHOLE_DIGITS = 6;
-var WATER_DECIMAL_DIGITS = 2;
+var WATER_DECIMAL_DIGITS = 1;
 var ELECTRICITY_WHOLE_DIGITS = 5;
 var ELECTRICITY_DECIMAL_DIGITS = 1;
 
@@ -24442,8 +24442,20 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
     var steps = ['User Details', 'Assign Region', 'Select Tariff', 'Create Account', 'Add Meters'];
     var currentStep = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)(1);
     var saving = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)(false);
+    var savingUserOnly = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)(false);
     var loadingTemplates = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)(false);
     var tariffTemplates = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
+
+    // Password visibility toggle
+    var showPassword = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)(false);
+
+    // Email/Phone validation state
+    var emailError = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)('');
+    var emailValid = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)(false);
+    var phoneError = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)('');
+    var phoneValid = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)(false);
+    var validatingEmail = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)(false);
+    var validatingPhone = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)(false);
 
     // Refs for meter inputs - stored by index
     var meterInputRefs = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)({});
@@ -24486,13 +24498,23 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
     var isStep5Valid = (0,vue__WEBPACK_IMPORTED_MODULE_0__.computed)(function () {
       if (formData.meters.length === 0) return true; // No meters is valid - meters are optional
       return formData.meters.every(function (meter) {
-        return meter.meter_type_id && meter.meter_number && meter.initial_reading_date;
+        return meter.meter_type_id && meter.meter_number;
       });
+    });
+
+    // Check if billing type is date-to-date
+    var isDateToDate = (0,vue__WEBPACK_IMPORTED_MODULE_0__.computed)(function () {
+      return formData.billing_type === 'date-to-date';
+    });
+
+    // Check if user details are valid for "Save User Only" option
+    var canSaveUserOnly = (0,vue__WEBPACK_IMPORTED_MODULE_0__.computed)(function () {
+      return formData.name && formData.email && formData.contact_number && formData.password && !emailError.value && !phoneError.value;
     });
     var canProceed = (0,vue__WEBPACK_IMPORTED_MODULE_0__.computed)(function () {
       switch (currentStep.value) {
         case 1:
-          return formData.name && formData.email && formData.contact_number && formData.password;
+          return formData.name && formData.email && formData.contact_number && formData.password && !emailError.value && !phoneError.value;
         case 2:
           return formData.region_id;
         case 3:
@@ -24506,7 +24528,7 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
       }
     });
 
-    // Constants for meter digit counts
+    // Constants for meter digit counts (Water: 6+1, Electricity: 5+1)
     function showNotification(message) {
       var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'success';
       notification.message = message;
@@ -24526,29 +24548,236 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
       }
       return url;
     }
+
+    // Password visibility toggle
+    function togglePassword() {
+      showPassword.value = !showPassword.value;
+    }
+
+    // Email validation with AJAX
+    function validateEmail() {
+      return _validateEmail.apply(this, arguments);
+    } // Phone validation with AJAX
+    function _validateEmail() {
+      _validateEmail = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+        var emailRegex, response, data, _t;
+        return _regenerator().w(function (_context) {
+          while (1) switch (_context.p = _context.n) {
+            case 0:
+              if (formData.email) {
+                _context.n = 1;
+                break;
+              }
+              emailError.value = '';
+              emailValid.value = false;
+              return _context.a(2);
+            case 1:
+              // Basic email format check
+              emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              if (emailRegex.test(formData.email)) {
+                _context.n = 2;
+                break;
+              }
+              emailError.value = 'Please enter a valid email address';
+              emailValid.value = false;
+              return _context.a(2);
+            case 2:
+              validatingEmail.value = true;
+              _context.p = 3;
+              _context.n = 4;
+              return fetch(props.apiUrls.validateEmail || '/admin/user-accounts/setup/validate-email', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+                  'X-CSRF-TOKEN': props.csrfToken
+                },
+                body: JSON.stringify({
+                  email: formData.email
+                })
+              });
+            case 4:
+              response = _context.v;
+              _context.n = 5;
+              return response.json();
+            case 5:
+              data = _context.v;
+              if (data.exists) {
+                emailError.value = 'This email address is already registered';
+                emailValid.value = false;
+              } else {
+                emailError.value = '';
+                emailValid.value = true;
+              }
+              _context.n = 7;
+              break;
+            case 6:
+              _context.p = 6;
+              _t = _context.v;
+              // If validation endpoint doesn't exist, don't block the user
+              emailError.value = '';
+              emailValid.value = false;
+            case 7:
+              _context.p = 7;
+              validatingEmail.value = false;
+              return _context.f(7);
+            case 8:
+              return _context.a(2);
+          }
+        }, _callee, null, [[3, 6, 7, 8]]);
+      }));
+      return _validateEmail.apply(this, arguments);
+    }
+    function validatePhone() {
+      return _validatePhone.apply(this, arguments);
+    } // Save user only (without region, tariff, account, meters)
+    function _validatePhone() {
+      _validatePhone = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
+        var response, data, _t2;
+        return _regenerator().w(function (_context2) {
+          while (1) switch (_context2.p = _context2.n) {
+            case 0:
+              if (formData.contact_number) {
+                _context2.n = 1;
+                break;
+              }
+              phoneError.value = '';
+              phoneValid.value = false;
+              return _context2.a(2);
+            case 1:
+              validatingPhone.value = true;
+              _context2.p = 2;
+              _context2.n = 3;
+              return fetch(props.apiUrls.validatePhone || '/admin/user-accounts/setup/validate-phone', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+                  'X-CSRF-TOKEN': props.csrfToken
+                },
+                body: JSON.stringify({
+                  contact_number: formData.contact_number
+                })
+              });
+            case 3:
+              response = _context2.v;
+              _context2.n = 4;
+              return response.json();
+            case 4:
+              data = _context2.v;
+              if (data.exists) {
+                phoneError.value = 'This phone number is already registered';
+                phoneValid.value = false;
+              } else {
+                phoneError.value = '';
+                phoneValid.value = true;
+              }
+              _context2.n = 6;
+              break;
+            case 5:
+              _context2.p = 5;
+              _t2 = _context2.v;
+              // If validation endpoint doesn't exist, don't block the user
+              phoneError.value = '';
+              phoneValid.value = false;
+            case 6:
+              _context2.p = 6;
+              validatingPhone.value = false;
+              return _context2.f(6);
+            case 7:
+              return _context2.a(2);
+          }
+        }, _callee2, null, [[2, 5, 6, 7]]);
+      }));
+      return _validatePhone.apply(this, arguments);
+    }
+    function saveUserOnly() {
+      return _saveUserOnly.apply(this, arguments);
+    }
+    function _saveUserOnly() {
+      _saveUserOnly = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
+        var response, data, _t3;
+        return _regenerator().w(function (_context3) {
+          while (1) switch (_context3.p = _context3.n) {
+            case 0:
+              if (canSaveUserOnly.value) {
+                _context3.n = 1;
+                break;
+              }
+              showNotification('Please fill in all required fields correctly', 'danger');
+              return _context3.a(2);
+            case 1:
+              savingUserOnly.value = true;
+              _context3.p = 2;
+              _context3.n = 3;
+              return fetch(props.apiUrls.storeUserOnly || '/admin/user-accounts/setup/user-only', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+                  'X-CSRF-TOKEN': props.csrfToken
+                },
+                body: JSON.stringify({
+                  name: formData.name,
+                  email: formData.email,
+                  contact_number: formData.contact_number,
+                  password: formData.password
+                })
+              });
+            case 3:
+              response = _context3.v;
+              _context3.n = 4;
+              return response.json();
+            case 4:
+              data = _context3.v;
+              if (data.status === 200) {
+                showNotification(data.message || 'User created successfully', 'success');
+                setTimeout(function () {
+                  window.location.href = '/admin/user-accounts/manager';
+                }, 1500);
+              } else {
+                showNotification(data.message || 'Error creating user', 'danger');
+              }
+              _context3.n = 6;
+              break;
+            case 5:
+              _context3.p = 5;
+              _t3 = _context3.v;
+              showNotification('Error creating user: ' + _t3.message, 'danger');
+            case 6:
+              _context3.p = 6;
+              savingUserOnly.value = false;
+              return _context3.f(6);
+            case 7:
+              return _context3.a(2);
+          }
+        }, _callee3, null, [[2, 5, 6, 7]]);
+      }));
+      return _saveUserOnly.apply(this, arguments);
+    }
     function onRegionChange() {
       return _onRegionChange.apply(this, arguments);
     }
     function _onRegionChange() {
-      _onRegionChange = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
-        var url, response, data, _t;
-        return _regenerator().w(function (_context) {
-          while (1) switch (_context.p = _context.n) {
+      _onRegionChange = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4() {
+        var url, response, data, _t4;
+        return _regenerator().w(function (_context4) {
+          while (1) switch (_context4.p = _context4.n) {
             case 0:
               if (formData.region_id) {
-                _context.n = 1;
+                _context4.n = 1;
                 break;
               }
               tariffTemplates.value = [];
               formData.tariff_template_id = '';
-              return _context.a(2);
+              return _context4.a(2);
             case 1:
               loadingTemplates.value = true;
-              _context.p = 2;
+              _context4.p = 2;
               url = buildUrl(props.apiUrls.getTariffTemplates, {
                 '__REGION_ID__': formData.region_id
               });
-              _context.n = 3;
+              _context4.n = 3;
               return fetch(url, {
                 headers: {
                   'Accept': 'application/json',
@@ -24556,29 +24785,29 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
                 }
               });
             case 3:
-              response = _context.v;
-              _context.n = 4;
+              response = _context4.v;
+              _context4.n = 4;
               return response.json();
             case 4:
-              data = _context.v;
+              data = _context4.v;
               if (data.status === 200) {
                 tariffTemplates.value = data.data;
                 formData.tariff_template_id = '';
               }
-              _context.n = 6;
+              _context4.n = 6;
               break;
             case 5:
-              _context.p = 5;
-              _t = _context.v;
-              showNotification('Error loading tariff templates: ' + _t.message, 'danger');
+              _context4.p = 5;
+              _t4 = _context4.v;
+              showNotification('Error loading tariff templates: ' + _t4.message, 'danger');
             case 6:
-              _context.p = 6;
+              _context4.p = 6;
               loadingTemplates.value = false;
-              return _context.f(6);
+              return _context4.f(6);
             case 7:
-              return _context.a(2);
+              return _context4.a(2);
           }
-        }, _callee, null, [[2, 5, 6, 7]]);
+        }, _callee4, null, [[2, 5, 6, 7]]);
       }));
       return _onRegionChange.apply(this, arguments);
     }
@@ -24652,9 +24881,25 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
       return '000000';
     }
     function getDecimalPlaceholder(meterTypeId) {
-      if (isMeterWater(meterTypeId)) return '00';
+      if (isMeterWater(meterTypeId)) return '0';
       if (isMeterElectricity(meterTypeId)) return '0';
-      return '00';
+      return '0';
+    }
+
+    // Get CSS class for main meter input based on meter type
+    function getMeterMainInputClass(meterTypeId) {
+      if (isMeterElectricity(meterTypeId)) {
+        return 'meter-main-input meter-electricity-main';
+      }
+      return 'meter-main-input meter-water-main';
+    }
+
+    // Get CSS class for decimal meter input based on meter type
+    function getMeterDecimalInputClass(meterTypeId) {
+      if (isMeterElectricity(meterTypeId)) {
+        return 'meter-decimal-input meter-electricity-decimal';
+      }
+      return 'meter-decimal-input meter-water-decimal';
     }
 
     // Store meter input refs
@@ -24774,25 +25019,25 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
       return _submitForm.apply(this, arguments);
     }
     function _submitForm() {
-      _submitForm = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
-        var submitData, response, data, _t2;
-        return _regenerator().w(function (_context2) {
-          while (1) switch (_context2.p = _context2.n) {
+      _submitForm = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5() {
+        var submitData, response, data, _t5;
+        return _regenerator().w(function (_context5) {
+          while (1) switch (_context5.p = _context5.n) {
             case 0:
               if (canProceed.value) {
-                _context2.n = 1;
+                _context5.n = 1;
                 break;
               }
               showNotification('Please fill in all required fields', 'danger');
-              return _context2.a(2);
+              return _context5.a(2);
             case 1:
               saving.value = true;
-              _context2.p = 2;
+              _context5.p = 2;
               // Prepare data with properly formatted meter readings
               submitData = _objectSpread(_objectSpread({}, formData), {}, {
                 meters: prepareMeterData()
               });
-              _context2.n = 3;
+              _context5.n = 3;
               return fetch(props.apiUrls.store, {
                 method: 'POST',
                 headers: {
@@ -24803,11 +25048,11 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
                 body: JSON.stringify(submitData)
               });
             case 3:
-              response = _context2.v;
-              _context2.n = 4;
+              response = _context5.v;
+              _context5.n = 4;
               return response.json();
             case 4:
-              data = _context2.v;
+              data = _context5.v;
               if (data.status === 200) {
                 showNotification(data.message, 'success');
                 // Reset form after success
@@ -24817,20 +25062,20 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
               } else {
                 showNotification(data.message || 'Error creating account', 'danger');
               }
-              _context2.n = 6;
+              _context5.n = 6;
               break;
             case 5:
-              _context2.p = 5;
-              _t2 = _context2.v;
-              showNotification('Error creating account: ' + _t2.message, 'danger');
+              _context5.p = 5;
+              _t5 = _context5.v;
+              showNotification('Error creating account: ' + _t5.message, 'danger');
             case 6:
-              _context2.p = 6;
+              _context5.p = 6;
               saving.value = false;
-              return _context2.f(6);
+              return _context5.f(6);
             case 7:
-              return _context2.a(2);
+              return _context5.a(2);
           }
-        }, _callee2, null, [[2, 5, 6, 7]]);
+        }, _callee5, null, [[2, 5, 6, 7]]);
       }));
       return _submitForm.apply(this, arguments);
     }
@@ -24839,13 +25084,23 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
       steps: steps,
       currentStep: currentStep,
       saving: saving,
+      savingUserOnly: savingUserOnly,
       loadingTemplates: loadingTemplates,
       tariffTemplates: tariffTemplates,
+      showPassword: showPassword,
+      emailError: emailError,
+      emailValid: emailValid,
+      phoneError: phoneError,
+      phoneValid: phoneValid,
+      validatingEmail: validatingEmail,
+      validatingPhone: validatingPhone,
       meterInputRefs: meterInputRefs,
       notification: notification,
       formData: formData,
       selectedTemplate: selectedTemplate,
       isStep5Valid: isStep5Valid,
+      isDateToDate: isDateToDate,
+      canSaveUserOnly: canSaveUserOnly,
       canProceed: canProceed,
       WATER_WHOLE_DIGITS: WATER_WHOLE_DIGITS,
       WATER_DECIMAL_DIGITS: WATER_DECIMAL_DIGITS,
@@ -24853,6 +25108,10 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
       ELECTRICITY_DECIMAL_DIGITS: ELECTRICITY_DECIMAL_DIGITS,
       showNotification: showNotification,
       buildUrl: buildUrl,
+      togglePassword: togglePassword,
+      validateEmail: validateEmail,
+      validatePhone: validatePhone,
+      saveUserOnly: saveUserOnly,
       onRegionChange: onRegionChange,
       prevStep: prevStep,
       nextStep: nextStep,
@@ -24864,6 +25123,8 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
       getMaxDecimalDigits: getMaxDecimalDigits,
       getWholePlaceholder: getWholePlaceholder,
       getDecimalPlaceholder: getDecimalPlaceholder,
+      getMeterMainInputClass: getMeterMainInputClass,
+      getMeterDecimalInputClass: getMeterDecimalInputClass,
       setMeterRef: setMeterRef,
       onMeterTypeChange: onMeterTypeChange,
       formatMeterWholeInput: formatMeterWholeInput,
@@ -29033,10 +29294,12 @@ var _hoisted_17 = {
   "class": "form-group"
 };
 var _hoisted_18 = {
-  "class": "col-md-6"
+  key: 0,
+  "class": "invalid-feedback"
 };
 var _hoisted_19 = {
-  "class": "form-group"
+  key: 1,
+  "class": "valid-feedback"
 };
 var _hoisted_20 = {
   "class": "col-md-6"
@@ -29045,199 +29308,230 @@ var _hoisted_21 = {
   "class": "form-group"
 };
 var _hoisted_22 = {
-  "class": "row"
+  key: 0,
+  "class": "invalid-feedback"
 };
 var _hoisted_23 = {
-  "class": "col-md-6"
+  key: 1,
+  "class": "valid-feedback"
 };
 var _hoisted_24 = {
-  "class": "form-group"
-};
-var _hoisted_25 = ["value"];
-var _hoisted_26 = {
   "class": "col-md-6"
 };
-var _hoisted_27 = {
+var _hoisted_25 = {
   "class": "form-group"
 };
+var _hoisted_26 = {
+  "class": "input-group"
+};
+var _hoisted_27 = ["type"];
 var _hoisted_28 = {
-  "class": "col-md-12"
+  "class": "input-group-append"
 };
 var _hoisted_29 = {
-  "class": "form-group"
-};
-var _hoisted_30 = {
-  key: 0,
-  "class": "text-center py-4"
-};
-var _hoisted_31 = {
-  key: 1,
-  "class": "alert alert-warning"
-};
-var _hoisted_32 = {
-  key: 2,
   "class": "row"
 };
+var _hoisted_30 = {
+  "class": "col-md-6"
+};
+var _hoisted_31 = {
+  "class": "form-group"
+};
+var _hoisted_32 = ["value"];
 var _hoisted_33 = {
-  "class": "col-12"
+  "class": "col-md-6"
 };
 var _hoisted_34 = {
   "class": "form-group"
 };
-var _hoisted_35 = ["value"];
-var _hoisted_36 = {
-  key: 0
-};
-var _hoisted_37 = {
-  key: 1
-};
-var _hoisted_38 = {
-  key: 0,
-  "class": "col-12"
-};
-var _hoisted_39 = {
-  "class": "card bg-light"
-};
-var _hoisted_40 = {
-  "class": "card-body"
-};
-var _hoisted_41 = {
-  "class": "mb-1"
-};
-var _hoisted_42 = {
-  "class": "mb-1"
-};
-var _hoisted_43 = {
-  key: 0,
-  "class": "badge badge-primary mr-1"
-};
-var _hoisted_44 = {
-  key: 1,
-  "class": "badge badge-warning"
-};
-var _hoisted_45 = {
-  key: 0,
-  "class": "mb-0"
-};
-var _hoisted_46 = {
-  "class": "row"
-};
-var _hoisted_47 = {
-  "class": "col-md-6"
-};
-var _hoisted_48 = {
-  "class": "form-group"
-};
-var _hoisted_49 = {
-  "class": "col-md-6"
-};
-var _hoisted_50 = {
-  "class": "form-group"
-};
-var _hoisted_51 = {
-  "class": "col-md-4"
-};
-var _hoisted_52 = {
-  "class": "form-group"
-};
-var _hoisted_53 = {
-  "class": "col-md-4"
-};
-var _hoisted_54 = {
-  "class": "form-group"
-};
-var _hoisted_55 = {
-  "class": "col-md-4"
-};
-var _hoisted_56 = {
-  "class": "form-group"
-};
-var _hoisted_57 = {
-  "class": "card-body"
-};
-var _hoisted_58 = {
-  "class": "d-flex justify-content-between align-items-center mb-3"
-};
-var _hoisted_59 = ["onClick"];
-var _hoisted_60 = {
-  "class": "row"
-};
-var _hoisted_61 = {
-  "class": "col-md-6"
-};
-var _hoisted_62 = {
-  "class": "form-group"
-};
-var _hoisted_63 = ["onUpdate:modelValue", "onChange"];
-var _hoisted_64 = ["value"];
-var _hoisted_65 = {
-  "class": "col-md-6"
-};
-var _hoisted_66 = {
-  "class": "form-group"
-};
-var _hoisted_67 = ["onUpdate:modelValue"];
-var _hoisted_68 = {
-  "class": "col-md-6"
-};
-var _hoisted_69 = {
-  "class": "form-group"
-};
-var _hoisted_70 = ["onUpdate:modelValue"];
-var _hoisted_71 = {
-  "class": "col-md-6"
-};
-var _hoisted_72 = {
-  "class": "form-group"
-};
-var _hoisted_73 = ["onUpdate:modelValue"];
-var _hoisted_74 = {
+var _hoisted_35 = {
   "class": "col-md-12"
 };
-var _hoisted_75 = {
+var _hoisted_36 = {
   "class": "form-group"
 };
-var _hoisted_76 = {
-  "class": "meter-reading-input-wrapper"
-};
-var _hoisted_77 = {
-  "class": "meter-reading-dual-input"
-};
-var _hoisted_78 = ["maxlength", "onUpdate:modelValue", "onInput", "onKeydown", "placeholder"];
-var _hoisted_79 = ["maxlength", "onUpdate:modelValue", "onInput", "onKeydown", "placeholder"];
-var _hoisted_80 = {
-  "class": "text-muted d-block mt-1"
-};
-var _hoisted_81 = {
-  key: 0
-};
-var _hoisted_82 = {
-  key: 1
-};
-var _hoisted_83 = {
-  key: 2
-};
-var _hoisted_84 = {
+var _hoisted_37 = {
   key: 0,
   "class": "text-center py-4"
 };
+var _hoisted_38 = {
+  key: 1,
+  "class": "alert alert-warning"
+};
+var _hoisted_39 = {
+  key: 2,
+  "class": "row"
+};
+var _hoisted_40 = {
+  "class": "col-12"
+};
+var _hoisted_41 = {
+  "class": "form-group"
+};
+var _hoisted_42 = ["value"];
+var _hoisted_43 = {
+  key: 0
+};
+var _hoisted_44 = {
+  key: 1
+};
+var _hoisted_45 = {
+  key: 0,
+  "class": "col-12"
+};
+var _hoisted_46 = {
+  "class": "card bg-light"
+};
+var _hoisted_47 = {
+  "class": "card-body"
+};
+var _hoisted_48 = {
+  "class": "mb-1"
+};
+var _hoisted_49 = {
+  "class": "mb-1"
+};
+var _hoisted_50 = {
+  key: 0,
+  "class": "badge badge-primary mr-1"
+};
+var _hoisted_51 = {
+  key: 1,
+  "class": "badge badge-warning"
+};
+var _hoisted_52 = {
+  key: 0,
+  "class": "mb-0"
+};
+var _hoisted_53 = {
+  "class": "row"
+};
+var _hoisted_54 = {
+  "class": "col-md-6"
+};
+var _hoisted_55 = {
+  "class": "form-group"
+};
+var _hoisted_56 = {
+  "class": "col-md-6"
+};
+var _hoisted_57 = {
+  "class": "form-group"
+};
+var _hoisted_58 = {
+  "class": "col-md-4"
+};
+var _hoisted_59 = {
+  "class": "form-group"
+};
+var _hoisted_60 = {
+  "class": "col-md-4"
+};
+var _hoisted_61 = {
+  "class": "form-group"
+};
+var _hoisted_62 = ["disabled"];
+var _hoisted_63 = {
+  key: 0,
+  "class": "text-muted"
+};
+var _hoisted_64 = {
+  "class": "col-md-4"
+};
+var _hoisted_65 = {
+  "class": "form-group"
+};
+var _hoisted_66 = ["disabled"];
+var _hoisted_67 = {
+  key: 0,
+  "class": "text-muted"
+};
+var _hoisted_68 = {
+  "class": "card-body"
+};
+var _hoisted_69 = {
+  "class": "d-flex justify-content-between align-items-center mb-3"
+};
+var _hoisted_70 = ["onClick"];
+var _hoisted_71 = {
+  "class": "row"
+};
+var _hoisted_72 = {
+  "class": "col-md-6"
+};
+var _hoisted_73 = {
+  "class": "form-group"
+};
+var _hoisted_74 = ["onUpdate:modelValue", "onChange"];
+var _hoisted_75 = ["value"];
+var _hoisted_76 = {
+  "class": "col-md-6"
+};
+var _hoisted_77 = {
+  "class": "form-group"
+};
+var _hoisted_78 = ["onUpdate:modelValue"];
+var _hoisted_79 = {
+  "class": "col-md-12"
+};
+var _hoisted_80 = {
+  "class": "form-group"
+};
+var _hoisted_81 = ["onUpdate:modelValue"];
+var _hoisted_82 = {
+  "class": "col-md-12"
+};
+var _hoisted_83 = {
+  "class": "form-group"
+};
+var _hoisted_84 = {
+  "class": "meter-reading-input-wrapper"
+};
 var _hoisted_85 = {
+  "class": "meter-reading-dual-input"
+};
+var _hoisted_86 = ["maxlength", "onUpdate:modelValue", "onInput", "onKeydown", "placeholder"];
+var _hoisted_87 = ["maxlength", "onUpdate:modelValue", "onInput", "onKeydown", "placeholder"];
+var _hoisted_88 = {
+  "class": "text-muted d-block mt-1"
+};
+var _hoisted_89 = {
+  key: 0
+};
+var _hoisted_90 = {
+  key: 1
+};
+var _hoisted_91 = {
+  key: 2
+};
+var _hoisted_92 = {
+  key: 0,
+  "class": "text-center py-4"
+};
+var _hoisted_93 = {
   key: 1,
   "class": "alert alert-warning mt-3"
 };
-var _hoisted_86 = {
+var _hoisted_94 = {
   "class": "card-footer d-flex justify-content-between"
 };
-var _hoisted_87 = ["disabled"];
-var _hoisted_88 = ["disabled"];
-var _hoisted_89 = ["disabled"];
-var _hoisted_90 = {
+var _hoisted_95 = ["disabled"];
+var _hoisted_96 = ["disabled"];
+var _hoisted_97 = {
   key: 0
 };
-var _hoisted_91 = {
+var _hoisted_98 = {
   key: 1
 };
-var _hoisted_92 = {
+var _hoisted_99 = ["disabled"];
+var _hoisted_100 = ["disabled"];
+var _hoisted_101 = {
+  key: 0
+};
+var _hoisted_102 = {
+  key: 1
+};
+var _hoisted_103 = {
   "class": "position-fixed",
   style: {
     "top": "20px",
@@ -29268,33 +29562,47 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     "class": "text-danger"
   }, "*")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     type: "email",
-    "class": "form-control",
+    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["form-control", {
+      'is-invalid': $setup.emailError,
+      'is-valid': $setup.emailValid
+    }]),
     "onUpdate:modelValue": _cache[1] || (_cache[1] = function ($event) {
       return $setup.formData.email = $event;
     }),
+    onBlur: $setup.validateEmail,
     placeholder: "Enter email address",
     required: ""
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.email]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_18, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_19, [_cache[16] || (_cache[16] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Contact Number "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+  }, null, 34 /* CLASS, NEED_HYDRATION */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.email]]), $setup.emailError ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_18, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.emailError), 1 /* TEXT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.emailValid ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_19, "Email is available")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_20, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_21, [_cache[16] || (_cache[16] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Contact Number "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
     "class": "text-danger"
   }, "*")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     type: "text",
-    "class": "form-control",
+    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["form-control", {
+      'is-invalid': $setup.phoneError,
+      'is-valid': $setup.phoneValid
+    }]),
     "onUpdate:modelValue": _cache[2] || (_cache[2] = function ($event) {
       return $setup.formData.contact_number = $event;
     }),
+    onBlur: $setup.validatePhone,
     placeholder: "Enter phone number",
     required: ""
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.contact_number]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_20, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_21, [_cache[17] || (_cache[17] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Password "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+  }, null, 34 /* CLASS, NEED_HYDRATION */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.contact_number]]), $setup.phoneError ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_22, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.phoneError), 1 /* TEXT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.phoneValid ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_23, "Phone number is available")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_24, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_25, [_cache[17] || (_cache[17] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Password "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
     "class": "text-danger"
-  }, "*")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
-    type: "password",
+  }, "*")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_26, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+    type: $setup.showPassword ? 'text' : 'password',
     "class": "form-control",
     "onUpdate:modelValue": _cache[3] || (_cache[3] = function ($event) {
       return $setup.formData.password = $event;
     }),
     placeholder: "Enter password",
     required: ""
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.password]])])])])], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vShow, $setup.currentStep === 1]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Step 2: Region Selection "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_22, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_23, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_24, [_cache[19] || (_cache[19] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Region "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+  }, null, 8 /* PROPS */, _hoisted_27), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelDynamic, $setup.formData.password]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_28, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    type: "button",
+    "class": "btn btn-outline-secondary",
+    onClick: $setup.togglePassword
+  }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)($setup.showPassword ? 'fas fa-eye-slash' : 'fas fa-eye')
+  }, null, 2 /* CLASS */)])])])])])])], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vShow, $setup.currentStep === 1]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Step 2: Region Selection "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_29, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_30, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_31, [_cache[19] || (_cache[19] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Region "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
     "class": "text-danger"
   }, "*")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
     "class": "form-control",
@@ -29309,28 +29617,28 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
       key: region.id,
       value: region.id
-    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(region.name), 9 /* TEXT, PROPS */, _hoisted_25);
-  }), 128 /* KEYED_FRAGMENT */))], 544 /* NEED_HYDRATION, NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.formData.region_id]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_26, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_27, [_cache[20] || (_cache[20] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Site Title", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+    }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(region.name), 9 /* TEXT, PROPS */, _hoisted_32);
+  }), 128 /* KEYED_FRAGMENT */))], 544 /* NEED_HYDRATION, NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.formData.region_id]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_33, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_34, [_cache[20] || (_cache[20] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Site Title", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     type: "text",
     "class": "form-control",
     "onUpdate:modelValue": _cache[5] || (_cache[5] = function ($event) {
       return $setup.formData.site_title = $event;
     }),
     placeholder: "Optional site title"
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.site_title]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_28, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_29, [_cache[21] || (_cache[21] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Address", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.site_title]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_35, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_36, [_cache[21] || (_cache[21] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Address", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     type: "text",
     "class": "form-control",
     "onUpdate:modelValue": _cache[6] || (_cache[6] = function ($event) {
       return $setup.formData.address = $event;
     }),
     placeholder: "Enter address"
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.address]])])])])], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vShow, $setup.currentStep === 2]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Step 3: Tariff Template Selection "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [$setup.loadingTemplates ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_30, _toConsumableArray(_cache[22] || (_cache[22] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.address]])])])])], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vShow, $setup.currentStep === 2]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Step 3: Tariff Template Selection "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [$setup.loadingTemplates ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_37, _toConsumableArray(_cache[22] || (_cache[22] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
     "class": "fas fa-spinner fa-spin fa-2x"
   }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", {
     "class": "mt-2"
-  }, "Loading tariff templates...", -1 /* CACHED */)])))) : $setup.tariffTemplates.length === 0 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_31, _toConsumableArray(_cache[23] || (_cache[23] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+  }, "Loading tariff templates...", -1 /* CACHED */)])))) : $setup.tariffTemplates.length === 0 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_38, _toConsumableArray(_cache[23] || (_cache[23] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
     "class": "fas fa-exclamation-triangle mr-2"
-  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" No active tariff templates found for the selected region. Please go back and select a different region, or create a tariff template first. ", -1 /* CACHED */)])))) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_32, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_33, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_34, [_cache[25] || (_cache[25] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Tariff Template "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" No active tariff templates found for the selected region. Please go back and select a different region, or create a tariff template first. ", -1 /* CACHED */)])))) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_39, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_40, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_41, [_cache[25] || (_cache[25] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Tariff Template "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
     "class": "text-danger"
   }, "*")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
     "class": "form-control",
@@ -29344,10 +29652,10 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
       key: template.id,
       value: template.id
-    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)((0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(template.template_name) + " ", 1 /* TEXT */), template.is_water ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_36, "(Water)")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), template.is_electricity ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_37, "(Electricity)")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 8 /* PROPS */, _hoisted_35);
-  }), 128 /* KEYED_FRAGMENT */))], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.formData.tariff_template_id]])])]), $setup.selectedTemplate ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_38, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_39, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_40, [_cache[29] || (_cache[29] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h6", {
+    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)((0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(template.template_name) + " ", 1 /* TEXT */), template.is_water ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_43, "(Water)")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), template.is_electricity ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_44, "(Electricity)")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 8 /* PROPS */, _hoisted_42);
+  }), 128 /* KEYED_FRAGMENT */))], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.formData.tariff_template_id]])])]), $setup.selectedTemplate ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_45, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_46, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_47, [_cache[29] || (_cache[29] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h6", {
     "class": "font-weight-bold"
-  }, "Selected Template Details:", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_41, [_cache[26] || (_cache[26] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Name:", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.selectedTemplate.template_name), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_42, [_cache[27] || (_cache[27] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Services:", -1 /* CACHED */)), $setup.selectedTemplate.is_water ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_43, "Water")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.selectedTemplate.is_electricity ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_44, "Electricity")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), $setup.selectedTemplate.start_date ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("p", _hoisted_45, [_cache[28] || (_cache[28] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Validity:", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.selectedTemplate.start_date) + " to " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.selectedTemplate.end_date || 'Ongoing'), 1 /* TEXT */)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]))], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vShow, $setup.currentStep === 3]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Step 4: Account Details (Create Account) "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_46, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_47, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_48, [_cache[30] || (_cache[30] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Account Name "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+  }, "Selected Template Details:", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_48, [_cache[26] || (_cache[26] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Name:", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.selectedTemplate.template_name), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("p", _hoisted_49, [_cache[27] || (_cache[27] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Services:", -1 /* CACHED */)), $setup.selectedTemplate.is_water ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_50, "Water")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.selectedTemplate.is_electricity ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_51, "Electricity")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), $setup.selectedTemplate.start_date ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("p", _hoisted_52, [_cache[28] || (_cache[28] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Validity:", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.selectedTemplate.start_date) + " to " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.selectedTemplate.end_date || 'Ongoing'), 1 /* TEXT */)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]))], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vShow, $setup.currentStep === 3]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Step 4: Account Details (Create Account) "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_53, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_54, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_55, [_cache[30] || (_cache[30] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Account Name "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
     "class": "text-danger"
   }, "*")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     type: "text",
@@ -29356,7 +29664,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       return $setup.formData.account_name = $event;
     }),
     placeholder: "Enter account name"
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.account_name]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_49, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_50, [_cache[31] || (_cache[31] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Account Number "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.account_name]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_56, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_57, [_cache[31] || (_cache[31] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Account Number "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
     "class": "text-danger"
   }, "*")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     type: "text",
@@ -29365,36 +29673,40 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       return $setup.formData.account_number = $event;
     }),
     placeholder: "Enter account number"
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.account_number]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_51, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_52, [_cache[32] || (_cache[32] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Bill Day", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
-    type: "number",
-    min: "1",
-    max: "31",
+  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.account_number]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_58, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_59, [_cache[33] || (_cache[33] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Billing Type", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
     "class": "form-control",
     "onUpdate:modelValue": _cache[10] || (_cache[10] = function ($event) {
-      return $setup.formData.bill_day = $event;
-    }),
-    placeholder: "1-31"
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.bill_day]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_53, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_54, [_cache[33] || (_cache[33] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Read Day", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      return $setup.formData.billing_type = $event;
+    })
+  }, _toConsumableArray(_cache[32] || (_cache[32] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
+    value: "monthly"
+  }, "Monthly", -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
+    value: "date-to-date"
+  }, "Date to Date", -1 /* CACHED */)])), 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.formData.billing_type]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_60, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_61, [_cache[34] || (_cache[34] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Bill Day", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     type: "number",
     min: "1",
     max: "31",
-    "class": "form-control",
+    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["form-control", {
+      'disabled-field': $setup.isDateToDate
+    }]),
     "onUpdate:modelValue": _cache[11] || (_cache[11] = function ($event) {
+      return $setup.formData.bill_day = $event;
+    }),
+    placeholder: "1-31",
+    disabled: $setup.isDateToDate
+  }, null, 10 /* CLASS, PROPS */, _hoisted_62), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.bill_day]]), $setup.isDateToDate ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("small", _hoisted_63, "Not applicable for Date to Date billing")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_64, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_65, [_cache[35] || (_cache[35] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Read Day", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+    type: "number",
+    min: "1",
+    max: "31",
+    "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["form-control", {
+      'disabled-field': $setup.isDateToDate
+    }]),
+    "onUpdate:modelValue": _cache[12] || (_cache[12] = function ($event) {
       return $setup.formData.read_day = $event;
     }),
-    placeholder: "1-31"
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.read_day]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_55, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_56, [_cache[35] || (_cache[35] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Billing Type", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
-    "class": "form-control",
-    "onUpdate:modelValue": _cache[12] || (_cache[12] = function ($event) {
-      return $setup.formData.billing_type = $event;
-    })
-  }, _toConsumableArray(_cache[34] || (_cache[34] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
-    value: "monthly"
-  }, "Monthly", -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
-    value: "bi-monthly"
-  }, "Bi-Monthly", -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
-    value: "quarterly"
-  }, "Quarterly", -1 /* CACHED */)])), 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $setup.formData.billing_type]])])])])], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vShow, $setup.currentStep === 4]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Step 5: Add Meters "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+    placeholder: "1-31",
+    disabled: $setup.isDateToDate
+  }, null, 10 /* CLASS, PROPS */, _hoisted_66), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.read_day]]), $setup.isDateToDate ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("small", _hoisted_67, "Not applicable for Date to Date billing")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])])])], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vShow, $setup.currentStep === 4]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Step 5: Add Meters "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "d-flex justify-content-between align-items-center mb-3"
   }, [_cache[37] || (_cache[37] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h6", {
     "class": "font-weight-bold mb-0"
@@ -29410,7 +29722,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
       key: index,
       "class": "card bg-light mb-3"
-    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_57, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_58, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, [_cache[38] || (_cache[38] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_68, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_69, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, [_cache[38] || (_cache[38] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
       "class": "fas fa-tachometer-alt mr-2"
     }, null, -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Meter " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(index + 1), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
       type: "button",
@@ -29420,7 +29732,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       }
     }, _toConsumableArray(_cache[39] || (_cache[39] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
       "class": "fas fa-trash"
-    }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Remove ", -1 /* CACHED */)])), 8 /* PROPS */, _hoisted_59)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_60, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_61, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_62, [_cache[41] || (_cache[41] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Meter Type "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Remove ", -1 /* CACHED */)])), 8 /* PROPS */, _hoisted_70)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_71, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_72, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_73, [_cache[41] || (_cache[41] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Meter Type "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
       "class": "text-danger"
     }, "*")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
       "class": "form-control",
@@ -29436,15 +29748,15 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("option", {
         key: type.id,
         value: type.id
-      }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(type.title), 9 /* TEXT, PROPS */, _hoisted_64);
-    }), 128 /* KEYED_FRAGMENT */))], 40 /* PROPS, NEED_HYDRATION */, _hoisted_63), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, meter.meter_type_id]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_65, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_66, [_cache[42] || (_cache[42] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Meter Name", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+      }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(type.title), 9 /* TEXT, PROPS */, _hoisted_75);
+    }), 128 /* KEYED_FRAGMENT */))], 40 /* PROPS, NEED_HYDRATION */, _hoisted_74), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, meter.meter_type_id]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_76, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_77, [_cache[42] || (_cache[42] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Meter Name", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       type: "text",
       "class": "form-control",
       "onUpdate:modelValue": function onUpdateModelValue($event) {
         return meter.meter_title = $event;
       },
       placeholder: "Enter meter name"
-    }, null, 8 /* PROPS */, _hoisted_67), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.meter_title]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_68, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_69, [_cache[43] || (_cache[43] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Meter Number "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    }, null, 8 /* PROPS */, _hoisted_78), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.meter_title]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_79, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_80, [_cache[43] || (_cache[43] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Meter Number "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
       "class": "text-danger"
     }, "*")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       type: "text",
@@ -29453,17 +29765,9 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
         return meter.meter_number = $event;
       },
       placeholder: "Enter meter number"
-    }, null, 8 /* PROPS */, _hoisted_70), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.meter_number]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_71, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_72, [_cache[44] || (_cache[44] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)("Reading Date "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
-      "class": "text-danger"
-    }, "*")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
-      type: "date",
-      "class": "form-control",
-      "onUpdate:modelValue": function onUpdateModelValue($event) {
-        return meter.initial_reading_date = $event;
-      }
-    }, null, 8 /* PROPS */, _hoisted_73), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.initial_reading_date]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_74, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_75, [_cache[46] || (_cache[46] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Start Reading", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Dual Input Field Design for Meter Reading "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_76, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_77, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
+    }, null, 8 /* PROPS */, _hoisted_81), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.meter_number]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_82, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_83, [_cache[45] || (_cache[45] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Start Reading", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Dual Input Field Design for Meter Reading with type-based styling "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_84, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_85, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       type: "text",
-      "class": "meter-main-input",
+      "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)($setup.getMeterMainInputClass(meter.meter_type_id)),
       maxlength: $setup.getMaxWholeDigits(meter.meter_type_id),
       "onUpdate:modelValue": function onUpdateModelValue($event) {
         return meter.initial_reading_whole = $event;
@@ -29480,11 +29784,11 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       placeholder: $setup.getWholePlaceholder(meter.meter_type_id),
       inputmode: "numeric"
-    }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_78), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.initial_reading_whole]]), _cache[45] || (_cache[45] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
+    }, null, 42 /* CLASS, PROPS, NEED_HYDRATION */, _hoisted_86), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.initial_reading_whole]]), _cache[44] || (_cache[44] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", {
       "class": "meter-decimal-separator"
     }, ".", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       type: "text",
-      "class": "meter-decimal-input",
+      "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)($setup.getMeterDecimalInputClass(meter.meter_type_id)),
       maxlength: $setup.getMaxDecimalDigits(meter.meter_type_id),
       "onUpdate:modelValue": function onUpdateModelValue($event) {
         return meter.initial_reading_decimal = $event;
@@ -29501,39 +29805,49 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       placeholder: $setup.getDecimalPlaceholder(meter.meter_type_id),
       inputmode: "numeric"
-    }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_79), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.initial_reading_decimal]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("small", _hoisted_80, [$setup.isMeterWater(meter.meter_type_id) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_81, "Water: 6 digits + 2 decimal places")) : $setup.isMeterElectricity(meter.meter_type_id) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_82, "Electricity: 5 digits + 1 decimal place")) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_83, "Select meter type for format"))])])])])])])]);
-  }), 128 /* KEYED_FRAGMENT */)), $setup.formData.meters.length === 0 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_84, _toConsumableArray(_cache[47] || (_cache[47] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
+    }, null, 42 /* CLASS, PROPS, NEED_HYDRATION */, _hoisted_87), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, meter.initial_reading_decimal]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("small", _hoisted_88, [$setup.isMeterWater(meter.meter_type_id) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_89, "Water: 6 digits + 1 decimal place (kL)")) : $setup.isMeterElectricity(meter.meter_type_id) ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_90, "Electricity: 5 digits + 1 decimal place (kWh)")) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_91, "Select meter type for format"))])])])])])])]);
+  }), 128 /* KEYED_FRAGMENT */)), $setup.formData.meters.length === 0 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_92, _toConsumableArray(_cache[46] || (_cache[46] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", {
     "class": "alert alert-info"
   }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
     "class": "fas fa-info-circle mr-2"
-  }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" No meters added yet. Click \"Add Another Meter\" to add meters to this account. ")], -1 /* CACHED */)])))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Validation Messages for Step 5 "), $setup.formData.meters.length > 0 && !$setup.isStep5Valid ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_85, _toConsumableArray(_cache[48] || (_cache[48] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+  }), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" No meters added yet. Click \"Add Another Meter\" to add meters to this account. ")], -1 /* CACHED */)])))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Validation Messages for Step 5 "), $setup.formData.meters.length > 0 && !$setup.isStep5Valid ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_93, _toConsumableArray(_cache[47] || (_cache[47] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
     "class": "fas fa-exclamation-triangle mr-2"
-  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Please fill in all required fields for each meter (Meter Type, Meter Number, Reading Date). ", -1 /* CACHED */)])))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vShow, $setup.currentStep === 5]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Navigation Buttons "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_86, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Please fill in all required fields for each meter (Meter Type, Meter Number). ", -1 /* CACHED */)])))) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vShow, $setup.currentStep === 5]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Navigation Buttons "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_94, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
     type: "button",
     "class": "btn btn-secondary",
     onClick: $setup.prevStep,
     disabled: $setup.currentStep === 1
-  }, _toConsumableArray(_cache[49] || (_cache[49] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+  }, _toConsumableArray(_cache[48] || (_cache[48] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
     "class": "fas fa-arrow-left mr-1"
-  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Previous ", -1 /* CACHED */)])), 8 /* PROPS */, _hoisted_87), $setup.currentStep < 5 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
+  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Previous ", -1 /* CACHED */)])), 8 /* PROPS */, _hoisted_95), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Save & Exit button - only on Step 1 "), $setup.currentStep === 1 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
     key: 0,
+    type: "button",
+    "class": "btn btn-outline-success mr-2",
+    onClick: $setup.saveUserOnly,
+    disabled: $setup.saving || !$setup.canSaveUserOnly
+  }, [$setup.savingUserOnly ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_97, _toConsumableArray(_cache[49] || (_cache[49] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-spinner fa-spin"
+  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Saving...", -1 /* CACHED */)])))) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_98, _toConsumableArray(_cache[50] || (_cache[50] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+    "class": "fas fa-user-plus mr-1"
+  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Save User Only", -1 /* CACHED */)]))))], 8 /* PROPS */, _hoisted_96)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.currentStep < 5 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
+    key: 1,
     type: "button",
     "class": "btn btn-primary",
     onClick: $setup.nextStep,
     disabled: !$setup.canProceed
-  }, _toConsumableArray(_cache[50] || (_cache[50] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Next ", -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+  }, _toConsumableArray(_cache[51] || (_cache[51] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Next ", -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
     "class": "fas fa-arrow-right ml-1"
-  }, null, -1 /* CACHED */)])), 8 /* PROPS */, _hoisted_88)) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
-    key: 1,
+  }, null, -1 /* CACHED */)])), 8 /* PROPS */, _hoisted_99)) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
+    key: 2,
     type: "button",
     "class": "btn btn-success",
     onClick: $setup.submitForm,
     disabled: $setup.saving || !$setup.canProceed
-  }, [$setup.saving ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_90, _toConsumableArray(_cache[51] || (_cache[51] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+  }, [$setup.saving ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_101, _toConsumableArray(_cache[52] || (_cache[52] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
     "class": "fas fa-spinner fa-spin"
-  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Creating...", -1 /* CACHED */)])))) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_91, _toConsumableArray(_cache[52] || (_cache[52] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
+  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Creating...", -1 /* CACHED */)])))) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_102, _toConsumableArray(_cache[53] || (_cache[53] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("i", {
     "class": "fas fa-check mr-1"
-  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Create Account", -1 /* CACHED */)]))))], 8 /* PROPS */, _hoisted_89))])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Notification Toast "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_92, [$setup.notification.show ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
+  }, null, -1 /* CACHED */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" Create Account", -1 /* CACHED */)]))))], 8 /* PROPS */, _hoisted_100))])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Notification Toast "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_103, [$setup.notification.show ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
     key: 0,
     "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(['alert', 'alert-' + $setup.notification.type, 'alert-dismissible', 'fade', 'show']),
     role: "alert"
@@ -29543,7 +29857,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     onClick: _cache[13] || (_cache[13] = function ($event) {
       return $setup.notification.show = false;
     })
-  }, _toConsumableArray(_cache[53] || (_cache[53] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "×", -1 /* CACHED */)])))], 2 /* CLASS */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]);
+  }, _toConsumableArray(_cache[54] || (_cache[54] = [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, "×", -1 /* CACHED */)])))], 2 /* CLASS */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]);
 }
 
 /***/ }),
@@ -30391,7 +30705,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.user-account-setup-wrapper[data-v-f65e1eec] {\n    max-width: 900px;\n    margin: 0 auto;\n}\n.step-indicator[data-v-f65e1eec] {\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    flex: 1;\n    position: relative;\n}\n.step-indicator[data-v-f65e1eec]:not(:last-child)::after {\n    content: '';\n    position: absolute;\n    top: 15px;\n    left: calc(50% + 20px);\n    width: calc(100% - 40px);\n    height: 2px;\n    background: #e9ecef;\n}\n.step-indicator.completed[data-v-f65e1eec]:not(:last-child)::after {\n    background: #1cc88a;\n}\n.step-number[data-v-f65e1eec] {\n    width: 30px;\n    height: 30px;\n    border-radius: 50%;\n    background: #e9ecef;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    font-weight: bold;\n    margin-bottom: 5px;\n    position: relative;\n    z-index: 1;\n}\n.step-indicator.active .step-number[data-v-f65e1eec] {\n    background: #4e73df;\n    color: white;\n}\n.step-indicator.completed .step-number[data-v-f65e1eec] {\n    background: #1cc88a;\n    color: white;\n}\n.step-label[data-v-f65e1eec] {\n    font-size: 0.75rem;\n    color: #858796;\n    text-align: center;\n}\n.step-indicator.active .step-label[data-v-f65e1eec] {\n    color: #4e73df;\n    font-weight: bold;\n}\n\n/* Meter Reading Dual Input Design */\n.meter-reading-input-wrapper[data-v-f65e1eec] {\n    margin: 5px 0;\n}\n.meter-reading-dual-input[data-v-f65e1eec] {\n    display: flex;\n    align-items: center;\n    gap: 4px;\n}\n.meter-main-input[data-v-f65e1eec] {\n    flex: 1;\n    max-width: 180px;\n    height: 48px;\n    padding: 8px 12px;\n    font-family: 'Courier New', monospace;\n    font-weight: bold;\n    font-size: 20px;\n    text-align: center;\n    letter-spacing: 2px;\n    background: #ffffff;\n    color: #000000;\n    border: 2px solid #333;\n    border-radius: 6px;\n}\n.meter-main-input[data-v-f65e1eec]:focus {\n    outline: none;\n    border-color: #4e73df;\n    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.25);\n}\n.meter-decimal-separator[data-v-f65e1eec] {\n    font-size: 28px;\n    font-weight: bold;\n    color: #333;\n    margin: 0 2px;\n}\n.meter-decimal-input[data-v-f65e1eec] {\n    width: 70px;\n    height: 48px;\n    padding: 8px 12px;\n    font-family: 'Courier New', monospace;\n    font-weight: bold;\n    font-size: 20px;\n    text-align: center;\n    letter-spacing: 2px;\n    background: #b30101;\n    color: #ffffff;\n    border: 2px solid #b30101;\n    border-radius: 6px;\n}\n.meter-decimal-input[data-v-f65e1eec]:focus {\n    outline: none;\n    border-color: #8a0000;\n    box-shadow: 0 0 0 3px rgba(179, 1, 1, 0.25);\n}\n.meter-decimal-input[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-decimal-input[data-v-f65e1eec]::placeholder {\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-main-input[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(0, 0, 0, 0.3);\n}\n.meter-main-input[data-v-f65e1eec]::placeholder {\n    color: rgba(0, 0, 0, 0.3);\n}\n.alert[data-v-f65e1eec] {\n    animation: slideIn-f65e1eec 0.3s ease;\n}\n@keyframes slideIn-f65e1eec {\nfrom {\n        transform: translateX(100%);\n        opacity: 0;\n}\nto {\n        transform: translateX(0);\n        opacity: 1;\n}\n}\n\n/* Responsive adjustments for meter inputs */\n@media (max-width: 576px) {\n.meter-main-input[data-v-f65e1eec] {\n        max-width: 140px;\n        font-size: 16px;\n        height: 42px;\n}\n.meter-decimal-input[data-v-f65e1eec] {\n        width: 50px;\n        font-size: 16px;\n        height: 42px;\n}\n.meter-decimal-separator[data-v-f65e1eec] {\n        font-size: 22px;\n}\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.user-account-setup-wrapper[data-v-f65e1eec] {\n    max-width: 900px;\n    margin: 0 auto;\n}\n.step-indicator[data-v-f65e1eec] {\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    flex: 1;\n    position: relative;\n}\n.step-indicator[data-v-f65e1eec]:not(:last-child)::after {\n    content: '';\n    position: absolute;\n    top: 15px;\n    left: calc(50% + 20px);\n    width: calc(100% - 40px);\n    height: 2px;\n    background: #e9ecef;\n}\n.step-indicator.completed[data-v-f65e1eec]:not(:last-child)::after {\n    background: #1cc88a;\n}\n.step-number[data-v-f65e1eec] {\n    width: 30px;\n    height: 30px;\n    border-radius: 50%;\n    background: #e9ecef;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    font-weight: bold;\n    margin-bottom: 5px;\n    position: relative;\n    z-index: 1;\n}\n.step-indicator.active .step-number[data-v-f65e1eec] {\n    background: #4e73df;\n    color: white;\n}\n.step-indicator.completed .step-number[data-v-f65e1eec] {\n    background: #1cc88a;\n    color: white;\n}\n.step-label[data-v-f65e1eec] {\n    font-size: 0.75rem;\n    color: #858796;\n    text-align: center;\n}\n.step-indicator.active .step-label[data-v-f65e1eec] {\n    color: #4e73df;\n    font-weight: bold;\n}\n\n/* Meter Reading Dual Input Design */\n.meter-reading-input-wrapper[data-v-f65e1eec] {\n    margin: 5px 0;\n}\n.meter-reading-dual-input[data-v-f65e1eec] {\n    display: flex;\n    align-items: center;\n    gap: 4px;\n}\n.meter-main-input[data-v-f65e1eec] {\n    flex: 1;\n    max-width: 180px;\n    height: 48px;\n    padding: 8px 12px;\n    font-family: 'Courier New', monospace;\n    font-weight: bold;\n    font-size: 20px;\n    text-align: center;\n    letter-spacing: 2px;\n    background: #ffffff;\n    color: #000000;\n    border: 2px solid #333;\n    border-radius: 6px;\n}\n.meter-main-input[data-v-f65e1eec]:focus {\n    outline: none;\n    border-color: #4e73df;\n    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.25);\n}\n.meter-decimal-separator[data-v-f65e1eec] {\n    font-size: 28px;\n    font-weight: bold;\n    color: #333;\n    margin: 0 2px;\n}\n.meter-decimal-input[data-v-f65e1eec] {\n    width: 70px;\n    height: 48px;\n    padding: 8px 12px;\n    font-family: 'Courier New', monospace;\n    font-weight: bold;\n    font-size: 20px;\n    text-align: center;\n    letter-spacing: 2px;\n    background: #b30101;\n    color: #ffffff;\n    border: 2px solid #b30101;\n    border-radius: 6px;\n}\n.meter-decimal-input[data-v-f65e1eec]:focus {\n    outline: none;\n    border-color: #8a0000;\n    box-shadow: 0 0 0 3px rgba(179, 1, 1, 0.25);\n}\n.meter-decimal-input[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-decimal-input[data-v-f65e1eec]::placeholder {\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-main-input[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(0, 0, 0, 0.3);\n}\n.meter-main-input[data-v-f65e1eec]::placeholder {\n    color: rgba(0, 0, 0, 0.3);\n}\n\n/* Water Meter Styling - White main, Red decimal */\n.meter-water-main[data-v-f65e1eec] {\n    background: #ffffff;\n    color: #000000;\n    border-color: #333;\n}\n.meter-water-main[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(0, 0, 0, 0.3);\n}\n.meter-water-main[data-v-f65e1eec]::placeholder {\n    color: rgba(0, 0, 0, 0.3);\n}\n.meter-water-decimal[data-v-f65e1eec] {\n    background: #b30101;\n    color: #ffffff;\n    border-color: #b30101;\n}\n.meter-water-decimal[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-water-decimal[data-v-f65e1eec]::placeholder {\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-water-decimal[data-v-f65e1eec]:focus {\n    border-color: #8a0000;\n    box-shadow: 0 0 0 3px rgba(179, 1, 1, 0.25);\n}\n\n/* Electricity Meter Styling - Black main, Grey decimal */\n.meter-electricity-main[data-v-f65e1eec] {\n    background: #000000;\n    color: #ffffff;\n    border-color: #000000;\n}\n.meter-electricity-main[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(255, 255, 255, 0.5);\n}\n.meter-electricity-main[data-v-f65e1eec]::placeholder {\n    color: rgba(255, 255, 255, 0.5);\n}\n.meter-electricity-main[data-v-f65e1eec]:focus {\n    border-color: #4e73df;\n    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.25);\n}\n.meter-electricity-decimal[data-v-f65e1eec] {\n    background: #666666;\n    color: #ffffff;\n    border-color: #666666;\n}\n.meter-electricity-decimal[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(255, 255, 255, 0.5);\n}\n.meter-electricity-decimal[data-v-f65e1eec]::placeholder {\n    color: rgba(255, 255, 255, 0.5);\n}\n.meter-electricity-decimal[data-v-f65e1eec]:focus {\n    border-color: #444444;\n    box-shadow: 0 0 0 3px rgba(102, 102, 102, 0.25);\n}\n\n/* Disabled field styling for Date to Date billing */\n.disabled-field[data-v-f65e1eec] {\n    background-color: #e9ecef !important;\n    cursor: not-allowed;\n    opacity: 0.7;\n}\n.alert[data-v-f65e1eec] {\n    animation: slideIn-f65e1eec 0.3s ease;\n}\n@keyframes slideIn-f65e1eec {\nfrom {\n        transform: translateX(100%);\n        opacity: 0;\n}\nto {\n        transform: translateX(0);\n        opacity: 1;\n}\n}\n\n/* Responsive adjustments for meter inputs */\n@media (max-width: 576px) {\n.meter-main-input[data-v-f65e1eec] {\n        max-width: 140px;\n        font-size: 16px;\n        height: 42px;\n}\n.meter-decimal-input[data-v-f65e1eec] {\n        width: 50px;\n        font-size: 16px;\n        height: 42px;\n}\n.meter-decimal-separator[data-v-f65e1eec] {\n        font-size: 22px;\n}\n}\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
