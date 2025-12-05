@@ -107,5 +107,20 @@ Route::prefix('v1')->group(function() {
         Route::post('/verify-code', [\App\Http\Controllers\ApiController::class, 'verifyCode']);
         Route::post('/reset-password', [\App\Http\Controllers\ApiController::class, 'resetPassword']);
     });
+
+    // Billing Engine API routes (for Quasar app)
+    Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'billing'], function() {
+        Route::get('/project/{account}', [\App\Http\Controllers\Api\BillingController::class, 'getProjectedBill']);
+        Route::get('/daily-consumption/{meter}', [\App\Http\Controllers\Api\BillingController::class, 'getDailyConsumption']);
+        Route::get('/history/{account}', [\App\Http\Controllers\Api\BillingController::class, 'getBillingHistory']);
+        Route::get('/dates/{account}', [\App\Http\Controllers\Api\BillingController::class, 'getBillingDates']);
+        Route::post('/calculate', [\App\Http\Controllers\Api\BillingController::class, 'calculateBill']);
+    });
+
+    // Tariff info routes (for Quasar app)
+    Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'tariff'], function() {
+        Route::get('/{account}', [\App\Http\Controllers\Api\BillingController::class, 'getAccountTariff']);
+        Route::get('/{account}/tiers', [\App\Http\Controllers\Api\BillingController::class, 'getTariffTiers']);
+    });
 });
 
