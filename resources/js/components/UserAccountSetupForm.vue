@@ -502,6 +502,14 @@ async function validateEmail() {
             },
             body: JSON.stringify({ email: formData.email })
         });
+        
+        if (!response.ok) {
+            // Server error or endpoint issue - don't block the user
+            emailError.value = '';
+            emailValid.value = false;
+            return;
+        }
+        
         const data = await response.json();
         if (data.exists) {
             emailError.value = 'This email address is already registered';
@@ -511,7 +519,7 @@ async function validateEmail() {
             emailValid.value = true;
         }
     } catch (error) {
-        // If validation endpoint doesn't exist, don't block the user
+        // Network error or JSON parsing error - don't block the user
         emailError.value = '';
         emailValid.value = false;
     } finally {
@@ -538,6 +546,14 @@ async function validatePhone() {
             },
             body: JSON.stringify({ contact_number: formData.contact_number })
         });
+        
+        if (!response.ok) {
+            // Server error or endpoint issue - don't block the user
+            phoneError.value = '';
+            phoneValid.value = false;
+            return;
+        }
+        
         const data = await response.json();
         if (data.exists) {
             phoneError.value = 'This phone number is already registered';
@@ -547,7 +563,7 @@ async function validatePhone() {
             phoneValid.value = true;
         }
     } catch (error) {
-        // If validation endpoint doesn't exist, don't block the user
+        // Network error or JSON parsing error - don't block the user
         phoneError.value = '';
         phoneValid.value = false;
     } finally {

@@ -189,7 +189,9 @@ class UserAccountSetupController extends Controller
                         $readingDate = now()->format('Y-m-d');
                         // If read_day is set in account, use it to calculate reading date
                         if ($request->read_day) {
-                            $readingDate = now()->setDay(min($request->read_day, now()->daysInMonth))->format('Y-m-d');
+                            $currentDate = now();
+                            $dayOfMonth = min((int)$request->read_day, $currentDate->daysInMonth);
+                            $readingDate = $currentDate->copy()->setDay($dayOfMonth)->format('Y-m-d');
                         }
                         
                         MeterReadings::create([

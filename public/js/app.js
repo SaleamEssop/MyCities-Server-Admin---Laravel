@@ -24598,9 +24598,18 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
               });
             case 4:
               response = _context.v;
-              _context.n = 5;
-              return response.json();
+              if (response.ok) {
+                _context.n = 5;
+                break;
+              }
+              // Server error or endpoint issue - don't block the user
+              emailError.value = '';
+              emailValid.value = false;
+              return _context.a(2);
             case 5:
+              _context.n = 6;
+              return response.json();
+            case 6:
               data = _context.v;
               if (data.exists) {
                 emailError.value = 'This email address is already registered';
@@ -24609,22 +24618,22 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
                 emailError.value = '';
                 emailValid.value = true;
               }
-              _context.n = 7;
+              _context.n = 8;
               break;
-            case 6:
-              _context.p = 6;
-              _t = _context.v;
-              // If validation endpoint doesn't exist, don't block the user
-              emailError.value = '';
-              emailValid.value = false;
             case 7:
               _context.p = 7;
-              validatingEmail.value = false;
-              return _context.f(7);
+              _t = _context.v;
+              // Network error or JSON parsing error - don't block the user
+              emailError.value = '';
+              emailValid.value = false;
             case 8:
+              _context.p = 8;
+              validatingEmail.value = false;
+              return _context.f(8);
+            case 9:
               return _context.a(2);
           }
-        }, _callee, null, [[3, 6, 7, 8]]);
+        }, _callee, null, [[3, 7, 8, 9]]);
       }));
       return _validateEmail.apply(this, arguments);
     }
@@ -24661,9 +24670,18 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
               });
             case 3:
               response = _context2.v;
-              _context2.n = 4;
-              return response.json();
+              if (response.ok) {
+                _context2.n = 4;
+                break;
+              }
+              // Server error or endpoint issue - don't block the user
+              phoneError.value = '';
+              phoneValid.value = false;
+              return _context2.a(2);
             case 4:
+              _context2.n = 5;
+              return response.json();
+            case 5:
               data = _context2.v;
               if (data.exists) {
                 phoneError.value = 'This phone number is already registered';
@@ -24672,22 +24690,22 @@ var ELECTRICITY_DECIMAL_DIGITS = 1;
                 phoneError.value = '';
                 phoneValid.value = true;
               }
-              _context2.n = 6;
+              _context2.n = 7;
               break;
-            case 5:
-              _context2.p = 5;
-              _t2 = _context2.v;
-              // If validation endpoint doesn't exist, don't block the user
-              phoneError.value = '';
-              phoneValid.value = false;
             case 6:
               _context2.p = 6;
-              validatingPhone.value = false;
-              return _context2.f(6);
+              _t2 = _context2.v;
+              // Network error or JSON parsing error - don't block the user
+              phoneError.value = '';
+              phoneValid.value = false;
             case 7:
+              _context2.p = 7;
+              validatingPhone.value = false;
+              return _context2.f(7);
+            case 8:
               return _context2.a(2);
           }
-        }, _callee2, null, [[2, 5, 6, 7]]);
+        }, _callee2, null, [[2, 6, 7, 8]]);
       }));
       return _validatePhone.apply(this, arguments);
     }
