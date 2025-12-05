@@ -17,6 +17,7 @@
                 'validateEmail' => route('user-accounts.setup.validate-email'),
                 'validatePhone' => route('user-accounts.setup.validate-phone'),
                 'getTariffTemplates' => route('user-accounts.setup.tariffs', ['regionId' => '__REGION_ID__']),
+                'generateTestData' => route('user-accounts.setup.generate-test-data'),
             ]
         ]) }}">
         </div>

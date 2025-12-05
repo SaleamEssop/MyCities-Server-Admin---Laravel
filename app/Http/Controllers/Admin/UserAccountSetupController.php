@@ -12,6 +12,7 @@ use App\Models\RegionsAccountTypeCost;
 use App\Models\Site;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
@@ -217,6 +218,44 @@ class UserAccountSetupController extends Controller
             return response()->json([
                 'status' => 500, 
                 'message' => 'Error creating user account: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate test data using DuskTestSeeder
+     */
+    public function generateTestData(Request $request)
+    {
+        try {
+            // Run the DuskTestSeeder using Artisan for proper Laravel integration
+            Artisan::call('db:seed', ['--class' => 'Database\\Seeders\\DuskTestSeeder']);
+            
+            // Count what was created for feedback
+            $testUser = User::where('email', 'testuser@example.com')->first();
+            $accountCount = 0;
+            $meterCount = 0;
+            
+            if ($testUser) {
+                $sites = Site::where('user_id', $testUser->id)->get();
+                foreach ($sites as $site) {
+                    $accounts = Account::where('site_id', $site->id)->get();
+                    $accountCount += $accounts->count();
+                    foreach ($accounts as $account) {
+                        $meterCount += Meter::where('account_id', $account->id)->count();
+                    }
+                }
+            }
+            
+            return response()->json([
+                'status' => 200,
+                'message' => "Test data generated successfully! Created test user with {$accountCount} account(s) and {$meterCount} meter(s)."
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Error generating test data: ' . $e->getMessage()
             ], 500);
         }
     }
