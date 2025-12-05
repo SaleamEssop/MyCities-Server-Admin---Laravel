@@ -55,19 +55,20 @@
             Interface
         </div>
 
-        <!-- Nav Item - User Accounts (Main menu with Setup and Manager) -->
+        <!-- Nav Item - User Accounts - Setup -->
         <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUserAccounts"
-               aria-expanded="true" aria-controls="collapseUserAccounts">
-                <i class="fas fa-fw fa-users-cog"></i>
-                <span>User Accounts</span>
+            <a class="nav-link" href="{{ route('user-accounts.setup') }}">
+                <i class="fas fa-fw fa-user-plus"></i>
+                <span>User Accounts - Setup</span>
             </a>
-            <div id="collapseUserAccounts" class="collapse" aria-labelledby="headingUserAccounts" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('user-accounts.setup') }}">Setup (Wizard)</a>
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('user-accounts.manager') }}">Manager</a>
-                </div>
-            </div>
+        </li>
+
+        <!-- Nav Item - User Accounts - Manager -->
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('user-accounts.manager') }}">
+                <i class="fas fa-fw fa-users-cog"></i>
+                <span>User Accounts - Manager</span>
+            </a>
         </li>
 
         <!-- Nav Item - Sites -->
