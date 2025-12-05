@@ -87,14 +87,24 @@ class WipeLegacyData extends Command
             $this->line("  ✓ Deleted {$deletedMeters} meters");
             Log::info("WipeLegacyData: Deleted {$deletedMeters} meters");
 
-            // Delete accounts (and their fixed costs via cascade in model)
+            // Delete fixed costs first (before accounts) to avoid cascade issues
+            if (DB::getSchemaBuilder()->hasTable('fixed_costs')) {
+                $deletedFixedCosts = DB::table('fixed_costs')->count();
+                DB::table('fixed_costs')->delete();
+                $this->line("  ✓ Deleted {$deletedFixedCosts} fixed costs");
+                Log::info("WipeLegacyData: Deleted {$deletedFixedCosts} fixed costs");
+            }
+
+            if (DB::getSchemaBuilder()->hasTable('account_fixed_costs')) {
+                $deletedAccountFixedCosts = DB::table('account_fixed_costs')->count();
+                DB::table('account_fixed_costs')->delete();
+                $this->line("  ✓ Deleted {$deletedAccountFixedCosts} account fixed costs");
+                Log::info("WipeLegacyData: Deleted {$deletedAccountFixedCosts} account fixed costs");
+            }
+
+            // Delete accounts using bulk deletion now that related tables are cleared
             $deletedAccounts = Account::count();
-            // Use chunk to properly trigger model events for cascade deletion
-            Account::chunk(100, function ($accounts) {
-                foreach ($accounts as $account) {
-                    $account->delete();
-                }
-            });
+            Account::query()->delete();
             $this->line("  ✓ Deleted {$deletedAccounts} accounts");
             Log::info("WipeLegacyData: Deleted {$deletedAccounts} accounts");
 
@@ -116,22 +126,6 @@ class WipeLegacyData extends Command
                 DB::table('payments')->delete();
                 $this->line("  ✓ Deleted {$deletedPayments} payments");
                 Log::info("WipeLegacyData: Deleted {$deletedPayments} payments");
-            }
-
-            // Delete fixed costs if the table exists
-            if (DB::getSchemaBuilder()->hasTable('fixed_costs')) {
-                $deletedFixedCosts = DB::table('fixed_costs')->count();
-                DB::table('fixed_costs')->delete();
-                $this->line("  ✓ Deleted {$deletedFixedCosts} fixed costs");
-                Log::info("WipeLegacyData: Deleted {$deletedFixedCosts} fixed costs");
-            }
-
-            // Delete account fixed costs if the table exists
-            if (DB::getSchemaBuilder()->hasTable('account_fixed_costs')) {
-                $deletedAccountFixedCosts = DB::table('account_fixed_costs')->count();
-                DB::table('account_fixed_costs')->delete();
-                $this->line("  ✓ Deleted {$deletedAccountFixedCosts} account fixed costs");
-                Log::info("WipeLegacyData: Deleted {$deletedAccountFixedCosts} account fixed costs");
             }
 
             DB::commit();

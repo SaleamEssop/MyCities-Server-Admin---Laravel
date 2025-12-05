@@ -204,8 +204,21 @@ class UserManagementController extends Controller
             $username = 'testuser' . $nextNumber;
             $email = $username . '@test.com';
             
-            // Generate phone number: 084 + 7 random digits
-            $phone = '084' . str_pad(rand(0, 9999999), 7, '0', STR_PAD_LEFT);
+            // Generate unique phone number: 084 + 7 random digits
+            // Retry up to 10 times to ensure uniqueness
+            $phone = null;
+            $maxAttempts = 10;
+            for ($i = 0; $i < $maxAttempts; $i++) {
+                $candidate = '084' . str_pad(rand(0, 9999999), 7, '0', STR_PAD_LEFT);
+                if (!User::where('contact_number', $candidate)->exists()) {
+                    $phone = $candidate;
+                    break;
+                }
+            }
+            
+            if (!$phone) {
+                throw new \Exception('Could not generate unique phone number after ' . $maxAttempts . ' attempts.');
+            }
             
             // Create test user with fixed password 123456
             $user = User::create([
@@ -244,7 +257,9 @@ class UserManagementController extends Controller
             ]);
             
             // Generate random account name and number
-            $accountName = 'Account ' . chr(64 + ($nextNumber % 26 + 1)) . rand(100, 999);
+            // Use letter A-Z based on user number (wraps after 26)
+            $accountLetter = chr(ord('A') + (($nextNumber - 1) % 26));
+            $accountName = 'Account ' . $accountLetter . rand(100, 999);
             $accountNumber = 'ACC-' . strtoupper(substr(md5($username), 0, 8));
             
             // Create test account
