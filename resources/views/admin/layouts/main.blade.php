@@ -86,38 +86,6 @@
                 </div>
             </div>
         </li>
-        
-        <!-- Nav Item - Legacy User Accounts (for backward compatibility) -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLegacyAccounts"
-               aria-expanded="true" aria-controls="collapseLegacyAccounts">
-                <i class="fas fa-fw fa-wrench"></i>
-                <span>Legacy Accounts</span>
-            </a>
-            <div id="collapseLegacyAccounts" class="collapse" aria-labelledby="headingUtilities"
-                 data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('account-list') }}">Accounts List</a>
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('show-users') }}">Users List</a>
-                </div>
-            </div>
-        </li>
-
-        <!-- NEW: Nav Item - Payments -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePayments"
-               aria-expanded="true" aria-controls="collapsePayments">
-                <i class="fas fa-fw fa-dollar-sign"></i>
-                <span>Payments</span>
-            </a>
-            <div id="collapsePayments" class="collapse" aria-labelledby="headingUtilities"
-                 data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('payments-list') }}">History</a>
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-payment-form') }}">Record Payment</a>
-                </div>
-            </div>
-        </li>
 
         <!-- Divider -->
         <hr class="sidebar-divider">
