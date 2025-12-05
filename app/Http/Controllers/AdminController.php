@@ -84,6 +84,16 @@ class AdminController extends Controller
     }
 
     public function createRegion(Request $request) {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'electricity_base_unit_cost' => 'nullable|numeric|min:0',
+            'electricity_base_unit' => 'nullable|string|max:10',
+            'water_base_unit_cost' => 'nullable|numeric|min:0',
+            'water_base_unit' => 'nullable|string|max:10',
+            'water_email' => 'nullable|email|max:255',
+            'electricity_email' => 'nullable|email|max:255',
+        ]);
+        
         $postData = $request->post();
         Regions::create([
             'name' => $postData['name'],

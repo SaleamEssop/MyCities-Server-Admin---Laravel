@@ -28,7 +28,7 @@
                     <i class="fas fa-flask me-1"></i> Create Test User
                 </button>
             </form>
-            <small class="text-muted ms-2">Creates a test user with demo data (Email: testuser123@test.com | Password: testuser333)</small>
+            <small class="text-muted ms-2">Creates a test user with demo data (default test credentials will be shown after creation)</small>
         </div>
 
         <!-- Setup Wizard Vue Component -->

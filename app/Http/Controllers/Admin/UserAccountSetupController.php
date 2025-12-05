@@ -20,6 +20,12 @@ class UserAccountSetupController extends Controller
 {
     // Default meter category ID
     private const DEFAULT_METER_CATEGORY_ID = 1;
+    
+    // Test user meter reading simulation constants
+    private const MIN_MONTHLY_WATER_USAGE_LITERS = 15000;
+    private const MAX_MONTHLY_WATER_USAGE_LITERS = 25000;
+    private const MIN_MONTHLY_ELECTRICITY_USAGE_KWH = 300;
+    private const MAX_MONTHLY_ELECTRICITY_USAGE_KWH = 500;
 
     /**
      * Display the setup wizard page
@@ -315,7 +321,7 @@ class UserAccountSetupController extends Controller
                     'reading_value' => $waterReading,
                     'reading_date' => $date,
                 ]);
-                $waterReading += rand(15000, 25000);
+                $waterReading += rand(self::MIN_MONTHLY_WATER_USAGE_LITERS, self::MAX_MONTHLY_WATER_USAGE_LITERS);
                 
                 // Electricity reading (increases by 300-500 kWh per month)
                 MeterReadings::create([
@@ -323,12 +329,12 @@ class UserAccountSetupController extends Controller
                     'reading_value' => $elecReading,
                     'reading_date' => $date,
                 ]);
-                $elecReading += rand(300, 500);
+                $elecReading += rand(self::MIN_MONTHLY_ELECTRICITY_USAGE_KWH, self::MAX_MONTHLY_ELECTRICITY_USAGE_KWH);
             }
             
             DB::commit();
             
-            return redirect()->back()->with('success', 'Test user created! Email: testuser123@test.com | Password: testuser333 | Phone: ' . $phone);
+            return redirect()->back()->with('success', 'Test user created! Email: testuser123@test.com | Phone: ' . $phone);
             
         } catch (\Exception $e) {
             DB::rollBack();
