@@ -23566,6 +23566,12 @@ function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Sym
 function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 
+var WATER_METER_DIGITS = 6;
+var ELECTRICITY_METER_DIGITS = 5;
+var DECIMAL_DIGITS = 1;
+
+// Helper to get max digits for meter type
+
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __name: 'UserAccountManagerForm',
   props: {
@@ -23716,6 +23722,11 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
       return type && type.title && type.title.toLowerCase() === 'electricity';
     }
 
+    // Constants for meter digit counts
+    function getMaxDigitsForMeterType(typeId) {
+      return isMeterWater(typeId) ? WATER_METER_DIGITS : ELECTRICITY_METER_DIGITS;
+    }
+
     // Pigeonhole input helpers
     function getDigit(digits, index) {
       return digits && digits[index] ? digits[index] : '0';
@@ -23723,7 +23734,7 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
     function updateDigit(event, index, section) {
       var value = event.target.value.replace(/[^0-9]/g, '');
       if (section === 'whole') {
-        var maxDigits = isMeterWater(selectedMeterType.value) ? 6 : 5;
+        var maxDigits = getMaxDigitsForMeterType(selectedMeterType.value);
         var digits = newReading.wholeDigits.split('');
         digits[index] = value || '0';
         newReading.wholeDigits = digits.join('').padEnd(maxDigits, '0').slice(0, maxDigits);
@@ -24146,7 +24157,7 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
         previousReading.value = selectedMeter.readings && selectedMeter.readings.length > 0 ? selectedMeter.readings[0] : null;
 
         // Initialize pigeonhole values
-        var maxDigits = isMeterWater(selectedMeterType.value) ? 6 : 5;
+        var maxDigits = getMaxDigitsForMeterType(selectedMeterType.value);
         newReading.wholeDigits = '0'.repeat(maxDigits);
         newReading.decimalDigit = '0';
         newReading.reading_value = '';
@@ -24331,6 +24342,10 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
       getMeterTypeBadgeClass: getMeterTypeBadgeClass,
       isMeterWater: isMeterWater,
       isMeterElectricity: isMeterElectricity,
+      WATER_METER_DIGITS: WATER_METER_DIGITS,
+      ELECTRICITY_METER_DIGITS: ELECTRICITY_METER_DIGITS,
+      DECIMAL_DIGITS: DECIMAL_DIGITS,
+      getMaxDigitsForMeterType: getMaxDigitsForMeterType,
       getDigit: getDigit,
       updateDigit: updateDigit,
       handleKeyDown: handleKeyDown,
@@ -24387,6 +24402,9 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 
+var WATER_METER_DIGITS = 6;
+var ELECTRICITY_METER_DIGITS = 5;
+var DECIMAL_DIGITS = 1;
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __name: 'UserAccountSetupForm',
   props: {
@@ -24571,9 +24589,11 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
       });
       return type && type.title && type.title.toLowerCase() === 'water';
     }
+
+    // Constants for meter digit counts
     function formatWholeDigits(meter) {
-      // Only allow digits, preserve leading zeros
-      meter.initial_reading_whole = meter.initial_reading_whole.replace(/[^0-9]/g, '').slice(0, 6);
+      // Only allow digits, preserve leading zeros (water meter: 6 digits)
+      meter.initial_reading_whole = meter.initial_reading_whole.replace(/[^0-9]/g, '').slice(0, WATER_METER_DIGITS);
       updateMeterReading(meter);
     }
     function formatDecimalDigit(meter) {
@@ -24670,6 +24690,9 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
       addMeter: addMeter,
       removeMeter: removeMeter,
       isMeterWater: isMeterWater,
+      WATER_METER_DIGITS: WATER_METER_DIGITS,
+      ELECTRICITY_METER_DIGITS: ELECTRICITY_METER_DIGITS,
+      DECIMAL_DIGITS: DECIMAL_DIGITS,
       formatWholeDigits: formatWholeDigits,
       formatDecimalDigit: formatDecimalDigit,
       updateMeterReading: updateMeterReading,

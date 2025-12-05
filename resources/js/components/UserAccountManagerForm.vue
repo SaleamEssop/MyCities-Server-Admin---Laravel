@@ -625,6 +625,16 @@ function isMeterElectricity(typeId) {
     return type && type.title && type.title.toLowerCase() === 'electricity';
 }
 
+// Constants for meter digit counts
+const WATER_METER_DIGITS = 6;
+const ELECTRICITY_METER_DIGITS = 5;
+const DECIMAL_DIGITS = 1;
+
+// Helper to get max digits for meter type
+function getMaxDigitsForMeterType(typeId) {
+    return isMeterWater(typeId) ? WATER_METER_DIGITS : ELECTRICITY_METER_DIGITS;
+}
+
 // Pigeonhole input helpers
 function getDigit(digits, index) {
     return digits && digits[index] ? digits[index] : '0';
@@ -634,7 +644,7 @@ function updateDigit(event, index, section) {
     const value = event.target.value.replace(/[^0-9]/g, '');
     
     if (section === 'whole') {
-        const maxDigits = isMeterWater(selectedMeterType.value) ? 6 : 5;
+        const maxDigits = getMaxDigitsForMeterType(selectedMeterType.value);
         let digits = newReading.wholeDigits.split('');
         digits[index] = value || '0';
         newReading.wholeDigits = digits.join('').padEnd(maxDigits, '0').slice(0, maxDigits);
@@ -903,7 +913,7 @@ function onMeterSelectForReading() {
         previousReading.value = selectedMeter.readings && selectedMeter.readings.length > 0 ? selectedMeter.readings[0] : null;
         
         // Initialize pigeonhole values
-        const maxDigits = isMeterWater(selectedMeterType.value) ? 6 : 5;
+        const maxDigits = getMaxDigitsForMeterType(selectedMeterType.value);
         newReading.wholeDigits = '0'.repeat(maxDigits);
         newReading.decimalDigit = '0';
         newReading.reading_value = '';

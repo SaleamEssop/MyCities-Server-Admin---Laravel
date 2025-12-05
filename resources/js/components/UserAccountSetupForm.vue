@@ -422,9 +422,14 @@ function isMeterWater(meterTypeId) {
     return type && type.title && type.title.toLowerCase() === 'water';
 }
 
+// Constants for meter digit counts
+const WATER_METER_DIGITS = 6;
+const ELECTRICITY_METER_DIGITS = 5;
+const DECIMAL_DIGITS = 1;
+
 function formatWholeDigits(meter) {
-    // Only allow digits, preserve leading zeros
-    meter.initial_reading_whole = meter.initial_reading_whole.replace(/[^0-9]/g, '').slice(0, 6);
+    // Only allow digits, preserve leading zeros (water meter: 6 digits)
+    meter.initial_reading_whole = meter.initial_reading_whole.replace(/[^0-9]/g, '').slice(0, WATER_METER_DIGITS);
     updateMeterReading(meter);
 }
 
