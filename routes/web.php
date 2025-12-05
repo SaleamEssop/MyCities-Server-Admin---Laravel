@@ -43,6 +43,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     // --- USER ACCOUNTS - SETUP (Wizard Flow) ---
     Route::get('user-accounts/setup', [UserAccountSetupController::class, 'index'])->name('user-accounts.setup');
     Route::post('user-accounts/setup', [UserAccountSetupController::class, 'store'])->name('user-accounts.setup.store');
+    Route::post('user-accounts/setup/user-only', [UserAccountSetupController::class, 'storeUserOnly'])->name('user-accounts.setup.store-user-only');
+    Route::post('user-accounts/setup/validate-email', [UserAccountSetupController::class, 'validateEmail'])->name('user-accounts.setup.validate-email');
+    Route::post('user-accounts/setup/validate-phone', [UserAccountSetupController::class, 'validatePhone'])->name('user-accounts.setup.validate-phone');
     Route::get('user-accounts/setup/tariffs/{regionId}', [UserAccountSetupController::class, 'getTariffTemplatesByRegion'])->name('user-accounts.setup.tariffs');
 
     // --- USER ACCOUNTS - MANAGER (Dashboard) ---

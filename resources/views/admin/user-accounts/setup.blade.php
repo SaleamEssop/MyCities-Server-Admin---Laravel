@@ -13,6 +13,9 @@
             'meterTypes' => $meterTypes,
             'apiUrls' => [
                 'store' => route('user-accounts.setup.store'),
+                'storeUserOnly' => route('user-accounts.setup.store-user-only'),
+                'validateEmail' => route('user-accounts.setup.validate-email'),
+                'validatePhone' => route('user-accounts.setup.validate-phone'),
                 'getTariffTemplates' => route('user-accounts.setup.tariffs', ['regionId' => '__REGION_ID__']),
             ]
         ]) }}">

@@ -35,19 +35,43 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Email <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control" v-model="formData.email" placeholder="Enter email address" required>
+                                <input type="email" 
+                                       class="form-control" 
+                                       :class="{ 'is-invalid': emailError, 'is-valid': emailValid }"
+                                       v-model="formData.email" 
+                                       @blur="validateEmail"
+                                       placeholder="Enter email address" required>
+                                <div v-if="emailError" class="invalid-feedback">{{ emailError }}</div>
+                                <div v-if="emailValid" class="valid-feedback">Email is available</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Contact Number <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" v-model="formData.contact_number" placeholder="Enter phone number" required>
+                                <input type="text" 
+                                       class="form-control" 
+                                       :class="{ 'is-invalid': phoneError, 'is-valid': phoneValid }"
+                                       v-model="formData.contact_number" 
+                                       @blur="validatePhone"
+                                       placeholder="Enter phone number" required>
+                                <div v-if="phoneError" class="invalid-feedback">{{ phoneError }}</div>
+                                <div v-if="phoneValid" class="valid-feedback">Phone number is available</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Password <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" v-model="formData.password" placeholder="Enter password" required>
+                                <div class="input-group">
+                                    <input :type="showPassword ? 'text' : 'password'" 
+                                           class="form-control" 
+                                           v-model="formData.password" 
+                                           placeholder="Enter password" required>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary" @click="togglePassword">
+                                            <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -140,24 +164,37 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
+                                <label>Billing Type</label>
+                                <select class="form-control" v-model="formData.billing_type">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="date-to-date">Date to Date</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
                                 <label>Bill Day</label>
-                                <input type="number" min="1" max="31" class="form-control" v-model="formData.bill_day" placeholder="1-31">
+                                <input type="number" 
+                                       min="1" max="31" 
+                                       class="form-control" 
+                                       :class="{ 'disabled-field': isDateToDate }"
+                                       v-model="formData.bill_day" 
+                                       placeholder="1-31"
+                                       :disabled="isDateToDate">
+                                <small v-if="isDateToDate" class="text-muted">Not applicable for Date to Date billing</small>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Read Day</label>
-                                <input type="number" min="1" max="31" class="form-control" v-model="formData.read_day" placeholder="1-31">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Billing Type</label>
-                                <select class="form-control" v-model="formData.billing_type">
-                                    <option value="monthly">Monthly</option>
-                                    <option value="bi-monthly">Bi-Monthly</option>
-                                    <option value="quarterly">Quarterly</option>
-                                </select>
+                                <input type="number" 
+                                       min="1" max="31" 
+                                       class="form-control" 
+                                       :class="{ 'disabled-field': isDateToDate }"
+                                       v-model="formData.read_day" 
+                                       placeholder="1-31"
+                                       :disabled="isDateToDate">
+                                <small v-if="isDateToDate" class="text-muted">Not applicable for Date to Date billing</small>
                             </div>
                         </div>
                     </div>
@@ -196,27 +233,21 @@
                                         <input type="text" class="form-control" v-model="meter.meter_title" placeholder="Enter meter name">
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <div class="form-group">
                                         <label>Meter Number <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" v-model="meter.meter_number" placeholder="Enter meter number">
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Reading Date <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control" v-model="meter.initial_reading_date">
-                                    </div>
-                                </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label>Start Reading</label>
-                                        <!-- Dual Input Field Design for Meter Reading -->
+                                        <!-- Dual Input Field Design for Meter Reading with type-based styling -->
                                         <div class="meter-reading-input-wrapper">
                                             <div class="meter-reading-dual-input">
                                                 <input 
                                                     type="text" 
-                                                    class="meter-main-input"
+                                                    :class="getMeterMainInputClass(meter.meter_type_id)"
                                                     :maxlength="getMaxWholeDigits(meter.meter_type_id)"
                                                     v-model="meter.initial_reading_whole"
                                                     @input="formatMeterWholeInput(meter)"
@@ -227,7 +258,7 @@
                                                 <span class="meter-decimal-separator">.</span>
                                                 <input 
                                                     type="text" 
-                                                    class="meter-decimal-input"
+                                                    :class="getMeterDecimalInputClass(meter.meter_type_id)"
                                                     :maxlength="getMaxDecimalDigits(meter.meter_type_id)"
                                                     v-model="meter.initial_reading_decimal"
                                                     @input="formatMeterDecimalInput(meter)"
@@ -237,8 +268,8 @@
                                                     inputmode="numeric">
                                             </div>
                                             <small class="text-muted d-block mt-1">
-                                                <span v-if="isMeterWater(meter.meter_type_id)">Water: 6 digits + 2 decimal places</span>
-                                                <span v-else-if="isMeterElectricity(meter.meter_type_id)">Electricity: 5 digits + 1 decimal place</span>
+                                                <span v-if="isMeterWater(meter.meter_type_id)">Water: 6 digits + 1 decimal place (kL)</span>
+                                                <span v-else-if="isMeterElectricity(meter.meter_type_id)">Electricity: 5 digits + 1 decimal place (kWh)</span>
                                                 <span v-else>Select meter type for format</span>
                                             </small>
                                         </div>
@@ -258,7 +289,7 @@
                     <!-- Validation Messages for Step 5 -->
                     <div v-if="formData.meters.length > 0 && !isStep5Valid" class="alert alert-warning mt-3">
                         <i class="fas fa-exclamation-triangle mr-2"></i>
-                        Please fill in all required fields for each meter (Meter Type, Meter Number, Reading Date).
+                        Please fill in all required fields for each meter (Meter Type, Meter Number).
                     </div>
                 </div>
             </div>
@@ -268,13 +299,20 @@
                 <button type="button" class="btn btn-secondary" @click="prevStep" :disabled="currentStep === 1">
                     <i class="fas fa-arrow-left mr-1"></i> Previous
                 </button>
-                <button v-if="currentStep < 5" type="button" class="btn btn-primary" @click="nextStep" :disabled="!canProceed">
-                    Next <i class="fas fa-arrow-right ml-1"></i>
-                </button>
-                <button v-else type="button" class="btn btn-success" @click="submitForm" :disabled="saving || !canProceed">
-                    <span v-if="saving"><i class="fas fa-spinner fa-spin"></i> Creating...</span>
-                    <span v-else><i class="fas fa-check mr-1"></i> Create Account</span>
-                </button>
+                <div>
+                    <!-- Save & Exit button - only on Step 1 -->
+                    <button v-if="currentStep === 1" type="button" class="btn btn-outline-success mr-2" @click="saveUserOnly" :disabled="saving || !canSaveUserOnly">
+                        <span v-if="savingUserOnly"><i class="fas fa-spinner fa-spin"></i> Saving...</span>
+                        <span v-else><i class="fas fa-user-plus mr-1"></i> Save User Only</span>
+                    </button>
+                    <button v-if="currentStep < 5" type="button" class="btn btn-primary" @click="nextStep" :disabled="!canProceed">
+                        Next <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                    <button v-else type="button" class="btn btn-success" @click="submitForm" :disabled="saving || !canProceed">
+                        <span v-if="saving"><i class="fas fa-spinner fa-spin"></i> Creating...</span>
+                        <span v-else><i class="fas fa-check mr-1"></i> Create Account</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -315,8 +353,20 @@ const props = defineProps({
 const steps = ['User Details', 'Assign Region', 'Select Tariff', 'Create Account', 'Add Meters'];
 const currentStep = ref(1);
 const saving = ref(false);
+const savingUserOnly = ref(false);
 const loadingTemplates = ref(false);
 const tariffTemplates = ref([]);
+
+// Password visibility toggle
+const showPassword = ref(false);
+
+// Email/Phone validation state
+const emailError = ref('');
+const emailValid = ref(false);
+const phoneError = ref('');
+const phoneValid = ref(false);
+const validatingEmail = ref(false);
+const validatingPhone = ref(false);
 
 // Refs for meter inputs - stored by index
 const meterInputRefs = ref({});
@@ -360,15 +410,29 @@ const isStep5Valid = computed(() => {
     if (formData.meters.length === 0) return true; // No meters is valid - meters are optional
     return formData.meters.every(meter => 
         meter.meter_type_id && 
-        meter.meter_number && 
-        meter.initial_reading_date
+        meter.meter_number
     );
+});
+
+// Check if billing type is date-to-date
+const isDateToDate = computed(() => {
+    return formData.billing_type === 'date-to-date';
+});
+
+// Check if user details are valid for "Save User Only" option
+const canSaveUserOnly = computed(() => {
+    return formData.name && 
+           formData.email && 
+           formData.contact_number && 
+           formData.password &&
+           !emailError.value &&
+           !phoneError.value;
 });
 
 const canProceed = computed(() => {
     switch (currentStep.value) {
         case 1:
-            return formData.name && formData.email && formData.contact_number && formData.password;
+            return formData.name && formData.email && formData.contact_number && formData.password && !emailError.value && !phoneError.value;
         case 2:
             return formData.region_id;
         case 3:
@@ -382,9 +446,9 @@ const canProceed = computed(() => {
     }
 });
 
-// Constants for meter digit counts
+// Constants for meter digit counts (Water: 6+1, Electricity: 5+1)
 const WATER_WHOLE_DIGITS = 6;
-const WATER_DECIMAL_DIGITS = 2;
+const WATER_DECIMAL_DIGITS = 1;
 const ELECTRICITY_WHOLE_DIGITS = 5;
 const ELECTRICITY_DECIMAL_DIGITS = 1;
 
@@ -404,6 +468,149 @@ function buildUrl(urlTemplate, replacements) {
         url = url.replace(placeholder, value);
     }
     return url;
+}
+
+// Password visibility toggle
+function togglePassword() {
+    showPassword.value = !showPassword.value;
+}
+
+// Email validation with AJAX
+async function validateEmail() {
+    if (!formData.email) {
+        emailError.value = '';
+        emailValid.value = false;
+        return;
+    }
+    
+    // Basic email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+        emailError.value = 'Please enter a valid email address';
+        emailValid.value = false;
+        return;
+    }
+    
+    validatingEmail.value = true;
+    try {
+        const response = await fetch(props.apiUrls.validateEmail || '/admin/user-accounts/setup/validate-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': props.csrfToken
+            },
+            body: JSON.stringify({ email: formData.email })
+        });
+        
+        if (!response.ok) {
+            // Server error or endpoint issue - don't block the user
+            emailError.value = '';
+            emailValid.value = false;
+            return;
+        }
+        
+        const data = await response.json();
+        if (data.exists) {
+            emailError.value = 'This email address is already registered';
+            emailValid.value = false;
+        } else {
+            emailError.value = '';
+            emailValid.value = true;
+        }
+    } catch (error) {
+        // Network error or JSON parsing error - don't block the user
+        emailError.value = '';
+        emailValid.value = false;
+    } finally {
+        validatingEmail.value = false;
+    }
+}
+
+// Phone validation with AJAX
+async function validatePhone() {
+    if (!formData.contact_number) {
+        phoneError.value = '';
+        phoneValid.value = false;
+        return;
+    }
+    
+    validatingPhone.value = true;
+    try {
+        const response = await fetch(props.apiUrls.validatePhone || '/admin/user-accounts/setup/validate-phone', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': props.csrfToken
+            },
+            body: JSON.stringify({ contact_number: formData.contact_number })
+        });
+        
+        if (!response.ok) {
+            // Server error or endpoint issue - don't block the user
+            phoneError.value = '';
+            phoneValid.value = false;
+            return;
+        }
+        
+        const data = await response.json();
+        if (data.exists) {
+            phoneError.value = 'This phone number is already registered';
+            phoneValid.value = false;
+        } else {
+            phoneError.value = '';
+            phoneValid.value = true;
+        }
+    } catch (error) {
+        // Network error or JSON parsing error - don't block the user
+        phoneError.value = '';
+        phoneValid.value = false;
+    } finally {
+        validatingPhone.value = false;
+    }
+}
+
+// Save user only (without region, tariff, account, meters)
+async function saveUserOnly() {
+    if (!canSaveUserOnly.value) {
+        showNotification('Please fill in all required fields correctly', 'danger');
+        return;
+    }
+    
+    savingUserOnly.value = true;
+    
+    try {
+        const response = await fetch(props.apiUrls.storeUserOnly || '/admin/user-accounts/setup/user-only', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': props.csrfToken
+            },
+            body: JSON.stringify({
+                name: formData.name,
+                email: formData.email,
+                contact_number: formData.contact_number,
+                password: formData.password
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 200) {
+            showNotification(data.message || 'User created successfully', 'success');
+            setTimeout(() => {
+                window.location.href = '/admin/user-accounts/manager';
+            }, 1500);
+        } else {
+            showNotification(data.message || 'Error creating user', 'danger');
+        }
+    } catch (error) {
+        showNotification('Error creating user: ' + error.message, 'danger');
+    } finally {
+        savingUserOnly.value = false;
+    }
 }
 
 async function onRegionChange() {
@@ -508,9 +715,25 @@ function getWholePlaceholder(meterTypeId) {
 }
 
 function getDecimalPlaceholder(meterTypeId) {
-    if (isMeterWater(meterTypeId)) return '00';
+    if (isMeterWater(meterTypeId)) return '0';
     if (isMeterElectricity(meterTypeId)) return '0';
-    return '00';
+    return '0';
+}
+
+// Get CSS class for main meter input based on meter type
+function getMeterMainInputClass(meterTypeId) {
+    if (isMeterElectricity(meterTypeId)) {
+        return 'meter-main-input meter-electricity-main';
+    }
+    return 'meter-main-input meter-water-main';
+}
+
+// Get CSS class for decimal meter input based on meter type
+function getMeterDecimalInputClass(meterTypeId) {
+    if (isMeterElectricity(meterTypeId)) {
+        return 'meter-decimal-input meter-electricity-decimal';
+    }
+    return 'meter-decimal-input meter-water-decimal';
 }
 
 // Store meter input refs
@@ -801,6 +1024,70 @@ async function submitForm() {
 
 .meter-main-input::placeholder {
     color: rgba(0, 0, 0, 0.3);
+}
+
+/* Water Meter Styling - White main, Red decimal */
+.meter-water-main {
+    background: #ffffff;
+    color: #000000;
+    border-color: #333;
+}
+
+.meter-water-main::placeholder {
+    color: rgba(0, 0, 0, 0.3);
+}
+
+.meter-water-decimal {
+    background: #b30101;
+    color: #ffffff;
+    border-color: #b30101;
+}
+
+.meter-water-decimal::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.meter-water-decimal:focus {
+    border-color: #8a0000;
+    box-shadow: 0 0 0 3px rgba(179, 1, 1, 0.25);
+}
+
+/* Electricity Meter Styling - Black main, Grey decimal */
+.meter-electricity-main {
+    background: #000000;
+    color: #ffffff;
+    border-color: #000000;
+}
+
+.meter-electricity-main::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.meter-electricity-main:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.25);
+}
+
+.meter-electricity-decimal {
+    background: #666666;
+    color: #ffffff;
+    border-color: #666666;
+}
+
+.meter-electricity-decimal::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.meter-electricity-decimal:focus {
+    border-color: #444444;
+    box-shadow: 0 0 0 3px rgba(102, 102, 102, 0.25);
+}
+
+/* Disabled field styling for Date to Date billing */
+.disabled-field {
+    background-color: #e9ecef !important;
+    cursor: not-allowed;
+    opacity: 0.7;
 }
 
 .alert {

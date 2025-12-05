@@ -14,6 +14,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class UserAccountSetupController extends Controller
 {
@@ -50,6 +51,73 @@ class UserAccountSetupController extends Controller
     }
 
     /**
+     * Validate email uniqueness via AJAX
+     */
+    public function validateEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+        
+        $exists = User::where('email', $request->email)->exists();
+        
+        return response()->json([
+            'exists' => $exists
+        ]);
+    }
+
+    /**
+     * Validate phone number uniqueness via AJAX
+     */
+    public function validatePhone(Request $request)
+    {
+        $request->validate([
+            'contact_number' => 'required|string'
+        ]);
+        
+        $exists = User::where('contact_number', $request->contact_number)->exists();
+        
+        return response()->json([
+            'exists' => $exists
+        ]);
+    }
+
+    /**
+     * Store only user details (without region, tariff, account, meters)
+     */
+    public function storeUserOnly(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'contact_number' => 'required|string|max:20|unique:users,contact_number',
+            'password' => 'required|string|min:6',
+        ]);
+
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'contact_number' => $request->contact_number,
+                'password' => Hash::make($request->password),
+                'is_admin' => 0,
+            ]);
+            
+            return response()->json([
+                'status' => 200, 
+                'message' => 'User created successfully. You can add region, account, and meters later from the mobile app.',
+                'user_id' => $user->id
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500, 
+                'message' => 'Error creating user: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Store a new user with all related data through the wizard
      */
     public function store(Request $request)
@@ -57,7 +125,7 @@ class UserAccountSetupController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'contact_number' => 'required|string|max:20',
+            'contact_number' => 'required|string|max:20|unique:users,contact_number',
             'password' => 'required|string|min:6',
             'region_id' => 'required|exists:regions,id',
             'tariff_template_id' => 'required|exists:regions_account_type_cost,id',
@@ -88,16 +156,22 @@ class UserAccountSetupController extends Controller
                 'site_username' => $request->site_username ?? null,
             ]);
             
-            // Step 4: Create account with tariff template
-            $account = Account::create([
+            // Step 4: Create account - check if tariff_template_id column exists
+            $accountData = [
                 'site_id' => $site->id,
                 'account_name' => $request->account_name ?? ($request->name . "'s Account"),
                 'account_number' => $request->account_number ?? ('ACC-' . time()),
                 'billing_date' => $request->billing_date ?? null,
-                'tariff_template_id' => $request->tariff_template_id,
                 'bill_day' => $request->bill_day ?? null,
                 'read_day' => $request->read_day ?? null,
-            ]);
+            ];
+            
+            // Only include tariff_template_id if the column exists
+            if (Schema::hasColumn('accounts', 'tariff_template_id')) {
+                $accountData['tariff_template_id'] = $request->tariff_template_id;
+            }
+            
+            $account = Account::create($accountData);
             
             // Create meters if provided
             if ($request->has('meters') && is_array($request->meters)) {
@@ -110,11 +184,19 @@ class UserAccountSetupController extends Controller
                         'meter_number' => $meterData['meter_number'] ?? '',
                     ]);
                     
-                    // Add initial reading if provided
+                    // Add initial reading if provided - use read_day from account if no specific date
                     if (!empty($meterData['initial_reading'])) {
+                        $readingDate = now()->format('Y-m-d');
+                        // If read_day is set in account, use it to calculate reading date
+                        if ($request->read_day) {
+                            $currentDate = now();
+                            $dayOfMonth = min((int)$request->read_day, $currentDate->daysInMonth);
+                            $readingDate = $currentDate->copy()->setDay($dayOfMonth)->format('Y-m-d');
+                        }
+                        
                         MeterReadings::create([
                             'meter_id' => $meter->id,
-                            'reading_date' => $meterData['initial_reading_date'] ?? now()->format('Y-m-d'),
+                            'reading_date' => $readingDate,
                             'reading_value' => $meterData['initial_reading'],
                         ]);
                     }
