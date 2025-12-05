@@ -55,18 +55,17 @@
             Interface
         </div>
 
-        <!-- Nav Item - Users -->
+        <!-- Nav Item - User Accounts (Main menu with Setup and Manager) -->
         <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-               aria-expanded="true" aria-controls="collapseTwo">
-                <i class="fas fa-fw fa-cog"></i>
-                <span>Users</span>
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUserAccounts"
+               aria-expanded="true" aria-controls="collapseUserAccounts">
+                <i class="fas fa-fw fa-users-cog"></i>
+                <span>User Accounts</span>
             </a>
-            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div id="collapseUserAccounts" class="collapse" aria-labelledby="headingUserAccounts" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('user-management.index') }}">User Management</a>
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('show-users') }}">Legacy List</a>
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-user-form') }}">Add (Legacy)</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('user-accounts.setup') }}">Setup (Wizard)</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('user-accounts.manager') }}">Manager</a>
                 </div>
             </div>
         </li>
@@ -87,50 +86,18 @@
             </div>
         </li>
         
-        <!-- Nav Item - User Accounts -->
+        <!-- Nav Item - Legacy User Accounts (for backward compatibility) -->
         <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseAccounts"
-               aria-expanded="true" aria-controls="collapseAccounts">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLegacyAccounts"
+               aria-expanded="true" aria-controls="collapseLegacyAccounts">
                 <i class="fas fa-fw fa-wrench"></i>
-                <span>User Accounts</span>
+                <span>Legacy Accounts</span>
             </a>
-            <div id="collapseAccounts" class="collapse" aria-labelledby="headingUtilities"
+            <div id="collapseLegacyAccounts" class="collapse" aria-labelledby="headingUtilities"
                  data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('account-list') }}">List</a>
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-account-form') }}">Add</a>
-                </div>
-            </div>
-        </li>
-
-        <!-- Nav Item - Meters (Restored) -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMeters"
-               aria-expanded="true" aria-controls="collapseMeters">
-                <i class="fas fa-fw fa-wrench"></i>
-                <span>Meters</span>
-            </a>
-            <div id="collapseMeters" class="collapse" aria-labelledby="headingUtilities"
-                 data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('meters-list') }}">List</a>
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-meter-form') }}">Add</a>
-                </div>
-            </div>
-        </li>
-
-        <!-- Nav Item - Readings (Restored) -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReadings"
-               aria-expanded="true" aria-controls="collapseReadings">
-                <i class="fas fa-fw fa-wrench"></i>
-                <span>Readings</span>
-            </a>
-            <div id="collapseReadings" class="collapse" aria-labelledby="headingUtilities"
-                 data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded cust-sidebar-bg">
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('meter-reading-list') }}">List</a>
-                    <a class="collapse-item cust-sidebar-sub" href="{{ route('add-meter-reading-form') }}">Add</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('account-list') }}">Accounts List</a>
+                    <a class="collapse-item cust-sidebar-sub" href="{{ route('show-users') }}">Users List</a>
                 </div>
             </div>
         </li>
