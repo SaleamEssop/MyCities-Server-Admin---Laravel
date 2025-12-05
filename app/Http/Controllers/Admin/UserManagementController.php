@@ -176,27 +176,60 @@ class UserManagementController extends Controller
     }
 
     /**
-     * Generate a complete test user
+     * Generate a complete test user with sequential naming
+     * Username: testuser1, testuser2, testuser3...
+     * Email: testuser1@test.com, testuser2@test.com...
+     * Password: 123456 (fixed for all test users)
+     * Phone: 084 + 7 random digits (e.g., 0841234567)
      */
     public function generateTestUser()
     {
         DB::beginTransaction();
         
         try {
-            // Generate unique test email
-            $timestamp = time();
-            $email = "testuser_{$timestamp}@test.com";
+            // Find the next test user number by checking existing test users
+            $lastTestUser = User::where('email', 'like', 'testuser%@test.com')
+                ->orderByRaw("CAST(REPLACE(REPLACE(email, 'testuser', ''), '@test.com', '') AS UNSIGNED) DESC")
+                ->first();
             
-            // Create test user
+            $nextNumber = 1;
+            if ($lastTestUser) {
+                // Extract number from email like testuser5@test.com -> 5
+                preg_match('/testuser(\d+)@test\.com/', $lastTestUser->email, $matches);
+                if (!empty($matches[1])) {
+                    $nextNumber = (int)$matches[1] + 1;
+                }
+            }
+            
+            $username = 'testuser' . $nextNumber;
+            $email = $username . '@test.com';
+            
+            // Generate unique phone number: 084 + 7 random digits
+            // Retry up to 10 times to ensure uniqueness
+            $phone = null;
+            $maxAttempts = 10;
+            for ($i = 0; $i < $maxAttempts; $i++) {
+                $candidate = '084' . str_pad(random_int(0, 9999999), 7, '0', STR_PAD_LEFT);
+                if (!User::where('contact_number', $candidate)->exists()) {
+                    $phone = $candidate;
+                    break;
+                }
+            }
+            
+            if (!$phone) {
+                throw new \Exception('Could not generate unique phone number after ' . $maxAttempts . ' attempts.');
+            }
+            
+            // Create test user with fixed password 123456
             $user = User::create([
-                'name' => 'Test User ' . $timestamp,
+                'name' => $username,
                 'email' => $email,
-                'contact_number' => '0' . rand(100000000, 999999999),
-                'password' => Hash::make('password123'),
+                'contact_number' => $phone,
+                'password' => Hash::make('123456'),
                 'is_admin' => 0,
             ]);
             
-            // Get first region
+            // Get first available region
             $region = Regions::first();
             $waterMeterType = MeterType::where('title', self::METER_TYPE_WATER)->first();
             $electricityMeterType = MeterType::where('title', self::METER_TYPE_ELECTRICITY)->first();
@@ -205,7 +238,7 @@ class UserManagementController extends Controller
                 throw new \Exception('No regions found. Please create a region first.');
             }
             
-            // Get a tariff template for this specific region
+            // Get first available tariff template for this region
             $tariffTemplate = RegionsAccountTypeCost::where('region_id', $region->id)
                 ->where('is_active', 1)
                 ->first();
@@ -213,73 +246,79 @@ class UserManagementController extends Controller
             // Create test site
             $site = Site::create([
                 'user_id' => $user->id,
-                'title' => 'Test Site ' . $timestamp,
+                'title' => $username . ' Site',
                 'lat' => -33.9249,
                 'lng' => 18.4241,
-                'address' => '123 Test Street, Cape Town, 8001',
+                'address' => $nextNumber . ' Test Street, Cape Town, 8001',
                 'email' => $email,
                 'region_id' => $region->id,
                 'billing_type' => 'monthly',
-                'site_username' => 'testsite_' . $timestamp,
+                'site_username' => $username . '_site',
             ]);
+            
+            // Generate random account name and number
+            // Use letter A-Z based on user number (wraps after 26)
+            $accountLetter = chr(ord('A') + (($nextNumber - 1) % 26));
+            $accountName = 'Account ' . $accountLetter . random_int(100, 999);
+            $accountNumber = 'ACC-' . strtoupper(substr(md5($username), 0, 8));
             
             // Create test account
             $account = Account::create([
                 'site_id' => $site->id,
-                'account_name' => 'Test Account',
-                'account_number' => 'ACC-' . $timestamp,
+                'account_name' => $accountName,
+                'account_number' => $accountNumber,
                 'billing_date' => 15,
                 'tariff_template_id' => $tariffTemplate ? $tariffTemplate->id : null,
                 'bill_day' => 15,
                 'read_day' => 1,
             ]);
             
-            // Create water meter with sample reading
-            if ($waterMeterType) {
+            $metersCreated = [];
+            
+            // Randomly decide to create 1 or 2 meters
+            $createBothMeters = random_int(0, 1) === 1;
+            $createWaterFirst = random_int(0, 1) === 1;
+            
+            // Create water meter with initial reading
+            if ($waterMeterType && ($createBothMeters || $createWaterFirst)) {
                 $waterMeter = Meter::create([
                     'account_id' => $account->id,
                     'meter_type_id' => $waterMeterType->id,
                     'meter_category_id' => self::DEFAULT_METER_CATEGORY_ID,
                     'meter_title' => 'Water Meter',
-                    'meter_number' => 'WM-' . $timestamp,
+                    'meter_number' => 'WM-' . strtoupper(substr(md5($username . 'water'), 0, 6)),
                 ]);
                 
-                // Add sample reading (46 KL for testing tiered calculations)
-                MeterReadings::create([
-                    'meter_id' => $waterMeter->id,
-                    'reading_date' => now()->subMonth()->format('Y-m-d'),
-                    'reading_value' => 1000,
-                ]);
-                
+                // Add initial reading with random value
+                $initialWaterReading = random_int(100, 5000);
                 MeterReadings::create([
                     'meter_id' => $waterMeter->id,
                     'reading_date' => now()->format('Y-m-d'),
-                    'reading_value' => 1046, // 46 KL usage
+                    'reading_value' => $initialWaterReading,
                 ]);
+                
+                $metersCreated[] = ['type' => 'Water', 'number' => $waterMeter->meter_number, 'initial_reading' => $initialWaterReading];
             }
             
-            // Create electricity meter with sample reading
-            if ($electricityMeterType) {
+            // Create electricity meter with initial reading
+            if ($electricityMeterType && ($createBothMeters || !$createWaterFirst)) {
                 $electricityMeter = Meter::create([
                     'account_id' => $account->id,
                     'meter_type_id' => $electricityMeterType->id,
                     'meter_category_id' => self::DEFAULT_METER_CATEGORY_ID,
                     'meter_title' => 'Electricity Meter',
-                    'meter_number' => 'EM-' . $timestamp,
+                    'meter_number' => 'EM-' . strtoupper(substr(md5($username . 'elec'), 0, 6)),
                 ]);
                 
-                // Add sample reading (500 KWH for testing tiered calculations)
-                MeterReadings::create([
-                    'meter_id' => $electricityMeter->id,
-                    'reading_date' => now()->subMonth()->format('Y-m-d'),
-                    'reading_value' => 5000,
-                ]);
-                
+                // Add initial reading with random value
+                $initialElecReading = random_int(1000, 10000);
                 MeterReadings::create([
                     'meter_id' => $electricityMeter->id,
                     'reading_date' => now()->format('Y-m-d'),
-                    'reading_value' => 5500, // 500 KWH usage
+                    'reading_value' => $initialElecReading,
                 ]);
+                
+                $metersCreated[] = ['type' => 'Electricity', 'number' => $electricityMeter->meter_number, 'initial_reading' => $initialElecReading];
             }
             
             DB::commit();
@@ -288,7 +327,17 @@ class UserManagementController extends Controller
                 'status' => 200,
                 'message' => 'Test user created successfully',
                 'user_id' => $user->id,
-                'email' => $email
+                'credentials' => [
+                    'username' => $username,
+                    'email' => $email,
+                    'password' => '123456',
+                    'phone' => $phone,
+                ],
+                'account' => [
+                    'name' => $accountName,
+                    'number' => $accountNumber,
+                ],
+                'meters' => $metersCreated,
             ]);
             
         } catch (\Exception $e) {
