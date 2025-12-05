@@ -47,6 +47,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function() {
     Route::post('user-accounts/setup/validate-email', [UserAccountSetupController::class, 'validateEmail'])->name('user-accounts.setup.validate-email');
     Route::post('user-accounts/setup/validate-phone', [UserAccountSetupController::class, 'validatePhone'])->name('user-accounts.setup.validate-phone');
     Route::get('user-accounts/setup/tariffs/{regionId}', [UserAccountSetupController::class, 'getTariffTemplatesByRegion'])->name('user-accounts.setup.tariffs');
+    Route::post('user-accounts/setup/generate-test-data', [UserAccountSetupController::class, 'generateTestData'])->name('user-accounts.setup.generate-test-data');
 
     // --- USER ACCOUNTS - MANAGER (Dashboard) ---
     Route::get('user-accounts/manager', [UserAccountManagerController::class, 'index'])->name('user-accounts.manager');

@@ -1,5 +1,25 @@
 <template>
     <div class="user-account-setup-wrapper">
+        <!-- Generate Test Data Card -->
+        <div class="card shadow mb-4 border-left-warning">
+            <div class="card-body py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="m-0 font-weight-bold text-warning"><i class="fas fa-flask mr-2"></i>Development Tools</h6>
+                        <small class="text-muted">Generate sample test data for development and testing purposes</small>
+                    </div>
+                    <button 
+                        type="button" 
+                        class="btn btn-warning" 
+                        @click="confirmGenerateTestData"
+                        :disabled="generatingTestData">
+                        <span v-if="generatingTestData"><i class="fas fa-spinner fa-spin"></i> Generating...</span>
+                        <span v-else><i class="fas fa-database mr-1"></i> Generate Test Data</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Progress Steps -->
         <div class="card shadow mb-4">
             <div class="card-body">
@@ -356,6 +376,7 @@ const saving = ref(false);
 const savingUserOnly = ref(false);
 const loadingTemplates = ref(false);
 const tariffTemplates = ref([]);
+const generatingTestData = ref(false);
 
 // Password visibility toggle
 const showPassword = ref(false);
@@ -460,6 +481,40 @@ function showNotification(message, type = 'success') {
     setTimeout(() => {
         notification.show = false;
     }, 5000);
+}
+
+// Confirm and generate test data
+function confirmGenerateTestData() {
+    if (confirm('Are you sure you want to generate test data? This will create test users, accounts, meters, and readings in the database.')) {
+        generateTestData();
+    }
+}
+
+async function generateTestData() {
+    generatingTestData.value = true;
+    
+    try {
+        const response = await fetch(props.apiUrls.generateTestData || '/admin/user-accounts/setup/generate-test-data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': props.csrfToken
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 200) {
+            showNotification(data.message || 'Test data generated successfully!', 'success');
+        } else {
+            showNotification(data.message || 'Error generating test data', 'danger');
+        }
+    } catch (error) {
+        showNotification('Error generating test data: ' + error.message, 'danger');
+    } finally {
+        generatingTestData.value = false;
+    }
 }
 
 function buildUrl(urlTemplate, replacements) {
