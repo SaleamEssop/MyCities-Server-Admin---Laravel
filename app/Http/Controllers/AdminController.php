@@ -86,24 +86,16 @@ class AdminController extends Controller
     public function createRegion(Request $request) {
         $request->validate([
             'name' => 'required|string|max:255',
-            'electricity_base_unit_cost' => 'nullable|numeric|min:0',
-            'electricity_base_unit' => 'nullable|string|max:10',
-            'water_base_unit_cost' => 'nullable|numeric|min:0',
-            'water_base_unit' => 'nullable|string|max:10',
             'water_email' => 'nullable|email|max:255',
             'electricity_email' => 'nullable|email|max:255',
         ]);
         
-        $postData = $request->post();
         Regions::create([
-            'name' => $postData['name'],
-            'electricity_base_unit_cost' => $postData['electricity_base_unit_cost'] ?? 0,
-            'electricity_base_unit' => $postData['electricity_base_unit'] ?? 'kWh',
-            'water_base_unit_cost' => $postData['water_base_unit_cost'] ?? 0,
-            'water_base_unit' => $postData['water_base_unit'] ?? 'kL',
-            'water_email' => $postData['water_email'] ?? null,
-            'electricity_email' => $postData['electricity_email'] ?? null,
+            'name' => $request->input('name'),
+            'water_email' => $request->input('water_email'),
+            'electricity_email' => $request->input('electricity_email'),
         ]);
+        
         Session::flash('alert-class', 'alert-success');
         Session::flash('alert-message', 'Region Created Successfully');
         return redirect(route('regions-list'));

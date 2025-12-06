@@ -66,7 +66,7 @@ class RegionsTest extends DuskTestCase
             $this->loginAsAdmin($browser)
                 ->visit('/admin/region/add')
                 ->type('name', 'New Test Region')
-                ->press('Submit')
+                ->press('Create')
                 ->pause(2000)
                 ->assertPathIs('/admin/regions');
         });

@@ -20,11 +20,11 @@
                                 </div>
                                 <div class="form-group">
                                     <label><strong>Water Email :</strong></label>
-                                    <input placeholder="Enter Water Email" value="{{ $region->water_email }}" type="text" class="form-control" name="water_email" required />
+                                    <input placeholder="Enter Water Email" value="{{ $region->water_email }}" type="email" class="form-control" name="water_email" />
                                 </div>
                                 <div class="form-group">
                                     <label><strong>Electricity Email :</strong></label>
-                                    <input placeholder="Enter Electricity Email" value="{{ $region->electricity_email }}" type="text" class="form-control" name="electricity_email" required />
+                                    <input placeholder="Enter Electricity Email" value="{{ $region->electricity_email }}" type="email" class="form-control" name="electricity_email" />
                                 </div>
                                 <!-- <div class="form-group">
                                     <label><strong>Water Base Unit :</strong></label>
