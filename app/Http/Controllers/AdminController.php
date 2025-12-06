@@ -104,6 +104,8 @@ class AdminController extends Controller
             'water_email' => $postData['water_email'] ?? null,
             'electricity_email' => $postData['electricity_email'] ?? null,
         ]);
+        Session::flash('alert-class', 'alert-success');
+        Session::flash('alert-message', 'Region Created Successfully');
         return redirect(route('regions-list'));
     }
 

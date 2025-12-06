@@ -14,7 +14,7 @@
                 <form method="POST" action="{{ route('add-region') }}">
                     <div class="form-group">
                         <label><strong>Region Name :</strong></label>
-                        <input placeholder="Enter region name" type="text" class="form-control" name="region_name" required />
+                        <input placeholder="Enter region name" type="text" class="form-control" name="name" required />
                     </div>
                     <div class="form-group">
                         <label><strong>Water Email :</strong></label>
