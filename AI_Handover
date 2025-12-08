@@ -1,0 +1,85 @@
+# MyCities / SHOPPERR – AI Handover Report
+
+Date: 2025-12-07  
+Author: ChatGPT (GPT-5.1)  
+Context: Handover for continuing work in Cursor / other tooling
+
+---
+
+## 1. High-level overview
+
+There are **two main codebases** involved:
+
+1. **Frontend SPA (Quasar / Vue)**
+   - GitHub: `https://github.com/SaleamEssop/MyCities-Vue-Quasar`
+   - Built as a SPA and deployed under `/web-app/` on the Laravel server & staging host.
+
+2. **Backend + Admin (Laravel)**
+   - GitHub: `https://github.com/SaleamEssop/MyCities-Server-Admin---Laravel`
+   - Lives at: `/var/www/mycities.co.za`
+   - Contains Laravel app, API, and the `web-app` folder used to serve the SPA.
+
+The current production **user-facing UI** is the “green MyCities” design (screenshot you provided from mobile).  
+However, the **Quasar repo on GitHub currently corresponds to an older / legacy UI**.
+
+This mismatch is the core reason we hit issues when rebuilding from Git.
+
+---
+
+## 2. Repositories and their roles
+
+### 2.1 Quasar frontend repo
+
+- **Repo:** `MyCities-Vue-Quasar`
+- **Server clone path:**  
+  `/var/www/repos/MyCities-Vue-Quasar`
+- **Key files:**
+  - `quasar.config.js` – Quasar build configuration
+  - `package.json` – scripts like `quasar dev`, `quasar build`, `android`, etc.
+  - `src/` – layouts, pages, components (UI logic, but currently **legacy UI**)
+  - `dist/spa/` – build output after `npx quasar build`
+
+**Important:**  
+When built (`npx quasar build`) and deployed, this repo currently renders the **older “MyCity / Ethekwini Region” UI**, not the new green MyCities UI that’s live.
+
+### 2.2 Laravel backend / admin repo
+
+- **Repo:** `MyCities-Server-Admin---Laravel`
+- **Server path (live):**  
+  `/var/www/mycities.co.za`
+- **Contains:**
+  - `app/`, `routes/`, `config/`, `resources/`, `public/`, `vendor/`, etc.
+  - `.env` is a symlink:
+    - `/var/www/mycities.co.za/.env -> /etc/mycities/.env`
+  - `web-app/` – a folder inside the Laravel root that serves the SPA.
+    - Path: `/var/www/mycities.co.za/web-app`
+    - Contains compiled SPA assets:
+      - `index.html`
+      - `css/`, `js/`, `img/`, `fonts/`, `icons/`, etc.
+    - **This folder currently holds the new green MyCities UI for live.**
+
+There is a `.git` directory inside `/var/www/mycities.co.za`, so this folder is a working copy of the Laravel repo (or a closely related repo).
+
+---
+
+## 3. Server layout & paths
+
+### 3.1 Live host: `mycities.co.za`
+
+- **DocumentRoot (Apache):**  
+  Typically `/var/www/mycities.co.za/public` (standard Laravel).
+- **SPA path from browser:**  
+  `https://mycities.co.za/web-app/#/`
+- **On disk:**
+  - Laravel root: `/var/www/mycities.co.za`
+  - SPA assets: `/var/www/mycities.co.za/web-app`  
+    (This folder is referenced by routes or an Apache alias / rewrite to serve the SPA.)
+
+This **live web-app folder** contains only compiled output (no Quasar `src/`), but it *does* represent the **current, correct green UI**.
+
+### 3.2 Staging host: `staging.mycities.co.za`
+
+- Apache vhost output showed:
+
+  ```text
+  DocumentRoot [/var/www/staging.mycities.co.za/public]
