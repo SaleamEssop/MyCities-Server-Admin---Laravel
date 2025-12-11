@@ -20,15 +20,44 @@
             </div>
         @endif
 
-        <!-- Create Test User Button -->
-        <div class="mb-4">
-            <form action="{{ route('user-accounts.setup.create-test-user') }}" method="POST" style="display: inline;">
-                @csrf
-                <button type="submit" class="btn btn-warning">
-                    <i class="fas fa-flask me-1"></i> Create Test User
-                </button>
-            </form>
-            <small class="text-muted ms-2">Creates a test user with demo data (default test credentials will be shown after creation)</small>
+        <!-- Testing Section -->
+        <div class="card mb-4 border-warning">
+            <div class="card-header bg-warning text-dark">
+                <i class="fas fa-flask me-1"></i> <strong>Testing</strong>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">Create a complete test user with accounts, meters, and 3 months of readings.</p>
+                
+                <form action="{{ route('user-accounts.setup.create-test-user') }}" method="POST">
+                    @csrf
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="create_new_region" id="createNewRegion" value="1">
+                                <label class="form-check-label" for="createNewRegion">
+                                    <i class="fas fa-map-marker-alt text-primary me-1"></i> Create from <strong>new Region</strong>
+                                </label>
+                                <small class="text-muted d-block">Creates a new "Test Region" with default settings</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="create_new_tariff" id="createNewTariff" value="1">
+                                <label class="form-check-label" for="createNewTariff">
+                                    <i class="fas fa-file-invoice-dollar text-success me-1"></i> Create from <strong>new Tariff Template</strong>
+                                </label>
+                                <small class="text-muted d-block">Creates a new tariff template with water tiers</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-warning btn-lg">
+                        <i class="fas fa-user-plus me-1"></i> Create Test User Account
+                    </button>
+                    <small class="text-muted ms-2">Creates: User → Account(s) → Meters → Readings (3 months)</small>
+                </form>
+            </div>
         </div>
 
         <!-- Setup Wizard Vue Component -->

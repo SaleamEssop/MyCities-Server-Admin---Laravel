@@ -233,6 +233,7 @@ class UserAccountSetupController extends Controller
 
     /**
      * Create a test user with full demo data
+     * Options: create_new_region, create_new_tariff (checkboxes)
      */
     public function createTestUser(Request $request)
     {
@@ -240,27 +241,50 @@ class UserAccountSetupController extends Controller
         $phoneSuffix = str_pad(rand(0, 9999999), 7, '0', STR_PAD_LEFT);
         $phone = '084' . $phoneSuffix;
         
-        // Check if test user already exists
-        $existingUser = User::where('email', self::TEST_USER_EMAIL)->first();
-        if ($existingUser) {
-            return redirect()->back()->with('error', 'Test user already exists. Delete it first to create a new one.');
-        }
-        
-        // Get first region and tariff template
-        $region = Regions::first();
-        $tariffTemplate = RegionsAccountTypeCost::first();
-        
-        if (!$region) {
-            return redirect()->back()->with('error', 'Please create a Region first');
-        }
+        // Generate unique email for this test user
+        $timestamp = time();
+        $testEmail = 'testuser' . $timestamp . '@test.com';
         
         DB::beginTransaction();
         
         try {
+            // Handle Region: create new or use existing
+            if ($request->has('create_new_region') && $request->create_new_region) {
+                $region = Regions::create([
+                    'name' => 'Test Region ' . $timestamp,
+                    'water_email' => 'water@testregion.com',
+                    'electricity_email' => 'electricity@testregion.com',
+                ]);
+            } else {
+                $region = Regions::first();
+                if (!$region) {
+                    // Auto-create region if none exists
+                    $region = Regions::create([
+                        'name' => 'Durban (eThekwini)',
+                        'water_email' => 'eservices@durban.gov.za',
+                        'electricity_email' => 'electricity@durban.gov.za',
+                    ]);
+                }
+            }
+            
+            // Handle Tariff Template: create new or use existing
+            if ($request->has('create_new_tariff') && $request->create_new_tariff) {
+                $tariffTemplate = $this->createTestTariffTemplate($region->id, $timestamp);
+            } else {
+                $tariffTemplate = RegionsAccountTypeCost::where('region_id', $region->id)->first();
+                if (!$tariffTemplate) {
+                    // Auto-create tariff if none exists for this region
+                    $tariffTemplate = $this->createTestTariffTemplate($region->id, $timestamp);
+                }
+            }
+            
+            // Ensure meter types exist
+            $this->ensureMeterTypesExist();
+            
             // Create user
             $user = User::create([
-                'name' => 'Test User',
-                'email' => self::TEST_USER_EMAIL,
+                'name' => 'Test User ' . $timestamp,
+                'email' => $testEmail,
                 'password' => Hash::make(self::TEST_USER_PASSWORD),
                 'contact_number' => $phone,
             ]);
@@ -268,18 +292,18 @@ class UserAccountSetupController extends Controller
             // Create site
             $site = Site::create([
                 'user_id' => $user->id,
-                'title' => 'Test Site',
+                'title' => 'Test Site ' . $timestamp,
                 'address' => '123 Test Street, Durban, 4001',
                 'lat' => -29.8587,
                 'lng' => 31.0218,
-                'email' => 'testsite@test.com',
+                'email' => $testEmail,
                 'region_id' => $region->id,
             ]);
             
             // Create account data
             $accountData = [
                 'site_id' => $site->id,
-                'account_name' => 'Test Account',
+                'account_name' => 'Test Account ' . $timestamp,
                 'account_number' => 'ACC' . rand(100000, 999999),
             ];
             
@@ -291,15 +315,15 @@ class UserAccountSetupController extends Controller
             $account = Account::create($accountData);
             
             // Get meter types
-            $waterMeterType = MeterType::where('title', 'water')->first();
-            $elecMeterType = MeterType::where('title', 'electricity')->first();
+            $waterMeterType = MeterType::where('title', 'Water')->first();
+            $elecMeterType = MeterType::where('title', 'Electricity')->first();
             
             // Create water meter
             $waterMeter = Meter::create([
                 'account_id' => $account->id,
                 'meter_number' => 'WM' . rand(10000, 99999),
                 'meter_title' => 'Water Meter',
-                'meter_type_id' => $waterMeterType->id ?? 2,
+                'meter_type_id' => $waterMeterType->id ?? 1,
                 'meter_category_id' => self::DEFAULT_METER_CATEGORY_ID,
             ]);
             
@@ -308,7 +332,7 @@ class UserAccountSetupController extends Controller
                 'account_id' => $account->id,
                 'meter_number' => 'EM' . rand(10000, 99999),
                 'meter_title' => 'Electricity Meter',
-                'meter_type_id' => $elecMeterType->id ?? 1,
+                'meter_type_id' => $elecMeterType->id ?? 2,
                 'meter_category_id' => self::DEFAULT_METER_CATEGORY_ID,
             ]);
             
@@ -338,11 +362,90 @@ class UserAccountSetupController extends Controller
             
             DB::commit();
             
-            return redirect()->back()->with('success', 'Test user created! Email: ' . self::TEST_USER_EMAIL . ' | Phone: ' . $phone);
+            $message = "Test user created!\n";
+            $message .= "Email: {$testEmail}\n";
+            $message .= "Password: " . self::TEST_USER_PASSWORD . "\n";
+            $message .= "Phone: {$phone}\n";
+            $message .= "Region: {$region->name}\n";
+            $message .= "Tariff: {$tariffTemplate->template_name}";
+            
+            return redirect()->back()->with('success', $message);
             
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Error creating test user: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Create a test tariff template with water tiers
+     */
+    private function createTestTariffTemplate($regionId, $timestamp)
+    {
+        $tariff = RegionsAccountTypeCost::create([
+            'region_id' => $regionId,
+            'template_name' => 'Test Water Tariff ' . $timestamp,
+            'is_water' => true,
+            'is_active' => true,
+        ]);
+        
+        // Create water tiers if tariff_tiers table exists
+        if (Schema::hasTable('tariff_tiers')) {
+            $tiers = [
+                ['tier_number' => 1, 'min_units' => 0, 'max_units' => 6000, 'rate_per_unit' => 25.50],
+                ['tier_number' => 2, 'min_units' => 6000, 'max_units' => 15000, 'rate_per_unit' => 32.80],
+                ['tier_number' => 3, 'min_units' => 15000, 'max_units' => 30000, 'rate_per_unit' => 42.50],
+                ['tier_number' => 4, 'min_units' => 30000, 'max_units' => null, 'rate_per_unit' => 55.20],
+            ];
+            
+            foreach ($tiers as $tier) {
+                DB::table('tariff_tiers')->insert([
+                    'tariff_template_id' => $tariff->id,
+                    'tier_number' => $tier['tier_number'],
+                    'min_units' => $tier['min_units'],
+                    'max_units' => $tier['max_units'],
+                    'rate_per_unit' => $tier['rate_per_unit'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+        
+        return $tariff;
+    }
+    
+    /**
+     * Ensure meter types exist in the database
+     */
+    private function ensureMeterTypesExist()
+    {
+        if (!MeterType::where('title', 'Water')->exists()) {
+            MeterType::create(['title' => 'Water']);
+        }
+        if (!MeterType::where('title', 'Electricity')->exists()) {
+            MeterType::create(['title' => 'Electricity']);
+        }
+        
+        // Also ensure meter categories exist
+        if (Schema::hasTable('meter_categories')) {
+            if (!DB::table('meter_categories')->where('name', 'Water in')->exists()) {
+                $data = ['name' => 'Water in', 'created_at' => now(), 'updated_at' => now()];
+                // Add meter_type_id if column exists
+                if (Schema::hasColumn('meter_categories', 'meter_type_id')) {
+                    $waterType = MeterType::where('title', 'Water')->first();
+                    if ($waterType) $data['meter_type_id'] = $waterType->id;
+                }
+                DB::table('meter_categories')->insert($data);
+            }
+            if (!DB::table('meter_categories')->where('name', 'Electricity')->exists()) {
+                $data = ['name' => 'Electricity', 'created_at' => now(), 'updated_at' => now()];
+                // Add meter_type_id if column exists
+                if (Schema::hasColumn('meter_categories', 'meter_type_id')) {
+                    $elecType = MeterType::where('title', 'Electricity')->first();
+                    if ($elecType) $data['meter_type_id'] = $elecType->id;
+                }
+                DB::table('meter_categories')->insert($data);
+            }
         }
     }
 }

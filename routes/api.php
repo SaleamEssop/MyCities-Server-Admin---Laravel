@@ -23,6 +23,10 @@ Route::prefix('v1')->group(function() {
     Route::get('/default-cost/get', [\App\Http\Controllers\ApiController::class, 'getDefaultCosts']);
     Route::get('/ads/get-categories', [\App\Http\Controllers\ApiController::class, 'getAdsCategories']);
     Route::get('terms-and-conditions', [\App\Http\Controllers\ApiController::class, 'getTC']);
+    // Billing (estimate/preview/finalize behave like estimate for now)
+    Route::get('/bills', [\App\Http\Controllers\BillController::class, 'index']);
+    Route::post('/bills', [\App\Http\Controllers\BillController::class, 'index']); // finalize via mode=finalize
+    Route::post('/bills/{id}/recompute', [\App\Http\Controllers\BillController::class, 'recompute']);
     // User related routes
     Route::post('/user/logout', [\App\Http\Controllers\UserController::class, 'logout'])->middleware('auth:sanctum');
 
@@ -121,6 +125,50 @@ Route::prefix('v1')->group(function() {
     Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'tariff'], function() {
         Route::get('/{account}', [\App\Http\Controllers\Api\BillingController::class, 'getAccountTariff']);
         Route::get('/{account}/tiers', [\App\Http\Controllers\Api\BillingController::class, 'getTariffTiers']);
+    });
+
+    // Account Setup routes (for Quasar app)
+    Route::group(['prefix' => 'setup'], function() {
+        // Public routes - no auth needed for initial setup
+        Route::get('/regions', [\App\Http\Controllers\Api\SetupController::class, 'getRegions']);
+        Route::get('/regions/{region}/tariffs', [\App\Http\Controllers\Api\SetupController::class, 'getTariffsForRegion']);
+        Route::get('/tariffs/{tariff}', [\App\Http\Controllers\Api\SetupController::class, 'getTariffDetails']);
+        Route::get('/tariffs/{tariff}/preview-bill', [\App\Http\Controllers\Api\SetupController::class, 'previewBill']);
+    });
+
+    // Account management routes (authenticated)
+    Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'user-account'], function() {
+        Route::get('/current', [\App\Http\Controllers\Api\SetupController::class, 'getCurrentAccount']);
+        Route::post('/create', [\App\Http\Controllers\Api\SetupController::class, 'createAccount']);
+        Route::post('/update', [\App\Http\Controllers\Api\SetupController::class, 'updateAccount']);
+        Route::get('/bill', [\App\Http\Controllers\Api\SetupController::class, 'getCurrentBill']);
+    });
+
+    // ============================================
+    // Admin API routes (admin-only operations)
+    // ============================================
+    Route::group(['middleware' => ['auth:sanctum'], 'prefix' => 'admin'], function() {
+        // Check admin role
+        Route::get('/check-role', [\App\Http\Controllers\Api\AdminReadingsController::class, 'checkAdminRole']);
+        
+        // Reading management (admin only)
+        Route::post('/readings/{id}/edit', [\App\Http\Controllers\Api\AdminReadingsController::class, 'editReading']);
+        Route::post('/readings/{id}/delete', [\App\Http\Controllers\Api\AdminReadingsController::class, 'deleteReading']);
+        Route::post('/readings/add', [\App\Http\Controllers\Api\AdminReadingsController::class, 'addReading']);
+        Route::post('/readings/{id}/flags', [\App\Http\Controllers\Api\AdminReadingsController::class, 'setFlags']);
+        
+        // Meter reading history (admin view)
+        Route::get('/meters/{meterId}/readings', [\App\Http\Controllers\Api\AdminReadingsController::class, 'getReadingHistory']);
+        
+        // Bill recompute (admin only)
+        Route::post('/bills/{billId}/recompute', [\App\Http\Controllers\Api\AdminReadingsController::class, 'recomputeBill']);
+        Route::post('/accounts/{accountId}/recompute-bill', [\App\Http\Controllers\Api\AdminReadingsController::class, 'recomputeAccountBill']);
+        
+        // Audit log
+        Route::get('/audit-log', [\App\Http\Controllers\Api\AdminReadingsController::class, 'getAuditLog']);
+        
+        // Undo actions
+        Route::post('/actions/{actionId}/undo', [\App\Http\Controllers\Api\AdminReadingsController::class, 'undoAction']);
     });
 });
 

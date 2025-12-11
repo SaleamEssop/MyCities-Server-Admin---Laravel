@@ -9,6 +9,8 @@ class MeterType extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['title'];
+
     public function meters()
     {
         return $this->hasMany(Meter::class, 'id');

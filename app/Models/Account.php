@@ -20,8 +20,12 @@ class Account extends Model
         'electricity_email',
         'bill_day',
         'read_day',
-        'bill_read_day_active'
-
+        'bill_read_day_active',
+        'customer_costs',
+    ];
+    
+    protected $casts = [
+        'customer_costs' => 'array',
     ];
 
     public function site()

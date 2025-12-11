@@ -101,6 +101,68 @@ class AdminController extends Controller
         return redirect(route('regions-list'));
     }
 
+    public function editRegionForm($id) {
+        $region = Regions::find($id);
+        if (!$region) {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Region not found');
+            return redirect(route('regions-list'));
+        }
+        $w = MeterType::where('title', 'water')->first();
+        $e = MeterType::where('title', 'electricity')->first();
+        return view('admin.edit_region', [
+            'region' => $region,
+            'data' => ['water_id' => $w->id ?? 0, 'elect_id' => $e->id ?? 0]
+        ]);
+    }
+
+    public function editRegion(Request $request) {
+        $request->validate([
+            'id' => 'required|exists:regions,id',
+            'name' => 'required|string|max:255',
+            'water_email' => 'nullable|email|max:255',
+            'electricity_email' => 'nullable|email|max:255',
+        ]);
+        
+        $region = Regions::find($request->id);
+        $region->update([
+            'name' => $request->input('name'),
+            'water_email' => $request->input('water_email'),
+            'electricity_email' => $request->input('electricity_email'),
+        ]);
+        
+        Session::flash('alert-class', 'alert-success');
+        Session::flash('alert-message', 'Region Updated Successfully');
+        return redirect(route('regions-list'));
+    }
+
+    public function deleteRegion($id) {
+        $region = Regions::find($id);
+        if ($region) {
+            $region->delete();
+            Session::flash('alert-class', 'alert-success');
+            Session::flash('alert-message', 'Region Deleted Successfully');
+        } else {
+            Session::flash('alert-class', 'alert-danger');
+            Session::flash('alert-message', 'Region not found');
+        }
+        return redirect(route('regions-list'));
+    }
+
+    public function getEmailBasedRegion($id) {
+        $region = Regions::find($id);
+        if (!$region) {
+            return response()->json(['status' => 404, 'message' => 'Region not found']);
+        }
+        return response()->json([
+            'status' => 200,
+            'data' => [
+                'water_email' => $region->water_email,
+                'electricity_email' => $region->electricity_email,
+            ]
+        ]);
+    }
+
     public function addPaymentForm() {
         $sites = Site::all();
         return view('admin.create_payment', ['sites' => $sites]);

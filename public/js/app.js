@@ -22959,48 +22959,17 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
       rates_rebate: '0'
     });
 
-    // Dynamic arrays for tiered pricing
-    var waterIn = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([{
-      min: '',
-      max: '',
-      cost: ''
-    }]);
-    var waterOut = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([{
-      min: '',
-      max: '',
-      percentage: '',
-      cost: ''
-    }]);
-    var electricity = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([{
-      min: '',
-      max: '',
-      cost: ''
-    }]);
-    var waterInAdditional = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([{
-      title: '',
-      percentage: '',
-      cost: ''
-    }]);
-    var waterOutAdditional = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([{
-      title: '',
-      percentage: '',
-      cost: ''
-    }]);
-    var electricityAdditional = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([{
-      title: '',
-      percentage: '',
-      cost: ''
-    }]);
+    // Dynamic arrays for tiered pricing - start empty, user adds rows as needed
+    var waterIn = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
+    var waterOut = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
+    var electricity = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
+    var waterInAdditional = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
+    var waterOutAdditional = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
+    var electricityAdditional = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
 
-    // New cost arrays
-    var fixedCosts = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([{
-      name: '',
-      value: ''
-    }]);
-    var customerCosts = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([{
-      name: '',
-      value: ''
-    }]);
+    // New cost arrays - start empty, user adds rows as needed
+    var fixedCosts = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
+    var customerCosts = (0,vue__WEBPACK_IMPORTED_MODULE_0__.ref)([]);
 
     // Initialize from existing data if editing
     (0,vue__WEBPACK_IMPORTED_MODULE_0__.onMounted)(function () {
@@ -23130,7 +23099,7 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
       }
     }
 
-    // Add/Remove row functions
+    // Add/Remove row functions - ALL rows can be removed (no minimum)
     function addWaterInRow() {
       waterIn.value.push({
         min: '',
@@ -23139,9 +23108,7 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
       });
     }
     function removeWaterInRow(index) {
-      if (waterIn.value.length > 1) {
-        waterIn.value.splice(index, 1);
-      }
+      waterIn.value.splice(index, 1);
     }
     function addWaterOutRow() {
       waterOut.value.push({
@@ -23152,9 +23119,7 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
       });
     }
     function removeWaterOutRow(index) {
-      if (waterOut.value.length > 1) {
-        waterOut.value.splice(index, 1);
-      }
+      waterOut.value.splice(index, 1);
     }
     function addElectricityRow() {
       electricity.value.push({
@@ -23164,9 +23129,7 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
       });
     }
     function removeElectricityRow(index) {
-      if (electricity.value.length > 1) {
-        electricity.value.splice(index, 1);
-      }
+      electricity.value.splice(index, 1);
     }
     function addWaterInAdditionalRow() {
       waterInAdditional.value.push({
@@ -23176,9 +23139,7 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
       });
     }
     function removeWaterInAdditionalRow(index) {
-      if (waterInAdditional.value.length > 1) {
-        waterInAdditional.value.splice(index, 1);
-      }
+      waterInAdditional.value.splice(index, 1);
     }
     function addWaterOutAdditionalRow() {
       waterOutAdditional.value.push({
@@ -23188,9 +23149,7 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
       });
     }
     function removeWaterOutAdditionalRow(index) {
-      if (waterOutAdditional.value.length > 1) {
-        waterOutAdditional.value.splice(index, 1);
-      }
+      waterOutAdditional.value.splice(index, 1);
     }
     function addElectricityAdditionalRow() {
       electricityAdditional.value.push({
@@ -23200,12 +23159,10 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
       });
     }
     function removeElectricityAdditionalRow(index) {
-      if (electricityAdditional.value.length > 1) {
-        electricityAdditional.value.splice(index, 1);
-      }
+      electricityAdditional.value.splice(index, 1);
     }
 
-    // New cost row functions
+    // New cost row functions - ALL rows can be removed
     function addFixedCostRow() {
       fixedCosts.value.push({
         name: '',
@@ -23213,9 +23170,7 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
       });
     }
     function removeFixedCostRow(index) {
-      if (fixedCosts.value.length > 1) {
-        fixedCosts.value.splice(index, 1);
-      }
+      fixedCosts.value.splice(index, 1);
     }
     function addCustomerCostRow() {
       customerCosts.value.push({
@@ -23224,9 +23179,7 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
       });
     }
     function removeCustomerCostRow(index) {
-      if (customerCosts.value.length > 1) {
-        customerCosts.value.splice(index, 1);
-      }
+      customerCosts.value.splice(index, 1);
     }
 
     // Calculate KL used in a water tier (for display)
@@ -27424,75 +27377,75 @@ var _hoisted_170 = {
   "class": "table table-sm"
 };
 var _hoisted_171 = {
-  "class": "text-right"
+  key: 0
 };
 var _hoisted_172 = {
-  "class": "font-weight-bold"
+  "class": "text-right"
 };
 var _hoisted_173 = {
-  "class": "text-right"
-};
-var _hoisted_174 = {
-  "class": "table table-sm"
-};
-var _hoisted_175 = {
-  "class": "text-right"
-};
-var _hoisted_176 = {
   "class": "font-weight-bold"
 };
-var _hoisted_177 = {
+var _hoisted_174 = {
   "class": "text-right"
 };
+var _hoisted_175 = {
+  "class": "table table-sm"
+};
+var _hoisted_176 = {
+  "class": "text-right"
+};
+var _hoisted_177 = {
+  "class": "font-weight-bold"
+};
 var _hoisted_178 = {
-  key: 2
+  "class": "text-right"
 };
 var _hoisted_179 = {
+  key: 2
+};
+var _hoisted_180 = {
   key: 3,
   "class": "table table-sm"
 };
-var _hoisted_180 = {
-  "class": "text-right"
-};
 var _hoisted_181 = {
-  "class": "font-weight-bold"
+  key: 0
 };
 var _hoisted_182 = {
   "class": "text-right"
 };
 var _hoisted_183 = {
-  key: 1
+  "class": "font-weight-bold"
 };
 var _hoisted_184 = {
-  "class": "table table-sm"
-};
-var _hoisted_185 = {
   "class": "text-right"
 };
+var _hoisted_185 = {
+  key: 1
+};
 var _hoisted_186 = {
-  "class": "font-weight-bold"
+  "class": "table table-sm"
 };
 var _hoisted_187 = {
   "class": "text-right"
 };
 var _hoisted_188 = {
-  key: 0
+  "class": "font-weight-bold"
 };
 var _hoisted_189 = {
+  "class": "text-right"
+};
+var _hoisted_190 = {
+  key: 0
+};
+var _hoisted_191 = {
   key: 1,
   "class": "table table-sm"
 };
-var _hoisted_190 = {
-  "class": "text-right"
-};
-var _hoisted_191 = {
-  "class": "font-weight-bold"
-};
 var _hoisted_192 = {
-  "class": "text-right"
+  key: 0
 };
 var _hoisted_193 = {
-  "class": "table table-sm"
+  "class": "text-right"
 };
 var _hoisted_194 = {
   "class": "font-weight-bold"
@@ -27504,46 +27457,61 @@ var _hoisted_196 = {
   "class": "table table-sm"
 };
 var _hoisted_197 = {
-  "class": "text-right text-muted"
-};
-var _hoisted_198 = {
   key: 0
 };
+var _hoisted_198 = {
+  "class": "font-weight-bold"
+};
 var _hoisted_199 = {
-  key: 1
+  "class": "text-right"
 };
 var _hoisted_200 = {
-  "class": "bg-light p-3 mt-4"
+  "class": "table table-sm"
 };
 var _hoisted_201 = {
-  "class": "table table-sm mb-0"
+  key: 0
 };
 var _hoisted_202 = {
-  "class": "text-right"
+  "class": "text-right text-muted"
 };
 var _hoisted_203 = {
-  "class": "text-right"
+  key: 0
 };
 var _hoisted_204 = {
-  "class": "text-right"
+  key: 1
 };
 var _hoisted_205 = {
-  "class": "text-right text-danger"
+  "class": "bg-light p-3 mt-4"
 };
 var _hoisted_206 = {
-  "class": "font-weight-bold h5"
+  "class": "table table-sm mb-0"
 };
 var _hoisted_207 = {
   "class": "text-right"
 };
 var _hoisted_208 = {
-  "class": "text-center mt-4"
+  "class": "text-right"
 };
 var _hoisted_209 = {
+  "class": "text-right"
+};
+var _hoisted_210 = {
+  "class": "text-right text-danger"
+};
+var _hoisted_211 = {
+  "class": "font-weight-bold h5"
+};
+var _hoisted_212 = {
+  "class": "text-right"
+};
+var _hoisted_213 = {
+  "class": "text-center mt-4"
+};
+var _hoisted_214 = {
   type: "submit",
   "class": "btn btn-warning btn-lg"
 };
-var _hoisted_210 = ["href"];
+var _hoisted_215 = ["href"];
 function render(_ctx, _cache, $props, $setup, $data, $options) {
   return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_3, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("form", {
     method: "POST",
@@ -27565,16 +27533,14 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     name: "template_name",
     "onUpdate:modelValue": _cache[0] || (_cache[0] = function ($event) {
       return $setup.formData.template_name = $event;
-    }),
-    required: ""
+    })
   }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.template_name]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_8, [_cache[44] || (_cache[44] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Select Region :")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
     "class": "form-control",
     name: "region_id",
     "onUpdate:modelValue": _cache[1] || (_cache[1] = function ($event) {
       return $setup.formData.region_id = $event;
     }),
-    onChange: $setup.onRegionChange,
-    required: ""
+    onChange: $setup.onRegionChange
   }, [_cache[43] || (_cache[43] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("option", {
     value: ""
   }, "Please select Region", -1 /* CACHED */)), ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($props.regions, function (region) {
@@ -27589,8 +27555,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     name: "start_date",
     "onUpdate:modelValue": _cache[2] || (_cache[2] = function ($event) {
       return $setup.formData.start_date = $event;
-    }),
-    required: ""
+    })
   }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.start_date]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_11, [_cache[46] || (_cache[46] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Applicable End Date :")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     "class": "form-control",
     type: "date",
@@ -27598,8 +27563,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     name: "end_date",
     "onUpdate:modelValue": _cache[3] || (_cache[3] = function ($event) {
       return $setup.formData.end_date = $event;
-    }),
-    required: ""
+    })
   }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.end_date]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_12, [_cache[47] || (_cache[47] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Water Email :")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     "class": "form-control",
     type: "email",
@@ -27626,8 +27590,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     }),
     onInput: _cache[7] || (_cache[7] = function ($event) {
       return $setup.filterDecimal($event);
-    }),
-    required: ""
+    })
   }, null, 544 /* NEED_HYDRATION, NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.vat_percentage]])]), _cache[142] || (_cache[142] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("hr", null, null, -1 /* CACHED */)), _cache[143] || (_cache[143] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", {
     style: {
       "font-size": "24px",
@@ -27643,8 +27606,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     }),
     onInput: _cache[9] || (_cache[9] = function ($event) {
       return $setup.filterDecimal($event);
-    }),
-    required: ""
+    })
   }, null, 544 /* NEED_HYDRATION, NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.billing_day]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_16, [_cache[51] || (_cache[51] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Read Day :")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     "class": "form-control",
     type: "text",
@@ -27655,8 +27617,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     }),
     onInput: _cache[11] || (_cache[11] = function ($event) {
       return $setup.filterDecimal($event);
-    }),
-    required: ""
+    })
   }, null, 544 /* NEED_HYDRATION, NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.read_day]])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_17, [_cache[52] || (_cache[52] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Ratable Value :")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     "class": "form-control",
     type: "text",
@@ -27667,8 +27628,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     }),
     onInput: _cache[13] || (_cache[13] = function ($event) {
       return $setup.filterDecimal($event);
-    }),
-    required: ""
+    })
   }, null, 544 /* NEED_HYDRATION, NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $setup.formData.ratable_value]])]), _cache[144] || (_cache[144] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("hr", null, null, -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_18, [_cache[53] || (_cache[53] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, "Select Meter Type :")], -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
     type: "checkbox",
     name: "is_water",
@@ -27731,8 +27691,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       onInput: _cache[20] || (_cache[20] = function ($event) {
         return $setup.filterDecimal($event);
-      }),
-      required: ""
+      })
     }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_24), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.min]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_25, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_26, [_cache[61] || (_cache[61] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Max (L)", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -27743,8 +27702,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       onInput: _cache[21] || (_cache[21] = function ($event) {
         return $setup.filterDecimal($event);
-      }),
-      required: ""
+      })
     }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_27), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.max]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_28, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_29, [_cache[62] || (_cache[62] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Cost/KL", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -27755,8 +27713,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       onInput: _cache[22] || (_cache[22] = function ($event) {
         return $setup.filterDecimal($event);
-      }),
-      required: ""
+      })
     }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_30), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.cost]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_31, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_32, [_cache[63] || (_cache[63] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "KL Used", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -27810,8 +27767,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       name: 'waterin_additional[' + index + '][title]',
       "onUpdate:modelValue": function onUpdateModelValue($event) {
         return row.title = $event;
-      },
-      required: ""
+      }
     }, null, 8 /* PROPS */, _hoisted_45), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.title]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_46, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_47, [_cache[70] || (_cache[70] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Percentage", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -27833,8 +27789,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       onInput: _cache[24] || (_cache[24] = function ($event) {
         return $setup.filterDecimal($event);
-      }),
-      required: ""
+      })
     }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_51), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.cost]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_52, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_53, [_cache[72] || (_cache[72] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Total", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -27885,8 +27840,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       onInput: _cache[25] || (_cache[25] = function ($event) {
         return $setup.filterDecimal($event);
-      }),
-      required: ""
+      })
     }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_64), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.min]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_65, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_66, [_cache[79] || (_cache[79] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Max", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -27897,8 +27851,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       onInput: _cache[26] || (_cache[26] = function ($event) {
         return $setup.filterDecimal($event);
-      }),
-      required: ""
+      })
     }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_67), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.max]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_68, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_69, [_cache[80] || (_cache[80] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "%", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -27909,8 +27862,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       onInput: _cache[27] || (_cache[27] = function ($event) {
         return $setup.filterDecimal($event);
-      }),
-      required: ""
+      })
     }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_70), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.percentage]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_71, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_72, [_cache[81] || (_cache[81] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Cost", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -27921,8 +27873,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       onInput: _cache[28] || (_cache[28] = function ($event) {
         return $setup.filterDecimal($event);
-      }),
-      required: ""
+      })
     }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_73), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.cost]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_74, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_75, [_cache[82] || (_cache[82] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Total", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -27970,8 +27921,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       name: 'waterout_additional[' + index + '][title]',
       "onUpdate:modelValue": function onUpdateModelValue($event) {
         return row.title = $event;
-      },
-      required: ""
+      }
     }, null, 8 /* PROPS */, _hoisted_85), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.title]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_86, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_87, [_cache[88] || (_cache[88] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "%", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -27993,8 +27943,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       onInput: _cache[30] || (_cache[30] = function ($event) {
         return $setup.filterDecimal($event);
-      }),
-      required: ""
+      })
     }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_91), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.cost]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_92, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_93, [_cache[90] || (_cache[90] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Total", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -28045,8 +27994,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       onInput: _cache[31] || (_cache[31] = function ($event) {
         return $setup.filterDecimal($event);
-      }),
-      required: ""
+      })
     }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_104), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.min]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_105, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_106, [_cache[97] || (_cache[97] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Max (KWH)", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -28057,8 +28005,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       onInput: _cache[32] || (_cache[32] = function ($event) {
         return $setup.filterDecimal($event);
-      }),
-      required: ""
+      })
     }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_107), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.max]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_108, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_109, [_cache[98] || (_cache[98] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Cost/KWH", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -28069,8 +28016,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       onInput: _cache[33] || (_cache[33] = function ($event) {
         return $setup.filterDecimal($event);
-      }),
-      required: ""
+      })
     }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_110), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.cost]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_111, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_112, [_cache[99] || (_cache[99] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Total", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -28118,8 +28064,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       name: 'electricity_additional[' + index + '][title]',
       "onUpdate:modelValue": function onUpdateModelValue($event) {
         return row.title = $event;
-      },
-      required: ""
+      }
     }, null, 8 /* PROPS */, _hoisted_122), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.title]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_123, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_124, [_cache[105] || (_cache[105] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "%", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -28141,8 +28086,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       onInput: _cache[35] || (_cache[35] = function ($event) {
         return $setup.filterDecimal($event);
-      }),
-      required: ""
+      })
     }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_128), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.cost]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_129, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_130, [_cache[107] || (_cache[107] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Total", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -28190,8 +28134,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       name: 'fixed_costs[' + index + '][name]',
       "onUpdate:modelValue": function onUpdateModelValue($event) {
         return row.name = $event;
-      },
-      required: ""
+      }
     }, null, 8 /* PROPS */, _hoisted_140), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.name]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_141, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_142, [_cache[114] || (_cache[114] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Value (negative for rebates)", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -28202,14 +28145,13 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       },
       onInput: _cache[36] || (_cache[36] = function ($event) {
         return $setup.filterDecimal($event);
-      }),
-      required: ""
+      })
     }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_143), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.value]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_144, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_145, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
       type: "button",
       style: {
         "margin-top": "32px"
       },
-      "class": "btn btn-outline-secondary btn-sm btn-circle",
+      "class": "btn btn-outline-danger btn-sm btn-circle",
       onClick: function onClick($event) {
         return $setup.removeFixedCostRow(index);
       }
@@ -28239,8 +28181,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       name: 'customer_costs[' + index + '][name]',
       "onUpdate:modelValue": function onUpdateModelValue($event) {
         return row.name = $event;
-      },
-      required: ""
+      }
     }, null, 8 /* PROPS */, _hoisted_149), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, row.name]])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_150, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_151, [_cache[119] || (_cache[119] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", null, "Default Value (can be empty)", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("input", {
       "class": "form-control",
       type: "text",
@@ -28257,7 +28198,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       style: {
         "margin-top": "32px"
       },
-      "class": "btn btn-outline-secondary btn-sm btn-circle",
+      "class": "btn btn-outline-danger btn-sm btn-circle",
       onClick: function onClick($event) {
         return $setup.removeCustomerCostRow(index);
       }
@@ -28300,60 +28241,50 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Tier " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(index + 1) + " (" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.min || 0) + " - " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.max || 0) + " L)", 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_165, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.calculateWaterInKL(index)) + " KL × R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.cost || 0), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_166, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.calculateWaterInRowTotal(index)), 1 /* TEXT */)]);
   }), 128 /* KEYED_FRAGMENT */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", _hoisted_167, [_cache[123] || (_cache[123] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", {
     colspan: "2"
-  }, "Water In Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_168, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.waterInTotal.toFixed(2)), 1 /* TEXT */)])])]), $setup.waterInAdditional.length > 0 && $setup.waterInAdditional[0] && $setup.waterInAdditional[0].title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("h6", _hoisted_169, "Water In Related Costs")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.waterInAdditional.length > 0 && $setup.waterInAdditional[0] && $setup.waterInAdditional[0].title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("table", _hoisted_170, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [_ctx.row && _ctx.row.title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
-    key: 0
-  }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.waterInAdditional, function (row, index) {
-    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", {
+  }, "Water In Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_168, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.waterInTotal.toFixed(2)), 1 /* TEXT */)])])]), $setup.waterInAdditional.length > 0 && $setup.waterInAdditional[0] && $setup.waterInAdditional[0].title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("h6", _hoisted_169, "Water In Related Costs")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.waterInAdditional.length > 0 && $setup.waterInAdditional[0] && $setup.waterInAdditional[0].title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("table", _hoisted_170, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.waterInAdditional, function (row, index) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
       key: 'preview-wia-' + index
-    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.title), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_171, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.calculateAdditionalRowTotal(row, $setup.formData.water_used)), 1 /* TEXT */)]);
-  }), 128 /* KEYED_FRAGMENT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", _hoisted_172, [_cache[124] || (_cache[124] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Water In Related Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_173, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.waterInRelatedTotal.toFixed(2)), 1 /* TEXT */)])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), _cache[129] || (_cache[129] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h6", null, "Water Out", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", _hoisted_174, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.waterOut, function (row, index) {
+    }, [row && row.title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", _hoisted_171, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.title), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_172, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.calculateAdditionalRowTotal(row, $setup.formData.water_used)), 1 /* TEXT */)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 64 /* STABLE_FRAGMENT */);
+  }), 128 /* KEYED_FRAGMENT */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", _hoisted_173, [_cache[124] || (_cache[124] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Water In Related Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_174, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.waterInRelatedTotal.toFixed(2)), 1 /* TEXT */)])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), _cache[129] || (_cache[129] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h6", null, "Water Out", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", _hoisted_175, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.waterOut, function (row, index) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", {
       key: 'preview-wo-' + index
-    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Tier " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(index + 1) + " (" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.min || 0) + " - " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.max || 0) + ") @ " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.percentage || 0) + "%", 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_175, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.calculateWaterOutRowTotal(index)), 1 /* TEXT */)]);
-  }), 128 /* KEYED_FRAGMENT */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", _hoisted_176, [_cache[125] || (_cache[125] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Water Out Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_177, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.waterOutTotal.toFixed(2)), 1 /* TEXT */)])])]), $setup.waterOutAdditional.length > 0 && $setup.waterOutAdditional[0] && $setup.waterOutAdditional[0].title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("h6", _hoisted_178, "Water Out Related Costs")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.waterOutAdditional.length > 0 && $setup.waterOutAdditional[0] && $setup.waterOutAdditional[0].title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("table", _hoisted_179, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [_ctx.row && _ctx.row.title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
-    key: 0
-  }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.waterOutAdditional, function (row, index) {
-    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", {
+    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Tier " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(index + 1) + " (" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.min || 0) + " - " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.max || 0) + ") @ " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.percentage || 0) + "%", 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_176, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.calculateWaterOutRowTotal(index)), 1 /* TEXT */)]);
+  }), 128 /* KEYED_FRAGMENT */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", _hoisted_177, [_cache[125] || (_cache[125] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Water Out Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_178, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.waterOutTotal.toFixed(2)), 1 /* TEXT */)])])]), $setup.waterOutAdditional.length > 0 && $setup.waterOutAdditional[0] && $setup.waterOutAdditional[0].title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("h6", _hoisted_179, "Water Out Related Costs")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.waterOutAdditional.length > 0 && $setup.waterOutAdditional[0] && $setup.waterOutAdditional[0].title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("table", _hoisted_180, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.waterOutAdditional, function (row, index) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
       key: 'preview-woa-' + index
-    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.title), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_180, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.calculateAdditionalRowTotal(row, $setup.formData.water_used)), 1 /* TEXT */)]);
-  }), 128 /* KEYED_FRAGMENT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", _hoisted_181, [_cache[126] || (_cache[126] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Water Out Related Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_182, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.waterOutRelatedTotal.toFixed(2)), 1 /* TEXT */)])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Electricity Charges "), $setup.formData.is_electricity ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_183, [_cache[132] || (_cache[132] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h5", {
+    }, [row && row.title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", _hoisted_181, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.title), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_182, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.calculateAdditionalRowTotal(row, $setup.formData.water_used)), 1 /* TEXT */)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 64 /* STABLE_FRAGMENT */);
+  }), 128 /* KEYED_FRAGMENT */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", _hoisted_183, [_cache[126] || (_cache[126] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Water Out Related Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_184, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.waterOutRelatedTotal.toFixed(2)), 1 /* TEXT */)])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Electricity Charges "), $setup.formData.is_electricity ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_185, [_cache[132] || (_cache[132] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h5", {
     "class": "border-bottom pb-2 mt-4"
-  }, "ELECTRICITY CHARGES", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", _hoisted_184, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.electricity, function (row, index) {
+  }, "ELECTRICITY CHARGES", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", _hoisted_186, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.electricity, function (row, index) {
     return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", {
       key: 'preview-el-' + index
-    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Tier " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(index + 1) + " (" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.min || 0) + " - " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.max || 0) + " KWH)", 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_185, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.calculateElectricityRowTotal(index)), 1 /* TEXT */)]);
-  }), 128 /* KEYED_FRAGMENT */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", _hoisted_186, [_cache[130] || (_cache[130] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Electricity Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_187, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.electricityTotal.toFixed(2)), 1 /* TEXT */)])])]), $setup.electricityAdditional.length > 0 && $setup.electricityAdditional[0] && $setup.electricityAdditional[0].title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("h6", _hoisted_188, "Electricity Related Costs")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.electricityAdditional.length > 0 && $setup.electricityAdditional[0] && $setup.electricityAdditional[0].title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("table", _hoisted_189, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [_ctx.row && _ctx.row.title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
-    key: 0
-  }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.electricityAdditional, function (row, index) {
-    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", {
+    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Tier " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(index + 1) + " (" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.min || 0) + " - " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.max || 0) + " KWH)", 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_187, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.calculateElectricityRowTotal(index)), 1 /* TEXT */)]);
+  }), 128 /* KEYED_FRAGMENT */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", _hoisted_188, [_cache[130] || (_cache[130] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Electricity Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_189, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.electricityTotal.toFixed(2)), 1 /* TEXT */)])])]), $setup.electricityAdditional.length > 0 && $setup.electricityAdditional[0] && $setup.electricityAdditional[0].title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("h6", _hoisted_190, "Electricity Related Costs")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $setup.electricityAdditional.length > 0 && $setup.electricityAdditional[0] && $setup.electricityAdditional[0].title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("table", _hoisted_191, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.electricityAdditional, function (row, index) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
       key: 'preview-ela-' + index
-    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.title), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_190, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.calculateAdditionalRowTotal(row, $setup.formData.electricity_used)), 1 /* TEXT */)]);
-  }), 128 /* KEYED_FRAGMENT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", _hoisted_191, [_cache[131] || (_cache[131] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Electricity Related Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_192, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.electricityRelatedTotal.toFixed(2)), 1 /* TEXT */)])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Fixed Costs "), _cache[138] || (_cache[138] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h5", {
+    }, [row && row.title ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", _hoisted_192, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.title), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_193, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.calculateAdditionalRowTotal(row, $setup.formData.electricity_used)), 1 /* TEXT */)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 64 /* STABLE_FRAGMENT */);
+  }), 128 /* KEYED_FRAGMENT */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", _hoisted_194, [_cache[131] || (_cache[131] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Electricity Related Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_195, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.electricityRelatedTotal.toFixed(2)), 1 /* TEXT */)])])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Fixed Costs "), _cache[138] || (_cache[138] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h5", {
     "class": "border-bottom pb-2 mt-4"
-  }, "FIXED COSTS", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", _hoisted_193, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [_ctx.row && _ctx.row.name ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
-    key: 0
-  }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.fixedCosts, function (row, index) {
-    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", {
+  }, "FIXED COSTS", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", _hoisted_196, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.fixedCosts, function (row, index) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
       key: 'preview-fc-' + index
-    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.name), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", {
+    }, [row && row.name ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", _hoisted_197, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.name), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", {
       "class": (0,vue__WEBPACK_IMPORTED_MODULE_0__.normalizeClass)(["text-right", {
         'text-danger': parseFloat(row.value) < 0
       }])
-    }, " R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(parseFloat(row.value || 0).toFixed(2)), 3 /* TEXT, CLASS */)]);
-  }), 128 /* KEYED_FRAGMENT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", _hoisted_194, [_cache[133] || (_cache[133] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Fixed Costs Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_195, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.fixedCostsTotal.toFixed(2)), 1 /* TEXT */)])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Customer Editable Costs "), _cache[139] || (_cache[139] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h5", {
+    }, " R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(parseFloat(row.value || 0).toFixed(2)), 3 /* TEXT, CLASS */)])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 64 /* STABLE_FRAGMENT */);
+  }), 128 /* KEYED_FRAGMENT */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", _hoisted_198, [_cache[133] || (_cache[133] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Fixed Costs Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_199, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.fixedCostsTotal.toFixed(2)), 1 /* TEXT */)])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Customer Editable Costs "), _cache[139] || (_cache[139] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h5", {
     "class": "border-bottom pb-2 mt-4"
-  }, "CUSTOMER INPUT COSTS", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", _hoisted_196, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [_ctx.row && _ctx.row.name ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
-    key: 0
-  }, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.customerCosts, function (row, index) {
-    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", {
+  }, "CUSTOMER INPUT COSTS", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", _hoisted_200, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($setup.customerCosts, function (row, index) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, {
       key: 'preview-cc-' + index
-    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.name), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_197, [row.value ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_198, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(parseFloat(row.value).toFixed(2)) + " *", 1 /* TEXT */)) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_199, "[User Input]"))])]);
-  }), 128 /* KEYED_FRAGMENT */)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])]), _cache[140] || (_cache[140] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("small", {
+    }, [row && row.name ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("tr", _hoisted_201, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(row.name), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_202, [row.value ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_203, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(parseFloat(row.value).toFixed(2)) + " *", 1 /* TEXT */)) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_204, "[User Input]"))])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)], 64 /* STABLE_FRAGMENT */);
+  }), 128 /* KEYED_FRAGMENT */))])]), _cache[140] || (_cache[140] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("small", {
     "class": "text-muted"
-  }, "* Default value - customer can modify in app", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Summary "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_200, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", _hoisted_201, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [_cache[134] || (_cache[134] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_202, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.subTotal.toFixed(2)), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "VAT (" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.formData.vat_percentage) + "%)", 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_203, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.vatAmount.toFixed(2)), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [_cache[135] || (_cache[135] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Rates", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_204, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(parseFloat($setup.formData.vat_rate || 0).toFixed(2)), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [_cache[136] || (_cache[136] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Rates Rebate", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_205, "-R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(parseFloat($setup.formData.rates_rebate || 0).toFixed(2)), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", _hoisted_206, [_cache[137] || (_cache[137] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "TOTAL", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_207, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.finalTotal.toFixed(2)), 1 /* TEXT */)])])])])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Submit buttons below the bill preview "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_208, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", _hoisted_209, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.formData.id ? 'Save / Update' : 'Save Template'), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
+  }, "* Default value - customer can modify in app", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Summary "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_205, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", _hoisted_206, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tbody", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [_cache[134] || (_cache[134] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Subtotal", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_207, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.subTotal.toFixed(2)), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "VAT (" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.formData.vat_percentage) + "%)", 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_208, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.vatAmount.toFixed(2)), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [_cache[135] || (_cache[135] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Rates", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_209, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(parseFloat($setup.formData.vat_rate || 0).toFixed(2)), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [_cache[136] || (_cache[136] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "Rates Rebate", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_210, "-R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(parseFloat($setup.formData.rates_rebate || 0).toFixed(2)), 1 /* TEXT */)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", _hoisted_211, [_cache[137] || (_cache[137] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, "TOTAL", -1 /* CACHED */)), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", _hoisted_212, "R" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.finalTotal.toFixed(2)), 1 /* TEXT */)])])])])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Submit buttons below the bill preview "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_213, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", _hoisted_214, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($setup.formData.id ? 'Save / Update' : 'Save Template'), 1 /* TEXT */), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
     href: $props.cancelUrl,
     "class": "btn btn-secondary btn-lg ml-2"
-  }, "Cancel", 8 /* PROPS */, _hoisted_210)])], 40 /* PROPS, NEED_HYDRATION */, _hoisted_4)])])]);
+  }, "Cancel", 8 /* PROPS */, _hoisted_215)])], 40 /* PROPS, NEED_HYDRATION */, _hoisted_4)])])]);
 }
 
 /***/ }),
@@ -30699,7 +30630,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.user-account-manager-wrapper[data-v-4e19150c] {\n    padding: 0;\n}\n.modal.show[data-v-4e19150c] {\n    display: block;\n}\n.btn-circle[data-v-4e19150c] {\n    border-radius: 50%;\n    width: 30px;\n    height: 30px;\n    padding: 0;\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n}\n.nav-tabs .nav-link[data-v-4e19150c] {\n    cursor: pointer;\n}\n.nav-tabs .nav-link.active[data-v-4e19150c] {\n    font-weight: bold;\n}\n\n/* Water Meter Pigeonhole Styles */\n.meter-input-container[data-v-4e19150c] {\n    margin: 10px 0;\n}\n.water-meter-display[data-v-4e19150c],\n.electricity-meter-display[data-v-4e19150c] {\n    display: flex;\n    align-items: center;\n    gap: 2px;\n}\n.meter-section[data-v-4e19150c] {\n    display: flex;\n    gap: 2px;\n}\n.meter-box[data-v-4e19150c] {\n    width: 40px;\n    height: 50px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    border-radius: 4px;\n    border: 2px solid #333;\n}\n.white-box[data-v-4e19150c] {\n    background: #fff;\n    border-color: #333;\n}\n.white-box .meter-input[data-v-4e19150c] {\n    color: #000;\n    background: transparent;\n}\n.black-box[data-v-4e19150c] {\n    background: #333;\n    border-color: #333;\n}\n.black-box .meter-input[data-v-4e19150c] {\n    color: #fff;\n    background: transparent;\n}\n.red-box[data-v-4e19150c] {\n    background: #b30101;\n    border-color: #b30101;\n}\n.red-box .meter-input[data-v-4e19150c] {\n    color: #fff;\n    background: transparent;\n}\n.meter-input[data-v-4e19150c] {\n    width: 100%;\n    height: 100%;\n    text-align: center;\n    font-family: 'Courier New', monospace;\n    font-weight: bold;\n    font-size: 24px;\n    border: none;\n    outline: none;\n}\n.meter-decimal-point[data-v-4e19150c] {\n    font-size: 30px;\n    font-weight: bold;\n    margin: 0 4px;\n}\n.badge-primary[data-v-4e19150c] {\n    background-color: #4e73df;\n}\n.badge-warning[data-v-4e19150c] {\n    background-color: #f6c23e;\n    color: #1f2d3d;\n}\n.badge-secondary[data-v-4e19150c] {\n    background-color: #858796;\n}\n.alert[data-v-4e19150c] {\n    animation: slideIn-4e19150c 0.3s ease;\n}\n@keyframes slideIn-4e19150c {\nfrom {\n        transform: translateX(100%);\n        opacity: 0;\n}\nto {\n        transform: translateX(0);\n        opacity: 1;\n}\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.user-account-manager-wrapper[data-v-4e19150c] {\r\n    padding: 0;\n}\n.modal.show[data-v-4e19150c] {\r\n    display: block;\n}\n.btn-circle[data-v-4e19150c] {\r\n    border-radius: 50%;\r\n    width: 30px;\r\n    height: 30px;\r\n    padding: 0;\r\n    display: inline-flex;\r\n    align-items: center;\r\n    justify-content: center;\n}\n.nav-tabs .nav-link[data-v-4e19150c] {\r\n    cursor: pointer;\n}\n.nav-tabs .nav-link.active[data-v-4e19150c] {\r\n    font-weight: bold;\n}\r\n\r\n/* Water Meter Pigeonhole Styles */\n.meter-input-container[data-v-4e19150c] {\r\n    margin: 10px 0;\n}\n.water-meter-display[data-v-4e19150c],\r\n.electricity-meter-display[data-v-4e19150c] {\r\n    display: flex;\r\n    align-items: center;\r\n    gap: 2px;\n}\n.meter-section[data-v-4e19150c] {\r\n    display: flex;\r\n    gap: 2px;\n}\n.meter-box[data-v-4e19150c] {\r\n    width: 40px;\r\n    height: 50px;\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: center;\r\n    border-radius: 4px;\r\n    border: 2px solid #333;\n}\n.white-box[data-v-4e19150c] {\r\n    background: #fff;\r\n    border-color: #333;\n}\n.white-box .meter-input[data-v-4e19150c] {\r\n    color: #000;\r\n    background: transparent;\n}\n.black-box[data-v-4e19150c] {\r\n    background: #333;\r\n    border-color: #333;\n}\n.black-box .meter-input[data-v-4e19150c] {\r\n    color: #fff;\r\n    background: transparent;\n}\n.red-box[data-v-4e19150c] {\r\n    background: #b30101;\r\n    border-color: #b30101;\n}\n.red-box .meter-input[data-v-4e19150c] {\r\n    color: #fff;\r\n    background: transparent;\n}\n.meter-input[data-v-4e19150c] {\r\n    width: 100%;\r\n    height: 100%;\r\n    text-align: center;\r\n    font-family: 'Courier New', monospace;\r\n    font-weight: bold;\r\n    font-size: 24px;\r\n    border: none;\r\n    outline: none;\n}\n.meter-decimal-point[data-v-4e19150c] {\r\n    font-size: 30px;\r\n    font-weight: bold;\r\n    margin: 0 4px;\n}\n.badge-primary[data-v-4e19150c] {\r\n    background-color: #4e73df;\n}\n.badge-warning[data-v-4e19150c] {\r\n    background-color: #f6c23e;\r\n    color: #1f2d3d;\n}\n.badge-secondary[data-v-4e19150c] {\r\n    background-color: #858796;\n}\n.alert[data-v-4e19150c] {\r\n    animation: slideIn-4e19150c 0.3s ease;\n}\n@keyframes slideIn-4e19150c {\nfrom {\r\n        transform: translateX(100%);\r\n        opacity: 0;\n}\nto {\r\n        transform: translateX(0);\r\n        opacity: 1;\n}\n}\r\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -30723,7 +30654,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.user-account-setup-wrapper[data-v-f65e1eec] {\n    max-width: 900px;\n    margin: 0 auto;\n}\n.step-indicator[data-v-f65e1eec] {\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    flex: 1;\n    position: relative;\n}\n.step-indicator[data-v-f65e1eec]:not(:last-child)::after {\n    content: '';\n    position: absolute;\n    top: 15px;\n    left: calc(50% + 20px);\n    width: calc(100% - 40px);\n    height: 2px;\n    background: #e9ecef;\n}\n.step-indicator.completed[data-v-f65e1eec]:not(:last-child)::after {\n    background: #1cc88a;\n}\n.step-number[data-v-f65e1eec] {\n    width: 30px;\n    height: 30px;\n    border-radius: 50%;\n    background: #e9ecef;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    font-weight: bold;\n    margin-bottom: 5px;\n    position: relative;\n    z-index: 1;\n}\n.step-indicator.active .step-number[data-v-f65e1eec] {\n    background: #4e73df;\n    color: white;\n}\n.step-indicator.completed .step-number[data-v-f65e1eec] {\n    background: #1cc88a;\n    color: white;\n}\n.step-label[data-v-f65e1eec] {\n    font-size: 0.75rem;\n    color: #858796;\n    text-align: center;\n}\n.step-indicator.active .step-label[data-v-f65e1eec] {\n    color: #4e73df;\n    font-weight: bold;\n}\n\n/* Meter Reading Dual Input Design */\n.meter-reading-input-wrapper[data-v-f65e1eec] {\n    margin: 5px 0;\n}\n.meter-reading-dual-input[data-v-f65e1eec] {\n    display: flex;\n    align-items: center;\n    gap: 4px;\n}\n.meter-main-input[data-v-f65e1eec] {\n    flex: 1;\n    max-width: 180px;\n    height: 48px;\n    padding: 8px 12px;\n    font-family: 'Courier New', monospace;\n    font-weight: bold;\n    font-size: 20px;\n    text-align: center;\n    letter-spacing: 2px;\n    background: #ffffff;\n    color: #000000;\n    border: 2px solid #333;\n    border-radius: 6px;\n}\n.meter-main-input[data-v-f65e1eec]:focus {\n    outline: none;\n    border-color: #4e73df;\n    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.25);\n}\n.meter-decimal-separator[data-v-f65e1eec] {\n    font-size: 28px;\n    font-weight: bold;\n    color: #333;\n    margin: 0 2px;\n}\n.meter-decimal-input[data-v-f65e1eec] {\n    width: 70px;\n    height: 48px;\n    padding: 8px 12px;\n    font-family: 'Courier New', monospace;\n    font-weight: bold;\n    font-size: 20px;\n    text-align: center;\n    letter-spacing: 2px;\n    background: #b30101;\n    color: #ffffff;\n    border: 2px solid #b30101;\n    border-radius: 6px;\n}\n.meter-decimal-input[data-v-f65e1eec]:focus {\n    outline: none;\n    border-color: #8a0000;\n    box-shadow: 0 0 0 3px rgba(179, 1, 1, 0.25);\n}\n.meter-decimal-input[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-decimal-input[data-v-f65e1eec]::placeholder {\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-main-input[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(0, 0, 0, 0.3);\n}\n.meter-main-input[data-v-f65e1eec]::placeholder {\n    color: rgba(0, 0, 0, 0.3);\n}\n\n/* Water Meter Styling - White main, Red decimal */\n.meter-water-main[data-v-f65e1eec] {\n    background: #ffffff;\n    color: #000000;\n    border-color: #333;\n}\n.meter-water-main[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(0, 0, 0, 0.3);\n}\n.meter-water-main[data-v-f65e1eec]::placeholder {\n    color: rgba(0, 0, 0, 0.3);\n}\n.meter-water-decimal[data-v-f65e1eec] {\n    background: #b30101;\n    color: #ffffff;\n    border-color: #b30101;\n}\n.meter-water-decimal[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-water-decimal[data-v-f65e1eec]::placeholder {\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-water-decimal[data-v-f65e1eec]:focus {\n    border-color: #8a0000;\n    box-shadow: 0 0 0 3px rgba(179, 1, 1, 0.25);\n}\n\n/* Electricity Meter Styling - Black main, Grey decimal */\n.meter-electricity-main[data-v-f65e1eec] {\n    background: #000000;\n    color: #ffffff;\n    border-color: #000000;\n}\n.meter-electricity-main[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(255, 255, 255, 0.5);\n}\n.meter-electricity-main[data-v-f65e1eec]::placeholder {\n    color: rgba(255, 255, 255, 0.5);\n}\n.meter-electricity-main[data-v-f65e1eec]:focus {\n    border-color: #4e73df;\n    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.25);\n}\n.meter-electricity-decimal[data-v-f65e1eec] {\n    background: #666666;\n    color: #ffffff;\n    border-color: #666666;\n}\n.meter-electricity-decimal[data-v-f65e1eec]::-moz-placeholder {\n    color: rgba(255, 255, 255, 0.5);\n}\n.meter-electricity-decimal[data-v-f65e1eec]::placeholder {\n    color: rgba(255, 255, 255, 0.5);\n}\n.meter-electricity-decimal[data-v-f65e1eec]:focus {\n    border-color: #444444;\n    box-shadow: 0 0 0 3px rgba(102, 102, 102, 0.25);\n}\n\n/* Disabled field styling for Date to Date billing */\n.disabled-field[data-v-f65e1eec] {\n    background-color: #e9ecef !important;\n    cursor: not-allowed;\n    opacity: 0.7;\n}\n.alert[data-v-f65e1eec] {\n    animation: slideIn-f65e1eec 0.3s ease;\n}\n@keyframes slideIn-f65e1eec {\nfrom {\n        transform: translateX(100%);\n        opacity: 0;\n}\nto {\n        transform: translateX(0);\n        opacity: 1;\n}\n}\n\n/* Responsive adjustments for meter inputs */\n@media (max-width: 576px) {\n.meter-main-input[data-v-f65e1eec] {\n        max-width: 140px;\n        font-size: 16px;\n        height: 42px;\n}\n.meter-decimal-input[data-v-f65e1eec] {\n        width: 50px;\n        font-size: 16px;\n        height: 42px;\n}\n.meter-decimal-separator[data-v-f65e1eec] {\n        font-size: 22px;\n}\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.user-account-setup-wrapper[data-v-f65e1eec] {\r\n    max-width: 900px;\r\n    margin: 0 auto;\n}\n.step-indicator[data-v-f65e1eec] {\r\n    display: flex;\r\n    flex-direction: column;\r\n    align-items: center;\r\n    flex: 1;\r\n    position: relative;\n}\n.step-indicator[data-v-f65e1eec]:not(:last-child)::after {\r\n    content: '';\r\n    position: absolute;\r\n    top: 15px;\r\n    left: calc(50% + 20px);\r\n    width: calc(100% - 40px);\r\n    height: 2px;\r\n    background: #e9ecef;\n}\n.step-indicator.completed[data-v-f65e1eec]:not(:last-child)::after {\r\n    background: #1cc88a;\n}\n.step-number[data-v-f65e1eec] {\r\n    width: 30px;\r\n    height: 30px;\r\n    border-radius: 50%;\r\n    background: #e9ecef;\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: center;\r\n    font-weight: bold;\r\n    margin-bottom: 5px;\r\n    position: relative;\r\n    z-index: 1;\n}\n.step-indicator.active .step-number[data-v-f65e1eec] {\r\n    background: #4e73df;\r\n    color: white;\n}\n.step-indicator.completed .step-number[data-v-f65e1eec] {\r\n    background: #1cc88a;\r\n    color: white;\n}\n.step-label[data-v-f65e1eec] {\r\n    font-size: 0.75rem;\r\n    color: #858796;\r\n    text-align: center;\n}\n.step-indicator.active .step-label[data-v-f65e1eec] {\r\n    color: #4e73df;\r\n    font-weight: bold;\n}\r\n\r\n/* Meter Reading Dual Input Design */\n.meter-reading-input-wrapper[data-v-f65e1eec] {\r\n    margin: 5px 0;\n}\n.meter-reading-dual-input[data-v-f65e1eec] {\r\n    display: flex;\r\n    align-items: center;\r\n    gap: 4px;\n}\n.meter-main-input[data-v-f65e1eec] {\r\n    flex: 1;\r\n    max-width: 180px;\r\n    height: 48px;\r\n    padding: 8px 12px;\r\n    font-family: 'Courier New', monospace;\r\n    font-weight: bold;\r\n    font-size: 20px;\r\n    text-align: center;\r\n    letter-spacing: 2px;\r\n    background: #ffffff;\r\n    color: #000000;\r\n    border: 2px solid #333;\r\n    border-radius: 6px;\n}\n.meter-main-input[data-v-f65e1eec]:focus {\r\n    outline: none;\r\n    border-color: #4e73df;\r\n    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.25);\n}\n.meter-decimal-separator[data-v-f65e1eec] {\r\n    font-size: 28px;\r\n    font-weight: bold;\r\n    color: #333;\r\n    margin: 0 2px;\n}\n.meter-decimal-input[data-v-f65e1eec] {\r\n    width: 70px;\r\n    height: 48px;\r\n    padding: 8px 12px;\r\n    font-family: 'Courier New', monospace;\r\n    font-weight: bold;\r\n    font-size: 20px;\r\n    text-align: center;\r\n    letter-spacing: 2px;\r\n    background: #b30101;\r\n    color: #ffffff;\r\n    border: 2px solid #b30101;\r\n    border-radius: 6px;\n}\n.meter-decimal-input[data-v-f65e1eec]:focus {\r\n    outline: none;\r\n    border-color: #8a0000;\r\n    box-shadow: 0 0 0 3px rgba(179, 1, 1, 0.25);\n}\n.meter-decimal-input[data-v-f65e1eec]::-moz-placeholder {\r\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-decimal-input[data-v-f65e1eec]::placeholder {\r\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-main-input[data-v-f65e1eec]::-moz-placeholder {\r\n    color: rgba(0, 0, 0, 0.3);\n}\n.meter-main-input[data-v-f65e1eec]::placeholder {\r\n    color: rgba(0, 0, 0, 0.3);\n}\r\n\r\n/* Water Meter Styling - White main, Red decimal */\n.meter-water-main[data-v-f65e1eec] {\r\n    background: #ffffff;\r\n    color: #000000;\r\n    border-color: #333;\n}\n.meter-water-main[data-v-f65e1eec]::-moz-placeholder {\r\n    color: rgba(0, 0, 0, 0.3);\n}\n.meter-water-main[data-v-f65e1eec]::placeholder {\r\n    color: rgba(0, 0, 0, 0.3);\n}\n.meter-water-decimal[data-v-f65e1eec] {\r\n    background: #b30101;\r\n    color: #ffffff;\r\n    border-color: #b30101;\n}\n.meter-water-decimal[data-v-f65e1eec]::-moz-placeholder {\r\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-water-decimal[data-v-f65e1eec]::placeholder {\r\n    color: rgba(255, 255, 255, 0.6);\n}\n.meter-water-decimal[data-v-f65e1eec]:focus {\r\n    border-color: #8a0000;\r\n    box-shadow: 0 0 0 3px rgba(179, 1, 1, 0.25);\n}\r\n\r\n/* Electricity Meter Styling - Black main, Grey decimal */\n.meter-electricity-main[data-v-f65e1eec] {\r\n    background: #000000;\r\n    color: #ffffff;\r\n    border-color: #000000;\n}\n.meter-electricity-main[data-v-f65e1eec]::-moz-placeholder {\r\n    color: rgba(255, 255, 255, 0.5);\n}\n.meter-electricity-main[data-v-f65e1eec]::placeholder {\r\n    color: rgba(255, 255, 255, 0.5);\n}\n.meter-electricity-main[data-v-f65e1eec]:focus {\r\n    border-color: #4e73df;\r\n    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.25);\n}\n.meter-electricity-decimal[data-v-f65e1eec] {\r\n    background: #666666;\r\n    color: #ffffff;\r\n    border-color: #666666;\n}\n.meter-electricity-decimal[data-v-f65e1eec]::-moz-placeholder {\r\n    color: rgba(255, 255, 255, 0.5);\n}\n.meter-electricity-decimal[data-v-f65e1eec]::placeholder {\r\n    color: rgba(255, 255, 255, 0.5);\n}\n.meter-electricity-decimal[data-v-f65e1eec]:focus {\r\n    border-color: #444444;\r\n    box-shadow: 0 0 0 3px rgba(102, 102, 102, 0.25);\n}\r\n\r\n/* Disabled field styling for Date to Date billing */\n.disabled-field[data-v-f65e1eec] {\r\n    background-color: #e9ecef !important;\r\n    cursor: not-allowed;\r\n    opacity: 0.7;\n}\n.alert[data-v-f65e1eec] {\r\n    animation: slideIn-f65e1eec 0.3s ease;\n}\n@keyframes slideIn-f65e1eec {\nfrom {\r\n        transform: translateX(100%);\r\n        opacity: 0;\n}\nto {\r\n        transform: translateX(0);\r\n        opacity: 1;\n}\n}\r\n\r\n/* Responsive adjustments for meter inputs */\n@media (max-width: 576px) {\n.meter-main-input[data-v-f65e1eec] {\r\n        max-width: 140px;\r\n        font-size: 16px;\r\n        height: 42px;\n}\n.meter-decimal-input[data-v-f65e1eec] {\r\n        width: 50px;\r\n        font-size: 16px;\r\n        height: 42px;\n}\n.meter-decimal-separator[data-v-f65e1eec] {\r\n        font-size: 22px;\n}\n}\r\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -30747,7 +30678,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.user-management-wrapper[data-v-cba96e06] {\n    padding: 0;\n}\n.modal.show[data-v-cba96e06] {\n    display: block;\n}\n.badge-warning[data-v-cba96e06] {\n    background-color: #f6c23e;\n    color: #1f2d3d;\n}\n.badge-success[data-v-cba96e06] {\n    background-color: #1cc88a;\n}\n.badge-primary[data-v-cba96e06] {\n    background-color: #4e73df;\n}\n.btn-circle[data-v-cba96e06] {\n    border-radius: 50%;\n    width: 30px;\n    height: 30px;\n    padding: 0;\n    display: inline-flex;\n    align-items: center;\n    justify-content: center;\n}\n.border-left[data-v-cba96e06] {\n    border-left-width: 3px !important;\n}\n.form-control-sm[data-v-cba96e06] {\n    font-size: 0.85rem;\n}\n.alert[data-v-cba96e06] {\n    animation: slideIn-cba96e06 0.3s ease;\n}\n@keyframes slideIn-cba96e06 {\nfrom {\n        transform: translateX(100%);\n        opacity: 0;\n}\nto {\n        transform: translateX(0);\n        opacity: 1;\n}\n}\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.user-management-wrapper[data-v-cba96e06] {\r\n    padding: 0;\n}\n.modal.show[data-v-cba96e06] {\r\n    display: block;\n}\n.badge-warning[data-v-cba96e06] {\r\n    background-color: #f6c23e;\r\n    color: #1f2d3d;\n}\n.badge-success[data-v-cba96e06] {\r\n    background-color: #1cc88a;\n}\n.badge-primary[data-v-cba96e06] {\r\n    background-color: #4e73df;\n}\n.btn-circle[data-v-cba96e06] {\r\n    border-radius: 50%;\r\n    width: 30px;\r\n    height: 30px;\r\n    padding: 0;\r\n    display: inline-flex;\r\n    align-items: center;\r\n    justify-content: center;\n}\n.border-left[data-v-cba96e06] {\r\n    border-left-width: 3px !important;\n}\n.form-control-sm[data-v-cba96e06] {\r\n    font-size: 0.85rem;\n}\n.alert[data-v-cba96e06] {\r\n    animation: slideIn-cba96e06 0.3s ease;\n}\n@keyframes slideIn-cba96e06 {\nfrom {\r\n        transform: translateX(100%);\r\n        opacity: 0;\n}\nto {\r\n        transform: translateX(0);\r\n        opacity: 1;\n}\n}\r\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
