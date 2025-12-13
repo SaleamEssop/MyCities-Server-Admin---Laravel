@@ -1,0 +1,518 @@
+================================================================================
+MYCITIES PROJECT - COMPLETE INSTRUCTION SET FOR AI AGENT
+================================================================================
+Last Updated: January 2025
+Status: Production deployment in progress, Docker setup pending
+================================================================================
+
+CONTEXT FOR AI AGENT:
+---------------------
+This document contains complete instructions for continuing work on the MyCities
+project. The user is NOT a developer, so solutions should be simple and automated
+where possible. The goal is to create a clean Docker-based development environment
+that mirrors production exactly.
+
+================================================================================
+SECTION 1: PROJECT OVERVIEW
+================================================================================
+
+PROJECT NAME: MyCities
+DESCRIPTION: Water and electricity meter reading and billing application
+
+TECH STACK:
+-----------
+Frontend: Vue 3 + Quasar Framework
+Backend: Laravel PHP
+Database: MySQL
+Web Server: Nginx (Docker) / Apache (Production)
+Deployment: Digital Ocean with auto-deploy via GitHub webhook
+
+REPOSITORIES:
+-------------
+Laravel Backend: https://github.com/SaleamEssop/MyCities-Server-Admin---Laravel
+Vue/Quasar Frontend: https://github.com/SaleamEssop/MyCities-Vue-Quasar
+
+PRODUCTION URLS:
+----------------
+Main Site: https://www.mycities.co.za
+Web App: https://www.mycities.co.za/web-app
+Admin Panel: https://www.mycities.co.za/admin
+API: https://www.mycities.co.za/api/v1
+
+DEMO ACCOUNT:
+-------------
+Email: demo@mycities.co.za
+Password: demo123
+
+================================================================================
+SECTION 2: CURRENT STATUS
+================================================================================
+
+COMPLETED TASKS:
+----------------
+[X] Vue/Quasar dashboard with billing calculations
+[X] Fixed daily average calculation (uses actual reading dates)
+[X] Fixed header total to show projected total (Water + Electricity + Additional Charges)
+[X] Updated history page to show all readings (START, intermediate, END)
+[X] Fixed tiered rate calculations for projections
+[X] Added "Additional Charges" section (VAT, Rates, Fixed Costs)
+[X] Code pushed to GitHub (both repos)
+[X] Production build created and deployed to Laravel public folder
+[X] All local changes committed to git
+
+KNOWN ISSUES:
+-------------
+[ ] Login says "welcome back" but doesn't progress to next screen (web browser)
+[ ] Mobile shows old cached green screen (needs cache-busting commit pushed)
+[ ] Production server needs latest code pulled (commit 93300cd not on server yet)
+
+PENDING TASKS:
+--------------
+[ ] Docker local development environment setup
+[ ] Clean rebuild (extract only essential files, remove clutter)
+[ ] Test full flow locally before production deployment
+[ ] Verify ads/home screen feature works in production
+[ ] Push committed changes to GitHub (requires authentication)
+
+================================================================================
+SECTION 3: PROJECT STRUCTURE
+================================================================================
+
+CURRENT LOCAL PATHS (OLD LAPTOP):
+----------------------------------
+Laravel: C:\MyCities\MyCities-Server-Admin---Laravel
+Vue/Quasar: C:\MyCities\MyCities-Vue-Quasar
+
+PLANNED DOCKER STRUCTURE (NEW SETUP):
+--------------------------------------
+C:\Docker\MyCities\
+├── docker-compose.yml          # Orchestrates all services
+├── .env                        # Shared environment variables
+├── README.md                   # Setup instructions
+│
+├── laravel\                    # Clean Laravel (essentials only)
+│   ├── Dockerfile
+│   ├── app\
+│   ├── routes\
+│   ├── database\
+│   └── ... (essential files only)
+│
+├── vue-quasar\                 # Clean Vue/Quasar (essentials only)
+│   ├── Dockerfile
+│   ├── src\
+│   ├── public\
+│   ├── quasar.config.js
+│   └── ... (essential files only)
+│
+└── nginx\                      # Web server configuration
+    └── default.conf
+
+TEMP FOLDER FOR CLONING:
+-------------------------
+C:\Temp\MyCities-Clean\
+├── laravel-source\      # Full clone from GitHub
+└── vue-quasar-source\  # Full clone from GitHub
+
+================================================================================
+SECTION 4: KEY FILES AND COMPONENTS
+================================================================================
+
+LARAVEL BACKEND - ESSENTIAL FILES:
+-----------------------------------
+app/Http/Controllers/ApiController.php - API endpoints
+app/Http/Controllers/Admin/ - Admin controllers
+app/Http/Controllers/Api/ - API controllers
+app/Models/ - All models (User, Account, Site, Meter, Readings, Ads, etc.)
+app/Services/BillingEngine.php - Billing calculation logic
+config/ - Application configuration
+database/migrations/ - All database migrations
+database/seeders/DemoUserSeeder.php - Demo user and data
+routes/api.php - API routes
+routes/web.php - Web routes (admin panel)
+resources/views/admin/ - Admin panel Blade templates
+    - ads.blade.php - Ads management
+    - ads_categories.blade.php - Ad categories
+    - (other admin views)
+public/index.php - Entry point
+composer.json - PHP dependencies
+
+VUE/QUASAR FRONTEND - ESSENTIAL FILES:
+---------------------------------------
+src/pages/AuthPage.vue - Login page
+src/pages/RegisterPage.vue - Registration
+src/pages/AccountSelectPage.vue - Account selection
+src/pages/user/DashboardPage.vue - Main dashboard
+src/pages/user/ReadingsListPage.vue - Readings history
+src/pages/IndexPage.vue - Home/Ads screen (scrollable)
+src/components/ - Reusable components
+src/stores/ - Pinia stores
+    - auth.js - Authentication store
+    - ads.js - Ads store
+    - (other stores)
+src/services/seedData.js - Demo data and calculations
+src/services/ - API service files
+src/router/ - Vue Router configuration
+src/layouts/ - Layout components
+src/boot/axios.js - API configuration
+src/boot/firebase.js - Firebase initialization
+src/css/ - Stylesheets
+public/ - Static assets
+quasar.config.js - Quasar build configuration
+package.json - Node dependencies
+
+FEATURES IMPLEMENTED:
+---------------------
+- User authentication (login/register)
+- Account selection
+- Dashboard with water/electricity billing
+- Meter readings entry
+- Readings history
+- Projected billing calculations
+- Tiered tariff calculations
+- Additional charges (VAT, Rates, Fixed Costs)
+- Ads/Home screen (scrollable, managed via admin panel)
+
+ADS/HOME SCREEN FEATURE:
+------------------------
+Status: Feature exists, needs to be included in clean rebuild
+Frontend: src/pages/IndexPage.vue - Scrollable home screen
+Backend: Admin panel at /admin/ads for managing ads
+API: GET /api/v1/ads/get and /api/v1/ads/get-categories
+Models: Ads.php, AdsCategory.php
+Admin Views: resources/views/admin/ads.blade.php, ads_categories.blade.php
+
+================================================================================
+SECTION 5: GIT STATUS AND OPERATIONS
+================================================================================
+
+LARAVEL REPOSITORY:
+-------------------
+Location: C:\MyCities\MyCities-Server-Admin---Laravel
+Remote: https://github.com/SaleamEssop/MyCities-Server-Admin---Laravel
+Status: 2 commits ahead of origin/main - NEEDS PUSH
+  - Commit 1: d09335e - "Add project status document"
+  - Commit 2: b2cca9e - "Save all changes before laptop transfer"
+Files Committed: PROJECT-STATUS.md, DEPLOYMENT.md, and 12 other modified files
+
+VUE/QUASAR REPOSITORY:
+----------------------
+Location: C:\MyCities\MyCities-Vue-Quasar
+Remote: https://github.com/SaleamEssop/MyCities-Vue-Quasar
+Status: 1 commit ahead of origin/main - NEEDS PUSH
+  - Commit: 55c2e0a - "Save all changes before laptop transfer"
+Files Committed: 70 files changed (components, pages, services, stores, etc.)
+
+PUSH COMMANDS (REQUIRES AUTHENTICATION):
+-----------------------------------------
+Laravel:
+  cd C:\MyCities\MyCities-Server-Admin---Laravel
+  git push origin main
+
+Vue/Quasar:
+  cd C:\MyCities\MyCities-Vue-Quasar
+  git push origin main
+
+Note: User will need to authenticate with GitHub (username/password or token)
+
+================================================================================
+SECTION 6: CLEAN REBUILD PLAN
+================================================================================
+
+GOAL:
+-----
+Create a clean, minimal Docker-based project with only essential files from
+existing repos. Remove all clutter, old scripts, test files, build artifacts,
+and documentation files (except README.md).
+
+PROCESS:
+--------
+1. Create C:\Docker\MyCities\ folder structure
+2. Create C:\Temp\MyCities-Clean\ for cloning repos
+3. Clone both repos to temp folder:
+   - git clone https://github.com/SaleamEssop/MyCities-Server-Admin---Laravel.git laravel-source
+   - git clone https://github.com/SaleamEssop/MyCities-Vue-Quasar.git vue-quasar-source
+4. Audit temp folders and identify essential files
+5. Copy only essential files to C:\Docker\MyCities\laravel\ and vue-quasar\
+6. Create Docker configuration files:
+   - docker-compose.yml
+   - Dockerfile for Laravel
+   - Dockerfile for Vue/Quasar
+   - nginx/default.conf
+   - .env files
+7. Test Docker build: docker-compose up
+8. Push clean version to GitHub (new branch or repo)
+
+FILES TO REMOVE (CLUTTER):
+--------------------------
+Laravel:
+  - *.bat files (Windows scripts - not needed in Docker)
+  - *.md files (except README.md)
+  - tests/ (if not essential)
+  - storage/logs/* (auto-generated)
+  - vendor/ (will be reinstalled)
+  - node_modules/ (if any)
+  - Old/archived files
+  - Duplicate config files
+
+Vue/Quasar:
+  - *.bat files (Windows scripts)
+  - *.ps1 files (PowerShell scripts)
+  - dist/ (build output - will be rebuilt)
+  - node_modules/ (will be reinstalled)
+  - .quasar/ (build cache)
+  - tests/ (if not essential)
+  - stories/ (Storybook - if not using)
+  - versions/ (old versions)
+  - Documentation files (except README.md)
+  - Old/archived files
+
+FILES TO KEEP (ESSENTIAL):
+---------------------------
+See Section 4 above for complete list of essential files.
+
+================================================================================
+SECTION 7: DOCKER SETUP INSTRUCTIONS
+================================================================================
+
+PREREQUISITES:
+--------------
+- Docker Desktop installed and running
+- Git installed
+- Cursor IDE (or any code editor)
+
+DOCKER STRUCTURE:
+-----------------
+C:\Docker\MyCities\
+├── docker-compose.yml
+├── .env
+├── laravel\
+├── vue-quasar\
+└── nginx\
+
+DOCKER SERVICES:
+----------------
+1. MySQL - Database (port 3306)
+2. Laravel - PHP backend (port 9000)
+3. Vue/Quasar - Frontend build (served via Nginx)
+4. Nginx - Web server (port 80)
+
+DOCKER COMPOSE COMMAND:
+-----------------------
+cd C:\Docker\MyCities
+docker-compose up
+
+This single command will:
+- Start MySQL database
+- Build and start Laravel backend
+- Build and start Vue/Quasar frontend
+- Configure Nginx to route requests
+- Make everything accessible at http://localhost
+
+ROUTING:
+--------
+http://localhost/              -> Laravel landing page
+http://localhost/api/v1/*      -> Laravel API
+http://localhost/admin/*       -> Laravel admin panel
+http://localhost/web-app/*     -> Vue/Quasar SPA
+
+================================================================================
+SECTION 8: DEPLOYMENT PROCESS
+================================================================================
+
+LOCAL DEVELOPMENT (CURRENT SETUP):
+-----------------------------------
+Vue/Quasar:
+  cd C:\MyCities\MyCities-Vue-Quasar
+  npm run dev  # Runs on localhost:9000
+
+Laravel:
+  cd C:\MyCities\MyCities-Server-Admin---Laravel
+  php artisan serve  # Runs on localhost:8000
+
+PRODUCTION BUILD:
+-----------------
+Build Vue/Quasar:
+  cd C:\MyCities\MyCities-Vue-Quasar
+  npm run build:spa
+  npm run deploy:local  # Copies to Laravel public/web-app/
+
+Push to GitHub:
+  git add .
+  git commit -m "Your message"
+  git push origin main
+
+SERVER DEPLOYMENT (DIGITAL OCEAN):
+----------------------------------
+Auto-deploy: Enabled via GitHub webhook
+Manual pull: git pull origin main (if needed)
+
+Laravel commands on server:
+  composer install --no-dev --optimize-autoloader
+  php artisan migrate --force
+  php artisan config:cache
+  php artisan route:cache
+
+================================================================================
+SECTION 9: ENVIRONMENT VARIABLES
+================================================================================
+
+LARAVEL (.env):
+---------------
+APP_NAME=MyCities
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://www.mycities.co.za
+DB_CONNECTION=mysql
+DB_HOST=your-db-host
+DB_DATABASE=mycities
+DB_USERNAME=your-db-user
+DB_PASSWORD=your-db-password
+
+VUE/QUASAR (quasar.config.js):
+------------------------------
+API URL auto-detects:
+  - Development: http://localhost:8000
+  - Production: window.location.origin (https://www.mycities.co.za)
+
+================================================================================
+SECTION 10: KNOWN ISSUES AND SOLUTIONS
+================================================================================
+
+ISSUE 1: Login doesn't progress after "welcome back"
+-----------------------------------------------------
+Status: Investigating
+Possible causes: Routing issue, API connection, authentication state
+Next steps: Check LoginPage.vue and authentication flow
+Files to check: src/pages/AuthPage.vue, src/stores/auth.js, src/router/
+
+ISSUE 2: Mobile shows old cached version
+------------------------------------------
+Status: Cache-busting commit not pushed to server
+Solution: Push commit 93300cd to GitHub, server will auto-deploy
+File: public/web-app/index.html needs cache-busting script
+
+ISSUE 3: Production server has old code
+--------------------------------------
+Status: Server at commit 7e69d8f, latest is 93300cd
+Solution: Ensure latest commits are pushed, auto-deploy will update
+
+================================================================================
+SECTION 11: NEXT STEPS FOR AI AGENT
+================================================================================
+
+IMMEDIATE PRIORITIES:
+--------------------
+1. Wait for user to install Docker Desktop
+2. Create C:\Docker\MyCities\ folder structure
+3. Create C:\Temp\MyCities-Clean\ for cloning
+4. Clone both repos to temp folder
+5. Audit and identify essential files
+6. Extract only essential files to Docker folder
+7. Create Docker configuration files
+8. Test Docker build
+9. Fix any issues found
+10. Push clean version to GitHub
+
+AFTER DOCKER SETUP:
+-------------------
+1. Test full application flow in Docker
+2. Verify ads/home screen feature works
+3. Fix login navigation bug
+4. Ensure cache-busting is deployed
+5. Test on production
+
+CLEAN REBUILD CHECKLIST:
+-------------------------
+[ ] Docker Desktop installed
+[ ] Create Docker project folder structure
+[ ] Clone repos to temp folder
+[ ] Audit essential files
+[ ] Extract essentials to Docker folder
+[ ] Create Docker configuration files
+[ ] Test Docker build
+[ ] Verify all features work
+[ ] Push clean version to GitHub
+
+================================================================================
+SECTION 12: IMPORTANT NOTES FOR AI AGENT
+================================================================================
+
+USER PROFILE:
+-------------
+- User is NOT a developer
+- Solutions should be simple and automated where possible
+- Prefer one-command solutions (e.g., docker-compose up)
+- Avoid complex manual steps
+
+PROJECT GOALS:
+--------------
+- Clean, maintainable codebase without legacy clutter
+- Docker environment that mirrors production exactly
+- Easy deployment with minimal user interaction
+- Proper backup and rollback capabilities
+
+BACKUP STRATEGY:
+----------------
+Code: GitHub (all code versioned and backed up)
+Server: Digital Ocean snapshots (recommended weekly + before deployments)
+Database: Daily automated backups (to be set up)
+Local: Rely on GitHub (clone if local machine fails)
+
+GIT STRATEGY FOR CLEAN REBUILD:
+--------------------------------
+Option 1: New Branch (Recommended)
+  - Create clean-rebuild branch
+  - Push clean version there
+  - Keep main branch as backup
+
+Option 2: New Repository
+  - Create MyCities-Laravel-Clean and MyCities-Vue-Quasar-Clean
+  - Push clean versions there
+  - Keep old repos as backup
+
+================================================================================
+SECTION 13: RESOURCES AND DOCUMENTATION
+================================================================================
+
+DOCUMENTATION LINKS:
+--------------------
+Laravel Docs: https://laravel.com/docs
+Quasar Docs: https://quasar.dev
+Vue 3 Docs: https://vuejs.org
+Docker Docs: https://docs.docker.com
+
+PROJECT DOCUMENTATION:
+----------------------
+PROJECT-STATUS.md: https://github.com/SaleamEssop/MyCities-Server-Admin---Laravel/blob/main/PROJECT-STATUS.md
+(Note: File is committed but may not be pushed yet)
+
+KEY TECHNICAL CONCEPTS:
+-----------------------
+- Vue 3 Composition API
+- Pinia state management
+- Laravel Sanctum authentication
+- RESTful API design
+- Tiered billing calculations
+- Docker containerization
+- Nginx reverse proxy
+- MySQL database
+
+================================================================================
+END OF INSTRUCTION SET
+================================================================================
+
+This document contains all information needed for an AI agent to continue work
+on the MyCities project. When resuming work:
+
+1. Read this entire document
+2. Check current git status
+3. Verify Docker Desktop is installed
+4. Follow the clean rebuild plan
+5. Test everything thoroughly
+6. Document any new issues or changes
+
+For questions or clarifications, refer to the PROJECT-STATUS.md file on GitHub
+or the individual section in this document.
+
+================================================================================
+
